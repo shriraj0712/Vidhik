@@ -104,6 +104,14 @@
 
         <div class="nav-section-title">Legal Tools</div>
 
+        <a class="nav-item" data-view="documentation">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Documentation Support
+          <span class="badge badge-active" style="margin-left: auto; font-size: 10px;">Checklists</span>
+        </a>
+
         <a class="nav-item" data-view="research">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -632,6 +640,41 @@
         </section>
 
         <!-- ============================================================== -->
+        <!-- VIEW 9: DOCUMENTATION SUPPORT (PHASE 12)                       -->
+        <!-- ============================================================== -->
+        <section id="view-documentation" class="view-panel" style="display: none;">
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">Documentation Support & Checklists</h2>
+              <p class="page-subtitle">Authoritative document requirements, preparation guidelines, and statutory grounding across Indian legal processes.</p>
+            </div>
+            <span class="badge badge-active" style="padding: 6px 12px; font-size: 13px;">
+              📋 Verified Statutory Grounding
+            </span>
+          </div>
+
+          <!-- Documentation Search & Category Filter Card -->
+          <div class="card" style="margin-bottom: 24px;">
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 16px;">
+              <input type="text" id="doc-search-input" class="form-control" style="flex: 1; min-width: 280px;" placeholder="Search legal procedures, e.g. 'RTI', 'Succession Certificate', 'Sale Deed', 'Consumer Complaint', 'Divorce', 'Civil Suit', '7/12'...">
+              <button class="btn btn-primary" onclick="App.searchDocumentation()">Search Procedures</button>
+              <button class="btn btn-secondary" onclick="App.resetDocumentationSearch()">Reset</button>
+            </div>
+
+            <!-- Dynamic Category Filter Pills -->
+            <div id="doc-category-pills" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+              <span style="font-size: 13px; color: #94A3B8; margin-right: 4px; font-weight: 500;">Filter Category:</span>
+              <button class="filter-pill active" data-category="all" onclick="App.filterDocumentationCategory('all')">All Procedures</button>
+            </div>
+          </div>
+
+          <!-- Procedures Grid Container -->
+          <div id="procedures-grid-container" class="dashboard-grid" style="grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));">
+            <div class="spinner"></div>
+          </div>
+        </section>
+
+        <!-- ============================================================== -->
         <!-- VIEW 8: LAWYER PROFILE                                         -->
         <!-- ============================================================== -->
         <section id="view-profile" class="view-panel" style="display: none;">
@@ -1060,6 +1103,82 @@
           <button type="submit" class="btn btn-primary">Update Profile</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: PROCEDURE CHECKLIST & PREPARATION GUIDANCE (PHASE 12)   -->
+  <!-- ============================================================== -->
+  <div id="modal-procedure-checklist" class="modal-overlay">
+    <div class="modal-dialog" style="max-width: 880px; max-height: 90vh; display: flex; flex-direction: column;">
+      <div class="modal-header" style="flex-shrink: 0;">
+        <div>
+          <span id="chk-proc-category" class="badge badge-info" style="margin-bottom: 6px;">Category</span>
+          <h3 class="modal-title" id="chk-proc-title" style="font-size: 19px;">Procedure Checklist</h3>
+          <p id="chk-proc-authority" style="font-size: 13px; color: #94A3B8; margin-top: 4px;"></p>
+        </div>
+        <button class="modal-close" onclick="App.closeModals()">✕</button>
+      </div>
+
+      <div class="modal-body" style="overflow-y: auto; flex: 1; padding: 24px;">
+        <!-- Overview & Metadata Strip -->
+        <div class="card" style="background: rgba(15, 23, 42, 0.6); border-color: rgba(99, 102, 241, 0.2); margin-bottom: 20px; padding: 16px;">
+          <p id="chk-proc-desc" style="font-size: 13.5px; color: #CBD5E1; line-height: 1.6; margin-bottom: 12px;"></p>
+          <div style="display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; align-items: center;">
+            <div id="chk-proc-statute"></div>
+            <div id="chk-proc-timeline" style="color: #94A3B8;"></div>
+            <div id="chk-proc-portal"></div>
+          </div>
+        </div>
+
+        <!-- Checklist Readiness Progress Tracker -->
+        <div style="background: rgba(30, 41, 59, 0.7); border-radius: 8px; padding: 14px 18px; margin-bottom: 22px; border: 1px solid rgba(255, 255, 255, 0.08);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 13.5px; font-weight: 600; color: #F1F5F9;">Document Readiness Progress</span>
+            <span id="chk-progress-text" style="font-size: 12.5px; font-weight: 600; color: #818CF8;">0 of 0 Completed (0%)</span>
+          </div>
+          <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+            <div id="chk-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #4F46E5, #06B6D4); transition: width 0.3s ease;"></div>
+          </div>
+        </div>
+
+        <!-- Lawyer Case Attachment Action (if user is lawyer) -->
+        <div id="chk-lawyer-case-attach" style="display: none; background: rgba(79, 70, 229, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px;">
+          <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <span style="font-size: 13px; font-weight: 500; color: #E0E7FF;">💼 Save Checklist into Case File:</span>
+            <select id="chk-attach-case-select" class="form-control" style="width: auto; min-width: 220px; padding: 6px 12px; font-size: 12.5px;"></select>
+            <button type="button" class="btn btn-primary btn-sm" onclick="App.attachChecklistToCase()">Save to Case Notes</button>
+          </div>
+        </div>
+
+        <!-- Section 1: Mandatory Statutory Documents -->
+        <div style="margin-bottom: 24px;">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; border-bottom: 1px solid rgba(244, 63, 94, 0.2); padding-bottom: 6px;">
+            <span class="badge badge-mandatory">Mandatory Statutory Documents</span>
+            <span style="font-size: 12.5px; color: #94A3B8;">Required by primary enactment or procedural code</span>
+          </div>
+          <div id="chk-mandatory-docs-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
+        </div>
+
+        <!-- Section 2: Supporting Documents -->
+        <div style="margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; border-bottom: 1px solid rgba(245, 158, 11, 0.2); padding-bottom: 6px;">
+            <span class="badge badge-supporting">Supporting & Evidentiary Records</span>
+            <span style="font-size: 12.5px; color: #94A3B8;">Conditional, corroborative, or jurisdiction-specific items</span>
+          </div>
+          <div id="chk-supporting-docs-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
+        </div>
+
+        <!-- Legal Disclaimer -->
+        <div style="margin-top: 24px; padding: 12px 16px; background: rgba(15, 23, 42, 0.5); border-left: 3px solid #6366F1; border-radius: 4px; font-size: 12px; color: #94A3B8; line-height: 1.5;">
+          ⚖️ <strong>Legal Information Notice:</strong> This checklist provides procedural guidance grounded in Indian statutory law. Checking items tracks your preparation readiness and does not certify legal admissibility or official agency acceptance.
+        </div>
+      </div>
+
+      <div class="modal-footer" style="flex-shrink: 0; display: flex; justify-content: space-between; align-items: center;">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.resetCurrentChecklistProgress()">Reset Checklist</button>
+        <button type="button" class="btn btn-secondary" onclick="App.closeModals()">Close</button>
+      </div>
     </div>
   </div>
 

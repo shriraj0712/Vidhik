@@ -21,7 +21,8 @@ from app.routers import (
     sections_router,
     search_router,
     auth_router,
-    lawyer_router
+    lawyer_router,
+    documentation_router
 )
 
 
@@ -74,6 +75,7 @@ app.include_router(sections_router)
 app.include_router(search_router)
 app.include_router(auth_router)
 app.include_router(lawyer_router)
+app.include_router(documentation_router)
 
 # Mount Static UI directory
 STATIC_DIR = Path(__file__).resolve().parent / "static"
@@ -120,7 +122,11 @@ def root():
             "lawyer_cases": "GET /api/lawyer/cases",
             "lawyer_hearings": "GET /api/lawyer/hearings",
             "lawyer_documents": "GET /api/lawyer/documents",
-            "lawyer_profile": "GET /api/lawyer/profile"
+            "lawyer_profile": "GET /api/lawyer/profile",
+            "documentation_categories": "GET /api/documentation/categories",
+            "documentation_procedures": "GET /api/documentation/procedures",
+            "documentation_procedure_detail": "GET /api/documentation/procedures/{id}",
+            "documentation_checklist": "GET /api/documentation/procedures/{id}/checklist"
         }
     }
 

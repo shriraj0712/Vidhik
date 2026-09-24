@@ -6,6 +6,14 @@ from .law import LawResponse, LawSummaryResponse, LawListResponse
 from .section import SectionResponse, SectionSummaryResponse, SectionListResponse
 from .search import SearchResponse, SearchResultItem
 from .query import LegalQueryAnalysis, MatchedTerm, MatchedConcept, MatchedSynonym
+from .documentation import (
+    DocumentRequirement,
+    ProcedureSummary,
+    ProcedureDetail,
+    ChecklistResponse,
+    CategoryResponse,
+    ProcedureListResponse
+)
 
 __all__ = [
     "LawResponse",
@@ -19,7 +27,13 @@ __all__ = [
     "LegalQueryAnalysis",
     "MatchedTerm",
     "MatchedConcept",
-    "MatchedSynonym"
+    "MatchedSynonym",
+    "DocumentRequirement",
+    "ProcedureSummary",
+    "ProcedureDetail",
+    "ChecklistResponse",
+    "CategoryResponse",
+    "ProcedureListResponse"
 ]
 
 

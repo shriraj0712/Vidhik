@@ -941,3 +941,142 @@ textarea.form-control {
     padding: 18px 14px;
   }
 }
+
+/* ===================================================================
+   PHASE 12: DOCUMENTATION SUPPORT & CHECKLISTS STYLES
+   =================================================================== */
+.filter-pill {
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  color: var(--text-secondary);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-pill:hover {
+  border-color: rgba(99, 102, 241, 0.4);
+  color: var(--text-primary);
+  background: rgba(51, 65, 85, 0.8);
+}
+
+.filter-pill.active {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.35);
+}
+
+.procedure-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: var(--transition);
+  cursor: pointer;
+  position: relative;
+}
+
+.procedure-card:hover {
+  border-color: rgba(99, 102, 241, 0.5);
+  background: var(--bg-card-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.procedure-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  line-height: 1.35;
+}
+
+.procedure-card-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 16px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.procedure-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 12px;
+}
+
+.checklist-item-card {
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  transition: var(--transition);
+}
+
+.checklist-item-card:hover {
+  border-color: rgba(99, 102, 241, 0.35);
+  background: rgba(30, 41, 59, 0.5);
+}
+
+.checklist-item-card.checked {
+  border-color: rgba(16, 185, 129, 0.4);
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.checklist-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-emerald);
+  cursor: pointer;
+  margin-top: 2px;
+}
+
+.legal-ref-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: #A5B4FC;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 11.5px;
+  font-family: 'JetBrains Mono', monospace;
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.legal-ref-badge:hover {
+  background: rgba(99, 102, 241, 0.3);
+  color: #FFFFFF;
+  border-color: #818CF8;
+}
+
+.badge-mandatory {
+  background: rgba(244, 63, 94, 0.15);
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  color: #FDA4AF;
+}
+
+.badge-supporting {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #FCD34D;
+}
