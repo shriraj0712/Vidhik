@@ -1,0 +1,1054 @@
+1 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+The Prevention and Control of Infectious and 
+Contagious Diseases in Animals Act, 2009 
+(ACT NO. 27 OF 2009) 
+[As on the 1st July, 2026] 
+  
+IndiaCode
+2 
+ 
+ LIST OF AMENDING ACTS 
+1. The Repealing and Amending Act, 2018 (2 of 2018). 
+2. The Jan Vishwas (Amendment of Provisions) Act, 2026 (8 of 2026). 
+ 
+ 
+_______ 
+ 
+ 
+ 
+LIST OF ABBREVIATIONS USED 
+Cl.,cls.              . . . .            .            for            Clause, clauses. 
+Ins.                 . . . . .            ,,               Inserted. 
+Notifn.  . . . . .  ,,     Notification. 
+S., ss.  . . . . .  ,,     Section, sections. 
+Sch.  . . . . .  ,,     Schedule. 
+Subs.  . . . . .  ,,     Substituted. 
+w.e.f.  . . . . .  ,,     with effect from. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+IndiaCode
+3 
+ 
+THE PREVENTION AND CONTROL OF INFECTIOUS AND CONTAGIOUS DISEASES IN 
+ANIMALS ACT, 2009 
+____________ 
+ARRANGEMENT OF SECTIONS 
+___________ 
+ 
+CHAPTER I 
+PRELIMINARY 
+SECTIONS 
+1. Short title, extent and commencement. 
+2. Definitions. 
+ 
+CHAPTER II 
+CONTROL OF SCHEDULED DISEASES 
+ 
+3. Appointment of Veterinary Officers. 
+4. Reporting scheduled diseases obligatory. 
+5. Duty to segregate infected animals. 
+6. Notification of controlled areas and free areas. 
+7. Prohibition of movement of animals from controlled area. 
+8. Vaccination, marking and issue of vaccination certificate. 
+9. Contents of vaccination certificate. 
+10. Entry and exit of animals into controlled area and free area. 
+11. Precautionary measures in relation to controlled areas. 
+12. Prohibition of markets, fairs, exhibition, etc., in the controlled areas. 
+13. Prohibition of bringing of infected animals into market and other places. 
+14. Check Posts and Quarantine Camps. 
+15. Inspection and detention of animals at Check Posts and Quarantine Camps. 
+16. Entry and exit of vaccinated animals into controlled and free areas. 
+17. Appointment of Competent Officers. 
+18. Cleaning and disinfection of carriers. 
+19. Powers of entry and inspection. 
+ 
+CHAPTER III 
+INFECTED AREAS 
+20. Declaration of infected areas. 
+21. Effect of declaration of infected areas. 
+22. Denotification of infected area. 
+ 
+CHAPTER IV 
+INFECTED ANIMALS 
+23. Segregation, examination and treatment of infected animals. 
+24. Drawing samples from animals. 
+25. Resort to euthanasia for infected animals. 
+26. Disposal of carcass. 
+27. Powers of Veterinary Officer and Veterinarian to hold post-mortem examination. 
+28. Seizure and removal of certain animals. 
+ 
+IndiaCode
+4 
+ 
+CHAPTER V 
+ENFORCEMENT AND PENALTIES 
+SECTIONS 
+ 
+29. Enforcement of orders and recovery of expenses. 
+30. Village Officers, etc., to assist. 
+31. Penalty for issuing vaccination certificate without authority or administering defective vaccine. 
+32. Penalty for contravention and obstruction in duty. 
+33. Penalty for placing animal carcass in open place and in water source. 
+33A Adjudication of penalties. 
+33B Appeal. 
+33C Imprisonment for non-payment of penalty. 
+33D Remittance of penalty.  
+34. Offences by companies. 
+ 
+CHAPTER VI 
+PRECAUTIONARY MEASURES ON CAUSATIVE ORGANISM, ETC. 
+35. Prevention of escape of causative organism. 
+ 
+CHAPTER VII 
+MISCELLANEOUS 
+36. Power to delegate. 
+37. Officers and authorities to function subject to Government control. 
+38. Power to amend the Schedule. 
+39. Power to issue directions. 
+40. Certain persons to be public servants. 
+41. Power to remove difficulties. 
+42. Power of Central Government to make rules. 
+43. Power of State Government to make rules. 
+44. Laying of rules. 
+45. Repeal and savings. 
+THE SCHEDULE. 
+ 
+  
+IndiaCode
+5 
+ 
+THE PREVENTION AND CONTROL OF INFECTIOUS AND CONTAGIOUS DISEASES IN 
+ANIMALS ACT, 2009 
+ACT NO. 27 OF 2009 
+[20th March, 2009.]  
+An Act to provide for the prevention, control and eradication of infectious and contagious 
+diseases affecting animals, for prevention of outbreak or spreading of such diseases from one 
+State to another, and to meet the international obligations of India for facilitating import and 
+export of animals and animal products and for matters connected therewith or incidental 
+thereto.  
+WHEREAS economic losses due to infectious and contagious diseases of animals are enormous in the 
+country with some of these diseases constituting a serious threat to the public;  
+AND WHEREAS many of such animal diseases can be largely prevented by judicious implementation 
+of vaccination programmes or by taking other appropriate and timely measures on scientific lines;  
+AND WHEREAS such measures are necessary to facilitate the import and export of animals and animal 
+products and to keep in tune with international practices;  
+AND WHEREAS it has been realised that the prevention, control and eradication of infectious and 
+contagious diseases of animals from India has to be tackled on a national basis so as to avoid adverse 
+impact of such diseases on the economy of the country and for this purpose harmonise the control 
+procedures and to prevent inter-State transmission of animal diseases;  
+AND WHEREAS the national level handling has to be done with the active involvement of the State 
+Governments, particularly in regard to the precautionary measures required to  be taken within their 
+jurisdiction in respect of certain infectious and contagious diseases and the regulation of movement of 
+animals outside their respective areas by timely adoption of appropriate measures;  
+AND WHEREAS India is a Member Country of the Office International Des Epizooties, Paris and it is 
+necessary to implement the general obligations, decisions and recommendations of the said Organisation 
+and abide by the International Animal Health Code stipulated by the said Organisation; 
+BE it enacted by Parliament in the Sixtieth Year of the Republic of India as follows:— 
+CHAPTER I 
+PRELIMINARY 
+1. Short title, extent and commencement.—(1) This Act may be called the Prevention and Control 
+of Infectious and Contagious Diseases in Animals 1[Act, 2009].  
+(2) It shall come into force on such date 2 as the Central Government may, by notification, appoint; 
+and different dates may be appointed for different States or for different areas therein as well as for 
+different provisions of this Act, and any reference in any such provision of this Act to the commencement 
+of this Act shall be construed in relation to any State or area or provision as a reference to the coming into 
+force of this Act or, as the case may be, of that provision, in such State or area.  
+2. Definitions.—In this Act, unless the context otherwise requires,— 
+3[(a) “adjudicating officer” means the Sub -Divisional Magistrate or any other Executive 
+Magistrate appointed by the State Government or the Union territory administration under           
+section 34A;  
+(aa) “animal” means,—  
+(i) cattle, buffalo, sheep, goat, yak, Mithun, elephant; 
+(ii) dog, cat, pig, horse, camel, ass, mule, poultry, bees;  
+ 
+1.  Subs. by Act 2 of 2018, s. 3 and Sch. II, for “Bill, 2009” (w.e.f. 5-1-2018). 
+2. 25th August, 2009, vide notifn no. S.O. 2158(E), dated 24th August, 2009, see Gazette of India, Extraordinary, Part II,           
+sec. 3(ii). 
+       This Act shall come into force in all the States and Union territories except the State of Uttar Pradesh. 
+3.  Subs. by Act 8 of 2026, s. 2 and Sch., for cl.(a) (w.e.f. 01-07-2026). 
+IndiaCode
+6 
+ 
+(iii) fish, mollusca, crustacean, amphibian; and  
+(iv) any other animal or bird as the Central Government may, by notification, specify;  
+(ab) “appellate authority” means the District Magistrate or the Additional District Magistrate  
+appointed by the State Government or the Union territory administration under section 34B;] 
+(b) “Check Post” means any place established as such by the Director to carry out checking of 
+animals for the purpose of this Act;  
+(c) “Competent Officer” means any person or officer of the Government notified as a Competent 
+Officer under section 17;  
+(d) “compulsory vaccination” means vaccination of any animal against any scheduled disease in 
+respect of which vaccination is made mandatory under the provisions of this Act;  
+(e) “controlled area ” means any local area which has been declared as such by the State 
+Government under sub-section (1) of section 6;  
+(f) “defective vaccine ” means any vaccine which is expired, breach in seal, contaminated, 
+improperly stored, unlabelled or with mutilated label;  
+(g) “Director”, in relation to a State, means any officer in charge of the Department of Animal 
+Husbandry or Veterinary Services, or both, notified by the State Government as such for the purpose 
+of this Act;  
+1[(ga) “disease” or “scheduled disease” means any disease specified in the Schedule;] 
+(h) “free area” means any controlled area which has been declared as such under sub -section (5) 
+of section 6;  
+(i) “infected animal” means an animal which is infected with any scheduled disease;  
+(j) “infected area” means an area declared as such under section 20;  
+2[(k) “local authority” means the Municipal Corporation, Municipal Council, Municipality, 
+Cantonment Board, Notified Area Committee, Gram Panchayat or any other authority for the time 
+being vested by law with the control and administration of any matters within a specified local area;  
+(ka) “notification” means notification published in the Official Gazette and the expression 
+“notify” or “notified” shall be construed accordingly;] 
+(l) “prescribed” means prescribed by rules made under this Act;  
+(m) “publication” includes propagation of information through the media or newspaper or any 
+other mass media and the means of local communication such as declaration in loud voice and by 
+beating drums in the area;  
+(n) “Quarantine Camp” means any place declared to carry out quarantine of animals and birds for 
+the purpose of this Act;  
+3[((o) “registered veterinary practitioner” means a person having a Bachelor’s Degree in 
+Veterinary Science or Veterinary Science and Animal Husbandry from a recognised University and 
+registered with the Veterinary Council of India or the State Veterinary Council; 
+ (oa) “State Government” means the Government of a State or the Union territory administration;  
+(ob) “University” shall have the meaning assigned to it in clause ( f) of section 2 of the University 
+Grants Commission Act, 1956 (3 of 1956);  
+(p) “Veterinarian” means a person having a Bachelor’s Degree in Veterinary Science or 
+Veterinary Science and Animal Husbandry from a recognised University and registered with the 
+Veterinary Council of India or the State Veterinary Council and appointed as such by the State 
+Government or the Union territory administration under clause (a) of section 3; 
+ 
+1. Ins. by Act 8 of 2026, s. 2 and Sch. (w.e.f. 01-07-2026). 
+2. Subs. by s. 2 and Sch., ibid., for cl.(k) (w.e.f. 01-07-2026). 
+3. Subs. by s. 2 and Sch., ibid., for cl.(o), (p), (q) and (r) (w.e.f. 01-07-2026). 
+IndiaCode
+7 
+ 
+ (q) “Veterinary Officer” means a person having a Bachelor’s Degree in Veterinary Science or 
+Veterinary Science and Animal Husbandry from a recognised  University and registered with the 
+Veterinary Council of India or the State Veterinary Council and appointed as such by the State 
+Government or the Union territory administration under clause (b) of section 3;  
+(r) “Village Officer” means the livestock supervisor, by whatever name called, or any other 
+officer designated or authorised as such, by notification, by the Central Government or the State 
+Government.]  
+CHAPTER II 
+CONTROL OF SCHEDULED DISEASES 
+3. Appointment of Veterinary Officers.—The State Government may, by notification, appoint— 
+(a) such number of persons, as it deems proper, to be Veterinarians to undertake inspection and 
+specifying the local limits of their respective jurisdiction; and 
+(b) such number of Veterinarians, as it deems proper, to be Veterinary Officers, who shall 
+exercise their powers and discharge their duties within the local limits of their jurisdiction as may be 
+specified in the said notification.  
+4. Reporting scheduled diseases obligatory .—(1) 1[Every owner, any other person,                      
+non-governmental organisation or local authority, in -charge of any animal, ] which he or it has reason to 
+believe to be infective of a scheduled disease shall report the fact to the Village Officer or village 
+panchayat in-charge, who may report the same in writing to the nearest available Veterinarian. 
+(2) The Village Officer shall visit the area falling within his jurisdiction for reporting any outbreak of 
+the disease.  
+(3) Every Veterinarian shall, on receipt of a report under sub -section ( 1), or otherwise, if he has 
+reason to believe that any animal is infected with a scheduled disease, 2[report the matter to the Veterinary 
+Officer, State Government and Central Government in such form and manner as may be prescribed by the 
+Central Government].  
+(4) Where in any State there is any occurrence of scheduled disease in relation to any animal, the 
+Director shall send an intimation to the Directors of the States which are in the immediate neighbourhood 
+of the place where there is such occurrence, for taking appropriate preventive measures against the spread 
+of the disease.  
+5. Duty to segregate infected animals.—(1) Every owner or person in charge of an animal, which he 
+has reason to believe is infective of a scheduled disease, shall segregate such animal and have it kept in a 
+place away from all other animals which are healthy, and take all possible steps to prevent the infected 
+animal from coming in contact with any other animal.  
+(2) The owner or other person in charge of, or having control over, the animal referred to in             
+sub-section (1) shall confine that animal and prevent it from grazing in a common place or to drink water 
+from any common source including a vessel, pond, lake or river.  
+3[(3) The Village Officer shall ensure that all infected animals are segregated and kept in a place away 
+from other healthy animals.]  
+6. Notification of controlled areas and free areas.—(1) The State Government may, with the object 
+of preventing, controlling or eradicating any scheduled disease, by notification, declare any area to be a 
+controlled area in respect of any scheduled disease affecting any species of animal and any other species 
+that may be susceptible to the disease specified in the said notification.  
+ 
+1. Subs. by Act 8 of 2026, s. 2 and Sch., for “Every owner, or any other person, non -governmental organisation, public bodies or 
+the village panchayat, in-charge of any animal” (w.e.f. 01-07-2026). 
+2. Subs. by s. 2 and Sch., ibid., for “report the matter to the Veterinary Officer” (w.e.f. 01-07-2026). 
+3. Subs. by s. 2 and Sch., ibid., for sub-section (3) (w.e.f. 01-07-2026). 
+IndiaCode
+8 
+ 
+(2) The State Government shall also cause the substance of the notification issued under                 
+sub-section (1) to be published in a local newspaper in the vernacular language and by declaration in loud 
+voice and by beating drums in the area.  
+(3) Where a notification has been issued under sub -section ( 1), all animals of the species in the 
+controlled area shall be subjected to compulsory vaccination against that disease, and be subjected to such 
+other measures against the disease, in such manner and within such time as the State Government, may, 
+by 1[notification], direct.  
+(4) The State Government shall make available necessary vaccine and it shall be 2[mandatory] on the 
+part of every owner, or the person in charge of an animal which is required to be vaccinated under                
+sub-section (3), to get the animal compulsorily vaccinated.  
+(5) Where the State Government is satisfied, on a report received from the Director or otherwise, that, 
+in any controlled area, any of the scheduled diseases affecting any species of animal is no longer 
+prevalent, it may, by notification, declare the area to be a free area in respect of that disease in relation to 
+the particular species of animal.  
+(6) Where a notification has been issued under sub -section (5), no animal of the species or of any 
+other susceptible species with regard to which it is a free area shall be allowed to enter the free area unless 
+duly immunized by vaccination against that particular disease.  
+3[(7) The Director shall submit a report to the State Government and the Central Government 
+regarding vaccinated animals and such other facts, in such form, manner and within such time, as may be 
+prescribed by the Central Government.] 
+7. Prohibition of movement of animals from controlled area .—(1) Where a notification has been 
+issued under sub-section (1) of section 6 declaring any area as a controlled area in relation to any disease 
+affecting any species of animals, no animal belonging to that species shall be moved from the place where 
+it is kept.  
+(2) The Director may, for the purpose of control, prevention or eradication of any scheduled disease, 
+in respect of any area, by order published in the Official Gazette, prohibit the movement of all animals 
+belonging to any species specified therein, from the place where it is kept, to any other place.  
+(3) Nothing contained in sub-sections (1) and (2) shall be deemed to prohibit— 
+(a) the movement of any animal referred to therein, from the place where it is kept, to the nearest 
+place where it can be got vaccinated, so long as the animal is being moved for the purpose of its 
+immunization by vaccination; or 
+(b) the movement of any such animal, so long as it is accompanied by a valid certificate of 
+vaccination 3[issued by the Veterinarian, Veterinary Officer or registered veterinary practitioner ] to 
+indicate that the animal is duly immunized against the particular disease and it bears proper mark of 
+such vaccination.  
+8. Vaccination, marking and issue of vaccination certificate. —(1) The vaccine to an animal may 
+be administered by any person competent under the law for the time being in force to administer it, and 
+issue a certificate of administration of vaccination.  
+(2) Where any animal has been vaccinated for any scheduled disease in compliance with the 
+provisions of sub -section (1), the person vaccinating the animal shall cause to put a mark by branding, 
+tattooing or ear tagging, or in such other manner as the Director may, by general or special order, direct 
+and the same shall, unless otherwise specified by the Director, shall not be removed.  
+(3) The authority issuing a certificate of vaccination shall specify the date of vaccination, dates of 
+manufacture and expiry of the vaccine and the date up to which the vaccination of the animal with the 
+particular vaccine shall be valid.  
+ 
+1. Subs. by Act 8 of 2026, s. 2 and Sch., for “public notice” (w.e.f. 01-07-2026). 
+2. Subs. by s. 2 and Sch., ibid., for “obligatory” (w.e.f. 01-07-2026). 
+3. Ins. by s. 2 and Sch., ibid. (w.e.f. 01-07-2026). 
+IndiaCode
+9 
+ 
+1[(4) The Director shall submit a report to the State Government and the Central Government 
+regarding marking and issuing certificates in respect of vaccinated animals in such form and manner as 
+may be prescribed by the Central Government.] 
+9. Contents of vaccination certificate.—Every vaccination certificate issued under this Act shall be 
+in such form and shall contain such particulars as may be prescribed by the Central Government.  
+10. Entry and exit of animals into controlled area and free area .—(1) Where any area has been 
+declared as a controlled area under sub -section (1) of section 6 in respect of any disease affecting any 
+species of animals, no animal belonging to that species shall be taken out of, or brought into that area save 
+as provided in section 16.  
+(2) The Director may, by notice duly published in the Official Gazette and at least in one daily local 
+newspaper in vernacular language, extend the prohibition contained in sub-section (1) to any other species 
+of animals, if animals belonging to that species are also likely to be infected with that disease.  
+(3) No carrier of goods or animal shall carry any animal from or out of a controlled area, free area or 
+infected area by land, sea or air unless he complies with the provisions of section 16.  
+(4) Nothing contained in sub -sections (1) to ( 3) shall apply to the carriage by railway of any animal 
+referred to in those sub -sections through any area which, for the time being, is declared as a controlled 
+area or infected area so long as the animal is not unloaded (for whatsoever purpose or duration) in any 
+place within that area:  
+Provided that the State Government may, by notification, declare that any species of animal so carried 
+through any local area within the State shall be duly immunized against such scheduled disease, in such 
+manner and within such time as may be specified in that notification and a certificate of vaccination shall 
+be a pre-requisite for the transportation of the animals by the railways through that area: 
+ Provided further that, where any notification as referred to in the first proviso has been issued, it shall 
+be incumbent on the State Government to intimate that fact to the concerned railway authorities so as to 
+enable them to satisfy themselves about the immunization of the animal before transporting it through the 
+local area of the State.  
+11. Precautionary measures in relation to controlled areas .—No person shall t ake out of the 
+controlled area— 
+(a) any animal, alive or dead, which is infected with, or reasonably suspected to have been 
+infected with, any scheduled disease notified under sub-section (1) of section 6; 
+(b) any kind of fodder, bedding or other material which has come into contact with any animal 
+infected with such disease or could, in any manner, carry the infection of the notified disease; or 
+(c) the carcass, skin or any other part or product of such animal.  
+12. Prohibition of ma rkets, fairs, exhibition, etc., in the controlled areas .—No person, 
+organisation or institution shall hold any animal market, animal fair, animal exhibition and carry on any 
+other activity which involves grouping or gathering of any species of animals within a controlled area: 
+Provided that the Competent Officer may, suo motu or on application made to him in this behalf, 
+relax the prohibition in relation to any species of animals, in a case where animals belonging to that 
+species are not susceptible to the scheduled disease and are incapable of carrying it, if he is satisfied that 
+in the public interest it is necessary to accord such relaxation.  
+13. Prohibition of bringing of infected animals into market and other places. —No person shall 
+bring 2[***] into market, fair, exhibition or other congregation of animals or to any public place, any 
+animal which is 2[***] infected with a scheduled disease.  
+ 
+1. Ins. by Act 8 of 2026, s. 2 and Sch. (w.e.f. 01-07-2026). 
+2. The words “or attempt to bring” and “known to be” omitted by s. 2 and Sch., ibid. (w.e.f. 01-07-2026). 
+ 
+IndiaCode
+10 
+ 
+14. Chec k Posts and Quarantine Camps .—(1) The Director may establish as many Quarantine 
+Camps and Check Posts within the State as may be required— 
+(a) for the detention of animals suffering from any scheduled disease or of animals which have 
+come into contact with or have been kept in the proximity of any such infected animal;  
+(b) for ensuring the prevention of entry into or exit from any controlled area or infected area or 
+free area, of any animal belonging to the species of animals in respect of which a notification, issued 
+under sub-section (1) of section 6, or an order issued under sub-section (2) of section 7, is in force.  
+(2) Any animal which is required to be detained, inspected, vaccinated, or marked, may be kept in the 
+Quarantine Camp for such period as the Competent Officer may direct.  
+(3) Every animal detained at a Quarantine Camp shall be under the custody of the person in charge of 
+the camp, and shall be vaccinated and marked.  
+(4) The officer in charge of the Quarantine Camp shall, at the time of release of an animal from the 
+station, grant a permit, in such form as may be prescribed by the State Government, to the person taking 
+charge of the animal, and every such person shall be bound to produce the permit whenever required to do 
+so by any Competent Officer.  
+15. Inspection and detention of animals at Chec k Posts and Quarantine Camps .—(1) Every 
+person in charge of any Check Post or Quarantine Camp shall inspect any animal stopped at the Check 
+Post, or detained therein or at the Quarantine Camp.  
+(2) The manner of inspection and the period of detention of the animal at the Check Post or at the 
+Quarantine Camp for the purpose of inspection or for the administration of compulsory vaccination, the 
+marking of animals and the form and manner in which permit for entry in respect of any animal may be 
+issued, shall be such as may be prescribed by the State Government.  
+16. Entry and exit of vaccinated animals i nto controlled and free areas .—Notwithstanding 
+anything contained in section 10, an animal belonging to the species of animals  in respect of which an 
+area has been declared as a controlled or free area in relation to any scheduled disease, which has been 
+duly vaccinated against that disease, shall be allowed to enter into or be taken out of the controlled area or 
+free area, or to be taken out of any other place on the production of a certificate to the effect that vaccine 
+against that disease has been administered and a period of not les s than twenty -one days has elapsed 
+thereafter.  
+17. Appoi ntment of Competent Officers. —The State Government may, for the proper 
+implementation of the provisions of this Act, by notification, authorise any person to exercise any power 
+or discharge any duty as a Competent Officer, under this Act, who shall exercise such powers and such 
+duties within the local limits of his jurisdiction as may be specified in the notification. 
+18. Cleaning and disinfection of carriers .—(1) Every common carrier whether a vessel or vehicle 
+shall be cleaned and disinfected immediately before and after the transportation of any animal in that 
+vessel or vehicle, and so also any other place where the animal has been kept in transit.  
+(2) Where any area has been declared as a controlled area or free area in respect of any scheduled 
+disease affecting any species of animal, the Director may, by an order duly published in the Official 
+Gazette and in a local newspaper in the vernacular language, direct the owner of every vehicle in which 
+any animal belonging to that species is carried, to have the vehicle properly cleaned and disinfected.  
+19. Powers of entry and inspection.—Any Veterinary Officer or other Competent Officer may enter 
+upon and inspect any land or building or place, vessel or vehicle, for the purpose of ensuring compliance 
+of the provisions of this Act or the rules or orders made thereunder, by the persons responsible for such 
+compliance.  
+ 
+ 
+ 
+IndiaCode
+11 
+ 
+CHAPTER III 
+INFECTED AREAS 
+20. Declaratio n of infected areas. —If the Veterinary Officer, upon receipt of a report from a 
+Veterinarian or otherwise, is satisfied that, in any place or premises falling within his jurisdiction, an 
+animal has been infected with any scheduled disease, or that an animal, which he has reason to believe 
+has been so infected, is kept, may, by notification and publication in at least one local newspaper in the 
+vernacular language and by declaration in loud voice and by beating drums, declare such area as he ma y 
+deem fit (including the place or premises aforesaid) to be an infected area.  
+21. Effect of d eclaration of infected areas .—(1) Where an area has been declared as an infected 
+area under section 20, all provisions of this Act which are applicable in relation to a controlled area shall 
+mutatis mutandis apply thereto as if for the words “controlled area”, the words “infected area” have been 
+substituted.  
+(2) Without prejudice to the generality of the provisions contained in sub -section (1), the following 
+further provisions shall apply in relation to an infected area, namely:— 
+(a) in respect of every animal in that area which is infected or reasonably believed to be infected, 
+with any scheduled disease, the owner or other person in charge of the animal, shall forthwith get it 
+treated by a Veterinarian;  
+(b) all articles, which are likely to have come into contact with any animal referred to in                 
+clause (a), shall be treated or disposed off in such a manner as the Veterinarian may direct; 
+(c) every Veterinarian shall, for the purpose of inspection, have the power to enter any place or 
+premises where any animal is kept or is likely to be kept;  
+(d) the owner or any other person in charge of the animal referred to in clause ( a) shall keep the 
+animal in isolation forthwith, and also take such other measures as may be necessary for the 
+prevention, treatment and control of the disease as the Veterinarian may direct.  
+22. Denotification of infected area .—If the Veterinary Officer, after such enquiry as he may deem 
+fit, is satisfied that there is no longer the threat or danger of any animal being infected with the scheduled 
+disease in any infected area, by notification and publication in a local newspaper in vernacular language, 
+declare that the area is no longer an infected area as aforesaid, whereupon all the restrictions referred to in 
+section 21 shall cease to apply.  
+CHAPTER IV 
+INFECTED ANIMALS 
+23. Segregation, examination and t reatment of infected animals. —(1) Where the Veterinarian 
+has, on receipt of a report or otherwise, reason to believe that any animal  is infected with a scheduled 
+disease, he may, by order in writing, direct the owner or any other person in charge of such animal— 
+(a) to keep it segregated from other apparently healthy animals; or 
+(b) to subject it to such treatment as may be required under the circumstances.  
+(2) Where any action has been taken in pursuance of sub-section (1), the Veterinarian shall forthwith 
+give a detailed report of the incidence of the disease to the Veterinary Officer.  
+(3) On receipt of a report from the Veterinarian, the Veterinary Officer shall, as soon as possible, 
+examine that animal as well as any other animal which could have come in contact with it, and for that 
+purpose, submit the animal to such test and medical examination as may be required under the 
+circumstances.  
+(4) If, after such test and examination, the Veterinary Officer is of the opinion that an animal is not 
+infected with any of the scheduled diseases, he shall issue a certificate in writing that the animal is not 
+infected with any such disease.  
+IndiaCode
+12 
+ 
+24. Drawing samples from animals. —(1) Where the Veterinary Officer considers it necessary for 
+the purpose of ascertaining whether the animal which is suspected to have been infected with any 
+scheduled disease or susceptible to such infection is actually infected, or for the purpose of ascertaining 
+the nature of the scheduled disease with which an animal is infected, he may draw such samples, as may 
+be required, from the animal for the purpose of carrying out such investigations as he may deem 
+necessary under the circumstances. 
+(2) The Veterinary Officer or any other Competent Officer shall draw samples from any animal for 
+the purposes of ascertaining whether the animal h as been vaccinated against any disease, or whether the 
+vaccination of the animal has been effective in conferring it immunity and have the samples examined, in 
+such manner as he may deem necessary.  
+25. Resort to euthanasia for infected animals.—If the Veterinary Officer deems it necessary that an 
+animal, which is infected with a scheduled disease, euthanasia has to be resorted to, for preventing the 
+spread of the disease to other animals in the area or to protect public health if the disease is of zoonotic 
+importance, he may, notwithstanding anything contained in any other law for the time being in force, by 
+an order in writing, direct euthanasia of the animal and the carcass disposed of immediately to his 
+satisfaction. 
+26. Disposal of carcass.—Every person in possession of carcass (or any part thereof) of any animal, 
+which, at the time of its death, was infected with any scheduled disease or was suspected to have been 
+infected, shall 1[dispose of it] in such manner as may be prescribed 2[by the Central Government]. 
+27. Powers of Veterinary Officer and Veterinarian to hold post -mortem examination. —(1) 
+Where the Veterinary Officer or any Veterinarian has reason to believe that the death of an animal has 
+been caused by an infection of any scheduled disease, he may make or cause to be made a post -mortem 
+examination of the animal and for that purpose he may cause the carcass of any such animal to be 
+exhumed where required followed by proper disposal after necessary examination and post-mortem.  
+(2) Every examination and post -mortem referred to in sub -section ( 1) shall be conducted in such 
+manner, and the report of post -mortem shall be in such form, as may be prescribed  2[by the Central 
+Government].  
+28. Seizure and removal of certain animals. —Where any animal which is infected or suspected to 
+have been infected is found without any person claiming to be its owner, or where a valid order or 
+direction given in relation to any such animal is not promptly complied with by the owner or other person 
+in control of the animal, it shall be open to the Veterinary Officer or any other Competent Officer, to seize 
+the animal and remove it to a place of isolation or segregation, as he may deem proper.  
+CHAPTER V 
+ENFORCEMENT AND PENALTIES 
+29. Enforcement of orders and recovery of expenses.—(1) Where by any rule, notification, notice, 
+requisition, order or direction made under this Act, any person is required to take any measure or to do 
+anything— 
+(a) in respect of any animal, carcass of any animal or other thing in his custody or charge, the 
+same shall be promptly complied with by that person; 
+ (b) in case of any stray or ownerless animal, carcass of such animal or parts thereof, the same 
+shall be promptly complied with by the municipality or Panchayat, as the case may be, at its cost.  
+(2) If the measures as referred to in sub -section (1) are not taken within such time as may be allowed 
+for the purpose, the authority issuing the notice, requisition, order or direction, may cause the measures to 
+be taken at the cost of the person or municipality or Panchayat, as the case may be, who or which was 
+required to take the measures.  
+ 
+1. Subs. by Act 8 of 2026, s. 2 and Sch., for “dispose it of” (w.e.f. 01-07-2026). 
+2. Ins by s. 2 and Sch., ibid. (w.e.f. 01-07-2026). 
+IndiaCode
+13 
+ 
+(3) The costs of any measures taken under sub-section (2), shall be recoverable from the person or the 
+municipality or Panchayat, as the case may be, concerned 1[in the manner provided in section 34A ], as if 
+such costs were a fine imposed by a Court. 
+30. Village Officers, etc., to assist.—2[Any Village Officer, Registered practitioners, Veterinarian or 
+Veterinary Officer of the] animal husbandry and veterinary departments of the State Government, shall be 
+bound— 
+(a) to give immediate information to the Veterinary Officer and to the Veterinarian having 
+jurisdiction in the area regarding the prevalence of a scheduled disease amongst any animal or species 
+of animals, in the area; 
+(b) to take all necessary measures to prevent the outbreak or spread of any scheduled disease; and 
+(c) to assist the Veterinary Officer and the Veterinarian in the discharge of their duties or in the 
+exercise of their powers under this Act.  
+31. Penalty for issuing vaccination certificate without authority or administering defective 
+vaccine.—If any person issues a vaccination certificate,— 
+(a) without authority or competence in that behalf, or  
+(b) after administering the vaccine which is known to be defective in any manner,  
+he shall be guilty of an offence punishable with a fine of five thousand rupees or in case of non -payment 
+of fine with imprisonment which may extend to one month, and in the case of any subsequent offence, 
+with fine of ten thousand rupees or with imprisonment which may extend to three months.  
+3[32. Penalty for contravention and obstruction in duty. ––Any person who contravenes any 
+provision of this Act, the rules, orders and notifications made or issued thereunder or obstructs the 
+Competent Officer in performing his duties, shall be liable to penalty not exceeding ten thousand rupees 
+and in the case of a continuing contravention, to an additional penalty which may extend to five thousand 
+rupees for every day during which such contravention is continues. 
+33. Penalty for placing animal carcass in open place and in water source.––(1) No person shall,––  
+(a) place or cause to be placed the carcass of any animal or any part thereof, in any river, canal, 
+tank, pond, well, stream, lake, spring, ocean, or any other water source; or 
+ (b) dispose of or permit the carcass of any such animal to remain in any open place in a manner 
+likely to cause spread of infection or environmental contamination.  
+(2) Any person who contravenes the provisions of sub -section ( 1) shall be liable to penalty not 
+exceeding ten thousand rupees.  
+(3) Where such contravention results in contamination of any water source referred to in                 
+sub-section (1) or spread of disease to other animals, the adjudicating authority may make an order for,––  
+(a) the recovery of charges for carcass disposal, disinfection and cleaning of water source or 
+place, as the case may be, from the person adjudicated upon; and 
+ (b) the temporary suspension or cancellation of any livestock handling or trade licence held by 
+the person adjudicated upon, for a period not exceeding six months.  
+(4) The provisions of this section shall be in addition to, and not in derogation of, the provisions of 
+sections 271 and 272 of the Bharatiya Nyaya Sanhita, 2023 (45 of 2023).  
+ 
+1.  Subs. by Act 8 of 2026, s. 2 and Sch., for “in the manner provided by the Code of Criminal Procedure, 1973 (2 of 1974) for 
+the recovery of fines imposed by a Court” (w.e.f. 01-07-2026). 
+2. Subs. by s. 2 and Sch., ibid., for “ All Municipal, Panchayat or Village Officers and all officers of the rural and dairy 
+development, revenue, agriculture,” (w.e.f. 01-07-2026). 
+3.  Subs. by s. 2 and Sch., ibid., for ss. 32 and 33 (w.e.f. 01-07-2026). 
+ 
+IndiaCode
+14 
+ 
+33A. Adjudication of penalties. ––For the purpose of adjudication of penalties under the provisions 
+of this Act and the rules made thereunder, the State Government or the Union territory administration, as 
+the case may be, shall authorise the Sub -Divisional Magistrate or any other Executive Magistrate, as the 
+case may be, having jurisdiction, as an adjudicating officer for holding an inquiry and imposing penalty, 
+in the manner as may be prescribed by the Central Government:  
+Provided that no such penalty shall be imposed without giving the person concerned a reasonable 
+opportunity of being heard.  
+33B. Appeal. ––(1) Whoever aggrieved by the order, passed by the  adjudicating officer under     
+section 33A may, within thirty days from the date of receipt of order, prefer an appeal to the District 
+Magistrate or the Additional District Magistrate specially authorised in this behalf by the State 
+Government or the Union territory administration, as the case may be, as an appellate authority, in such 
+form and manner as may be prescribed by the Central Government. 
+ (2) An appeal may be admitted after the expiry of the period of thirty days if the appellant satisfies 
+the appellate authority that he had sufficient cause for not preferring the appeal within that period.  
+(3) The appellate authority may, after giving the parties to the appeal an opportunity of being heard, 
+pass such order as he may think fit. 
+ (4) An appeal under sub-section (1) shall be disposed of within sixty days from the date of filing.  
+33C. Imprisonment for non -payment of penalty .––Where any person fails to pay the penalty 
+imposed under the provisions of this Act and the rules made thereunder within ninety days of such 
+imposition, he shall be punishable with imprisonment for a term which may extend to three months or 
+with fine which may extend to twice the amount of the penalty, or with both. 
+ 33D. Remittance of penalty. ––(1) Where an adjudicating officer imposes a penalty under the 
+provisions of this Act and the rules made thereunder, the amount of the said penalty realised shall be 
+credited to the Fund of the Animal Welfare Board of India constituted under the Prevention of Cruelty to 
+Animals Act, 1960 (59 of 1960).  
+(2) The Board shall utilise the amount realised through penalty for the implementation of the 
+provision of the Act and the rules made thereunder in such manner as may be prescribed by the Central 
+Government.]  
+34. Offences by companies. —(1) Where an offence under this Act has been committed by a 
+company, every person who at the time the offence was committed was in charge of, and was responsible 
+to, the company for the conduct of the business of the company, as well as the company, shall be deemed 
+to be guilty of the offence and shall be liable to be proceeded and punished accordingly: 
+Provided that nothing contained in this sub -section shall render such person liable to any punishment 
+provided in this Act, if he proves that the offence was committed without his knowledge or that he had 
+exercised all due diligence to prevent the commission of such offence.  
+(2) Notwithstanding anything contained in sub -section (1), where an offence under this Act has been 
+committed by a company and it is proved that the offence has been committed with the consent or 
+connivance of, or is attributable to any neglect on the part of, any director, manager, secretary or other 
+officer of the company, such director, manager, secretary or other officer shall also be deemed to be guilty 
+of that offence and shall be liable to be proceeded against and punished accordingly. 
+Explanation.—For the purposes of this section,— 
+(a) “ company” means any body corporate and includes a co -operative society registered or 
+deemed to be registered under any law for the time being in force, a firm or other association of 
+individuals; and  
+(b) “director”, in relation to a firm, means a partner in the firm.  
+ 
+ 
+IndiaCode
+15 
+ 
+CHAPTER VI 
+PRECAUTIONARY MEASURES ON CAUSATIVE ORGANISM, ETC. 
+35. Prevention of  escape of causative organism. —(1) In every institution, laboratory or clinic, 
+engaged in the manufacture, testing or research, related to vaccines, sera, diagnostics or chemotherapeutic 
+drugs and aimed at the prevention or treatment of any scheduled disease, adequate precaut ionary 
+measures shall be taken— 
+(a) to ensure that the causative organism of any scheduled disease does not escape or otherwise 
+get released; 
+(b) to guard against any such escape or release; and 
+(c) to warn and to protect everyone concerned in the event of any escape.  
+(2) Notwithstanding anything contained in any other law for the time being in force, every animal— 
+(a) used for the manufacture, testing or research as referred to sub-section (1), or 
+(b) which is likely to carry or transmit any scheduled disease,  
+shall be promptly administered euthanasia and disposed of by the person in charge of or having control of 
+the institution, laboratory or clinic, as the case may be, referred to in that sub-section.  
+(3) Every person who is in charge of or having control of an institution, laboratory or clinic referred 
+to in sub-section (1) comply with the provisions of sub-section (1) and sub-section (2); and in the event of 
+non-compliance h e shall be guilty of an offence punishable with fine which may extend to twenty 
+thousand rupees or imprisonment for a term which may extend to six months or with both, and in case the 
+establishment is in commercial manufacturing of vaccines or medicine, a temporary suspension of licence 
+up to a period of one year may also be imposed.  
+CHAPTER VII 
+MISCELLANEOUS 
+36. Power to delegate. —The State Government may, by notification, delegate to any officer or 
+authority subordinate to it, all or any of the powers conferred on it by or under this Act, except the powers 
+to make rules under sub-section (2) of section 42.  
+37. Officers and authorities to function su bject to Government control. —All officers and 
+authorities under this Act shall exercise their powers and discharge their duties conferred or imposed on 
+them by or under this Act, in accordance with such orders, not inconsistent with the provisions of this 
+Act, as the Central Government or the State Government may, from time to time, make. 
+38. Power to amend the Schedule .—(1) The Central Government may, by notification, add to, or 
+omit from the Schedule any animal disease and the said disease shall, as from the date of the notification, 
+be deemed to have been added to, or omitted from, the Schedule.  
+(2) Every notification issued under sub -section (1) shall, as soon as may be after it is issued, be laid 
+before each House of Parliament. 
+39. Power to issue directions.—The Central Government may, with the object of prevention, control 
+and eradication of any infectious or contagious disease of animals, issue such directions to the State 
+Government or other authorities under this Act, from time to time, including directions for furnishing 
+such returns and 1[statistics on scheduled diseases, vaccination, animal breeding or any other matter 
+related to health], as it may deem fit and every such direction shall be complied with.  
+40. Certain persons to be public servants. —Every Competent Officer, Director and Veterinary 
+Officer, while exercising any power or performing any duty under this Act, shall be deemed to be a public 
+servant within the meaning of section 21 of the Indian Penal Code (45 of 1860).  
+ 
+1. Subs. by Act 8 of 2026, s. 2 and Sch., for “statistics on scheduled diseases, and vaccination” (w.e.f. 01-07-2026). 
+ 
+IndiaCode
+16 
+ 
+41. Power to remove difficulties. —(1) If any difficulty arises in giving effect to the provisions of 
+this Act, the Central Government may, by order published in the Official Gazette, make such provisions, 
+not inconsistent with the provisions of this Act, as appear to it to be necessary or expedient for removing 
+the difficulty:  
+Provided that no such order shall be made after the expiry of a period of two years from the date of 
+commencement of this Act. 
+ (2) Every order made under this section shall, as soon as may be after it is made, be laid before each 
+House of Parliament.  
+42. Power of Central Government to make rules. —(1) The Central Government may, subject to 
+the condition of previous publication, by notification, make rules for carrying out the provisions of this 
+Act. 
+(2) In particular and without prejudice to the generality of the foregoing power, such rules may 
+provide for all or any of the following matters, namely:— 
+(a) the form of vaccination certificate and the particulars which such certificate shall contain, 
+under section 9;  
+1[(aa) the form, manner and time of reporting the matter to the Veterinary Officer, State 
+Government and Central Government under subsection (3) of section 4;  
+(ab) the form, manner and time of submission of report to the State Government and the Central 
+Government regarding vaccinated animals under sub-section (7) of section 6;  
+(ac) the form and manner of submission of report to the State Government and the Central 
+Government regarding marking and issuing certificate for vaccinated animals under sub-section (4) of 
+section 8;] 
+(b) the manner of disposal of carcass, under section 26;  
+(c) the manner of conducting examination and post-mortem under sub-section (1) and the form of 
+report of post-mortem under sub-section (2) of section 27; 
+1[(ca) the manner of recovery of cost regarding measures under sub-section (3) of section 29;  
+(cb) the manner of holding an inquiry and imposing penalties under section 33A; 
+ (cc) the form and manner of preferring appeal to the appellate authority against the order of 
+adjudicating officer under sub-section (1) of section 33B;] 
+(d) any other matter which may be prescribed or in respect of which rules are required to be made 
+by the Central Government.  
+43. Power of St ate Government to make rules .—(1) The State Government may, by notification 
+and with the prior approval of the Central Government, make rules for carrying out the purposes of this 
+Act.  
+(2) In particular and without prejudice to the generality of the foregoing power, such rules may 
+provide for all or any of the following matters, namely:— 
+(a) the form of permit to be granted by the officer in charge of a Quarantine Camp, under                 
+sub-section (4) of section 14; 
+(b) the manner of inspection and the period of detention of an animal at a Check Post or at a 
+Quarantine Camp for the administration of compulsory vaccination and marking of animals and the 
+form and manner of issue of entry permit, under sub-section (2) of section 15;  
+(c) any other matter in respect of which rule is to be or may be made by the State Government.  
+ 
+1. Ins. by Act 8 of 2026, s. 2 and Sch. (w.e.f. 01-07-2026). 
+ 
+IndiaCode
+17 
+ 
+44. Laying of rules.—(1) Every rule made by the Central Government under this Act shall be laid, as 
+soon as may be after it is made, before each House of Parliament, while it is in session, for a total period 
+of thirty days which may be comprised in one session or in two or more successive sessions, and if, 
+before the expiry of the session immediately following the session or the successive sessions aforesaid, 
+both Houses agree in making any modification in the rule or both Houses agree that the rule should not be 
+made, the rule shall thereafter have effect only in such modified form or be of no effect, as the case may 
+be; so, however, that any such modification or annulment shall be without prejudice to the validity of 
+anything previously done under that rule.  
+(2) Every rule made by the State Government under this Act shall be laid, as soon as may be after it is 
+made, before the State Legislature.  
+45. Repeal and savings.—On the commencement of this Act— 
+(i) The Glanders and Farcy Act, 1899 (13 of 1899); 
+(ii) The Dourine Act, 1910 (5 of 1910); and 
+(iii) any other corresponding law of any State, so far as it is inconsistent with the provisions of 
+this Act,  
+shall stand repealed:  
+Provided that nothing contained in this section shall— 
+(a) affect the previous operation of any such provision of law or anything duly done or suffered 
+thereunder; 
+(b) affect any right, privilege, obligation or liability acquired, accrued or incurred under any such 
+provision of law; 
+(c) affect any penalty, forfeiture or punishment incurred in respect of any offence committed 
+against any such provision of law; or 
+(d) affect any investigation, legal proceeding or remedy in respect of any such right, privilege, 
+obligation, liability, penalty, forfeiture or punishment as aforesaid; and every such investigation, legal 
+proceeding or remedy may be continued, instituted or enforced, and any such penalty, forfeiture and 
+punishment may be imposed, as if the aforesaid provisions of law had continued: 
+Provided further that, anything done or any action taken under any such provision of law, including 
+any notification, order, notice or receipt issued or declaration made, shall in so far as it is not inconsistent 
+with the provisions of this Act, be deemed to have been done, taken, issued or made under the 
+corresponding provisions of this Act, and shall continue in force accordingly, unless and until superseded 
+by anything done or any action taken under this Act.  
+  
+IndiaCode
+18 
+ 
+1[THE SCHEDULE 
+[See clause (ga) of section 2 and section 38] 
+(a) Multiple species diseases  
+1. Anthrax. 
+2. Aujeszky’s disease.  
+3. Bluetongue.  
+4. Brucellosis.  
+5. Crimean Congo haemorrhagic fever. 
+6. Echinococcosis/hydatidosis/granulosis/ multiloculosis. 
+7. Epizootice heamorrhagic disease virus.  
+8. Foot and mouth disease.  
+9. Heartwater.  
+10. Japanese encephalitis. 
+11. Leishmaniasis  
+12. Leptospirosis.  
+13. Mycobacterium tuberculosis complex. 
+14. New world screwworm (Cochliomyia hominivorax).  
+15. Nipah Virus infection.  
+16. Old world screwworm (Chrysomyabezziana).  
+17. Paratuberculosis. 
+18. Q fever.  
+19. Rabies. 
+20. Rift Valley fever.  
+21. Rinderpest.  
+22. Trichinellosis.  
+23. Trypnosomiasis  
+24. Tularemia. 
+25. Vesicular stomatitis. 
+26. West Nile fever. 
+ (b) Bovine diseases  
+1. Bovine anaplasmosis.  
+2. Bovine babesiosis.  
+3. Bovine genital campylobacteriosis.  
+4. Bovine spongiform encephalopathy. 
+5. Bovine viral diarrhoea. 
+ 
+1. Subs. by Act 8 of 2026, s. 2 and Sch., for “THE SCHEDULE” (w.e.f. 01-07-2026). 
+ 
+IndiaCode
+19 
+ 
+        6. Contagious bovine pleuropneumonia.  
+7. Enzootic bovine leucosis.  
+8. Haemorrhagic septicaemia.  
+9. Infectious bovine rhinotracheitis/infectious pustular vulvovaginitis. 
+10. Lumpy skin disease.  
+11. Malignant catarrhal fever. 
+12. Mycoplasmosis.  
+13. Theileriosis.  
+14. Trichomonosis. 
+ (c) Sheep and goat diseases  
+1. Caprine arthritis/encephalitis.  
+2. Contagious agalactia.  
+3. Contagious caprine pleuropneumonia.  
+4. Enzootic abortion of ewes (ovine chlamydiosis).  
+5. Maedi-visna.  
+6. Nairobi sheep disease. 
+7. Ovine epididymitis (Brucella ovis). 
+8. Peste des petits ruminants.  
+9. Salmonellosis (S. abortusovis).  
+10. Scrapie.  
+11. Sheep pox and goat pox. 
+12. Theileriosis.  
+(d) Equine diseases  
+1. African horse sickness. 
+2. Contagious equine metritis.  
+3. Dourine.  
+4. Equine encephalomyelitis (Eastern).  
+5. Equine encephalomyelitis (Western).  
+6. Equine infectious anaemia.  
+7. Equine Influenza. 
+8. Equine piroplasmosis. 
+9. Equine rhinopneumonitis.  
+10. Equine viral arteritis.  
+11. Glanders.  
+12. Surra (Trypanosoma evansi).  
+13. Venezuelan equine encephalomyelitis.  
+(e) Swine diseases  
+IndiaCode
+20 
+ 
+1. African swine fever. 
+ 2. Classical swine fever. 
+ 3. Nipah virus encephalitis. 
+ 4. Porcine cysticercosis.  
+ 5. Porcine reproductive and respiratory syndrome. 
+ 6. Swine vesicular disease. 
+ 7. Transmissible gastroenteritis.  
+(f) Avian diseases  
+1. Avian chlamydiosis.  
+2. Avian infectious bronchitis. 
+3. Avian infectious laryngotracheitis. 
+4. Avian mycoplasmosis (M. gallisepticum). 
+5. Avian mycoplasmosis (M. synoviae).  
+6. Duck virus hepatitis.  
+7. Fowl cholera. 
+8. Fowl typhoid.  
+9. Highly pathogenic avian influenza and low pathogenic avian influenza in poultry.  
+10. Infectious bursal disease (Gumboro disease). 
+11. Marek’s disease.  
+12. Newcastle disease. 
+13. Pullorum disease.  
+14. Turkey rhinotracheitis. 
+ (g) Lagomorph diseases  
+1. Myxomatosis.  
+2. Rabbit haemorrhagic disease. 
+ (h) Bee diseases 
+ 1. Acarapisosis of honey bees. 
+ 2. American foulbrood of honey bees.  
+ 3. European foulbrood of honey bees.  
+ 4. Small hive bettle infestation (Aethina tumida).  
+ 5. Tropilaelaps infestation of honey bees.  
+ 6. Varroosis of honey bees.  
+(i) Fish diseases 
+ 1. Epizootic haematopoietic necrosis. 
+ 2. Infectious haematopoietic necrosis.  
+ 3. Spring viraemia of carp (SVC).  
+ 4. Viral haemorrhagic septicaemia (VHS). 
+IndiaCode
+21 
+ 
+ 5. Epizootic ulcerative syndrome (EUS). 
+6. Red seabream iridoviral disease (RSID). 
+7. Koi herpesvirus disease (KHV).  
+8. Grouper iridoviral disease. 
+9. Viral encephalopathy and retinopathy.  
+10. Enteric septicaemia of catfish.  
+11. Infection with Aeromonas hydrophila. 
+12. lnfection with Edwardsiella tarda.  
+13. Infection with Vibrio anguillarum. 
+14. Infection with Flavobacterium columnare. 
+15. Infection with Streptococus iniae in Tilapia. 
+16. Infectious pancreatic necrosis (cold water).  
+17. Infection with Myxobolus spp. 
+18. Infection with Ichthyophthirius multifilis.  
+19. Infection with Saprolegnia parasitica.  
+20. Infestation with Argulus spp.  
+21. Infestation with Dactylogyrus spp. 
+22. Infestation with Lernaea spp.  
+23. Infestation with Caligus spp. 
+(j) Mollusc diseases  
+1. Infection with Bonamia exitiosa. 
+2. Infection with Perkinsus olseni. 
+3. lnfection with abalone herpesvirus.  
+4. Infection with Xenohaliotis californiensis.  
+5. Infection with Marteilioides chungmuensis.  
+6. Acute viral necrosis (in scallops).  
+7. Akoya oyster disease.  
+8. Infection with Bomania ostreae. 
+9. Infection with Marteilia regringens.  
+10. Infection with Perkinsus marinus. 
+11. Infection with ostreid herpes virus.  
+(k) Crustacean diseases  
+ 1. Taura syndrome (TS). 
+ 2. White spot disease (WSD). 
+ 3. Yellowhead disease (YHD). 
+ 4. Infectious hypodermal and haematopoietic necrosis (IHHN). 
+ 5. Infectious myonecrosis (IMN). 
+IndiaCode
+22 
+ 
+ 6. White tail disease (MrNV).  
+7. Necrotising hepatopancreatitis (NHP).  
+8. Milky haemolymph disease of spiny lobster (Panulirus spp.).  
+9. Monodon slow growth syndrome.  
+10. Acute hepatopancreatic necrosis syndrome (AHPNS). 
+11. Hepatopancreatic parvovirus. 
+12. Monodon baculovirus.  
+13. Loose shell syndrome.  
+14. Soft shell syndrome. 
+15. Gaffkemia.  
+(l) Amphibian disease 
+ 1. Infection with Ranavirus. 
+ 2. Infection with Batrachochytrium dendrobatidis. 
+ (m) Other diseases 
+1. Camel pox.  
+2. Leishmaniosis. 
+3. Middle East respiratory syndrome coronavirus.] 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+IndiaCode
+23 
+ 
+ 
+STATEMENT OF OBJECTS AND REASONS 
+Adoption of improved animal husbandry practices by the livestock owners coupled with timely 
+immunizations and treatment of affected animals along with effective prevention of spread of disease 
+pathogens from an infected area to other areas can result in reducing incidence of the communicable 
+diseases significantly. However, in India our efforts to control the major infectious and contagious 
+diseases in animals like Foot and Mouth Disease (FMD), Peste des Petits Ruminants (PPR), 
+Haemorrhagic Septicaemia (HS) , Black Quarter (BQ), and Anthrax are constrained in the absence of a 
+uniform legislation in the country. Even though the programme for dealing with the control and 
+prevention of animal diseases has been going on since the second five Year Plan, these major diseases 
+still continue to be serious threats to the livestock sector. 
+ 2. India is a member of the Office International Des Epizooties (OIE), Paris. For the import and 
+export of animals and animal products (including milk, eggs, meat and other products and by -products) 
+recognition by the OIE as regards freedom from particular disease or diseases in the country is necessary. 
+This recognition is accorded by the OIE to the member countries, subject to the fulfilment of certain 
+requirements, as prescribed in the International Animal Health Code (IAHC) of OIE. It is obligatory for  
+the member countries to provide to the OIE information regarding animal health status and also to follow 
+the OIE Guidelines on the control of animal diseases in order to get their recognition as regards the 
+absence/presence of certain diseases, particularly the diseases like Foot and Mouth Disease (FMD), 
+Rinderpest (RP), Contagious Bovine Pleuro-pneumonia, etc. The provisions of IAHC of OIE are binding 
+on member countries for the purpose of international trade in animals and animal products. The World 
+Trade Organisation (WTO) and the Codex Alimentarius also recognise these provisions of the IAHC of 
+OIE. It has, therefore, become necessary on the part of India to undertake necessary legislative measures 
+to meet its obligations so as to enjoy the benefits under the International Animal Health Code.  
+3. The movement and transportation of animals from one part of the country to another, having 
+become faster and more commonly in vogue, the spread of contagious diseases has also become easier. 
+Some of the animal diseases such as Tuberculosis and Rabies are zoonotic in nature, ie . these are 
+communicable to human beings. While creating awareness of animal diseases and popularisation of 
+measures such as vaccination, to some extent, contribute to control the diseases, no appreciabie results 
+could be achieved unless the law relating to animal diseases has a nation-wide impact. 
+ 4. It is, therefore, proposed to enact a suitable legislation by Parliament under article 253 of the 
+Constitution for the prevention of infectious and contagious diseases in animals which will be a uniform 
+law throughout the country. The proposed legislaltion will take care of outbreak of diseases in animals 
+and provide for effectively controlling and containing infectious and contagious animal diseases including 
+zoonotic diseases and thus prevent the spread of such diseases. 
+ 5. The proposed legislation, inter alia, seeks to provide for—  
+(i) monitoring, effective control and containment of infectious and contagious diseases which 
+normally afflict animals so as to prevent the spread o  fthe diseases and in due course eradicate them 
+from the nation as a whole;  
+(ii) spelling out the diseases and declare certain areas as “controlled area” vis-àvis any particular 
+disease; 
+ (iii)getting freedom from a specific disease in respect of  the specified areas for facilitating the 
+international trade of livestock and livestock products;  
+ (iv) effective control, containment and eradication of infectious diseases from the country, by 
+declaring the controlled areas;   
+(v) imposing of restrictions to regulate the movement of diseased animals;  
+(vi) allowing free movement of vaccinated and marked animals within the specified 
+IndiaCode
+24 
+ 
+(vii) ensuring protection from disease and eliminating the possibility of spreading of infection to 
+healthy animals:  
+(viii) facilitating the implementation of the regulatory measures by providing check posts and 
+quarantine stations.  
+6. The Notes on clauses explain in detail the various provisions contained in the Bill.  
+7. The Bill seeks to achieve the above objects.  
+  
+SHARAD PAWAR. 
+      NEW DELHI;  
+The 8th December, 2005. 
+ 
+ 
+IndiaCode

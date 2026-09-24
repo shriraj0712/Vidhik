@@ -1,0 +1,141 @@
+{
+  "report_metadata": {
+    "timestamp": "2026-09-12T21:54:35.075351",
+    "target_dataset": "Maharashtra_MVP_Multilingual",
+    "pipeline_version": "vidhik_multilingual_v1.0",
+    "legal_constitutional_note": "Under Article 348(1)(b) of the Constitution of India, the authoritative text of all Acts passed by Parliament or State Legislatures is in the English language. Marathi and Hindi texts are aligned as verified official/standard translations and are strictly demarcated with provenance metadata."
+  },
+  "summary_statistics": {
+    "total_lexicon_terms": 42,
+    "lexicon_duplicate_terms": 0,
+    "total_sections_evaluated": 10248,
+    "total_sections_aligned": 10248,
+    "sections_with_verified_marathi_titles": 379,
+    "sections_with_verified_hindi_titles": 379,
+    "sections_with_official_marathi_body": 0,
+    "sections_with_official_hindi_body_gazette": 1065,
+    "draft_machine_translations_count": 0,
+    "sections_with_translation_unavailable_tagged": 10248,
+    "sections_requiring_manual_review": 9869,
+    "english_text_tampering_detected": 0
+  },
+  "lexicon_category_breakdown": {
+    "statutory_structure": 20,
+    "court_and_procedure": 5,
+    "penal_and_offences": 6,
+    "governance_and_authorities": 5,
+    "revenue_and_property": 4,
+    "commercial_and_cooperatives": 1,
+    "commercial_and_contracts": 1
+  },
+  "top_matched_lexicon_terms_in_mvp": {
+    "section": 4272,
+    "act": 4262,
+    "state-government": 1322,
+    "central-government": 1183,
+    "part": 1134,
+    "clause": 1015,
+    "code": 782,
+    "explanation": 779,
+    "schedule": 662,
+    "chapter": 644,
+    "official-gazette": 599,
+    "jurisdiction": 546,
+    "appeal": 464,
+    "penalty": 435,
+    "proviso": 335
+  },
+  "sample_lexicon_entry": {
+    "term_id": "short-title-extent-commencement",
+    "category": "statutory_structure",
+    "term_en": "Short title, extent and commencement",
+    "term_mr": "संक्षिप्त नाव, विस्तार आणि प्रारंभ",
+    "term_hi": "संक्षिप्त नाम, विस्तार और प्रारंभ",
+    "grammatical_type": "noun_phrase",
+    "context_usage": "Opening statutory section defining name, territorial jurisdiction, and date of enforcement.",
+    "official_source": "Maharashtra Directorate of Languages / Ministry of Law and Justice Legal Glossary",
+    "verification_status": "verified_authoritative",
+    "aliases_mr": [
+      "संक्षिप्त शीर्षक, व्याप्ती व अंमलबजावणी",
+      "संक्षिप्त नाव व प्रारंभ"
+    ],
+    "aliases_hi": [
+      "संक्षिप्त नाम और प्रारंभ",
+      "संक्षिप्त नाम, विस्तार तथा प्रारम्भ"
+    ]
+  },
+  "sample_aligned_section_standard": {
+    "section_id": "maharashtra-co-operative-societies-act-1960-sec-1",
+    "law_id": "maharashtra-co-operative-societies-act-1960",
+    "law_name": "Maharashtra Co-operative Societies Act, 1960",
+    "section_number": "1",
+    "text_en": "(1) This Act may be called the Maharashtra\nCo-operative Societies Act, 1960.\n(2) It extends to the whole of the State of Maharashtra.\n(3) It shall come into force on such 2date as the State Government may, by notification in the\nOfficial Gazette, appoint.",
+    "title_en": "Short title, extent and commencement.",
+    "text_en_sha256": "e5a1444f2ab0ce8a21b7259eaec4067c1729671d21003a1a5e96718e760f06e4",
+    "title_mr": "संक्षिप्त नाव, विस्तार आणि प्रारंभ",
+    "text_mr": null,
+    "mr_title_status": "standard_statutory_heading",
+    "mr_body_status": "translation_unavailable",
+    "mr_confidence_score": 0.0,
+    "mr_provenance": {
+      "source_type": "State Government Official Marathi Translation Repository",
+      "status": "Translation pending official Directorate of Languages gazette release",
+      "note": "English statutory text remains the authoritative reference under Article 348(1)(b) of Constitution"
+    },
+    "title_hi": "संक्षिप्त नाम, विस्तार और प्रारंभ",
+    "text_hi": null,
+    "hi_title_status": "standard_statutory_heading",
+    "hi_body_status": "translation_unavailable",
+    "hi_confidence_score": 0.0,
+    "hi_provenance": null,
+    "matched_lexicon_terms": [
+      "short-title-extent-commencement",
+      "act",
+      "official-gazette",
+      "state-government"
+    ],
+    "alignment_status": "standard_heading_aligned",
+    "manual_review_required": false,
+    "source_pdf": "Maharashtra Co-operative Societies Act, 1960.pdf",
+    "source_page_start": 15,
+    "source_page_end": 15,
+    "jurisdiction": "Maharashtra"
+  },
+  "sample_aligned_section_unavailable": {
+    "section_id": "maharashtra-co-operative-societies-act-1960-sec-3",
+    "law_id": "maharashtra-co-operative-societies-act-1960",
+    "law_name": "Maharashtra Co-operative Societies Act, 1960",
+    "section_number": "3",
+    "text_en": "The State Government may appoint a person to be the\nRegistrar of Co-operative Societies for the State; and may appoint one or more persons to assist such\nRegistrar, 8[with such designations, and in such local areas or throughout the State, as it may specify in\nthat behalf,] and may, by general or special order, confer on any such person or persons all or any of the\n1\nClause (19A) was inserted by Mah. 11 of 2008, s. 2(d).\n2\nThese words were substituted for the words \"a chairman, vice-chairman, president, vice-president, managing director,\nmanager, secretary, treasurer, member of the committee and any other person,\" by Mah. 16 of 2013, s. 2(g).\n3\nClause (20-A) was inserted by Mah. 20 of 1986, s. 2(g).\n4\nThese words were inserted by Mah. 16 of 2013, s. 2(h).\n5\nClause (29-A) was inserted by Mah. 16 of 2013, s. 2(i).\n6\nClause (30) was deleted by Mah. 3 of 1974, s. 2(d).\n7\nThese words were added by Mah. 27 of 1969, s. 3(c).\n8\nThese words were inserted by Mah. 27 of 1969, s. 3(a).\n1961 : Mah. XXIV]\nThe Maharashtra Co-operative Societies Act, 1960\n19\npowers of the Registrar under this Act. The person or persons so appointed to assist the Registrar and on\nwhom any powers of the Registrar are conferred, shall work under the general guidance, superintendence\nand control of the Registrar. 1[They shall be subordinate to the Registrar, and subordination of such\npersons amongst themselves shall be such as may be determined by the State Government].\n2[3A.  Temporary vacancies.— If the Registrar or a person appointed to assist such Registrar is\ndisabled from performing his duties or for any reason vacates his office or leaves his jurisdiction or dies,\nthen—\n(a) in the case of the Registrar, the 3[Special,] Additional or Joint Registrar, in the office of\nthe Registrar, and\n(b) in the case of a person appointed to assist the Registrar, the senior most officer holding\nthe next higher post, in the respective office,\nshall, unless other provision has been made in that behalf, hold temporarily the office of the\nRegistrar or, as the case may be, of the person appointed to assist the Registrar in addition to his own\noffice and shall be held to be the Registrar or the person appointed to assist the Registrar under this Act,\nuntil the Registrar or the person appointed to assist the Registrar resumes his office, or until such time\nas the successor is duly appointed and takes charge of his appointment.]",
+    "title_en": "Registrar 7[and his subordinates].",
+    "text_en_sha256": "313aa18bdf29692c69fc3b1bd6e2fbae467790349e617016d606e406b7f742cd",
+    "title_mr": null,
+    "text_mr": null,
+    "mr_title_status": "translation_unavailable",
+    "mr_body_status": "translation_unavailable",
+    "mr_confidence_score": 0.0,
+    "mr_provenance": {
+      "source_type": "State Government Official Marathi Translation Repository",
+      "status": "Translation pending official Directorate of Languages gazette release",
+      "note": "English statutory text remains the authoritative reference under Article 348(1)(b) of Constitution"
+    },
+    "title_hi": null,
+    "text_hi": null,
+    "hi_title_status": "translation_unavailable",
+    "hi_body_status": "translation_unavailable",
+    "hi_confidence_score": 0.0,
+    "hi_provenance": null,
+    "matched_lexicon_terms": [
+      "act",
+      "clause",
+      "jurisdiction",
+      "state-government"
+    ],
+    "alignment_status": "translation_unavailable",
+    "manual_review_required": true,
+    "source_pdf": "Maharashtra Co-operative Societies Act, 1960.pdf",
+    "source_page_start": 18,
+    "source_page_end": 19,
+    "jurisdiction": "Maharashtra"
+  }
+}

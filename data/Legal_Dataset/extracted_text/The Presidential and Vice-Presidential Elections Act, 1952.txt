@@ -1,0 +1,1359 @@
+1 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+The Presidential and Vice-Presidential Elections Act, 1952  
+(ACT NO. 31 OF 1952) 
+(As on the 15th January, 2026) 
+IndiaCode
+2 
+ 
+ 
+LIST OF AMENDING ACTS 
+1. The Presidential and Vice-Presidential Elections (Amendment) Act, 1974 (5 of 1974). 
+2. The Insecticides (Amendment) Act, 1977 (24 of 1977). 
+3. The Presidential and Vice-Presidential Elections (Amendment) Act, 1997 (35 of 1997). 
+ 
+ 
+ 
+_______ 
+ 
+ 
+ 
+LIST OF ABBREVIATIONS USED 
+ 
+Cl.,cls.              . . . .            .          for              Clause, clauses. 
+Ins.                 . . . . .            ,,               Inserted. 
+Notifn.  . . . . .  ,,     Notification. 
+S., ss.  . . . . .  ,,     Section, sections. 
+Sch.  . . . . .  ,,     Schedule. 
+Subs.  . . . . .  ,,     Substituted. 
+w.e.f.  . . . . .  ,,     with effect from. 
+ 
+IndiaCode
+3 
+ 
+THE PRESIDENTIAL AND VICE-PRESIDENTIAL ELECTIONS ACT, 1952 
+______ 
+ARRANGEMENT OF SECTIONS 
+______ 
+PART I 
+PRELIMINARY 
+SECTIONS 
+1.  Short title. 
+2.  Definitions. 
+PART II 
+CONDUCT OF PRESIDENTIAL AND VICE-PRESIDENTIAL ELECTIONS 
+3.  Returning Officer and his assistants. 
+4.  Appointment of dates for nominations, etc. 
+5.  Public notice of election. 
+5A. Nomination of candidates. 
+5B. Presentation of nomination papers and requirements for a valid nomination. 
+5C. Deposit. 
+5D. Notice of nominations and the time and place for their scrutiny. 
+5E. Scrutiny of nominations. 
+6. Withdrawal of candidature. 
+7. Death of candidate before poll. 
+8. Procedure in contested and uncontested elections. 
+9. Manner of voting at elections. 
+10. Counting of votes. 
+11. Declaration of results. 
+12. Report of the result. 
+PART III 
+DISPUTES REGARDING ELECTIONS 
+13. Definitions. 
+14. Authority to try election petitions. 
+14A. Presentation of petition. 
+IndiaCode
+4 
+ 
+ 
+SECTIONS 
+15. Form of petitions, etc., and procedure. 
+16. Relief that may be claimed by the petitioner. 
+17. Orders of the Supreme Court. 
+18. Grounds for declaring the election of a returned candidate to be void. 
+19. Grounds for which a candidate other than the returned candidate may be declared to have been 
+elected. 
+20. Transmission of orders to the Central Government and its publication. 
+PART IV 
+MISCELLANEOUS 
+20A.  Return or forfeiture of candidate’s deposit. 
+21.  Power to make rules. 
+22.  Maintenance of secrecy of voting. 
+23.  Jurisdiction of civil courts barred. 
+The Presidential and Vice-Presidential Elections Rules, 1974. 
+ 
+ 
+IndiaCode
+5 
+ 
+THE PRESIDENTIAL AND VICE-PRESIDENTIAL ELECTIONS ACT, 1952 
+ACT NO. 31 OF 1952 
+[14th March, 1952.] 
+An Act to regulate certain matters relating to or connected with elections to the offices of 
+President and Vice-President of India. 
+BE it enacted by Parliament as follows:— 
+PART I 
+PRELIMINARY 
+1. Short title.—This Act may be called the Presidential and Vice-Presidential Elections Act, 1952. 
+2. Definitions.— In this Act, unless the contest otherwise requires,— 
+(a) “article” means an article of the Constitution; 
+(b) “election” means a Presidential election or Vice-Presidential election; 
+(c) “Election Commission ” means the Election Commission appointed by the President under 
+article 324; 
+(d) “elector”, in relation to a Presidential election, means a member of the electoral college 
+referred to in article 54, and in relation to a Vice -Presidential election, means  1[a member of the 
+electoral college referred to in article 66]; 
+(e) “prescribed” means prescribed by rules made under this Act; 
+(f) “Presidential election” means an election to fill the office of the President of India; 
+2[(ff) “public holiday” means any day which is a public holiday for the purposes of section 25 of 
+the Negotiable Instruments Act, 1881 (26 of 1881);] 
+(g) “Returning Officer” includes an Assistant Returning Officer performing any function which 
+he is 3[competent] to perform under sub-section (2) of section 3; 
+(h) “Vice-Presidential election” means an election to fill the office of the Vice-President of India. 
+PART II 
+CONDUCT OF PRESIDENTIAL AND VICE-PRESIDENTIAL ELECTIONS 
+3. Returning Officer and his assistants .—(1) For the purposes of each election the Election 
+Commission shall, in consultation with the Central Government, appoint a Returning Officer who shall 
+have his office in New Delhi and may also appoint one or more Assistant Returning Officers. 
+(2) Subject to rules made under this Act, every Assistant Returning Officer shall be competent to 
+perform all or any of the functions of the Returning Officer. 
+ 
+1. Subs. by Act 5 of 1974, s. 2, for “a member of either House of Parliament” (w.e.f. 23-3-1974).   
+2. Ins. by s. 2, ibid. (w.e.f. 23-3-1974).  
+3. Subs. by s. 2, ibid., for “authorised” (w.e.f. 23-3-1974). 
+ 
+IndiaCode
+6 
+ 
+4. Appointment of dates for nominations, etc .—1[(1) The Election Commission shall, by 
+notification in the Official Gazette, appoint for every election— 
+(a) the last date for making nominations, which shall be the  fourteenth day after the date of 
+publication of the notification under this  sub-section, or, if that day is a public holiday, the next 
+succeeding day which is not a public holiday; 
+(b) the date for the scrutiny of nominations, which shall be the day immediately following the last 
+date for making nominations or, if that day is a public holiday, the next succeeding day which is not a 
+public holiday; 
+(c) the last date for the withdrawal of  candidatures, which shall be the  second day after the date 
+for the scrutiny of nominations or, if that day is a public holiday, the next succeeding day which is not 
+a public holiday; 
+(d) the date on which a poll shall, if necessary, be taken, which shall be a date not earlier than the  
+fifteenth day after the last date for the withdrawal of the candidatures.] 
+(2) In the case of the first Presidential and Vice -Presidential elections, the notifications under                  
+sub-section (1) shall be issued as soon as may be after both Houses of Parliament have been constituted. 
+(3) In the case of an election to fill a vacancy caused by the  expiration of the term of off ice of the 
+President or Vice -President, the  notification under sub -section ( 1) shall be issued on, or as soon as 
+conveniently may be after, the  sixtieth day before the expiration of the term of office of the outgoing  
+President or Vice -President, as the case may be, and the dates shall be so appointed under the said                
+sub-section that the election will be  completed at such time as will enable the President or the                    
+Vice-President thereby elected to enter upon his office on the day following the expiration of the term of 
+office of the outgoing President or Vice-President, as the case may be. 
+(4) In the case of an election to fill a vacancy in the office of President or Vice-President occurring by 
+reason of his death, resignation or removal or otherwise, the notification under sub -section (1) shall be 
+issued as soon as may be after the occurrence of such vacancy. 
+2[5. Public notice of election .—On the issue o f a notification under sub -section (1) of section 4, the 
+Returning Officer for the election shall gi ve public notice of the intended election in such form and in 
+such manner as may be prescribed, inviting nominations of candidates for such election and specifying 
+the place at which the nomination papers are to be delivered. 
+ 5A. Nomination of candidates .—Any person may be nominated as a candidate for election to the  
+office of President or Vice-President if he is qualified to be elected to that office under the Constitution. 
+5B. Presentation of nomination papers and requirements for  a valid nomination .—(1) On or 
+before the date appointed under clause ( a) of sub -section (1) of section 4, each candidate shall,  either in 
+person or by any of his proposers or  seconders, between the hours of eleven o’clock in the forenoon and 
+three o’clock in the afternoon, deliver to the  returning officer at the place specified in this behalf in the 
+public notice issued under section 5 a nomination paper completed in the prescribed form and  subscribed 
+by the candidate as assenting to the nomination, and 
+(a) in the case of Presidential election, also by at least 3[fifty electors] as proposers and at least 
+3[fifty electors] as seconders; 
+ 
+1. Subs. by Act 5 of 1974, s. 3, for sub-section (1) (w.e.f. .23-3-1974).  
+2.  Subs. by s. 4, ibid., for section 5 (w.e.f. 23-3-1974) 
+3. Subs. by Act 35 of 1997, s. 2, for “ten electors” (w.e.f. 5-6-1997).  
+IndiaCode
+7 
+ 
+(b) in the case of Vice-Presidential election, also by at least 1[twenty electors] as proposers and at 
+least 1[twenty electors] as seconders: 
+Provided that no nomination paper shall be presented to the Returning Officer on a day which is a 
+public holiday. 
+(2) Each nomination paper shall be accompanied by  a certified copy  of the entry relating to the 
+candidate in the electoral roll for the parliamentary constituency in which the candidate is registered as an 
+elector. 
+(3) The Returning Officer shall not accept any nomination paper  which is present ed on any day 
+before eleven o’clock in the forenoon and after three o’clock in the afternoon. 
+(4) Any nomination paper which is not received before three  o’clock in the afternoon on the last date 
+appointed under clause ( a) of sub-section (1) of section 4 or to which the certified copy referred to in   
+sub-section (2) of this section is not attached shall be rejected and a brief  note relating to such rejection 
+shall be recorded on the nomination paper itself. 
+(5) No elector shall subscribe, whether as proposer or as seconder, more than one nomination paper at 
+the same election and, if he does , his signature shall be inoperative on any paper other than the one first  
+delivered. 
+(6) Nothing in this section shall prevent any candidate from being  nominated by more than one 
+nomination paper for the same election: 
+Provided that not more than four nomination papers shall be  presented by or on behalf of any 
+candidate or accepted by the Returning Officer. 
+5C. Deposit.—(1) A candidate shall not be deemed to be duly nominated for election unless he 
+deposits or causes to be deposited a sum of  2[fifteen thousand rupees]: 
+Provided that where a candidate has been nominated by more than one nomination paper for the same 
+election, not more than one deposit shall be required of him under this sub-section. 
+(2) The sum required to be deposited under sub -section ( 1) shall not be deemed to have been 
+deposited under that sub -section unless at the time of presentation of the nomination paper under          
+sub-section (1) of section 5B, the candidate has either deposited or caused to be deposited that sum with 
+the Returning Officer in cash or enclosed with the nomination paper a receipt showing that the said sum 
+has been deposited by him or on his behalf in the Reserve Bank of India or in a Government Treasury. 
+5D. Notice of nominations and the  time and place for their scrutiny .—On the presentation of a 
+nomination paper, the Returning Officer shall— 
+(a) sign thereon a certificate stating the date and time of presentation of the nomination paper and 
+enter thereon its serial number; 
+(b) inform the person or persons presenting the nomination paper of the date, time and place fixed 
+for the scrutiny of nominations; and 
+(c) cause to be affixed in some conspicuous place in his office a copy of the nomination paper as 
+certified and numbered under clause (a). 
+5E. Scrutiny of nominations .—(1) On the date fixed for the scrutiny of nomination s under                   
+sub-section (1) of section 4, the candidates, one proposer or one seconder of each candidate and one other 
+ 
+1. Subs. by Act 35 of 1997, s. 2, for “five electors” (w.e.f. 5-6-1997). 
+2. Subs. by s. 3, ibid., for “two thousand five hundred rupees” (w.e.f. 5-6-1997). 
+IndiaCode
+8 
+ 
+person duly authorised in writing by each candidate, but no other person, shall be entitled to be present at 
+the time of scrutiny of nominations and the Returning Officer shall give them all reasonable facilities for 
+examining the nomination papers of all candidates which have not been rejected under sub -section (4) of 
+section 5B. 
+(2) For the removal of doubts, it is hereby declared that it shall not be necessary to scrutinise on the 
+date fixed for the scrutiny of nominations the nomination papers already rejected under sub -section (4) of 
+section 5B. 
+ (3) The Return ing Officer shall then examine the nomination papers and shall decide all objections 
+which may be made to any nomination paper and may , either on such objection or on his own motion, 
+after such summary inquiry, if any, as he thinks necessary, reject any nomination on any of the following 
+grounds:— 
+(a) that, on the date fixed for the scrutiny of nominations, the candidate is not eligible for election 
+as President or Vice-President, as the case may be, under the Constitution; or 
+(b) that any of the proposers or seconders is not qualified to subscribe a nomination paper under 
+sub-section (1) of section 5B; or 
+(c) that the nomination paper is not subscribed by the required number of proposers or seconders; 
+or 
+(d) that the signature of the candidate or any of the proposers or seconders is not genuine or has 
+been obtained by fraud; or  
+(e) that there has been a failure to comply with any of the provisions of section 5B or section 5C. 
+(4) Nothing contained in clauses ( b) to ( e) of sub -section ( 3) shall be deemed to authorise the 
+rejection of the nomination of any candidate on the ground of any irregularity in respect of a nomination 
+paper, if the candidate has been duly nominated by means of another nomination paper in respect of 
+which no irregularity has been committed. 
+(5) The Returning Officer shall not reject any nomination paper on the ground of any defect which is 
+not of a substantial character. 
+(6) The Returning Officer shall hold the scrutiny on the date appointed in this behalf under clause ( b) 
+of sub-section (1) of section 4 and shall not allow any adjournment of the proceedings except when such 
+proceedings are interrupted or obstructed by riot or open violence or by causes beyond his control: 
+Provided that in case an objection is raised by the Returning Officer or is made by any other person 
+the candidate concerned may be allowed time to rebut it not later than the next day but one following the 
+date fixed for scrutiny, and the Returning Officer shall record his decision on the date to which the 
+proceedings have been adjourned. 
+(7) The Returning Officer shall endorse on each nomination paper his decision accepting or rejecting 
+the same and if the nomination paper is rejected, shall record in writing a brief statement of his reasons 
+for such rejection. 
+(8) For the purposes of this section, a certified copy of an entry in the electoral roll for the time being 
+in force shall be conclusive evidence of the fact that the person referred to in that entry is an elector for 
+that constituency, unless it is proved that he is subject to any of the disqualifications mentioned in           
+section 16 of the Representation of the People Act, 1950 (43 of 1950).] 
+ 6. Withdrawal of candidature .—(1) Any candidate may withdraw his candidature by a notice in 
+writing in the prescribed form  subscribed by him and delivered before three  o’clock in the  afternoon on 
+the date fixed under clause ( c) of sub -section (1) of section 4, to the Returning Officer either by such 
+IndiaCode
+9 
+ 
+candidate in person or 1[by any one of his proposers or seconders] who  has been authorised in this behalf 
+in writing by such candidate. 
+(2) No person who has given notice of withdrawal  of his candidature under sub -section (1) shall be 
+allowed to cancel the notice. 
+2[(3) The Returning Officer shall, on being satisfied as to the genuineness of a notice of  withdrawal 
+and the identity of the person delivering it under sub -section (1), cause the notice to be affixed in some 
+conspicuous place in his office.] 
+ 7. Death of candidate before poll .—If a candidate, whose nomination has been made and is found 
+to be in order on scrutiny, dies after the time fixed for nomination and a report of his death is received by 
+the Re turning Officer before the commencement of the poll, the Re turning Officer shall, upon being 
+satisfied of the fact of the death of the candidate, countermand the poll and report the fact to the Election 
+Commission, and all proceedings with reference to the election shall be commenced a  new in all respects 
+as if for a new election: 
+Provided that no further nomination shall be necessary in the case of a candidate whose nomination 
+was valid at the time of the countermanding of the poll: 
+Provided further that no person who has under sub -section ( 1) of section 6 given a notice of 
+withdrawal of his candidature before the countermanding of the poll shall be ineligible for being 
+nominated as a candidate for the election after such countermanding. 
+8. Procedure in contested and uncontested elections .—If after the expiry of the period within 
+which candidatures may be withdrawn under sub-section (1) of section 6— 
+(a) there is only one candidate who has been validly nominated and has not withdrawn his 
+candidature in the manner and within the time specified in that sub -section, the Returning Officer 
+shall forthwith declare such candidate to be duly elected to the  office of President or Vice -President, 
+as the case may be; 
+(b) the number of candidates who have been duly nominated but have not so withdrawn their 
+candidatures exceeds one, the Returning Officer shall forthwith publish in such form and manner as 
+may be prescribed a list containing the names in alphabetical order and addresses of candidates as 
+given in the nomination papers, together with such other particulars as may be prescr ibed, and a poll 
+shall be taken; 
+(c) there is no candidate who has been duly nominated and has not so withdrawn his candidature, 
+the Re turning Officer shall report the fact to the Election Commission and thereafter all the 
+proceedings in relation to the election  shall be commenced afresh and f or that purpose the Election 
+Commission shall cancel the notification issued under sub -section (1) of section 4 in respect of such 
+election and issue another notification under that sub -section appointing the dates referred to in that 
+sub-section for the purposes of such fresh election. 
+9. Manner of voting at elections .—At every election where a poll is taken, votes shall be given by 
+ballot in such manner as may be prescribed, and no votes shall be received by proxy. 
+10. Counting of votes.—At every election where a poll is taken, vo tes shall be counted by, or under 
+the supervision of, the Returning Officer, and each candidate and  one representative of each candidate 
+authorised in writing by the candidate, shall have a right to be present at the time of counting. 
+ 
+1. Subs. by Act 5 of 1974, s. 5, for “by his proposer or seconder”. 
+2. Subs. by s. 5, ibid., for sub-section (3). 
+IndiaCode
+10 
+ 
+11. Declaration of results .—When the counting of the votes has been completed, the Returning 
+Officer shall forthwith declare the result of the election in the manner provided by this Act or the rules 
+made thereunder. 
+ 12. Report of the result .—As soon as may be after the result of an election has been declared, the 
+Returning Officer shall report the result to the Central Government and the Election Commission, and the 
+Central Government shall cause to be published in the Official Gazette the declaration containing the 
+name of the person elected to the office of President or Vice-President, as the case may be. 
+1[PART III 
+DISPUTES REGARDING ELECTIONS 
+13. Definitions.—In this Part, unless the context otherwise requires,— 
+(a) “candidate” means a person who has been or claims to have been duly nominated as a 
+candidate at an election; 
+(b) “costs” means all costs, charges and expenses of, or incidental to, a trial of an election 
+petition; 
+(c) “returned candidate” means a candidate whose name has been published under section 12 as 
+duly elected. 
+14. Authority to try election petitions .—(1) No election shall be called in question except by  
+presenting an election petition to the authority specified in sub-section (2). 
+(2) The authority having jurisdiction to try an election petition shall be the Supreme Court. 
+(3) Every election petition shall be presented to such authority in  accordance with the provisions of 
+this Part and of the rules made by the Supreme Court under article 145. 
+14A. Presentation of petition .—(1) An election petition calling in  question an election may be 
+presented on one or more of the grounds specified  in sub-section (1) of section 18 and section 19, to the 
+Supreme Court by any candidate at such election or— 
+(i) in the case of Presidential election, by twenty or more electors joined together as petitioners; 
+(ii) in the case of Vice-Presidential election, by ten or more electors joined together as petitioners. 
+(2) Any such petition may be presented at  any time after the date of publication of the declaration 
+containing the name of the return candidate at the election under section 12, but not later than thirty days 
+from the date of such publication. 
+15. Form of petitions, etc., and procedure .—Subject to the  provisions of this Part, rules made 
+[whether before or after the commencement  of the Presidential and Vice -Presidential Elections 
+(Amendment) Act, 1977 (20 of 1977)] by the Supreme Court under Article 145 may regulate the form of 
+election petitions, the manner in which they are  to be presented, the persons who are to  be made parties 
+thereto, the procedure to be adopted in connection therewith  and the circumstances in which petitions are 
+to abate, or may be withdrawn, and in which new petitioners may be substituted, and may require security 
+to be given for costs. 
+16. Relief that may be claimed by the petitioner .—A petitioner may claim eithe r of the following 
+declarations:— 
+(a) that the election of the returned candidate is void; 
+ 
+1.  Subs. by Act 20 of 1977, s. 2, for Part III. 
+IndiaCode
+11 
+ 
+(b) that the election of the returned candidate is void and that he himself or any other candidate 
+has been duly elected. 
+ 17. Orders of the Supreme Court .—(1) At the conclusion of the trial of the  election petition, the 
+Supreme Court shall make an order— 
+(a) dismissing the election petition; or 
+(b) declaring the election of the returned candidate to be void; or 
+(c) declaring the election  of the returned candidate to be void and the petitioner or any other 
+candidate to have been duly elected. 
+(2) At the time of making an order under sub-section (1), the Supreme Court shall also make an order 
+fixing the total amount of costs payable and specifying the persons by and to whom costs shall be paid. 
+18. Grounds for declaring the election of a returned candidate to be void .—(1) If the Supreme 
+Court is of opinion,— 
+(a) that the offence of  bribery or undue influence at the election has been committed by the 
+returned candidate or by any person with the consent of the returned candidate; or 
+(b) that the result of the election has been materially affected— 
+(i) by the improper reception or refusal of a vote; or 
+(ii) by any non -compliance with the provisions of the Constitution or of this Act or of any 
+rules or orders made under this Act;  
+(iii) by reason of the fact that the nomination of any candidate (other than the  successful 
+candidate), who has not withdrawn his candidature, has been wrongly accepted; or 
+(c) that the nomination of any candidate has been wrongly rejected or the  nomination of the 
+successful candidate has been wrongly accepted;  
+the Supreme Court shall declare the election of the returned candidate to be void. 
+(2) For the purposes of this section, the  offences of briber y and undue influence at an election have 
+the same meaning as in Chapter IXA of the Indian Penal Code (45 of 1860). 
+19. Grounds for which a candidate other than the returned candidate may be declared to have 
+been elected.—If any person who has lodged an election petition has, in addition to calling in  question 
+the election of the returned candidate, claimed a declaration that he himself or any other candidate has 
+been duly elected and  the Supreme Court is of opinion that in fact the petitioner or such other candidate 
+received a majority of the valid votes, the Supreme Court shall, after declaring the election of the returned 
+candidate to be void, declare the petitioner or such other candidate, as the case may be, to have been duly 
+elected: 
+Provided that the petitioner or  such other candidate shall not be declared to be duly elected if it is 
+proved that the election of such candidate would have been void if he had been the returned candidate and 
+a petition had been presented calling in question his election. 
+20. Transmission of orders to the Central Government and its publication .—The Supreme Court 
+shall, after announcing the orders made under section 17, send a copy thereof to the  Central Government, 
+and on receipt of such copy the Central Government shall forthwith cause the order to be published in the 
+Official Gazette.] 
+IndiaCode
+12 
+ 
+PART IV 
+MISCELLANEOUS 
+1[20A. Return or forfeiture of candidate ’s deposit.—(1) The deposit made under section 5C shall 
+either be returned to the person making it or his legal representative or be forfeited to the Central 
+Government in accordance with the provisions of this section. 
+(2) Except in cases hereafter mentioned in this section, the deposit shall be returned as soon as 
+practicable after the result of the election is declared. 
+(3) If the candidate is not shown in the list referred to in clause ( b) of section 8, or if he dies before 
+the commencement of the poll, the deposit shall be returned as soon as practicable after the publication of 
+the list or after his death, as the case may be. 
+(4) Subject to the provisions of sub -section (3), the deposit shall be forfeited if at the election where 
+the poll has been taken, the candidate is not elected, and the number of valid votes polled by such 
+candidate does not exceed one -sixth of the number of votes necessary to secure the return of a candidate 
+at such election.] 
+21. Power to make rules .—(1) The Central Government may, after consulting the Election 
+Commission, by notification in the Official Gazette, make rules for carrying out the purposes of this Act. 
+(2) In particular, and without prejudice to the generality of the foregoing power, such rules    may 
+provide for all or any of the following matters, namely:— 
+(a) the maintenance of a list of members of the electoral college referred to in article 54 with their 
+addresses corrected up to date for the purposes of Presidential elections; 
+(b) the maintenance of a list of   2[members of the electoral college referred to in article 66] with 
+their addresses corrected up to date for the purposes of Vice-Presidential elections; 
+(c) the powers and duties of a Returning Officer and the performance by any officer appointed to 
+assist the Returning Officer of any function of the Returning Officer; 
+3[(cc) the form and manner in which public notice under section 5 shall be given by the Returning 
+Officer;] 
+(d)  the form and manner in which nominations may be made and the procedure to be followed in 
+respect of the presentation of nomination papers; 
+(e) the scrutiny of nominations and, in particular, the manner in which such scrutiny shall be 
+conducted and the conditions and circumstances under which any person may be present or may enter 
+objections thereat; 
+(f)  the publication of a list of valid nominations; 
+4[(g) the place and hours of polling, the manner in votes are to be g iven both generally and in the 
+case of illiterate voters or voters not conver sant with the language in which ballot papers are printed 
+or voters under physical or other disability and the procedure as to voting to be followed at elections;] 
+ 
+1. Ins. by Act 5 of 1974, s. 8 (w.e.f. 23-3-1974). 
+2. Subs. by s. 9, ibid., for “members of both Houses of Parliament”.    
+3. Ins. by s. 9, ibid. 
+4. Subs. by s. 9, ibid., for cl. (g). 
+IndiaCode
+13 
+ 
+(h) the scrutiny and counting of vo tes including cases in which a re -count of the votes may be 
+made before the declaration of the result of the election; 
+(i) the safe custody of ballot boxes, ballot papers and other election papers, the period for which    
+such papers shall be preserved and the inspection and production of such papers; 
+(j) any other matter required to be prescribed by this Act. 
+1[(3) Every rule made under this Act shall be laid, as soon as may be after it is made, before each 
+House of Parliament , while it is in session, for a total period of thirty days which may be comprised in 
+one session or in two or more successive sessions , and if, before the expiry of the session immediately 
+following the session or the successive sessions aforesaid, both Houses agree in making any modification 
+in the rule or both Houses agree that the rule should not be made, the rule shall thereafter have effect only 
+in such modified form, or be of no effect, as the case may be; so, however, that any such modification or 
+annulment shall be without prejudice to the validity of anything previously done under that rule.] 
+22. Maintenance of secrecy of voting .—(1) Every officer, clerk or other person who performs any 
+duty in connection with the recording or counting of vo tes a t an election shall maintain, and aid in 
+maintaining, the secrecy of the voting and shall not (except for some purpose authorised by or under any 
+law) communicate to any person any information calculated to violate such secrecy. 
+(2) Any person who contravenes the provisions of sub -section ( 1) shall be punishable with 
+imprisonment for a term which may extend to three months, or with fine, or with both. 
+23. Jurisdiction of civil courts barred .—Save as provided in Part III, no Civil Court shall have 
+jurisdiction to question the legality of any action taken or of any decision given by the Returning Officer 
+or by any other person appointed under this Act in connection with an election. 
+ 
+ 
+_____________ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+1. Ins. by Act 5 of 1974, s. 9. 
+IndiaCode
+14 
+ 
+THE PRESIDENTIAL AND VICE-PRESIDENTIAL ELECTIONS RULES, 1974 
+CHAPTER I 
+Preliminary 
+ 1. Short title and commencement .—(1) These rules 1 may be called the Presidential and                 
+Vice-Presidential Elections Rules, 1974. 
+(2) They shall come into force at once. 
+2. Interpretation.—(1) In these rules, unless the context otherwise requires,— 
+ (a)   “Act” means the Presidential and Vice-Presidential Elections Act, 1952 (31 of 1952); 
+ (b)   “article” means an article of the Constitution of India; 
+ (c)   “Form” means a Form appended to these rules; 
+ (d)   “section” means a section of the Act. 
+ (2) The General Clauses Act, 1897 (10 of 1897), shall apply for the interpretation of these  rules as it 
+applies for the interpretation of an Act of Parliament. 
+CHAPTER II 
+Nomination of candidates 
+3. Public notice of intended election .—The public notice of an intended election referred to in 
+section 5 shall be in Form 1 and shall be published by the Returning Officer by such means, in such 
+language or languages and in such places as the Election Commission may direct. 
+4.   Nomination paper.—Every nomination paper presented under sub-section (1) of section 5B shall 
+be completed in Form 2 or Form 3, as may be appropriate. 
+5. Notice of withdrawal of candidature .—(1) A notice of withdrawal of candidature under                       
+sub-section (1) of section 6 shall be in Form 4. 
+(2) On receipt of such notice, the Returning Officer shall note thereon the date on which and the hour 
+at which it was delivered, and cause a copy thereof, together with the note, to be affixed in some 
+conspicuous place in his office. 
+6.  Preparation and publication of the list of contesting candidates.—In every case in which a poll 
+is to be taken under clause ( b) of section 8, the Returning Officer shall, immediately after the expiry of 
+the period within which candidature may be withdrawn under sub-section (1) of section 6— 
+(a)  prepare in Form 5 a list of contesting candidates (that is to say, candidates who have been 
+duly nominated but have not withdrawn their candidatures within the time specified in that behalf), 
+containing the names in alphabetical order as given in the nomination papers together with their 
+addresses; 
+(b)   cause the list to be published in the Gazette of India   and in such other manner as the 
+Election  Commission may direct; and 
+(c)  cause a copy of the list to be affixed in some conspicuous place in his office. 
+ 
+1. These rules were published with the Ministry of Law, Justice and Company Affairs (Legislative Department) Notification           
+No. S.O. 305(E), dated 21st May, 1974. See Gazette of India, Extraordinary, Part II, Section 3 (ii). 
+IndiaCode
+15 
+ 
+CHAPTER III 
+The Poll 
+7. Fixing place and time of polling for Presidential election.—At every Presidential election where 
+a poll is to be taken, the Election Commission shall— 
+(a)  fix a place of polling in the Parliament House in New Delhi, and also in the premises in each 
+State in which the Legislative Assembly, if any, of that State meets for the transaction of business; 
+(b)  specify with reference to each such place of polling the group of electors who will be entitled 
+to vote, and the hours during which the poll will be taken, at such place; and 
+(c)   give due publicity to the places so fixed and the groups of electors and the hours so specified. 
+8. Fixing place and time of polling for Vice -Presidential election .—At every Vice -Presidential 
+election where a poll is to be taken, the Election Commission shall— 
+(a)   fix a place of polling in the Parliament House in New Delhi; 
+(b)   specify the hours during which the poll will be taken; and 
+(c)   give due publicity to the place so fixed and the hours so specified. 
+9.  Presiding and polling officers .—(1) The Returning Officer or such Assistant Returning Officer 
+as may be specified in this behalf by the Election Commission shall conduct the poll at each place of 
+polling.  Every such officer is hereinafter referred to as the presiding officer. 
+(2)  The presiding officer may appoint such polling officer or officers as he thinks necessary to assist 
+him in taking the poll, but he shall not so appoint any person who has been employed by, or on behalf of, 
+or has been working for, a candidate in or about the election. 
+10. Design and form of ballot papers .—(1) Every ballot paper shall have a counterfoil attached 
+thereto and the said ballot paper and the counterfoil shall be in such form, and the particulars therein shall 
+be in such language or languages, as the Election Commission may direct. 
+(2)   The names of the candidates shall be printed on the ballot paper in the same order as in the list of 
+contesting candidates published under rule 6. 
+(3)   Every presiding officer shall be supplied with a sufficient number of ballot papers by the 
+Election Commission. 
+11. Ballot boxes.—Every ballot box used at the poll shall be of a design previously approved by the 
+Election Commission. 
+12. Procedure before the commencement of poll .—(1) The presiding officer shall, immediately 
+before the commencement of the poll, allow inspection of the ballot box to be used at the poll to such 
+candidates and authorised representatives of candidates as may be present at the place of polling. 
+(2)   The presiding officer shall then secure and seal the box in such manner that the slit for the 
+insertion of ballot papers remains open, and shall also allow such candidates and authori sed 
+representatives of candidates as may be present to affix their own seals, if they so desire. 
+13. Admission to the place of polling .—(1) The presiding officer shall exclude from the place of 
+polling all persons except— 
+(a)   the polling officers and other public servants on duty; 
+(b)   the candidates, and one representative authorised in writing by each candidate; 
+(c)   the electors; 
+IndiaCode
+16 
+ 
+(d)   persons authorised by the Election Commission; and 
+(e)    such other persons as the presiding officer may from time to time admit for the purpose of 
+assisting him in taking the poll. 
+(2)    The presiding officer shall close the place of polling at the hour fixed under clause (b) of rule 7 
+or, as the case may be, under clause ( b) of rule 8 for the close of the poll and shall not admit therein any 
+elector after that hour: 
+Provided that all electors present at the place before it is so closed shall be entitled to have their votes 
+recorded. 
+14. Procedure for giving ballot papers.—(1) The polling officer shall be furnished with an authentic 
+list or part thereof of the electors entitled to vote at the place of polling. 
+(2) Immediately before a ballot paper is delivered to an elector, a mark shall be placed against his 
+name in that list, and the number of the elector as shown in that list shall be entered on the counterfoil of 
+the ballot paper. 
+(3) The elector shall sign his name in the list in token of receipt of the ballot paper, whereupon, but 
+not earlier, the ballot paper shall be delivered to him. 
+15.  Supply of fresh ballot paper in certain circumstances. —(1) An elector who has inadvertently 
+dealt with his ballot paper in such a manner that it cannot be conveniently used as a ballot paper may, on 
+delivering it to the presiding officer and on satisfying him of the inadvertence, obtain another ballot paper 
+in place of the ballot paper so delivered, and the latter shall, together with its counterfoil, be marked as 
+cancelled by the presiding officer. 
+(2) Any ballot papers so cancelled shall be kept in a separate envelope set apart for the purpose. 
+16.  Return of unused ballot papers by electors .—If an elector after obtaining any ballot paper for 
+the purpose of recording his vote decides not to use the same, he shall return the ballot paper to the 
+presiding officer, who shall mark it ‘Returned and cancelled’ and keep it in a separate envelope set apart 
+for the purpose. 
+17.  Manner of recording votes. —(1) Every elector shall have as many preferences as there are 
+candidates but no ballot paper shall be considered invalid solely on the ground that all such preferences 
+are not marked. 
+(2)   An elector in giving his vote— 
+(a)   shall place on his ballot paper the figure 1 in the space opposite the name of the candidate 
+whom he chooses for his first preference; and 
+(b)   may, in addition, mark as many subsequent preferences as he wishes by placing on his ballot 
+paper the figures 2,  3 ,4 and so on, in the spaces opposite the names of other candidates, in order of 
+preference. 
+Explanation.—The figures referred to in clauses (a) and (b) of this sub-rule may be marked in the 
+international form of Indian numerals or in the Roman form or in the form used in any Indian 
+language but shall not be indicated in words.  
+(3)   The presiding officer shall, if requested by an elector, explain to him the instructions contained 
+on the ballot paper for the recording of  votes. 
+18. Maintenance of secrecy of voting by electors within place of polling and voting procedure.—
+(1) Every elector to whom a ballot paper has been delivered under rule 14 shall maintain secrecy of voting 
+within the place of polling and for that purpose observe the voting procedure hereinafter laid down. 
+(2) An elector on receiving the ballot paper shall forthwith— 
+(a)   proceed to one of the voting compartments; 
+IndiaCode
+17 
+ 
+(b)   record his vote in accordance with sub-rule (2) of rule 17; 
+(c)   fold the ballot paper so as to conceal his vote; 
+(d)   insert the folded ballot paper into the ballot box; and 
+(e)   quit the place of polling. 
+(3) Every elector shall vote without undue delay. 
+(4) No elector shall be allowed to enter a voting compartment when another elector is inside it. 
+19. Recording of votes of illiterate or disabled elector.—(1) If an elector is unable to read the ballot 
+paper or to record his vote thereon in accordance with rule 17 by reason of illiteracy or blindness or, by 
+not being conversant with the language in which the ballot papers are printed or, by reason of any 
+physical or other disability, the presiding officer shall record the vote on the ballot paper in accordance 
+with the wishes of the elector. 
+(2) The elector shall then himself or with the assistance of the presiding officer fold up the ballot 
+paper so as to conceal his vote and insert it into the ballot box. 
+(3) While acting under this rule, the presiding officer shall observe as much secrecy as is feasible and 
+shall keep a brief record of each such instance but shall not indicate therein the manner in which any vote 
+has been cast. 
+20. Account of ballot papers.—(1) The presiding officer shall at the close of the poll prepare a ballot 
+paper account in Form 6 and enclose it in a separate cover with the words “Ballot Paper Account” 
+superscribed thereon. 
+(2)  The presiding officer shall permit the authori sed representative of a candidate, who so desires, to 
+take a true copy of the entries in the ballot paper account and shall attest it as true copy. 
+21.  Sealing up of ballot boxes and papers after the close of poll .—(1) As soon as practicable after 
+the close of poll the presiding officer shall, in the presence of such candidates and authori sed 
+representatives of candidates as may be present, close and seal up the slit as well as the ballot box. 
+(2)  He shall also make up into separate packets— 
+ (a)   the copy of the list of electors marked in accordance with rule 14; 
+ (b)   the counterfoils of ballot papers; 
+(c)   the ballot papers cancelled under rules 15 and 16; and 
+(d)   the unused ballot papers,  
+and seal each such packet with his own seal and the seals of those candidates and authori sed 
+representatives of candidates who may desire to affix their seal thereon. 
+22. Transfer of ballot papers from ballot boxes in certain cases .—(1) Notwithstanding anything 
+contained in rule 21, the Election Commission may, at a Presidential election, direct the presiding officer 
+at any place of polling other than the Parliament House in New Delhi to follow after the close of the poll 
+the procedure laid down in this rule instead of the procedure laid down in sub-rule (1) of rule 21. 
+(2) Where a direction has been issued under sub -rule ( 1), the presiding officer shall, as soon as 
+practicable after the close of the poll, open the ballot box in the presence of such candidates and 
+authorised representatives of candidates as may be present and transfer all the ballot papers contained in it 
+without examining or counting them into a separate cover and record on such cover— 
+(a) the name of the place of polling; and 
+IndiaCode
+18 
+ 
+(b) the date of the poll. 
+(3)   After such transfer he shall allow the candidates and their authorised representatives who may be 
+present, to inspect the ballot box and demonstrate to them that it is empty. 
+(4)   He shall then seal the cover with his own seal and the seals of those candidates and authori sed 
+representatives of candidates who may desire to affix their seals thereon. 
+(5)   The cover so sealed shall, for the purposes of rules 23,  25, 32 and 33, be deemed to be the ballot 
+box used at that place of polling and the provisions of those rules shall apply accordingly. 
+23. Despatch and custody of ballot boxes and papers.—(1) At a Presidential election, the presiding 
+officer at every place of polling other than the Parliament House in New Delhi shall forthwith cause the 
+sealed ballot box and packets and all other papers used at the poll to be sent to the Returning Officer in 
+accordance with   such general or special instructions as may be issued in that behalf by the Election 
+Commission. 
+(2)  The Returning Officer shall make adequate arrangements for the safe custody of all sealed ballot 
+boxes and packets and other papers used at the poll, until the commencement of the counting of votes. 
+24. Adjournment of poll in emergencies. —(1) If the proceeding s at any place of polling are 
+interrupted or obstructed by riot or  open violence, or if it is not possible to take the poll at any such place 
+on account of a natural calamity or other sufficient cause, the presiding officer shall announce an 
+adjournment of the poll to a date to be notified later, and immediately report the circumstances to the 
+Election Commission and, unless he is the Returning Officer, also to the Returning Officer. 
+(2) Whenever a poll is adjourned under sub -rule (1), the Election Commission shall, as soon as may 
+be , fix the day on which, the place at which, and the hours during which the adjourned poll shall be 
+taken, and shall notify the said details to all concerned in such manner as it may think fit. 
+(3)   On the date on which such adjourned poll is taken, the electors who have already voted at the 
+poll before its adjournment will not be entitled to vote, but only the remaining electors who were entitled 
+to vote at the place of polling before its adjournment may vote. 
+25.   Fresh poll in case of destruction, etc., of ballot boxes .—(1) If at an election, any ballot box is 
+unlawfully taken away from the custody of the presiding officer or the Returning Officer or is in any way 
+tampered with, destroyed or lost, the poll taken at the place of polling where that ballot box was used 
+shall be deemed to have been vitiated; and the Returning Officer shall, as soon as practicable, report the 
+matter to the Election Commission, which shall appoint a day for the taking of a fresh poll at that place 
+and fix the hours during which it will be taken. 
+(2)  In every such case as aforesaid, the provisions of these rules shall apply to the fresh poll as they 
+apply to the original poll. 
+26. Voting by electors under preventive detention .—(1) Notwithstanding anything in the fore 
+going provisions of this Chapter, an elector may, if he is subjected to preventive detention under any law 
+for the time being in force, give his vote by postal ballot. 
+(2) The Election Commission shall send by registered post to the officer -in-charge of the jail or other 
+place where the elector is detained the appropriate ballot paper, together with a form of declaration of 
+identity and attestation of signature and necessary envelopes specially prepared for the purpose and a 
+letter of instructions, so as to reach that officer in good time before the date fixed for polling. 
+(3)  On the date of polling the said officer shall deliver the ballot paper and other necessary papers to 
+the elector, allow him all reasonable facilities and sufficient time, not exceeding two hours, for recording 
+his vote in accordance with the instructions of the Election Commission, and if and when the elector has 
+so recorded his vote, send the ballot paper and other connected papers in a sealed cover, either by 
+IndiaCode
+19 
+ 
+registered post or through   a special messenger, to the Returning Officer so as to reach him before the 
+time fixed for the counting of votes under rule 27. 
+(4)  It shall be the duty of every Government to intimate to the Election Commission at the 
+appropriate time the names of electors, if any, who are subjected to preventive   detention by or under the 
+authority of that Government, together with the necessary particulars as to their places of detention. 
+CHAPTER IV 
+COUNTING OF VOTES AND DECLATATION OF RESULT 
+27. Place and time for counting of votes.—The counting of votes shall take place at the office of the 
+Returning Officer in New Delhi on such day and at such time as the Election Commission may appoint in 
+this behalf; and the Election Commission shall give notice to all the candidates of the date and time so 
+appointed. 
+28.  Admission to the place fixed for counting .—The Returning Officer     shall exclude    from the 
+place fixed for counting of votes all persons except— 
+(a)   such persons as he may appoint to assist him in the counting; 
+(b)   the candidates and one representative at time a  authorised in writing by each candidate;  
+(c) public servants on duty in connection with the election; and 
+(d) persons authorised by the Election Commission. 
+29. Maintenance of secrecy of voting .—Before the counting begins,   the Returning Officer    shall 
+read out the provisions of section 22 to the persons present. 
+30.  Statement showing the number of votes of each elector at the Presidential election.—For the 
+purposes of every Presidential election, the Election Commission    shall furnish   the Returning Officer 
+with a statement   showing the number of votes which every elector has under the provisions of clause (2) 
+of article 55;  and every ballot paper put in by an elector   at that  election shall be deemed to represent as 
+many votes as that elector is shown as having in that statement. 
+31. Ballot papers when invalid.—(1) A ballot paper shall be invalid on which— 
+(a) the figure 1 is not marked; or 
+(b) the figure 1 is marked opposite the name of more than one candidate or is so marked as to 
+render it doubtful to which candidate it is intended to apply; or 
+(c) the figure 1 and some other figure are marked opposite the name of the same candidate; or 
+(d) any mark is made by which the elector  may afterwards be identified. 
+Explanation.—The figures referred to in clauses ( a), (b) and (c) of this sub -rule may be marked 
+in the international form of Indian numerals or in the Roman form or in the form used in any Indian 
+language, but shall not be indicated in words. 
+(2)  A ballot paper shall also be invalid if, being a postal ballot paper, the signature of the elector is 
+not duly attested. 
+32. Procedure upon opening each ballot box. —After each ballot box and also each sealed cover          
+(if any) received under sub-rule (3) of rule 26, has been opened, the Returning Officer shall— 
+(a)    count the number of ballot papers taken out  there from and complete Part II of the Ballot 
+Paper Account in Form 6; 
+(b)   scrutinise the ballot papers and separate those which in his opinion are valid from those 
+which in his opinion are invalid, endorsing on the latter the word ‘rejected’ and the ground of 
+rejection; and 
+IndiaCode
+20 
+ 
+(c)  arrange all the valid ballot papers in parcels according to the first preferences recorded for 
+each candidate: 
+Provided that if, at a Presidential election, the ballot box used at a place of polling contains ballot 
+papers of electors who, at their request are specially permitted by the Election Commission in pursuance 
+of rule 7 to cast their votes at the said place of polling, such ballot papers shall, after the counting and 
+recording in Form 6 is completed, be separated and added to the other ballot papers of the same kind used 
+by electors in the same category and shall thereafter be scrutinised. 
+33. Determination of result.—After all the ballot boxes and sealed covers (if any) have been opened 
+and the ballot papers have been scrutinised and arranged, the Returning Officer shall proceed to determine 
+the result of the voting in accordance with the instructions contained in the Schedule to these rules. 
+34. Recounting.—The Returning Officer may, either on his own initiative or at the instance of any 
+candidate or of the authorised representative of a candidate in the absence of that candidate, recount votes, 
+whether once or more than once, when the Returning Officer is not satisfied as to the accuracy of a 
+previous count: 
+Provided that nothing herein contained shall make it obligatory on the Returning Officer to recount 
+the same votes more than once. 
+35. Declaration of result.—(1) When the counting is complete and the result of the voting has been 
+determined, the Returning Officer shall forthwith— 
+(a)  announce the result to those present; 
+(b) report the result to the Central Government and the Election Commission under section 12; 
+(c) prepare and certify a return of the election in Form 7; and 
+(d) seal up in separate packets the valid ballot papers and the rejected ballot papers and record on 
+each such packet a description of its contents. 
+(2) The Returning Officer shall, as soon as may be thereafter, forward the certified return to the 
+Election Commission. 
+CHAPTER V 
+MISCELLENOUS 
+ 36. Custody of ballot boxes and election papers .—All ballot boxes used at the election and the 
+packets of ballot papers and all other papers relating to the election shall, after the election, be kept in 
+such custody as the Election Commission may direct. 
+ 37. Production and inspection of election papers.—(1) The packets of ballot papers, whether valid 
+or rejected, and their counterfoils and the packets containing the lists of electors marked in accordance 
+with rule 14 shall not be opened, nor shall their contents be inspected by, or produced before, any person 
+or authority, except under the order of the Supreme Court or other competent court.  
+(2) All other papers relating to the election shall be open to public inspection subject to such 
+conditions and to the payment of such fee, if any, as the Election Commission may direct. 
+ 38. Disposal of election papers .—The packets and other papers referred to in rule 37 shall be 
+retained for a period of two years from the date of declaration of the result of the election, and shall 
+thereafter be destroyed unless a direction to the contrary is given by the Supreme Court or other 
+competent court or by the Election Commission. 
+ 39. Copies of return of election.—Copies of the certified return of the election referred to in rule 35 
+shall be furnished by the Election Commission on payment of a fee of one rupee per copy. 
+ 40. List of electors .—The Election Commission shall maintain a list of members of the electoral 
+college referred to in article 54 and a list of members of the electoral college referred to in article 66, with 
+their addresses corrected up to date for the purposes, respectively, of Presidential election and                  
+Vice-Presidential election. 
+ 41. Repeal.—The Presidential and Vice-Presidential Election Rules, 1952, are hereby repealed. 
+IndiaCode
+21 
+ 
+FORM 1 
+(See rule 3) 
+PUBLIC NOTICE 
+OF 
+ELECTION TO THE OFFICE OF *PRESIDENT/*VICE-PRESIDENT OF INDIA 
+Whereas a notification under sub -section ( 1) of section 4 of the Presidential and Vice -Presidential 
+Elections Act, 1952, for the holding of an election to fill the office of President/Vice -President of India 
+has been issued by the Election Commission, I……………………., the Returning Officer for such 
+election, do hereby give notice that— 
+ (i)  nomination papers may be delivered by a candidate or any one of his proposers or seconders 
+to the undersigned at his office in ………………New Delhi, or if he is unavoidably absent, to 
+……………………..at the said office between 1 1 a.m. and 3 p.m. on any day (o ther than a public 
+holiday) not later than the……………………………; 
+(ii) each nomination paper shall be accompanied by a certified copy of the entry relating to the 
+candidate in the electoral roll for the Parliamentary constituency in which the candidate is registered 
+as an elector; 
+(iii) every candidate shall deposit or cause to be deposited a sum of 1[rupees fifteen thousand]  
+only.  This amount may be deposited in cash with the Returning  Officer at the time of presentation of 
+the nomination paper or deposited earlier in the Reserve Bank of India or in a Government Treasury 
+and in the latter case a receipt showing that the said deposit of the sum has been so made is required 
+to be enclosed with the nomination paper; 
+(iv) forms of nomination papers may be obtained from the above said office at the times 
+aforesaid; 
+(v) the nomination papers, other than those rejected under sub -section (4) of section 5B of the 
+Act, will be taken up for scrutiny at….(place) on…………………….(date) at …………….(hours); 
+(vi) the notice of withdrawal of candidatures may be delivered by a candidate, or any one of his 
+proposers or seconders who has been authori sed in   this behalf in writing by the candidate, to the 
+undersigned at the place specified in paragraph (i) above before three o’clock in the afternoon of 
+…….(date); 
+(vii) in the event of the election being contested, the poll will be taken on ………….(date) 
+between hours of …………..and…………..at the places of polling fixed under the rules. 
+  
+Place…………………….                                                                 (Signature)………… 
+                     (Returning Officer) 
+ 
+ 
+Dated the……………….                                                 
+                                                                                                    (Designation)……………. 
+ 
+*Strike off if inapplicable. 
+1. Subs. by  S.O.431(E) , dated 6th June,1997 (w.e.f. 6-6-1997). 
+IndiaCode
+22 
+ 
+FORM 2 
+(See rule 4) 
+NOMINATION PAPER 
+ELECTION TO THE OFFICE  OF THE PRESIDENT OF INDIA 
+ We hereby nominate……………………………………………………………................ 
+(Full name and address of the candidate) 
+ as a candidate for election to the office of the President of India. 
+ We have verified, and do hereby declare, that the said candidate has completed the age of  35 years 
+and is registered in the electoral roll for the Parliamentary constituency 
+of…………………………………in the State of ……………… 
+A certified copy of the entry in that electoral roll relating to the said candidate is attached. 
+We further declare that we are members of the electoral college referred to in article 54 of the 
+Constitution  being elected members of the House of the People or Council of States or the Legislative 
+Assembly as indicated hereunder and we append our signatures below in token of subscribing to this 
+nomination:— 
+Particulars of the proposers and their signatures 
+ 
+SI. No. Full name Whether elected 
+member of the house 
+of the people/Council 
+of States/Legislative 
+Assembly 
+State/Union territory (in the 
+case of member elected to 
+the House of the People or 
+Council of States from a 
+Union territory) in/ from 
+which elected 
+Signature  Date 
+1 2 3 4 5 6 
+1.      
+2.      
+3.      
+4.      
+5.      
+6.      
+7.      
+8.      
+9.      
+10.      
+11.      
+12.      
+13.      
+14.      
+15.      
+*etc.      
+*[There should be at least fifty electors as proposers.]1 
+ 
+1. Subs. by S.O. 431(E), dated 6th June, 1997 (w.e.f. 6-6-1997). 
+IndiaCode
+23 
+ 
+Particulars of the seconders and their signatures 
+ 
+S. l. No. Full name       Whether elected 
+member of the house 
+of the People/Council 
+of States/Legislative 
+Assembly 
+State/Union territory 
+(in the case of member 
+elected to the House of 
+the People or Council 
+of States from a Union 
+territory) in/ from 
+which elected 
+Signature  Date 
+1 2 3 4 5 6 
+1.      
+2.      
+3.      
+4.      
+5.      
+6.      
+7.      
+8.      
+9.      
+10.      
+11.      
+12.      
+13.      
+14.      
+15.      
+*etc.      
+*[There should be at least fifty electors as seconders.]1 
+I assent to this nomination. 
+           ............................. 
+                                                                                                   Signature of candidate 
+                                                                                                       
+         Date……………….. 
+  
+ 
+1. Subs. by S.O. 431(E), dated 6th June, 1997 (w.e.f. 6-6-1997). 
+IndiaCode
+24 
+ 
+(To be filled by the Returning Officer) 
+  
+Serial Number of nomination paper………………………………………………………. 
+           This nomination paper was delivered to me at my office at…………..(hour) on……….(date) by 
+the candidate/proposer………………(name)/seconder…………(name) with enclosures as indicated 
+below purporting to be— 
+ (1)  
+ (2) 
+  
+Date……………                                                                       ………………….. 
+                                                                                                   Returning Officer. 
+  
+[Decision of the Returning Officer (if any) under sub-section (4) of section 5B 
+ I have rejected this nomination paper under sub -section ( 4) of section 5B of the Presidential and 
+Vice-Presidential Elections Act, 1952 for the reasons given below— 
+ 
+ 
+Date………….                                                                                     ……………….. 
+                                                                                                              Returning Officer] 
+Decision of the Returning Officer accepting or rejecting the nomination paper 
+ I have examined this nomination paper in accordance with section 5E of the Presidential and       
+Vice-Presidential Elections Act, 1952 and decide as follows:— 
+                                                                                                                                                                    
+ 
+Date…………….                                                                     …………………. 
+                                                                                                   Returning Officer 
+  
+  
+(Perforation)……………………………………………………………………..................................... 
+IndiaCode
+25 
+ 
+Receipt for Nomination Paper and Notice of Scrutiny 
+(To be handed over to the person presenting the nomination  paper) 
+Serial Number of the nomination paper………………………………………………. 
+ The nomination paper of………………..(name), a candidate for election to the office of the 
+President of India, was delivered to me at my office at………….(hour) on................................................ 
+..........(date) by the candidate/proposer....................(name)/seconder.................................(name). 
+ All nomination papers, other than those rejected under sub -section ( 4) of section 5B of the 
+Presidential and Vice -Presidential Elections Act, 1952, will be taken up for scrutiny 
+at………………………….(hour) on………………….(date) at………..(place). 
+ [2. The nomination paper of this candidate has been rejected by me under sub -section (4) of section 
+5B of the Presidential and Vice-Presidential Elections Act, 1952 for the reasons given   below:—] 
+  
+   
+Date………………………….                                                  ……………………….. 
+                                                                                                                        Returning Officer 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+[ ] Score out if not applicable. 
+IndiaCode
+26 
+ 
+FORM 3 
+(See rule 4) 
+NOMINATION PAPER 
+ELECTION TO THE OFFICE OF THE VICE-PRESIDENT OF INDIA. 
+ We, the undersigned Members of the electoral college referred to in article 66 of the Constitution 
+being Members of Parliament hereby nominate……………………………….  
+……………………………………(full name and address of candidate)  as a candidate for election to the 
+office of the Vice-President of India. 
+         We have verified, and do hereby declare, that the said candidate has completed the age of 35 years   and 
+is registered in the electoral roll for the Parliamentary constituency of ………………………in the State 
+of ………………………………. 
+  A certified copy of the entry in that electoral roll relating to t he said candidate is attached.  We 
+furnish our full particulars as indicated hereunder and append our signatures below in token of 
+subscribing to this nomination. 
+Particulars of the proposers and their signatures 
+ 
+Sl. No.  Full name Whether member of the 
+House of the 
+People/Council States 
+State/Union 
+territory from 
+which 
+Signature  Date 
+1 2 3 4 5 6 
+1.      
+2.      
+3.      
+4.      
+5.      
+6.      
+7.      
+8.      
+9.      
+10.      
+*etc.      
+*[There should be at least fifty electors as proposers.]1 
+ 
+1. Subs. by S.O. 431(E), dated 6th June, 1997 (w.e.f. 6-6-1997). 
+IndiaCode
+27 
+ 
+Particulars of the seconders and their signatures 
+  
+Sl. No. Full name Whether member of the 
+House of the 
+People/Council of 
+States 
+State/Union 
+territory from 
+which elected 
+Signature Date 
+1 2 3 4 5 6 
+1.      
+2.      
+3.      
+4.      
+5.      
+6.      
+7.      
+8.      
+9.      
+10.      
+*etc.      
+*[There should be at least fifty electors as seconders.]1 
+ I assent to this nomination. 
+  
+                                                                                                                         ………………….. 
+                                                                                                              Signature of candidate. 
+Date........................
+ 
+1. Subs. by S.O. 431(E), dated 6th June, 1997 (w.e.f. 6-6-1997). 
+IndiaCode
+28 
+ 
+ 
+(To be filled by the Returning Officer) 
+ Serial Number of nomination paper………………………. 
+         This nomination was delivered to me at my office a t……………(hour) 
+on………………………..(date) by the candidate/proposer........................(name)/seconder..............(name) 
+with enclosures as indicates below purporting to be— 
+  
+            (1) 
+            (2) 
+ Date…………….. 
+  
+  ……………………… 
+  Returning Officer 
+  
+[Decision of the Returning Officer (if any) under sub-section (4) of section 5B 
+      I have rejected this nomination paper under sub -section ( 4) of section 5B of the Presidential and  
+Vice-Presidential Elections Act, 1952, for the reasons given below:— 
+  
+   
+Date……………                                                                                             …………………. 
+                                                                                                                                    Returning Officer] 
+             
+Decision of the Returning Officer accepting or rejecting the nomination paper. 
+ I have examined this nomination paper in accordance with section 5E of the Presidential and             
+Vice-Presidential Elections Act, 1952 and decide as follows:— 
+  
+ Date……………                                                                                             …………………. 
+                                                                                                                                    Returning Officer 
+  
+(Perforation)……………………………………………………………………………………….. 
+IndiaCode
+29 
+ 
+Receipt for nomination paper and notice of scrutiny 
+(To be handed over to the person presenting the nomination paper) 
+ Serial Number of the nomination paper………………………………………………………. 
+The nomination of …………………..(name), a candidate for election to the office of the                   
+Vice-President of India was delivered to me at my office at………………………(hour) 
+on………………(date) by the candidate/proposer.........................(name)/seconder....................(name). 
+All nomination papers other than those rejected under sub-section (4) of section 5B of the Presidential 
+and Vice -Presidential Elections Act, 1952, will be taken up for scrutiny 
+at…………………………………….(hour) on....................................(date) at.............................(place). 
+   [2. The nomination paper of this candidate has been rejected by me under sub -section (4) of section 5B 
+of the Presidential and Vice-Presidential Elections Act, 1952, for the reasons given below:—] 
+ Date……………..                                                                                                                                           
+                                                                          
+               .................................. 
+             
+                Returning Officer 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+[ ] Score out if not applicable. 
+ 
+  
+IndiaCode
+30 
+ 
+FORM 4 
+[See rule 5(1)] 
+NOTICE OF WITHDRAWL 
+To 
+          The Returning  Officer  for the election to the office of President/Vice-President of India. 
+           I,………………………………..(name) of………….(address) a candidate at the above -
+mentioned election do hereby give notice that I withdraw my candidature. 
+  
+Place………………                                                                      ………………......... 
+Date…………………                                                                  Signature of candidate 
+______________________________________________________________________________ 
+Note:—The notice of withdrawal is required to   be delivered under section 6( 1) of the Presidential and 
+Vice-Presidential Elections Act, 1952, by the candidate in      person  or   by any one of his 
+proposers or seconders   who has been authorised in this behalf in writing by such candidate. 
+IndiaCode
+31 
+ 
+FORM 5 
+[See rule 6(a)] 
+ELECTION TO THE OFFICE OF PRESIDENT/VICE-PRESIDENT OF INDIA 
+List of contesting   Candidates 
+ 
+Sl. No. Name of candidate Address of candidate 
+1.   
+2.   
+3.   
+4.   
+etc.   
+ 
+ 
+ 
+ 
+ 
+Place............................... 
+Date..............................       ............................... 
+          Returning Officer 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+IndiaCode
+32 
+ 
+FORM 6 
+(See rule 20) 
+PART I—BALLOT PAPER ACCOUNT 
+ELECTION TO THE OFFICE OF PRESIDENT/VICE-PRESIDENT OF INDIA 
+  
+Name of the place of polling……………………………….. 
+  
+  Serial Numbers Total Numbers 
+     From       to  
+1. Ballot papers received   
+2. Ballot papers unused   
+3. Ballot papers issued to voters   
+4. Ballot papers cancelled.   
+                                                                                 
+  
+  
+Date………………..                                                                          ……………………………. 
+                                                                                                          Signature of  Presiding Officer 
+  
+PART II—RESULT OF COUNTING 
+(See rule 32) 
+(1)  Total number of ballot papers found in the ballot box (boxes) used at the place 
+of polling………………………….. 
+ (2)    Discrepancy if any between the total number as shown against item (1) in this Part   and 
+the    total  number of ballot papers issued to voters as shown in item  3 of Part I minus the number of 
+ballot papers  cancelled as shown in item 4 of Part I. 
+  
+  
+  
+Date…………………………..                                                    ……………………………… 
+                                                                                                       Signature of the Returning Officer. 
+IndiaCode
+33 
+ 
+FORM 7 
+[See rule 35(1)(c)] 
+RETURN OF ELECTION TO THE OFFICE OF PRESIDENT/VICE-PRESIDENT OF INDIA 
+ 
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 
+Serial No. 
+Name 
+of 
+Candidate 
+Votes secured at first count 
+Votes credited at first exclusion 
+Total of columns 3 and 4 
+Votes credited at second exclusion 
+Total of columns 5 and 6 
+Votes credited at third exclusion 
+Total of columns 7 and 8 
+Votes credited at fourth exclusion 
+Total of columns 9 and 10 
+    
+               
+Exhausted votes              
+TOTAL              
+ 
+Total No. of valid ballot papers……………….representing …………………votes. 
+Total number of invalid ballot papers…………..representing ……………..votes. 
+  
+I declare that 
+   
+(Name)……………………………………………………………………………….. 
+(Address)………………………………………………………………………………. 
+  
+has been duly elected to the office of  the President/Vice-President of India. 
+  
+Place………………….. 
+ Date…………………….                                                                         ………………………. 
+                                                                                                                 Returning Officer 
+IndiaCode
+34 
+ 
+THE SCHEDULE 
+(See rule 33) 
+Instructions for the determination of Result 
+1. In this Schedule— 
+ (1)   the expression “continuing candidate” means any candidate not elected and not excluded 
+from the poll at any given time. 
+ (2)   the expression “first preference” means the figure I set opposite the name  of any candidate, 
+the expression  “second preference” similarly means the figure 2,  the expression “third preference” 
+the figure 3, and so on; 
+ (3)   the expression   “next available preference” means the second or subsequent preference 
+recorded in consecutive numerical order for a continuing candidate, preferences for candidates 
+already excluded being ignored; 
+ (4)   the expression “unexhausted paper” means a ballot paper on which a further   preference is 
+recorded for a continuing  candidate; 
+ (5)   the expression “exhausted paper” means a ballot paper on which no further preference is 
+recorded for a continuing candidate, provided that a paper shall be deemed to be e xhausted in any 
+case in which— 
+ (a) the names of two or more candidates whether continuing    or not are marked with the 
+same figure, and are next in order of preference; or 
+ (b) the name of the candidate next in order of preference, whether continuing or not ,is 
+marked by a figure not following   consecutively after some other figure on the ballot paper or by 
+two or more figures. 
+2. Every ballot paper represents at each count— 
+ (a) in a Presidential election, the number of votes as determined under rule 30; and 
+ (b) in a  Vice-Presidential election,  one vote. 
+ 3. Ascertain the number of first   preference votes secured by each candidate and credit him with that 
+number. 
+ 4. Add up  the numbers so credited to all the candidates, divide the total by two, and add one to the 
+quotient disregarding any   remainder. The resulting number is the quota sufficient to secure the turn of a 
+candidate at the election. 
+ 5. If at the end of   the first or any subsequent count, the total number of votes credited to any 
+candidate is equal to, or greater than, the quota, or there is only one continuing candidate, that candidate is 
+declared elected. 
+6. If at the end of any count, no candidate can be declared elected,— 
+ (a)  exclude the candidate who up to that stage has been credited with the lowest number of 
+votes. 
+ (b) examine all the ballot papers in his parcel and sub-parcels,  arrange the unexhausted papers in 
+sub-parcels according to the next available preferences recorded thereon for the continuing 
+candidates, count the number of votes in each such sub-parcel and credit it to the candidate for whom 
+IndiaCode
+35 
+ 
+such preference is recorded, transfer the sub-parcel to that candidate, and make as  separate sub-parcel 
+of all the exhausted papers; and 
+ (c) see whether any of the continuing candidates has, after such transfer and credit, secure    the 
+quota. 
+     If, when a candidate has to be excluded under clause  (a) above, two or more candidates have been 
+credited with the same number of votes  and stand lowest on the poll,  exclude that candidate who had 
+secured the lowest number of first preference votes,   and if that number  also was the same in the case of 
+two or more or more candidates, decide by lot which  of them shall be excluded. 
+ All the sub -parcels of exhausted papers referred to in clause ( b) above shall be  set apart as finally 
+dealt with and the votes recorded thereon shall not thereafter be taken into account. 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+IndiaCode
+36 
+ 
+STATEMENT OF OBJECTS AND REASONS 
+“Article 54 of the Constitution provides that the President of India shall be elected by the members of 
+an electoral college consisting of (a) the elected members of both Houses of Parliament and (b) the 
+elected members of the Legislative Assemblies of the States, and article 55 prescribes the manner in 
+which the election shall be held. Article 66 provides that the Vice -President shall be elected by the 
+members of both Houses of Parliament assembled at a joint meeting. Article 71(1) lays down that doubts 
+and disputes arising out of or in connection with the election of a President or Vice -President shall be 
+inquired into and decided by the Supreme Court  Article 71(3) authorises Parliament to regulate by law, 
+subject to the provisions of the Constitution, any matter relating to or connected with the election of a 
+President or Vice-President. 
+The Bill seeks to provide for the conduct of elections to the offices of President and Vice -President, 
+the decision of disputes arising out of or in connection with such elections, the corrupt practices and other 
+offences at or in connection with such elections and other ancillary matters.” 
+ 
+  
+  
+  
+NEW DELHI:        KAILAS NATH KATU. 
+The 17th January, 1952  
+IndiaCode

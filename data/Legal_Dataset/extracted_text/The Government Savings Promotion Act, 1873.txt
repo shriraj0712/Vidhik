@@ -1,0 +1,417 @@
+1 
+ 
+THE GOVERNMENT SAVINGS PROMOTION ACT, 1873 
+__________ 
+ARRANGEMENT OF SECTIONS 
+__________ 
+PREAMBLE  
+Preliminary 
+SECTIONS 
+1. Short title.  
+Local extent.  
+2. [Omitted .]. 
+3. Definitions.  
+3A. Framing of Savings Schemes. 
+3B. Deposit by minor. 
+Deposits belonging to the Estates of deceased Persons. 
+4. Nomination by depositor.  
+4A. Payment on death of depositor.  
+5. Payment to be a discharge.  
+ Saving of right of executor.  
+ Saving of right of creditor.  
+6. Security for due administration.  
+7. Power to administer  oath. 
+Penalty for false statements.  
+7A. Power to call for information. 
+8. Deposit when excluded in computing court fees.  
+9. [Omitted .]. 
+Deposits belonging to Minors 
+10. Payment of deposits to minor or guardian.  
+11. [Omitted .]. 
+Deposits belonging to lunatics 
+12. Payment of deposits belonging to lunatics.  
+12A. Operation of account by differently abled persons. 
+[Omitted .]. 
+13. [Omitted .]. 
+Miscellaneous  
+14. Protection of action taken in good faith.  
+14A. Protection against attachment. 
+15. Power to make rules.  
+16. Repeal and savings. 
+THE SCHEDULE 
+  
+IndiaCode
+2 
+ 
+THE GOVERNMENT SAVINGS PROMOTION ACT, 1873  
+ACT NO. 5 OF 18731 
+[28th January , 1873.]  
+2[An Act to regulate and channelise the savings from general public into Government Savings 
+Schemes.] 
+Preamble.—WHEREAS it is expedient to amend the law relating to the payment of deposits in 
+Government Savings Banks; It is hereby enacted as follows:—  
+Preliminary 
+1. Short title. —This Act may be called the Government Savings 3[Promotion]  Act, 1873.  
+Local extent.—It extends to 4[the whole of India 5***].  
+6*   *   *   *               * 
+2. [Act not to apply to d eposits in Anchal Savings Bank .]Omitted by the Finance Act, 2018 (13 of 
+2018), s. 117 (w.e.f. 1-4-2018). 
+ 7[3. Definitions.—In this Act, unless the context otherwise requires,— 
+(a) “account” means an account opened under any of the Savings Schemes; 
+(b) “administrator” means an administrator as defined in clause ( a) of  section 2  of the Indian 
+Succession Act, 1925 (39 of 1925); 
+(c) “Authorised Officer” means— 
+(i) in the case of a Post Office Savings Bank, an officer authorised by the Director General 
+Posts; and 
+(ii) in the case of State Bank of India or a banking company or any other company or 
+institution, an officer so authorised by State Bank of India or tha t banking company or that other 
+company or that institution, as the case may be; 
+(d) “banking company” means a banking company as defined in clause ( c) of  section 5  of the 
+Banking Regulation Act, 1949 (10 of 1949); 
+(e) “depositor” means an individual by whom, or on whose behalf money has been deposited in a 
+Government Savings Bank and “deposit” means the money so deposited; 
+(f) “executor” means an executor as defined in clause ( c) of section 2 of the Indian Succession 
+Act, 1925 (39 of 1925); 
+(g) “Government Savings Bank” means— 
+(i) a Post Office Savings Bank; or 
+                                                      
+1. The Act has been extended to the Union territory of Goa, Daman and Diu vide Notification No. S.O. 2734 dated 1st September, 
+1962, see Gazette of India, Extraordinary, Pt. II, Sec. 300, p. 1991, extended to and brought into force in Dadra and Nagar Haveli by 
+Reg. 6 of 1963, s. 2 and Sch. I (w.e.f. 1-7-1965) and to the whole of the Union territory of Lakshadweep by Reg. 8 of 1965, s. 3 and 
+Sch.. (w.e.f. 1-10-1967).  
+ The Act came into force in Pondicherry on 1-10-1963 vide Reg. 7 of 1963, S. 3 and Sch. I. 
+2.  Subs. by Act 13 of 2018, s.114, for long title (w.e.f. 1-4-2018). 
+3.  Subs. by s. 115, ibid., for “Banks” (w.e.f. 1-4-2018). 
+4. Subs. by the A.O. 1950, for “all the Provinces of India ” which had been subs, by the A. O. 1948, for  “the whole of British 
+India”. 
+5. The words “except the State of Jammu an d Kashmir” which were subs. by Act 3 of 1951, for “except Part B States” omitted 
+by Act 62 of 1956, s. 2 and Sch. 
+6. The commencement clause rep. by Act 16 of 1874, s. 1 and Sch., Pt. I.   
+7.  Subs. by Act 13 of 2018, s. 118, for section 3 (w.e.f. 1-4-2018). 
+IndiaCode
+3 
+ 
+(ii) State Bank of India or a banking company, or any other company or institution, as the 
+Central Government may, by notification in the Official Gazette, specify for the p urposes of this 
+Act; 
+(h) “guardian”, in relation to a minor or a person of unsound mind means— 
+(i) either of the parents; 
+(ii) where neither parent is alive or where neither or the only living parent is incapable of 
+acting as such, a person entitled under the law for the time being in force to have the care of the 
+property of a minor or a person of unsound mind, as the case may be; 
+(iii) legal guardian appointed by a court; 
+(i) “minor” means a person who has not attained the age of majority under the Indian  Majority 
+Act, 1875 (9 of 1875); 
+(j) “prescribed” means prescribed by rules made under this Act; 
+(k) “Savings Schemes” means the Government Savings Schemes, including Savings Certificates 
+and Public Provident Fund Scheme, listed in the Schedule; 
+(l) “Schedule” means the Schedule annexed to this Act. 
+3A. Framing of Savings Schemes.—(1) The Central Government may, by notification in the Official 
+Gazette, frame new Savings Schemes or amend or discontinue existing Savings Schemes to promote 
+household savings in the country. 
+(2) The Central Government may, by notification in the Official Gazette, include or omit or amend 
+Savings Schemes in the Schedule. 
+(3) The notification referred to in sub -section (1) may include any or all of the following provisions, 
+depending on the design of such Scheme, namely:— 
+(a) the persons who shall be eligible to make deposit in a Savings Scheme; 
+(b) the terms and conditions subject to which deposit may be made; 
+(c) the manner of calculation, frequency of payment and rate of interest payable on the deposit; 
+(d) the maximum and minimum limits of deposit; 
+(e) premature closure, withdrawal of deposit, grant of loans against deposit and transfer of 
+deposit; 
+(f) any other provision depending on the purpose and design of the Savings Scheme. 
+3B. Deposit by minor. —(1) A minor who has attained the age of ten years may open and operate an 
+account in the Government Savings Bank, if so permitted under a Savings Scheme. 
+(2) Subject to the provisions of sub -section ( 1), the guardian of a mino r may open and operate an 
+account on behalf of the minor, till he becomes a major.] 
+Deposits belonging to the Estates of deceased Persons. 
+1[4. Nomination by depositor. —2[(1) The depositors shall designate one or more individuals, as 
+nominee or nominees, who shall be entitled, in the event of the death of the depositor of a single account, 
+or all the depositors of a joint account, as the case may be, to receive the sum due, as an owner or a 
+trustee, and to the extent, as may be specified by the depositor at the time of making nomination: 
+Provided that if the depositor is a minor or a person of unsound mind, the nominee shall be 
+designated by the guardian.] 
+                                                      
+1. Subs. by Act 45 of 1959, s. 3, for the former s. 4. 
+2. Subs. by Act 13 of 2018, s. 119, for sub-section (1) (w.e.f. 1-4-2018). 
+IndiaCode
+4 
+ 
+ (2) Any nomination referred to in sub -section (1) shall become void if the nominee predece ases, or 
+where there are two or more nominees, all the nominees predecease, the depositor. 
+(3) Where the nominee is a minor it shall be lawful for the depositor to appoint in the 
+prescribed manner any person to receive the deposit in the event of his death during th e minority of 
+the nominee.  
+1[(4) The transfer of deposit, if permitted under a Savings Scheme, shall automatically cancel a 
+nomination previously made.] 
+4A. Payment on death of depositor. —(1) If a depositor dies and there is in force at the 
+time of the death of the depositor a nomination in favour of any person, the deposit shall be paid 
+to the nominee.  
+(2) Where the nominee is a minor, the deposit shall be paid —  
+(a) in any case where a person has been appointed to receive it under sub-section (3) of section 4, 
+to that person; and 
+(b) where there is no such person, to the g uardian of the minor for the use of the minor.  
+(3) Where a deposit is payable to two or more nominees and either or any of them is dead, the deposit 
+shall be paid to the surviving nominee or nominees. 
+2[(3A) Where the deposit belongs to a minor or to a person of unsound mind who dies and there is no 
+nominee immediately before the date of commencement of Part I of Chapter VIII of the Finance Act, 
+2018 (13 of 2018), the deposit shall be paid to the guardian.] 
+(4) If a depositor dies and there is no nomination in force at the time of his death and probate 
+of his will or letters of administration of his estate or a succession certificate granted under the 
+Indian Succession Act, 1925 (39 of 1925), is not within three months of the death of the 
+depositor produced to the 3[Authorised Officer]  of the Government Savings Bank in which the 
+deposit is, then —  
+(a) if the deposit does no t exceed 4[such limit as may be prescribed ,] the 3[Authorised Officer ] 
+may pay the same to any person appearing to him to be entitled to receive it or to administer the estate 
+of the 5[deceased in accordance with such procedure as may be prescribed.] 
+6*  *  *  *  *  * 
+7*   *   *  *  *  * 
+5. Payment to be a discharge. — 8[Any payment made in accordance with the foregoing 
+provisions of this Act] shall be a full discharge from all further liability in respect of the money so 
+paid: 
+Saving of right of executor. — 9[Nothing ] herein contained precludes any executor or 
+administrator, or other representative of the deceased, from recovering from the person 
+receiving the same the amount remaining in his hands after deducting the amount of all debts 
+or other demands lawfully paid or discharged by him in due course of administration.  
+  
+                                                      
+1. Ins. by Act 13 of 2018, s. 119 (w.e.f. 1-4-2018). 
+2. Ins. by s. 120, ibid. (w.e.f. 1-4-2018). 
+3. Subs. by s. 116, ibid., for “Secretary” (w.e.f. 1-4-2018). 
+4. Subs. by Act 56 of 1985, s. 2, for “f ive thousand rupees”.  
+5. Subs. by Act 13 of 2018, s. 120, for “deceased; and” (w.e.f. 1-4-2018). 
+6. Clause (b) omitted by s. 120, ibid. (w.e.f. 1-4-2018). 
+7. Sub-section (5) omitted by s. 120, ibid. (w.e.f. 1-4-2018). 
+8. Subs, by Act 45 of 1959, s. 4 for “Such payment”.  
+9. Subs. by Act 13 of 2018, s. 121, for “But nothing” (w.e.f. 1-4-2018). 
+IndiaCode
+5 
+ 
+Saving of right of creditor. —1[Every creditor]  or claimant against the estate of the deceased  
+may recover his debt or claim out of the money paid under this Act, 2*** to any person, and remaining 
+in his hands unadministered, in the same manner and to the same extent as 3[if that person had obtained]  
+letters of administration of the estate of the deceased.  
+6. Security for due administration. —The 4[Authorised  Officer ] of 5[a Government Saving s 
+Bank] may take such security as he thinks necessary from any person 6[to whom he pays any 
+money under sub -section (4) of section 4A] for  the due administration of the money so paid,  
+and he may assign the said security to any person interested in such administr ation.  
+7. Power to administer oath. —For the purpose of ascertaining the right of the person 
+claiming to be entitled as aforesaid, the 4[Authori sed Officer ] of 7[a Government Saving s Bank] 
+may take evidence on oath or affirmation according to the law 8 for the time being relating to        
+and affirmations . 
+Penalty for false statements. —Any person who, upon such oath or affirmation, makes any 
+statement which is false, and which he either knows or believes to be false or does not believe to 
+be true, shal l be deemed guilty of an offence under section 193 of the Indian Penal Code            
+(45 of 1860).  
+9[7A. Power to call for information. —The Central Government through any designated authority, 
+may call for such information, documents and evidence as it ma y deem necessary, in relation to any 
+account, for carrying out the purposes of this Act.] 
+8. Deposit when excluded in computing court fees.—Where the amount of the deposit belonging to 
+the estate of a deceased depositor does not exceed 10[the prescribed limit], such amount shall be excluded 
+in computing the fee chargeable, under the Court -Fees Act, 1870 (7 of 1870), on the probate, or letters of 
+administration, or certificate (if any), granted in respect of his property11: 
+Provided that the person claiming  such probate or letters or certificate shall exhibit to the Court 
+authori sed to grant the same a certificate of the amount of the deposit in any Government Savings 
+Bank belonging to the estate of the deceased. Such certificate  shall be signed by the 4[Authorised 
+Officer]  of such Bank, and the Court shall receive it as evidence of the said amount.  
+9. [Act not to apply to deposits belonging to estates of European soldiers or deserters. ] Omitted by 
+the Government Savings Banks (Amendment) Act, 1959 (45 of 1959), s. 7. 
+Deposits belonging to Minors 
+10. Payment of deposits to minor or guardian. —Any deposit made by, 12[or on behalf of, a 
+minor] , may be paid to him personally, if he made the deposit, or to his guardian 13[for the use of 
+such minor] , if the deposit was made by any person other than the minor, together with the 
+interest accrued thereon.  
+                                                      
+1. Subs. by Act 13 of 2018, s. 121, for “And any creditor ” (w.e.f. 1-4-2018). 
+2. Of the words “or the said Act No. 26 of 1855” the words “the said” were omitted by Act 12 of 1891, s. 2 and Sch. I, Pt. I, and 
+the remaining words by Act 45 of 1959, s. 4. 
+3. Subs. by Act 13 of 2018, s. 121, for “if the latter had obtained ” (w.e.f. 1-4-2018). 
+4. Subs. by s. 116, ibid., for “Secretary” (w.e.f. 1-4-2018). 
+5. Subs. by s. 122, ibid., for certain words (w.e.f. 1-4-2018). 
+6. Subs. by Act 45 of 1959,  s. 5,  for “to whom he pays any money under section 4”. 
+7. Subs. by Act 13 of 2018, s. 123, for certain words (w.e.f. 1-4-2018). 
+8. See the Indian Oaths Act, 1873 (10 of 1873). 
+9. Ins. by Act 13 of 2018, s. 124 (w.e.f. 1-4-2018). 
+10. Subs. by s. 125, ibid ., for “ three  thousand rupees ” (w.e.f. 1 -4-2018).  
+11.Cf. the Savings Bank Act, 1828 ( 9 Geo. 4, c.  92), s. 40, now rep. by the Savings Banks Act, 1863 (26 and 
+27 Viet., c. 87).  
+12. Subs. by Act 13 of 2018, s. 126, for “or on behalf of, any minor” (w.e.f. 1-4-2018). 
+13. Subs. by s. 126, ibid., for “for his use” (w.e.f. 1-4-2018). 
+IndiaCode
+6 
+ 
+The 1[receipt of the minor] or guardian, for money paid to him under this section, shall be a sufficient 
+discharge therefor. 
+11. [Legalization of like payments heretof ore made. ] Omitted by the Government Savings Banks 
+(Amendment) Act, 1959 (45 of 1959), s. 7. 
+Deposits belonging to lunatics 
+12. Payment of deposits belonging to lunatics. —If any depositor becomes insane or otherwise 
+incapable of managing his affairs, 
+and if such insanity or incapacity is proved to the satisfaction of the 2[Authorised Officer ] of                          
+the 3[Government Savings Bank] in which his deposit may be, 
+such 1[Authorised Officer]  may, from time to time, make payments out of the deposit                           
+to 4[guardian] , 
+and the receipt of 5[such guardian], for money paid under this section, shall be a sufficient discharge 
+therefor. 
+Where a Committee or Manager of the Depositor’s estate has been duly appointed, 6[payments shall 
+be made to] such committee or Manager. 
+7[12A. Operation of account by differently abled persons. —Any depositor who suffers from 
+physical infirmity, including blindness may operate and make a deposit through any literate individual 
+whom he authorises.] 
+8*** 
+13. [Payment of married women ’s deposits.] Omitted by the Finance Act,  2018 (13 of 2018), s. 130 
+(w.e.f. 1-4-2018). 
+9[Miscellaneous] 
+14. Protection of action taken in good faith. —No suit or other legal proceeding shall lie against the 
+1[Authorised Officer] or any other officer of the 10[Central Government] in respect of anything which is in 
+good faith done or intended to be done under this Act. 
+11[14A. Protection against attachment. —The amount standing to the credit of any depositor in the 
+Public Provident Fund Scheme shall not be liable to attachment  under any decree or order of any court in 
+respect of any debt or liability incurred by the depositor.] 
+15. Power to make rules. —(1) The Central Government may, by notification in the Official 
+Gazette, make rules for carrying out the purposes of this Act. 
+ (2) In particular, and without prejudice to the generality of the foregoing power, such rules may 
+provide for all or any of the following matters, namely:—  
+12*   *   *  *   * 
+13[(b) the conditions as to interest or discount relating to deposits generally, or any class of 
+deposits in particular;] 
+                                                      
+1. Subs. by Act 13 of 2018, s. 126 for “receipt of any minor” (w.e.f. 1-4-2018). 
+2. Subs. by s. 116, ibid., for “Secretary” (w.e.f. 1-4-2018). 
+3. Subs. by s. 127, ibid., for “Bank” (w.e.f. 1-4-2018). 
+4. Subs. by s. 127, ibid., for “any proper person” (w.e.f. 1-4-2018). 
+5. Subs. by s. 127, ibid., for “such person” (w.e.f. 1-4-2018). 
+6. Subs. by s. 127, ibid., for “nothing in this section authorises payments to any person other than” (w.e.f. 1-4-2018). 
+7. Ins. by s. 128, ibid. (w.e.f. 1-4-2018). 
+8. The heading “Deposits made by Married Women” omitted by s. 129, ibid. (w.e.f. 1-4-2018). 
+9. Subs. by Act 45 of 1959, for the  heading “Rules”, and s. 14.  
+10. Subs. by Act 13 of 2018, s. 131, for “Government” (w.e.f. 1-4-2018). 
+11. Ins. by s. 132, ibid. (w.e.f. 1-4-2018). 
+12. Clause (a) omitted by s. 133, ibid. (w.e.f. 1-4-2018). 
+13. Subs. by s. 133, ibid., for clause (b) (w.e.f. 1-4-2018). 
+IndiaCode
+7 
+ 
+(c) the non -accrual of interest on deposits when the maximum limits are excee ded and the 
+recovery of any interest paid in excess in the same manner as an arrear of land revenue or in any other 
+manner; 
+(d) the persons to whom and the manner in which deposits may be paid;  
+(e) the form of nominations, the manner in which, the persons in whose favour and the 
+conditions and restrictions subject to which, nominations may be made and the registration of 
+nominations; 
+(f) the variation or cancellation of nominations;  
+1[(g) the fees that may be levied for discharge of any services under this Act;]  
+(h) the manner in which any person may be appointed for the purpose of sub -section ( 3) of 
+section 4; 
+2[(i) the limit and procedure under clause (a) of sub-section (4) of section 4A; 
+(j) the mode of making deposits, such as physical, electronic or through use of any other tools of 
+communication and information technology; 
+(k) benchmark for interest rates on deposits with a view to ensure financial sustainability of 
+Savings Schemes; 
+(l) amount to be excluded in computing the court fee chargeable under the Court -Fees Act, 1870 
+(7 of 1870) for the purpose of section 8 of the Act; 
+(m) mechanism for redressal of grievances and settlement of disputes; 
+(n) any other matter which is required to be or may be, prescribed.] 
+ (3) Every rule made under this section shall be laid as soon as may be after it is made be fore each 
+House of Parliament while it is in session for a total period o f thirty days which may be comprised in one 
+session or 3[in two or more successive sessions, and if, before the expiry of the session immediately 
+following the session or the successive sessions aforesaid] both Houses agree in making any modification 
+in the rule or both Houses agree that the rule should not be made, the rule shall thereafter have effect only 
+in such modified form or be of no effect, as the case may be; so however that any such modification or 
+annulment shall be without prejudice to the validity of anything previously done under that rule.] 
+4[16. Repeal and savings.—(1) The Government Savings Certificates Act, 1959 (46 of 1959) and the 
+Public Provident Fund Act, 1968 (23 of 1968) are hereby repealed. 
+(2) Notwithstanding such repeal and without prejudice to the provisions contained in the General 
+Clauses Act, 1897 (10 of 1897), with respect to repeals— 
+(a) anything done or any action taken or purported to have been done or taken, including any rule, 
+notification, order or notice made or issued or any direction given under the repealed enactments shall 
+be deemed to have been done or taken under the corresponding provisions of this Act; 
+(b) subject to the provisions of clause ( a), any instrument executed or certificate issued, or 
+anything do ne under or in pursuance of any repealed enactment shall, if is in force at the 
+commencement of Part I of Chapter VIII of the Finance Act, 2018  (13 of 2018) , continue to be in 
+force in so far as it could have been executed, or issued or done under or in pu rsuance of such Part, 
+shall have effect as if the same has been executed, issued or done under or in pursuance of the 
+provisions contained in the aforesaid Part; 
+                                                      
+1. Subs. by Act 13 of 2018, s. 133, for clause (g) (w.e.f. 1-4-2018). 
+2. Subs. by s. 133, ibid.,  for clause ( i) (w.e.f. 1 -4-2018).   
+3. Subs. by Act  20 of 1983, s. 2 and Sch. (w.e.f. 15 -3-1984).  
+4. Ins. by Act 13 of 2018, s. 134 (w.e.f. 1-4-2018). 
+IndiaCode
+8 
+ 
+(c) all deposits made or accounts or certificates held under the repealed enactments shall be 
+deemed to be deposits or holdings in the Savings Scheme made under the corresponding provisions of 
+this Act; and  
+(d) any proceeding under the repealed enactments pending immediately before the 
+commencement of Part I of Chapter VIII of the Finance Act, 201 8 (13 of 2018)  before any court 
+shall, subject to the provisions of this Act, continue to be heard and disposed of by the said court. 
+(3) The repeal shall not prejudicially affect the interest of depositors who, before the commencement 
+of Part I of Chapter VIII of the Finance Act, 2018 (13 of 2018), made deposits or were issued certificates 
+or made contribution to any scheme under the repealed enactments. 
+  
+IndiaCode
+9 
+ 
+THE SCHEDULE 
+[See section 3A] 
+This Act applies to the following Government Savings Schemes: 
+PART A 
+EXISTING SAVINGS SCHEMES 
+1. Post Office Savings Account 
+2. National Savings Monthly Income (Account) 
+3. National Savings Recurring Deposit 
+4. Sukanya Samridhhi Account 
+5. National Savings Time Deposit (1 year, 2 years, 3 years and 5 years) 
+6. Senior Citizens' Savings Scheme 
+7. Savings Certificates:— 
+(a) Kisan Vikas Patra (discontinued from 1st December, 2011 and restarted from 23rd 
+September, 2014); 
+(b) National Savings Certificates (VIII Issue). 
+8. Public Provident Fund Scheme 
+PART B 
+DISCONTINUED SAVINGS SCHEMES 
+1.  National Savings Scheme, 1987 
+2. National Savings Scheme, 1992 
+3.  Block Deposit Account 
+4. Defence Savings Account 
+5.  Gift Coupons 
+6. Cumulative Time Deposit Accounts:— 
+(a) 5-year account 
+(b) 10-year account 
+(c) 15-year account 
+7. 5-year Prize Bonds 
+8. 5-year Premium Prize Bonds 
+9. 5-year Compulsory Deposit Account Scheme, 1963 
+10. 5-year Fixed Deposit Account 
+11. 5-Year Cash Certificates 
+12. 10-Year Defence Savings Certificates 
+13. 12-Year National Savings Certificates 
+14. 7-Year National Savings Certificates 
+15. 5-Year National Savings Certificates 
+16. 10-Year Treasury Savings Deposits Certificates 
+17. 15-Year Annuity Certificates (I series) 
+IndiaCode
+10 
+ 
+18. 10-Year National Plan Savings Certificates 
+19. 10-Year Treasury Savings Deposits Certificates 
+20. 12-Year National Plan Savings Certificates 
+21. 15-Year Annuity Certificates (II series) 
+22. 10-Year Defence Deposit Certificates 
+23. 12-Year National Defence Certificates 
+24. 10-Year National Savings Certificates (I-Issue) 
+25. 7-Year National Savings Certificates (II-Issue) 
+26. 7-Year National Savings Certificates (III-Issue) 
+27. 7-Year National Savings Certificates (IV-Issue) 
+28. 7-Year National Savings Certificates (V-Issue) 
+29. 12-Year National Savings Annuity Certificates 
+30. 5-Year National Development Bonds 
+31. 6-Year National Savings Certificates (VI-Issue) 
+32. 6-Year National Savings Certificates (VII-Issue) 
+33. 10-Year Social Security Certificates 
+34. Indira Vikas Patras 
+35. 10-Year National Savings Certificates (IX-Issue).] 
+ 
+ 
+IndiaCode

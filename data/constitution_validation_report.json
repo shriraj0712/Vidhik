@@ -1,0 +1,599 @@
+{
+  "report_metadata": {
+    "timestamp": "2026-09-12T16:16:44.935915",
+    "source_document": "Constitution.pdf",
+    "source_authority": "Ministry of Law and Justice (Legislative Department), Government of India",
+    "pipeline_version": "vidhik_constitution_v2.1"
+  },
+  "summary_statistics": {
+    "total_extracted_records": 505,
+    "valid_article_records": 504,
+    "preamble_present": true,
+    "active_articles_count": 472,
+    "omitted_articles_count": 33,
+    "total_schedules_extracted": 12,
+    "schedules_expected": 12,
+    "duplicate_article_numbers_count": 0,
+    "malformed_article_numbers_count": 0,
+    "missing_base_article_numbers_count": 0,
+    "empty_text_records_count": 0,
+    "truncated_text_records_count": 0,
+    "possible_toc_records_count": 0,
+    "records_requiring_manual_review_count": 0
+  },
+  "schedules_detail": [
+    {
+      "schedule_number": "FIRST",
+      "schedule_name": "FIRST SCHEDULE",
+      "articles_referred": "[Articles 1 and 4]",
+      "page_range": "p. 284-293",
+      "text_length": 11937
+    },
+    {
+      "schedule_number": "SECOND",
+      "schedule_name": "SECOND SCHEDULE",
+      "articles_referred": "[Articles 59(3), 65(3), 75(6), 97, 125, 148(3), 158(3), 164(5), 186 and 221]",
+      "page_range": "p. 294-299",
+      "text_length": 10333
+    },
+    {
+      "schedule_number": "THIRD",
+      "schedule_name": "THIRD SCHEDULE",
+      "articles_referred": "[Articles 75(4), 99, 124(6), 148(2), 164(3), 188 and 219]",
+      "page_range": "p. 300-303",
+      "text_length": 4896
+    },
+    {
+      "schedule_number": "FOURTH",
+      "schedule_name": "FOURTH SCHEDULE",
+      "articles_referred": "[Articles 4(1) and 80(2)]",
+      "page_range": "p. 304-306",
+      "text_length": 4427
+    },
+    {
+      "schedule_number": "FIFTH",
+      "schedule_name": "FIFTH SCHEDULE",
+      "articles_referred": "[Article 244(1)]",
+      "page_range": "p. 307-310",
+      "text_length": 6006
+    },
+    {
+      "schedule_number": "SIXTH",
+      "schedule_name": "SIXTH SCHEDULE",
+      "articles_referred": "[Articles 244(2) and 275(1)]",
+      "page_range": "p. 311-340",
+      "text_length": 54895
+    },
+    {
+      "schedule_number": "SEVENTH",
+      "schedule_name": "SEVENTH SCHEDULE",
+      "articles_referred": "[Article 246]",
+      "page_range": "p. 341-355",
+      "text_length": 24466
+    },
+    {
+      "schedule_number": "EIGHTH",
+      "schedule_name": "EIGHTH SCHEDULE",
+      "articles_referred": "[Articles 344(1) and 351]",
+      "page_range": "p. 356-357",
+      "text_length": 409
+    },
+    {
+      "schedule_number": "NINTH",
+      "schedule_name": "NINTH SCHEDULE",
+      "articles_referred": "[Article 31B]",
+      "page_range": "p. 358-375",
+      "text_length": 28325
+    },
+    {
+      "schedule_number": "TENTH",
+      "schedule_name": "TENTH SCHEDULE",
+      "articles_referred": "[Articles 102(2) and 191(2)]",
+      "page_range": "p. 376-379",
+      "text_length": 9098
+    },
+    {
+      "schedule_number": "ELEVENTH",
+      "schedule_name": "ELEVENTH SCHEDULE",
+      "articles_referred": "[Article 243G]",
+      "page_range": "p. 380-380",
+      "text_length": 1353
+    },
+    {
+      "schedule_number": "TWELFTH",
+      "schedule_name": "TWELFTH SCHEDULE",
+      "articles_referred": "[Article 243W]",
+      "page_range": "p. 381-381",
+      "text_length": 1126
+    }
+  ],
+  "validation_findings": {
+    "duplicate_article_numbers": {},
+    "malformed_article_numbers": [],
+    "missing_base_article_numbers": [],
+    "empty_text_records": [],
+    "truncated_text_records": [],
+    "possible_toc_records": [],
+    "records_requiring_manual_review": [],
+    "omitted_articles": [
+      {
+        "article_number": "2A",
+        "title": "Sikkim to be associated with the Union",
+        "omission_note": "Omitted by the\nConstitution (Thirty-sixth Amendment) Act, 1975, s. 5 (w.e.f. 26-4-1975).]"
+      },
+      {
+        "article_number": "31",
+        "title": "Compulsory acquisition of property",
+        "omission_note": "Omitted by the Constitution\n(Forty-fourth Amendment) Act, 1978, s. 6 (w.e.f. 20-6-1979).\n [Saving of Certain Laws]"
+      },
+      {
+        "article_number": "32A",
+        "title": "Constitutional validity of State laws not to be considered in proceedings under article 32",
+        "omission_note": "Omitted by the Constitution (Forty-third\nAmendment) Act, 1977, s. 3 (w.e.f. 13-4-1978)."
+      },
+      {
+        "article_number": "131A",
+        "title": "Exclusive jurisdiction of the Supreme Court in regard to questions as to constitutional validity of Central laws",
+        "omission_note": "Omitted by the Constitution\n(Forty-third Amendment) Act, 1977, s. 4 (w.e.f. 13-4-1978)."
+      },
+      {
+        "article_number": "144A",
+        "title": "Special provisions as to disposal of questions relating to constitutional validity of laws",
+        "omission_note": "Omitted by the Constitution (Forty-third\nAmendment) Act, 1977, s. 5 (w.e.f. 13-4-1978).]"
+      },
+      {
+        "article_number": "226A",
+        "title": "Constitutional validity of Central laws not to be considered in proceedings under article 226",
+        "omission_note": "Omitted by the Constitution (Forty-third\nAmendment) Act, 1977, s. 8 (w.e.f. 13-4-1978)."
+      },
+      {
+        "article_number": "228A",
+        "title": "Special provisions as to disposal of questions relating to constitutional validity of State laws",
+        "omission_note": "Omitted by the Constitution (Forty-third\nAmendment) Act, 1977, s. 10 (w.e.f. 13-4-1978)."
+      },
+      {
+        "article_number": "238",
+        "title": "Application of provisions of Part VI to States in Part B of the First Schedule",
+        "omission_note": "Omitted by the Constitution (Seventh Amendment) Act, 1956, s. 29 and Sch. (w.e.f. 1-11-1956)."
+      },
+      {
+        "article_number": "242",
+        "title": "Coorg",
+        "omission_note": "Omitted by the Constitution (Seventh Amendment) Act,\n1956, s. 29 and Sch.(w.e.f. 1-11-1956).\n [PART IX\nTHE PANCHAYATS"
+      },
+      {
+        "article_number": "257A",
+        "title": "Assistance to States by deployment of armed forces or other forces of the Union",
+        "omission_note": "Omitted\nby\nthe\nConstitution\n(Forty-fourth\nAmendment) Act, 1978, s. 33 (w.e.f. 20-6-1979).]"
+      },
+      {
+        "article_number": "259",
+        "title": "Armed Forces in States in Part B of the First Schedule",
+        "omission_note": "Omitted by the Constitution (Seventh Amendment) Act, 1956, s. 29 and Sch.\n(w.e.f. 1-11-1956)."
+      },
+      {
+        "article_number": "268A",
+        "title": "Service tax levied by Union and collected and appropriated by the Union and the States",
+        "omission_note": "Omitted by the Constitution (One Hundred and\nFirst Amendment) Act, 2016, s. 7 (w.e.f. 16-9-2016)."
+      },
+      {
+        "article_number": "272",
+        "title": "Taxes which are levied and collected by the Union and may be distributed between the Union and the States",
+        "omission_note": "Omitted by the Constitution\n(Eightieth Amendment) Act, 2000, s. 4. (w.e.f. 9-6-2000)."
+      },
+      {
+        "article_number": "278",
+        "title": "Agreement with States in Part B of the First Schedule with regard to certain financial matters",
+        "omission_note": "Omitted by the Constitution (Seventh\nAmendment) Act, 1956, s. 29 and Sch.(w.e.f. 1-11-1956)."
+      },
+      {
+        "article_number": "291",
+        "title": "Privy purse sums of Rulers",
+        "omission_note": "Omitted by the Constitution\n(Twenty-sixth Amendment) Act, 1971, s. 2 (w.e.f. 28-12-1971).\nCHAPTER II.—BORROWING"
+      },
+      {
+        "article_number": "306",
+        "title": "Power of certain States in Part B of the First Schedule to impose restrictions on trade and commerce",
+        "omission_note": "Omitted by the Constitution (Seventh\nAmendment) Act, 1956, s. 29 and Sch.(w.e.f. 1-11-1956)"
+      },
+      {
+        "article_number": "314",
+        "title": "Provision for protection of existing officers of certain services",
+        "omission_note": "Omitted by the Constitution (Twenty-eighth Amendment) Act, 1972,\ns. 3 (w.e.f. 29-8-1972).\nCHAPTER II.— PUBLIC SERVICE COMMISSIONS"
+      },
+      {
+        "article_number": "329A",
+        "title": "Special provision as to elections to Parliament in the case of Prime Minister and Speaker",
+        "omission_note": "Omitted by the Constitution (Forty-fourth\nAmendment) Act, 1978, s. 36 (w.e.f. 20-6-1979)."
+      },
+      {
+        "article_number": "359A",
+        "title": "Application of this Part to the State of Punjab",
+        "omission_note": "Omitted by the\nConstitution (Sixty-third Amendment) Act, 1989, s. 3 (w.e.f. 6-1-1990)."
+      },
+      {
+        "article_number": "362",
+        "title": "Rights and privileges of Rulers of Indian States",
+        "omission_note": "Omitted by the\nConstitution (Twenty-sixth Amendment) Act, 1971, s. 2 (w.e.f. 28-12-1971)."
+      },
+      {
+        "article_number": "379",
+        "title": "Provisions as to provisional Parliament and the Speaker and Deputy Speaker thereof",
+        "omission_note": "Omitted by the Constitution (Seventh Amendment)\nAct, 1956, s. 29 and Sch. (w.e.f. 1-11-1956)."
+      },
+      {
+        "article_number": "380",
+        "title": "Provision as to President",
+        "omission_note": "Omitted by the Constitution (Seventh\nAmendment) Act, 1956, s. 29 and Sch. (w.e.f. 1-11-1956)."
+      },
+      {
+        "article_number": "381",
+        "title": "Council of Ministers of the President",
+        "omission_note": "Omitted by the\nConstitution (Seventh Amendment) Act, 1956, s. 29 and Sch. (w.e.f. 1-11-1956)."
+      },
+      {
+        "article_number": "382",
+        "title": "Provisions as to provisional Legislatures for States in Part A of the First Schedule",
+        "omission_note": "Omitted by the Constitution (Seventh Amendment) Act, 1956,\ns. 29 and Sch. (w.e.f. 1-11-1956)."
+      },
+      {
+        "article_number": "383",
+        "title": "Provision as to Governors of Provinces",
+        "omission_note": "Omitted by the\nConstitution (Seventh Amendment) Act, 1956, s. 29 and Sch. (w.e.f. 1-11-1956)."
+      },
+      {
+        "article_number": "384",
+        "title": "Council of Ministers of the Governors",
+        "omission_note": "Omitted by the\nConstitution (Seventh Amendment) Act, 1956, s. 29 and Sch. (w.e.f. 1-11-1956)."
+      },
+      {
+        "article_number": "385",
+        "title": "Provision as to provisional Legislatures in States in Part B of the First Schedule",
+        "omission_note": "Omitted by the Constitution (Seventh Amendment) Act,\n1956, s. 29 and Sch. (w.e.f. 1-11-1956)."
+      },
+      {
+        "article_number": "386",
+        "title": "Council of Ministers for States in Part B of the First Schedule",
+        "omission_note": "Omitted by the Constitution (Seventh Amendment) Act, 1956, s. 29 and Sch.\n(w.e.f. 1-11-1956)."
+      },
+      {
+        "article_number": "387",
+        "title": "Special provision as to determination of population for the purposes of certain elections",
+        "omission_note": "Omitted by the Constitution (Seventh\nAmendment) Act, 1956, s. 29 and Sch. (w.e.f. 1-11-1956)."
+      },
+      {
+        "article_number": "388",
+        "title": "Provisions as to the filling of casual vacancies in the provisional Parliament and provisional Legislatures of the States",
+        "omission_note": "Omitted by the\nConstitution (Seventh Amendment) Act, 1956, s. 29 and Sch. (w.e.f. 1-11-1956)."
+      },
+      {
+        "article_number": "389",
+        "title": "Provision as to Bills pending in the Dominion Legislatures and in the Legislatures of Provinces and Indian States",
+        "omission_note": "Omitted by the Constitution\n(Seventh Amendment) Act, 1956, s. 29 and Sch. (w.e.f. 1-11-1956)."
+      },
+      {
+        "article_number": "390",
+        "title": "Money received or raised or expenditure incurred between the commencement of the Constitution and the 31st day of March, 1950",
+        "omission_note": "Omitted\nby the Constitution (Seventh Amendment) Act, 1956, s. 29 and Sch. (w.e.f. 1-11-\n1956)."
+      },
+      {
+        "article_number": "391",
+        "title": "Power of the President to amend the First and Fourth Schedules in certain contingencies",
+        "omission_note": "Omitted by the Constitution (Seventh Amendment) Act,\n1956, s. 29 and Sch. (w.e.f. 1-11-1956)."
+      }
+    ]
+  },
+  "language_telemetry": {
+    "primary_language": "en",
+    "bilingual_support": "Source PDF is official English pocket edition; Hindi text is not embedded in source PDF",
+    "english_hindi_extraction_issues": []
+  },
+  "landmark_articles_audit": {
+    "PREAMBLE": {
+      "status": "PASS",
+      "title": "Preamble",
+      "text_length": 568,
+      "is_omitted": false,
+      "part": "PREAMBLE",
+      "chapter": null,
+      "subheading": null
+    },
+    "1": {
+      "status": "PASS",
+      "title": "Name and territory of the Union",
+      "text_length": 336,
+      "is_omitted": false,
+      "part": "PART I",
+      "chapter": null,
+      "subheading": null
+    },
+    "14": {
+      "status": "PASS",
+      "title": "Equality before law",
+      "text_length": 129,
+      "is_omitted": false,
+      "part": "PART III",
+      "chapter": null,
+      "subheading": "General"
+    },
+    "15": {
+      "status": "PASS",
+      "title": "Prohibition of discrimination on grounds of religion, race, caste, sex or place of birth",
+      "text_length": 2596,
+      "is_omitted": false,
+      "part": "PART III",
+      "chapter": null,
+      "subheading": "General"
+    },
+    "19": {
+      "status": "PASS",
+      "title": "Protection of certain rights regarding freedom of speech, etc",
+      "text_length": 2821,
+      "is_omitted": false,
+      "part": "PART III",
+      "chapter": null,
+      "subheading": "General"
+    },
+    "21": {
+      "status": "PASS",
+      "title": "Protection of life and personal liberty",
+      "text_length": 109,
+      "is_omitted": false,
+      "part": "PART III",
+      "chapter": null,
+      "subheading": "General"
+    },
+    "21A": {
+      "status": "PASS",
+      "title": "Right to education",
+      "text_length": 158,
+      "is_omitted": false,
+      "part": "PART III",
+      "chapter": null,
+      "subheading": "General"
+    },
+    "25": {
+      "status": "PASS",
+      "title": "Freedom of conscience and free profession, practice and propagation of religion",
+      "text_length": 1010,
+      "is_omitted": false,
+      "part": "PART III",
+      "chapter": null,
+      "subheading": "General"
+    },
+    "32": {
+      "status": "PASS",
+      "title": "Remedies for enforcement of rights conferred by this Part",
+      "text_length": 800,
+      "is_omitted": false,
+      "part": "PART III",
+      "chapter": null,
+      "subheading": "General"
+    },
+    "39A": {
+      "status": "PASS",
+      "title": "Equal justice and free legal aid",
+      "text_length": 344,
+      "is_omitted": false,
+      "part": "PART IV",
+      "chapter": null,
+      "subheading": null
+    },
+    "44": {
+      "status": "PASS",
+      "title": "Uniform civil code for the citizens",
+      "text_length": 108,
+      "is_omitted": false,
+      "part": "PART IV",
+      "chapter": null,
+      "subheading": null
+    },
+    "48A": {
+      "status": "PASS",
+      "title": "Protection and improvement of environment and safeguarding of forests and wild life",
+      "text_length": 124,
+      "is_omitted": false,
+      "part": "PART IV",
+      "chapter": null,
+      "subheading": null
+    },
+    "51A": {
+      "status": "PASS",
+      "title": "Fundamental duties",
+      "text_length": 1321,
+      "is_omitted": false,
+      "part": "PART IV",
+      "chapter": null,
+      "subheading": null
+    },
+    "124": {
+      "status": "PASS",
+      "title": "Establishment and constitution of the Supreme Court",
+      "text_length": 3654,
+      "is_omitted": false,
+      "part": "PART V",
+      "chapter": null,
+      "subheading": "The President and Vice-President"
+    },
+    "131": {
+      "status": "PASS",
+      "title": "Original jurisdiction of the Supreme Court",
+      "text_length": 885,
+      "is_omitted": false,
+      "part": "PART V",
+      "chapter": null,
+      "subheading": "The President and Vice-President"
+    },
+    "132": {
+      "status": "PASS",
+      "title": "Appellate jurisdiction of the Supreme Court in appeals from High Courts in certain cases",
+      "text_length": 738,
+      "is_omitted": false,
+      "part": "PART V",
+      "chapter": null,
+      "subheading": "The President and Vice-President"
+    },
+    "136": {
+      "status": "PASS",
+      "title": "Special leave to appeal by the Supreme Court",
+      "text_length": 457,
+      "is_omitted": false,
+      "part": "PART V",
+      "chapter": null,
+      "subheading": "The President and Vice-President"
+    },
+    "174": {
+      "status": "PASS",
+      "title": "Sessions of the State Legislature, prorogation and dissolution",
+      "text_length": 413,
+      "is_omitted": false,
+      "part": "PART VI",
+      "chapter": null,
+      "subheading": null
+    },
+    "214": {
+      "status": "PASS",
+      "title": "High Courts for States",
+      "text_length": 71,
+      "is_omitted": false,
+      "part": "PART VI",
+      "chapter": null,
+      "subheading": null
+    },
+    "222": {
+      "status": "PASS",
+      "title": "Transfer of a Judge from one High Court to another",
+      "text_length": 604,
+      "is_omitted": false,
+      "part": "PART VI",
+      "chapter": null,
+      "subheading": null
+    },
+    "226": {
+      "status": "PASS",
+      "title": "Power of High Courts to issue certain writs",
+      "text_length": 2189,
+      "is_omitted": false,
+      "part": "PART VI",
+      "chapter": null,
+      "subheading": null
+    },
+    "239AA": {
+      "status": "PASS",
+      "title": "Special provisions with respect to Delhi",
+      "text_length": 5805,
+      "is_omitted": false,
+      "part": "PART VI",
+      "chapter": null,
+      "subheading": null
+    },
+    "243A": {
+      "status": "PASS",
+      "title": "Gram Sabha",
+      "text_length": 137,
+      "is_omitted": false,
+      "part": "PART VI",
+      "chapter": null,
+      "subheading": null
+    },
+    "246": {
+      "status": "PASS",
+      "title": "Subject",
+      "text_length": 1076,
+      "is_omitted": false,
+      "part": "PART XI",
+      "chapter": null,
+      "subheading": null
+    },
+    "246A": {
+      "status": "PASS",
+      "title": "Special provision with respect to goods and services tax",
+      "text_length": 645,
+      "is_omitted": false,
+      "part": "PART XI",
+      "chapter": null,
+      "subheading": null
+    },
+    "279A": {
+      "status": "PASS",
+      "title": "Goods and Services Tax Council",
+      "text_length": 3875,
+      "is_omitted": false,
+      "part": "PART XII",
+      "chapter": null,
+      "subheading": "General"
+    },
+    "280": {
+      "status": "PASS",
+      "title": "Finance Commission",
+      "text_length": 1640,
+      "is_omitted": false,
+      "part": "PART XII",
+      "chapter": null,
+      "subheading": "General"
+    },
+    "300A": {
+      "status": "PASS",
+      "title": "Persons not to be deprived of property save by authority of law",
+      "text_length": 70,
+      "is_omitted": false,
+      "part": "PART XII",
+      "chapter": null,
+      "subheading": "General"
+    },
+    "352": {
+      "status": "PASS",
+      "title": "Proclamation of Emergency",
+      "text_length": 5256,
+      "is_omitted": false,
+      "part": "PART XVIII",
+      "chapter": null,
+      "subheading": null
+    },
+    "356": {
+      "status": "PASS",
+      "title": "Provisions in case of failure of constitutional machinery in States",
+      "text_length": 4929,
+      "is_omitted": false,
+      "part": "PART XVIII",
+      "chapter": null,
+      "subheading": null
+    },
+    "360": {
+      "status": "PASS",
+      "title": "Provisions as to financial emergency",
+      "text_length": 2485,
+      "is_omitted": false,
+      "part": "PART XVIII",
+      "chapter": null,
+      "subheading": null
+    },
+    "368": {
+      "status": "PASS",
+      "title": "Power of Parliament to amend the Constitution and procedure therefor",
+      "text_length": 2046,
+      "is_omitted": false,
+      "part": "PART XX",
+      "chapter": null,
+      "subheading": null
+    },
+    "370": {
+      "status": "PASS",
+      "title": "Temporary provisions with respect to the State of Jammu and Kashmir",
+      "text_length": 3930,
+      "is_omitted": false,
+      "part": "PART XXI",
+      "chapter": null,
+      "subheading": null
+    },
+    "395": {
+      "status": "PASS",
+      "title": "Repeals",
+      "text_length": 238,
+      "is_omitted": false,
+      "part": "PART XXII",
+      "chapter": null,
+      "subheading": null
+    }
+  }
+}

@@ -1,0 +1,248 @@
+{
+  "report_metadata": {
+    "timestamp": "2026-09-12T21:34:59.754280",
+    "target_dataset": "Maharashtra_MVP",
+    "pipeline_version": "vidhik_maharashtra_parser_v2.2",
+    "legal_verification_note": "Extracted from official PDF sources. Staged for domain legal sign-off; not marked as verified."
+  },
+  "summary_statistics": {
+    "total_pdfs_found": 128,
+    "total_extracted_text_files_found": 133,
+    "total_laws_parsed": 128,
+    "total_sections_extracted": 10248,
+    "maharashtra_jurisdiction_laws": 21,
+    "central_jurisdiction_laws": 107,
+    "laws_requiring_manual_review": 0,
+    "sections_requiring_manual_review": 0,
+    "empty_section_text_count": 215,
+    "truncated_sections_count": 618,
+    "filename_anomalies_count": 16
+  },
+  "jurisdiction_breakdown": {
+    "maharashtra_laws": [
+      "Maharashtra Co-operative Societies Act, 1960",
+      "Maharashtra Land Requisition Act",
+      "Maharashtra Land Revenue Code, 1966",
+      "Maharashtra Ownership Flats Act, 1963",
+      "Maharashtra Prohibition Act",
+      "Maharashtra Regional and Town Planning Act, 1966",
+      "Maharashtra Rent Control Act, 1999",
+      "Maharashtra Stamp Act",
+      "Maharashtra Tenancy and Agricultural Lands Act",
+      "Maharashtra Village Panchayats Act",
+      "The Bombay Civil Court's Act, 1869",
+      "The Bombay Rent-free Estates Act, 1851",
+      "The Bombay Reorganisation Act, 1960",
+      "The Bombay Revenue Jurisdiction Act, 1876",
+      "The Boundary-Marks, Bombay 1846",
+      "The City of Bombay Municipal (Supplementary) Act, 1888",
+      "The Dekkhan Agriculturists' Relief Act, 1879",
+      "The Revenue Commissioners, Bombay Act, 1842",
+      "The Revenue, Bombay, 1842",
+      "The Shore Nuisances (Bombay and Kotaba) Act, 1853",
+      "Tobacco Duty (Town of Bombay) Act, 1857"
+    ],
+    "central_laws_count": 107
+  },
+  "problematic_acts_benchmark_audit": [
+    {
+      "act_name": "The Bilateral Netting of Qualified Financial Contracts Act, 2020",
+      "source_pdf": "The Bilateral Netting of Qualified Financial Contracts Act, 2020.pdf",
+      "pages": 9,
+      "chars_extracted": 17911,
+      "is_hindi_diglot": true,
+      "sections_extracted": 31,
+      "audit_verdict": "Successfully Parsed (31 sections extracted)"
+    },
+    {
+      "act_name": "The Delivery of Books and Newspapers (Public Libraries) Act, 1954",
+      "source_pdf": "The Delivery of Books and Newspapers (Public Libraries) Act, 1954.pdf",
+      "pages": 2,
+      "chars_extracted": 6467,
+      "is_hindi_diglot": true,
+      "sections_extracted": 7,
+      "audit_verdict": "Successfully Parsed (7 sections extracted)"
+    },
+    {
+      "act_name": "The Human Immunodeficiency Virus and Acquired Immune Deficiency Syndrome (Prevention and Control) Act, 2017",
+      "source_pdf": "The Human Immunodeficiency Virus and Acquired Immune Deficiency Syndrome (Prevention and Control) Act, 2017.pdf",
+      "pages": 18,
+      "chars_extracted": 47492,
+      "is_hindi_diglot": true,
+      "sections_extracted": 50,
+      "audit_verdict": "Successfully Parsed (50 sections extracted)"
+    },
+    {
+      "act_name": "The India International Arbitration Centre Act, 2019",
+      "source_pdf": "The India International Arbitration Centre Act, 2019.pdf",
+      "pages": 12,
+      "chars_extracted": 31210,
+      "is_hindi_diglot": true,
+      "sections_extracted": 34,
+      "audit_verdict": "Successfully Parsed (34 sections extracted)"
+    },
+    {
+      "act_name": "The Jammu and Kashmir Official Languages Act, 2020.",
+      "source_pdf": "The Jammu and Kashmir Official Languages Act, 2020..pdf",
+      "pages": 2,
+      "chars_extracted": 47,
+      "is_hindi_diglot": false,
+      "sections_extracted": 0,
+      "audit_verdict": "Incomplete / Truncated Source PDF (Requires Manual Review / Scan)"
+    },
+    {
+      "act_name": "The National Commission for Backward Classes (Repeal) Act, 2018",
+      "source_pdf": "The National Commission for Backward Classes (Repeal) Act, 2018.pdf",
+      "pages": 2,
+      "chars_extracted": 1715,
+      "is_hindi_diglot": true,
+      "sections_extracted": 2,
+      "audit_verdict": "Successfully Parsed (2 sections extracted)"
+    },
+    {
+      "act_name": "The Rashtriya Raksha University Act, 2020.",
+      "source_pdf": "The Rashtriya Raksha University Act, 2020..pdf",
+      "pages": 16,
+      "chars_extracted": 282,
+      "is_hindi_diglot": false,
+      "sections_extracted": 0,
+      "audit_verdict": "Incomplete / Truncated Source PDF (Requires Manual Review / Scan)"
+    },
+    {
+      "act_name": "The Repealing and Amending (Second) Act, 2015",
+      "source_pdf": "The Repealing and Amending (Second) Act, 2015.pdf",
+      "pages": 6,
+      "chars_extracted": 9328,
+      "is_hindi_diglot": true,
+      "sections_extracted": 4,
+      "audit_verdict": "Successfully Parsed (4 sections extracted)"
+    }
+  ],
+  "filename_anomalies_summary": [
+    {
+      "filename": "The Digital Personal Data Protection Act, 2023..pdf",
+      "file_type": "PDF",
+      "anomalies": "Double dot in extension (..pdf)"
+    },
+    {
+      "filename": "The Insolvency and Bankruptcy Code, 2016..pdf",
+      "file_type": "PDF",
+      "anomalies": "Double dot in extension (..pdf)"
+    },
+    {
+      "filename": "The Juvenile Justice (Care and Protection of Children) Act, 2015..pdf",
+      "file_type": "PDF",
+      "anomalies": "Double dot in extension (..pdf)"
+    },
+    {
+      "filename": "The Muslim Women (Protection of Rights on Marriage) Act, 2019..pdf",
+      "file_type": "PDF",
+      "anomalies": "Double dot in extension (..pdf)"
+    },
+    {
+      "filename": "The Real Estate (Regulation and Development) Act, 2016..pdf",
+      "file_type": "PDF",
+      "anomalies": "Double dot in extension (..pdf)"
+    },
+    {
+      "filename": "The Rights of Persons with Disabilities Act, 2016..pdf",
+      "file_type": "PDF",
+      "anomalies": "Double dot in extension (..pdf)"
+    },
+    {
+      "filename": "The Telecommunications Act, 2023..pdf",
+      "file_type": "PDF",
+      "anomalies": "Double dot in extension (..pdf)"
+    },
+    {
+      "filename": "Maharashtra_Revenue_Patels_Abolition_Office_Act_1962.pdf.txt",
+      "file_type": "TXT",
+      "anomalies": "Double extension (.pdf.txt)"
+    },
+    {
+      "filename": "Maharashtra_State_Tax_on_Professions_Trades_Callings_Employments_Act_1975.pdf.txt",
+      "file_type": "TXT",
+      "anomalies": "Double extension (.pdf.txt)"
+    },
+    {
+      "filename": "The Digital Personal Data Protection Act, 2023..txt",
+      "file_type": "TXT",
+      "anomalies": "Double dot in extension (..txt)"
+    },
+    {
+      "filename": "The Insolvency and Bankruptcy Code, 2016..txt",
+      "file_type": "TXT",
+      "anomalies": "Double dot in extension (..txt)"
+    },
+    {
+      "filename": "The Juvenile Justice (Care and Protection of Children) Act, 2015..txt",
+      "file_type": "TXT",
+      "anomalies": "Double dot in extension (..txt)"
+    },
+    {
+      "filename": "The Muslim Women (Protection of Rights on Marriage) Act, 2019..txt",
+      "file_type": "TXT",
+      "anomalies": "Double dot in extension (..txt)"
+    },
+    {
+      "filename": "The Real Estate (Regulation and Development) Act, 2016..txt",
+      "file_type": "TXT",
+      "anomalies": "Double dot in extension (..txt)"
+    },
+    {
+      "filename": "The Rights of Persons with Disabilities Act, 2016..txt",
+      "file_type": "TXT",
+      "anomalies": "Double dot in extension (..txt)"
+    },
+    {
+      "filename": "The Telecommunications Act, 2023..txt",
+      "file_type": "TXT",
+      "anomalies": "Double dot in extension (..txt)"
+    }
+  ],
+  "sample_law_record": {
+    "law_id": "maharashtra-co-operative-societies-act-1960",
+    "law_name": "Maharashtra Co-operative Societies Act, 1960",
+    "short_name": "Maharashtra Co-operative Societies Act, 1960",
+    "year": 1960,
+    "law_type": "State Act",
+    "jurisdiction": "Maharashtra",
+    "source_pdf": "Maharashtra Co-operative Societies Act, 1960.pdf",
+    "total_pages": 147,
+    "enactment_start_page": 15,
+    "total_sections_extracted": 221,
+    "is_diglot": false,
+    "extraction_status": "extracted_from_source_pdf",
+    "manual_review_required": false,
+    "parser_notes": []
+  },
+  "sample_section_record": {
+    "section_id": "maharashtra-co-operative-societies-act-1960-sec-1",
+    "law_id": "maharashtra-co-operative-societies-act-1960",
+    "law_name": "Maharashtra Co-operative Societies Act, 1960",
+    "section_number": "1",
+    "section_title": "Short title, extent and commencement.",
+    "full_text": "(1) This Act may be called the Maharashtra\nCo-operative Societies Act, 1960.\n(2) It extends to the whole of the State of Maharashtra.\n(3) It shall come into force on such 2date as the State Government may, by notification in the\nOfficial Gazette, appoint.",
+    "chapter_number": "CHAPTER I",
+    "chapter_title": "PRELIMINARY",
+    "part_number": null,
+    "part_title": null,
+    "source_pdf": "Maharashtra Co-operative Societies Act, 1960.pdf",
+    "source_page_start": 15,
+    "source_page_end": 15,
+    "jurisdiction": "Maharashtra",
+    "extraction_status": "extracted_from_pdf",
+    "is_omitted": false,
+    "omission_note": null,
+    "manual_review_required": false,
+    "parser_notes": [],
+    "subsections_count": 3,
+    "clauses_count": 0,
+    "subclauses_count": 0,
+    "has_proviso": false,
+    "has_explanation": false,
+    "has_illustration": false,
+    "has_schedule_ref": false,
+    "is_definition_section": false
+  }
+}
