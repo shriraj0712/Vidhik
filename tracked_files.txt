@@ -1,0 +1,2124 @@
+"data/Legal_Dataset/extracted_text/The Viksit Bharat\342\200\224Guarantee for Rozgar And Ajeevika Mission (Gramin) Vb\342\200\224G Ram G (\340\244\265\340\244\277\340\244\225\340\244\270\340\244\277\340\244\244 \340\244\255\340\244\276\340\244\260\340\244\244\342\200\224\340\244\234\340\245\200 \340\244\260\340\244\276\340\244\256 \340\244\234\340\245\200)Act, 2025.txt"
+"data/Legal_Dataset/extracted_text/The Women\342\200\231s and Children\342\200\231s Institutions (Licensing) Act, 1956..txt"
+"data/Legal_Dataset/PDFs/The Viksit Bharat\342\200\224Guarantee for Rozgar And Ajeevika Mission (Gramin) Vb\342\200\224G Ram G (\340\244\265\340\244\277\340\244\225\340\244\270\340\244\277\340\244\244 \340\244\255\340\244\276\340\244\260\340\244\244\342\200\224\340\244\234\340\245\200 \340\244\260\340\244\276\340\244\256 \340\244\234\340\245\200)Act, 2025.pdf"
+"data/Legal_Dataset/PDFs/The Women\342\200\231s and Children\342\200\231s Institutions (Licensing) Act, 1956..pdf"
+.gitignore
+all_acts.txt
+backend/.env.example
+backend/app/__init__.py
+backend/app/database.py
+backend/app/main.py
+backend/app/models/__init__.py
+backend/app/models/law.py
+backend/app/models/section.py
+backend/app/routers/__init__.py
+backend/app/routers/health.py
+backend/app/routers/laws.py
+backend/app/routers/search.py
+backend/app/routers/sections.py
+backend/app/schemas/__init__.py
+backend/app/schemas/law.py
+backend/app/schemas/query.py
+backend/app/schemas/search.py
+backend/app/schemas/section.py
+backend/app/services/__init__.py
+backend/app/services/query_service.py
+backend/app/services/ranking_service.py
+backend/app/services/search_service.py
+backend/README.md
+backend/requirements.txt
+data/articles.json
+data/articles_nlp.json
+data/Constitution.pdf
+data/constitution_clean.txt
+data/constitution_raw.txt
+data/constitution_staging_v1.json
+data/constitution_structured.csv
+data/constitution_structured.json
+data/constitution_validation_report.json
+data/import_articles.py
+data/import_articles_nlp.py
+data/import_constitution.py
+data/json_to_csv.py
+data/Legal_Dataset/extracted_text/Extending certain Acts to Straits Settlement , 1852.txt
+data/Legal_Dataset/extracted_text/Madras Board of Revenue,1849.txt
+data/Legal_Dataset/extracted_text/The Aadhaar (Targeted Delivery of Financial and Other Subsidies, Benefits and Services) Act, 2016..txt
+data/Legal_Dataset/extracted_text/The Academy of Scientific and Innovative Research Act, 2011.txt
+data/Legal_Dataset/extracted_text/The Acquired Territories (Merger) Act, 1960.txt
+data/Legal_Dataset/extracted_text/The Acquisition of Certain Area at Ayodhya Act, 1993.txt
+data/Legal_Dataset/extracted_text/The Actuaries Act, 2006.txt
+data/Legal_Dataset/extracted_text/The Administrative Tribunals Act, 1985.txt
+data/Legal_Dataset/extracted_text/The Administrators-General Act, 1963.txt
+data/Legal_Dataset/extracted_text/The Admiralty (Jurisdiction and Settlement of Maritime Claims) Act, 2017.txt
+data/Legal_Dataset/extracted_text/The Advocates' Welfare Fund Act, 2001.txt
+data/Legal_Dataset/extracted_text/The Advocates Act, 1961.txt
+data/Legal_Dataset/extracted_text/The African Development Bank Act, 1983.txt
+data/Legal_Dataset/extracted_text/The African Development Fund Act, 1982.txt
+data/Legal_Dataset/extracted_text/The Agricultural and Processed Food Products Export Development Authority Act, 1985.txt
+data/Legal_Dataset/extracted_text/The Agricultural Produce (Grading and Marking) Act, 1937.txt
+data/Legal_Dataset/extracted_text/The Agriculturists' Loans Act, 1884.txt
+data/Legal_Dataset/extracted_text/The Air (Prevention and Control of Pollution) Act, 1981.txt
+data/Legal_Dataset/extracted_text/The Air Force Act, 1950.txt
+data/Legal_Dataset/extracted_text/The Airports Authority of India Act, 1994.txt
+data/Legal_Dataset/extracted_text/The Airports Economic Regulatory Authority of India Act, 2008.txt
+data/Legal_Dataset/extracted_text/The Ajmer Tenancy and Land Records Act, 1950.txt
+data/Legal_Dataset/extracted_text/The Aligarh Muslim University Act, 1920.txt
+data/Legal_Dataset/extracted_text/The All-India Institutes of Medical Science Act, 1956.txt
+data/Legal_Dataset/extracted_text/The All-India Services Act, 1951.txt
+data/Legal_Dataset/extracted_text/The All India Council for Technical Education Act, 1987.txt
+data/Legal_Dataset/extracted_text/The Anand Marriage Act, 1909.txt
+data/Legal_Dataset/extracted_text/The Ancient Monuments and Archaeological Sites and Remains Act, 1958.txt
+data/Legal_Dataset/extracted_text/The Ancient Monuments Preservation Act, 1904.txt
+data/Legal_Dataset/extracted_text/The Andhra Pradesh and Madras (Alteration of Boundaries) Act, 1959.txt
+data/Legal_Dataset/extracted_text/The Andhra Pradesh and Mysore (Transfer of Territory) Act, 1968.txt
+data/Legal_Dataset/extracted_text/The Andhra Pradesh Legislative Council Act, 2005.txt
+data/Legal_Dataset/extracted_text/The Andhra Pradesh Reorganisation Act, 2014.txt
+data/Legal_Dataset/extracted_text/The Andhra State Act, 1953.txt
+data/Legal_Dataset/extracted_text/The Anti-Apartheid (United Nations Convention) Act, 1981.txt
+data/Legal_Dataset/extracted_text/The Anti-Hijacking Act, 2016..txt
+data/Legal_Dataset/extracted_text/The Antiquities and Art Treasures Act, 1972.txt
+data/Legal_Dataset/extracted_text/The Anusandhan National Research Foundation Act, 2023.txt
+data/Legal_Dataset/extracted_text/The Apprentices Act, 1961.txt
+data/Legal_Dataset/extracted_text/The Arbitration and Conciliation Act, 1996.txt
+data/Legal_Dataset/extracted_text/The Architects Act, 1972.txt
+data/Legal_Dataset/extracted_text/The Armed Forces (Emergency Duties) Act, 1947.txt
+data/Legal_Dataset/extracted_text/The Armed Forces (Jammu and Kashmir) Special Powers Act, 1990.txt
+data/Legal_Dataset/extracted_text/The Armed Forces (Punjab and Chandigarh) Special Powers Act, 1983.txt
+data/Legal_Dataset/extracted_text/The Armed Forces (Special Powers) Act, 1958.txt
+data/Legal_Dataset/extracted_text/The Armed Forces Tribunal Act, 2007.txt
+data/Legal_Dataset/extracted_text/The Arms Act, 1959.txt
+data/Legal_Dataset/extracted_text/The Army Act, 1950.txt
+data/Legal_Dataset/extracted_text/The Army and Air Force (Disposal of Private Property) Act, 1950.txt
+data/Legal_Dataset/extracted_text/The Arya Marriage Validation Act, 1937.txt
+data/Legal_Dataset/extracted_text/The Asian Development Bank Act, 1966.txt
+data/Legal_Dataset/extracted_text/The Asiatic Society Act, 1984.txt
+data/Legal_Dataset/extracted_text/The Assam (Alteration of Boundaries) Act, 1951.txt
+data/Legal_Dataset/extracted_text/The Assam Reorganisation (Meghalaya) Act, 1969.txt
+data/Legal_Dataset/extracted_text/The Assam Rifles Act, 2006.txt
+data/Legal_Dataset/extracted_text/The Assam University Act, 1989.txt
+data/Legal_Dataset/extracted_text/The Assisted Reproductive Technology (Regulation) Act, 2021.txt
+data/Legal_Dataset/extracted_text/The Atomic Energy Act, 1962.txt
+data/Legal_Dataset/extracted_text/The Auroville Foundation Act, 1988.txt
+data/Legal_Dataset/extracted_text/The Authoritative Texts (Central Laws) Act, 1973.txt
+data/Legal_Dataset/extracted_text/The Babasaheb Bhimrao Ambedkar University Act, 1994.txt
+data/Legal_Dataset/extracted_text/The Banaras Hindu University Act, 1915.txt
+data/Legal_Dataset/extracted_text/The Bankers' Books Evidence Act, 1891.txt
+data/Legal_Dataset/extracted_text/The Banking Companies (Acquisition and Transfer of Undertakings) Act, 1970.txt
+data/Legal_Dataset/extracted_text/The Banking Companies (Acquisition and Transfer of Undertakings) Act, 1980.txt
+data/Legal_Dataset/extracted_text/The Banking Regulation Act, 1949.txt
+data/Legal_Dataset/extracted_text/The Banning of Unregulated Deposit Schemes Act, 2019.txt
+data/Legal_Dataset/extracted_text/The Bengal Bonded Warehouse Association Act, 1838.txt
+data/Legal_Dataset/extracted_text/The Bengal Bonded Warehouse Association Act, 1854.txt
+data/Legal_Dataset/extracted_text/The Bengal Embankment Act, 1855.txt
+data/Legal_Dataset/extracted_text/The Bengal Ghatwali Land Act, 1859.txt
+data/Legal_Dataset/extracted_text/The Bengal Indigo Contracts Act, 1836.txt
+data/Legal_Dataset/extracted_text/The Bengal Land Holder's Attendance Act, 1848.txt
+data/Legal_Dataset/extracted_text/The Bengal Land Revenue Sales Act, 1859.txt
+data/Legal_Dataset/extracted_text/The Bengal Military Police Act, 1892.txt
+data/Legal_Dataset/extracted_text/The Bengal, Agra and Assam Civil Courts Act, 1887.txt
+data/Legal_Dataset/extracted_text/The Betwa River Board Act, 1976.txt
+data/Legal_Dataset/extracted_text/The Bharatiya Nagarik Suraksha Sanhita, 2023.txt
+data/Legal_Dataset/extracted_text/The Bharatiya Nyaya Sanhita, 2023.txt
+data/Legal_Dataset/extracted_text/The Bharatiya Sakshya Adhiniyam, 2023.txt
+data/Legal_Dataset/extracted_text/The Bharatiya Vayuyan Adhiniyam, 2024.txt
+data/Legal_Dataset/extracted_text/The Bhopal Gas Leak Disaster (Processing of Claims) Act, 1985.txt
+data/Legal_Dataset/extracted_text/The Bihar and Uttar Pradesh (Alteration of Boundaries) Act, 1968.txt
+data/Legal_Dataset/extracted_text/The Bihar and West Bengal (Transfer of Territories) Act, 1956.txt
+data/Legal_Dataset/extracted_text/The Bihar Land Reforms Laws (Regulating Mines and Minerals) Validation Act, 1969..txt
+data/Legal_Dataset/extracted_text/The Bihar Reorganisation Act, 2000.txt
+data/Legal_Dataset/extracted_text/The Bihar Value Added Tax Act, 2005.txt
+data/Legal_Dataset/extracted_text/The Bilateral Netting of Qualified Financial Contracts Act, 2020.txt
+data/Legal_Dataset/extracted_text/The Bills of Lading Act, 2025.txt
+data/Legal_Dataset/extracted_text/The Biological Diversity Act, 2002.txt
+data/Legal_Dataset/extracted_text/The Bird and Company Limited (Acquisition and Transfer of Undertakings and Other Properties) Act, 1980.txt
+data/Legal_Dataset/extracted_text/The Births, Deaths and Marriages Registration Act, 1886.txt
+data/Legal_Dataset/extracted_text/The Black Money (Undisclosed Foreign Income and Assets) and Imposition of Tax Act, 2015.txt
+data/Legal_Dataset/extracted_text/The Boilers Act, 2025.txt
+data/Legal_Dataset/extracted_text/The Bombay Civil Court's Act, 1869.txt
+data/Legal_Dataset/extracted_text/The Bombay Rent-free Estates Act, 1851.txt
+data/Legal_Dataset/extracted_text/The Bombay Reorganisation Act, 1960.txt
+data/Legal_Dataset/extracted_text/The Bombay Revenue Jurisdiction Act, 1876.txt
+data/Legal_Dataset/extracted_text/The Bonded Labour System (Abolition) Act, 1976.txt
+data/Legal_Dataset/extracted_text/The Border Security Force Act, 1968.txt
+data/Legal_Dataset/extracted_text/The Boundary-Marks, Bombay 1846.txt
+data/Legal_Dataset/extracted_text/The Brahmaputra Board Act, 1980.txt
+data/Legal_Dataset/extracted_text/The British India Corporation Limited (Acquisition of Shares) Act, 1981.txt
+data/Legal_Dataset/extracted_text/The Broach and Kaira Incumbered Estates Act, 1877.txt
+data/Legal_Dataset/extracted_text/The Bureau of Indian Standards Act, 2016..txt
+data/Legal_Dataset/extracted_text/The Cable Television Networks (Regulation) Act, 1995.txt
+data/Legal_Dataset/extracted_text/The Calcutta High Court (Extension of Jurisdiction) Act, 1953.txt
+data/Legal_Dataset/extracted_text/The Calcutta High Court (Jurisdictional Limits) Act, 1919.txt
+data/Legal_Dataset/extracted_text/The Calcutta Land-Revenue Act, 1856.txt
+data/Legal_Dataset/extracted_text/The Calcutta Metro Railway (Operation and Maintenance) Temporary Provisions Act, 1985.txt
+data/Legal_Dataset/extracted_text/The Calcutta Port (Pilotage) Act, 1948.txt
+data/Legal_Dataset/extracted_text/The Cantonments (Extension of Rent Control Laws) Act, 1957.txt
+data/Legal_Dataset/extracted_text/The Cantonments Act, 2006.txt
+data/Legal_Dataset/extracted_text/The Cardamom Act, 1965.txt
+data/Legal_Dataset/extracted_text/The Carriage by Air Act, 1972.txt
+data/Legal_Dataset/extracted_text/The Carriage by Road Act, 2007.txt
+data/Legal_Dataset/extracted_text/The Carriage of Goods by Sea Act, 2025.txt
+data/Legal_Dataset/extracted_text/The Cattle-Trespass Act, 1871.txt
+data/Legal_Dataset/extracted_text/The Census Act, 1948.txt
+data/Legal_Dataset/extracted_text/The Central Agricultural University Act, 1992.txt
+data/Legal_Dataset/extracted_text/The Central Boards of Revenue Act, 1963.txt
+data/Legal_Dataset/extracted_text/The Central Educational Institutions (Reservation in Admission) Act, 2006.txt
+data/Legal_Dataset/extracted_text/The Central Educational Institutions (Reservation in Teachers Cadre) Act, 2019.txt
+data/Legal_Dataset/extracted_text/The Central Excise Act, 1944.txt
+data/Legal_Dataset/extracted_text/The Central Goods and Services Tax (Extension to Jammu and Kashmir) Act, 2017.txt
+data/Legal_Dataset/extracted_text/The Central Goods and Services Tax Act, 2017.txt
+data/Legal_Dataset/extracted_text/The Central Industrial Security Force Act, 1968.txt
+data/Legal_Dataset/extracted_text/The Central Laws (Extension to Arunachal Pradesh) Act, 1993.txt
+data/Legal_Dataset/extracted_text/The Central Laws (Extension to Jammu and Kashmir) Act, 1968.txt
+data/Legal_Dataset/extracted_text/The Central Provinces Court of Wards Act, 1899.txt
+data/Legal_Dataset/extracted_text/The Central Provinces Financial Commissioner's Act, 1908.txt
+data/Legal_Dataset/extracted_text/The Central Provinces Land-Revenue Act, 1881.txt
+data/Legal_Dataset/extracted_text/The Central Provinces Tenancy Act, 1898.txt
+data/Legal_Dataset/extracted_text/The Central Reserve Police Force Act, 1949.txt
+data/Legal_Dataset/extracted_text/The Central Road and Infrastructure Fund Act, 2000.txt
+data/Legal_Dataset/extracted_text/The Central Sales Tax Act, 1956.txt
+data/Legal_Dataset/extracted_text/The Central Sanskrit Universities Act, 2020.txt
+data/Legal_Dataset/extracted_text/The Central Silk Board Act, 1948.txt
+data/Legal_Dataset/extracted_text/The Central Universities Act, 2009.txt
+data/Legal_Dataset/extracted_text/The Central Vigilance Commission Act, 2003.txt
+data/Legal_Dataset/extracted_text/The Cess and Other Taxes on Minerals (Validation) Act, 1992.txt
+data/Legal_Dataset/extracted_text/The Chandigarh (Delegation of Powers) Act, 1987.txt
+data/Legal_Dataset/extracted_text/The Chandigarh Disturbed Areas Act, 1983.txt
+data/Legal_Dataset/extracted_text/The Charitable and Religious Trusts Act, 1920.txt
+data/Legal_Dataset/extracted_text/The Charitable Endowments Act, 1890.txt
+data/Legal_Dataset/extracted_text/The Chartered Accountants Act, 1949.txt
+data/Legal_Dataset/extracted_text/The Chemical Weapons Convention Act, 2000.txt
+data/Legal_Dataset/extracted_text/The Chief Election Commissioner And Other Election Commissioners (Appointment, Conditions of Service And Term of Office) Act, 2023.txt
+data/Legal_Dataset/extracted_text/The Child and Adolescent Labour (Prohibition and Regulation) Act, 1986.txt
+data/Legal_Dataset/extracted_text/The Chit Funds Act, 1982.txt
+data/Legal_Dataset/extracted_text/The Chutia Nagpur Encumbered Estates Act, 1876.txt
+data/Legal_Dataset/extracted_text/The Cigarettes and Other Tobacco Products (Prohibition of Advertisement and Regulation of Trade and Commerce, Production, Supply and Distribution) Act, 2003.txt
+data/Legal_Dataset/extracted_text/The Cinematograph Act, 1952.txt
+data/Legal_Dataset/extracted_text/The Citizenship Act, 1955.txt
+data/Legal_Dataset/extracted_text/The City of Bombay Municipal (Supplementary) Act, 1888.txt
+data/Legal_Dataset/extracted_text/The Civil Defence Act, 1968.txt
+data/Legal_Dataset/extracted_text/The Civil Liability for Nuclear Damage Act, 2010.txt
+data/Legal_Dataset/extracted_text/The Clinical Establishments (Registration and Regulation) Act, 2010.txt
+data/Legal_Dataset/extracted_text/The Co-operative Societies Act, 1912.txt
+data/Legal_Dataset/extracted_text/The Coal Bearing Areas (Acquisition and Development) Act, 1957.txt
+data/Legal_Dataset/extracted_text/The Coal India (Regulation of Transfers and Validation) Act, 2000.txt
+data/Legal_Dataset/extracted_text/The Coal Mines (Special Provisions) Act, 2015.txt
+data/Legal_Dataset/extracted_text/The Coal Mines Labour Welfare Fund (Repeal) Act, 1986.txt
+data/Legal_Dataset/extracted_text/The Coal Mines Provident Fund and Miscellaneous Provisions Act, 1948.txt
+data/Legal_Dataset/extracted_text/The Coast Guard Act, 1978.txt
+data/Legal_Dataset/extracted_text/The Coastal Aquaculture Authority Act, 2005.txt
+data/Legal_Dataset/extracted_text/The Coastal Shipping Act, 2025.txt
+data/Legal_Dataset/extracted_text/The Coconut Development Board Act, 1979.txt
+data/Legal_Dataset/extracted_text/The Code of Civil Procedure, 1908.txt
+data/Legal_Dataset/extracted_text/The Code on Social Security, 2020.txt
+data/Legal_Dataset/extracted_text/The Code on Wages, 2019.txt
+data/Legal_Dataset/extracted_text/The Coffee Act, 1942.txt
+data/Legal_Dataset/extracted_text/The Coinage Act, 2011.txt
+data/Legal_Dataset/extracted_text/The Coir Industry Act, 1953.txt
+data/Legal_Dataset/extracted_text/The Collection of Statistics Act, 2008.txt
+data/Legal_Dataset/extracted_text/The Commercial Courts Act, 2015.txt
+data/Legal_Dataset/extracted_text/The Commercial Documents Evidence Act, 1939.txt
+data/Legal_Dataset/extracted_text/The Commission for Air Quality Management in National Capital Region and Adjoining Areas Act, 2021.txt
+data/Legal_Dataset/extracted_text/The Commission of Sati (Prevention ) Act, 1987.txt
+data/Legal_Dataset/extracted_text/The Commissions for Protection of Child Rights Act, 2005.txt
+data/Legal_Dataset/extracted_text/The Commissions of Inquiry Act, 1952.txt
+data/Legal_Dataset/extracted_text/The Companies (Donations to National Funds) Act, 1951.txt
+data/Legal_Dataset/extracted_text/The Companies (Profits) Surtax Act, 1964.txt
+data/Legal_Dataset/extracted_text/The Companies Act, 2013.txt
+data/Legal_Dataset/extracted_text/The Company Secretaries Act, 1980.txt
+data/Legal_Dataset/extracted_text/The Compensatory Afforestation Fund Act, 2016..txt
+data/Legal_Dataset/extracted_text/The Competition Act, 2002.txt
+data/Legal_Dataset/extracted_text/The Comptroller Auditor-General's (Duties, Powers and Conditions of Service) Act, 1971.txt
+data/Legal_Dataset/extracted_text/The Conservation of Foreign Exchange and Prevention of Smuggling Activities Act, 1974.txt
+data/Legal_Dataset/extracted_text/The Consumer Protection Act, 2019.txt
+data/Legal_Dataset/extracted_text/The Contempt of Courts Act, 1971.txt
+data/Legal_Dataset/extracted_text/The Contingency Fund of India Act, 1950.txt
+data/Legal_Dataset/extracted_text/The Control of National Highways (Land and Traffic) Act, 2002.txt
+data/Legal_Dataset/extracted_text/The Copyright Act, 1957.txt
+data/Legal_Dataset/extracted_text/The Cost Accountants Act, 1959.txt
+data/Legal_Dataset/extracted_text/The Court-Fees Act, 1870.txt
+data/Legal_Dataset/extracted_text/The Credit Information Companies (Regulation) Act, 2005..txt
+data/Legal_Dataset/extracted_text/The Criminal Procedure (Identification) Act, 2022.txt
+data/Legal_Dataset/extracted_text/The Customs Act, 1962.txt
+data/Legal_Dataset/extracted_text/The Customs Tariff Act, 1975.txt
+data/Legal_Dataset/extracted_text/The Cutchi Memons Act, 1938.txt
+data/Legal_Dataset/extracted_text/The Dadra and Nagar Haveli Act, 1961.txt
+data/Legal_Dataset/extracted_text/The Dadra and Nagar Haveli and Daman and Diu (Merger of Union territories) Act, 2019.txt
+data/Legal_Dataset/extracted_text/The Dakshina Bharat Hindi Prachar Sabha Act, 1964.txt
+data/Legal_Dataset/extracted_text/The Dalmia Dadri Cement Limited (Acquisition and Transfer of Undertakings) Act, 1981.txt
+data/Legal_Dataset/extracted_text/The Dam Safety Act, 2021.txt
+data/Legal_Dataset/extracted_text/The Damodar Valley Corporation Act, 1948.txt
+data/Legal_Dataset/extracted_text/The Dehra Dun Act, 1871.txt
+data/Legal_Dataset/extracted_text/The Dekkhan Agriculturists' Relief Act, 1879.txt
+data/Legal_Dataset/extracted_text/The Delhi (Urban Areas) Tenant's Relief Act, 1961.txt
+data/Legal_Dataset/extracted_text/The Delhi and Ajmer-Merwara Land Development Act, 1948.txt
+data/Legal_Dataset/extracted_text/The Delhi Apartment Ownership Act, 1986.txt
+data/Legal_Dataset/extracted_text/The Delhi Development Act, 1957.txt
+data/Legal_Dataset/extracted_text/The Delhi High Court Act, 1966.txt
+data/Legal_Dataset/extracted_text/The Delhi Land Holdings (Ceiling) Act, 1960.txt
+data/Legal_Dataset/extracted_text/The Delhi Lands (Restrictions on Transfer) Act, 1972.txt
+data/Legal_Dataset/extracted_text/The Delhi Motor Vehicles Taxation Act, 1962.txt
+data/Legal_Dataset/extracted_text/The Delhi Municipal Corporation Act, 1957.txt
+data/Legal_Dataset/extracted_text/The Delhi Police Act, 1978.txt
+data/Legal_Dataset/extracted_text/The Delhi Primary Education Act, 1960.txt
+data/Legal_Dataset/extracted_text/The Delhi Rent Control Act, 1958.txt
+data/Legal_Dataset/extracted_text/The Delhi Sales Tax Act, 1975.txt
+data/Legal_Dataset/extracted_text/The Delhi School Education Act, 1973.txt
+data/Legal_Dataset/extracted_text/The Delhi Sikh Gurdwaras Act, 1971.txt
+data/Legal_Dataset/extracted_text/The Delhi Special Police Establishment Act, 1946.txt
+data/Legal_Dataset/extracted_text/The Delhi University Act, 1922.txt
+data/Legal_Dataset/extracted_text/The Delhi Urban Art Commission Act, 1973.txt
+data/Legal_Dataset/extracted_text/The Delimitation Act, 2002.txt
+data/Legal_Dataset/extracted_text/The Delivery of Books and Newspapers (Public Libraries) Act, 1954.txt
+data/Legal_Dataset/extracted_text/The Deo Estate Act.txt
+data/Legal_Dataset/extracted_text/The Departmental Inquiries (Enforcement of Attendance of Witnesses and Production of Documents) Act, 1972.txt
+data/Legal_Dataset/extracted_text/The Departmentalisation of Union Accounts (Transfer of Personnel) Act, 1976.txt
+data/Legal_Dataset/extracted_text/The Deposit Insurance and Credit Guarantee Corporation Act, 1961.txt
+data/Legal_Dataset/extracted_text/The Depositories Act, 1996.txt
+data/Legal_Dataset/extracted_text/The Designs Act, 2000.txt
+data/Legal_Dataset/extracted_text/The Destruction of Records Act, 1917.txt
+data/Legal_Dataset/extracted_text/The Destructive Insects and Pests (Amendment and Validation) Act, 1992..txt
+data/Legal_Dataset/extracted_text/The Destructive Insects and Pests Act, 1914.txt
+data/Legal_Dataset/extracted_text/The Digital Personal Data Protection Act, 2023..txt
+data/Legal_Dataset/extracted_text/The Diplomatic and Consular Officers (Oaths and Fees) (Extension to Jammu and Kashmir) Act, 1973.txt
+data/Legal_Dataset/extracted_text/The Diplomatic and Consular Officers (Oaths and Fees) Act, 1948.txt
+data/Legal_Dataset/extracted_text/The Diplomatic Relations (Vienna Convention) Act, 1972.txt
+data/Legal_Dataset/extracted_text/The Direct Tax Vivad se Vishwas Act, 2020.txt
+data/Legal_Dataset/extracted_text/The Disaster Management Act, 2005.txt
+data/Legal_Dataset/extracted_text/The Dissolution of Muslim Marriages Act, 1939.txt
+data/Legal_Dataset/extracted_text/The Disturbed Areas (Special Courts) Act, 1976.txt
+data/Legal_Dataset/extracted_text/The Divorce Act, 1869.txt
+data/Legal_Dataset/extracted_text/The Dock Workers (Regulation of Employment) (Inapplicability to Major Ports) Act, 1997.txt
+data/Legal_Dataset/extracted_text/The Dock Workers (Regulation of Employment) Act, 1948.txt
+data/Legal_Dataset/extracted_text/The Dowry Prohibition Act, 1961.txt
+data/Legal_Dataset/extracted_text/The Dr. Rajendra Prasad Central Agricultural University Act, 2016..txt
+data/Legal_Dataset/extracted_text/The Drugs and Cosmetics Act, 1940.txt
+data/Legal_Dataset/extracted_text/The Drugs and Magic Remedies (Objectionable Advertisement) Act, 1954.txt
+data/Legal_Dataset/extracted_text/The Durgah khawaja Saheb Act, 1955.txt
+data/Legal_Dataset/extracted_text/The Easements (Extending Act 5 of 1882), 1891.txt
+data/Legal_Dataset/extracted_text/The East Punjab Urban Rent Restriction Act (Extension to Chandigarh) Act, 1974.txt
+data/Legal_Dataset/extracted_text/The Economic Offences (Inapplicability of Limitation) Act, 1974.txt
+data/Legal_Dataset/extracted_text/The Election Laws (Extension to Sikkim) Act, 1976.txt
+data/Legal_Dataset/extracted_text/The Electricity Act, 2003.txt
+data/Legal_Dataset/extracted_text/The Emblems and Names (Prevention of Improper Use) Act, 1950.txt
+data/Legal_Dataset/extracted_text/The Emigration Act, 1983.txt
+data/Legal_Dataset/extracted_text/The Employment of Manual Scavengers and Construction of Dry Latrines (Prohibition) Act, 1993.txt
+data/Legal_Dataset/extracted_text/The Enemy Property Act, 1968.txt
+data/Legal_Dataset/extracted_text/The Energy Conservation Act, 2001.txt
+data/Legal_Dataset/extracted_text/The English and Foreign Languages University Act, 2006.txt
+data/Legal_Dataset/extracted_text/The Environment (Protection) Act, 1986.txt
+data/Legal_Dataset/extracted_text/The Epidemic Diseases Act, 1897.txt
+data/Legal_Dataset/extracted_text/The Essential Commodities Act, 1955.txt
+data/Legal_Dataset/extracted_text/The Essential Services Maintenance (Assam) Act, 1980.txt
+data/Legal_Dataset/extracted_text/The Expenditure-tax Act, 1987.txt
+data/Legal_Dataset/extracted_text/The Explosive Substances Act, 1908.txt
+data/Legal_Dataset/extracted_text/The Explosives Act, 1884.txt
+data/Legal_Dataset/extracted_text/The Export-Import Bank of India Act, 1981.txt
+data/Legal_Dataset/extracted_text/The Export (Quality Control and Inspection) Act, 1963.txt
+data/Legal_Dataset/extracted_text/The Extradition Act, 1962.txt
+data/Legal_Dataset/extracted_text/The Factoring Regulation Act, 2011.txt
+data/Legal_Dataset/extracted_text/The Family Courts Act, 1984.txt
+data/Legal_Dataset/extracted_text/The Faridabad Development Corporation Act, 1956.txt
+data/Legal_Dataset/extracted_text/The Farm Laws Repeal Act, 2021.txt
+data/Legal_Dataset/extracted_text/The Fatal Accidents Act, 1855.txt
+data/Legal_Dataset/extracted_text/The Finance Commission (Miscellaneous Provisions) Act, 1951.txt
+data/Legal_Dataset/extracted_text/The Fiscal Responsibility and Budget Management Act, 2003.txt
+data/Legal_Dataset/extracted_text/The Food Corporations Act, 1964.txt
+data/Legal_Dataset/extracted_text/The Food Safety and Standards Act, 2006.txt
+data/Legal_Dataset/extracted_text/The Footwear Design and Development Institute Act, 2017.txt
+data/Legal_Dataset/extracted_text/The Foreign Aircraft (Exemption from Taxes and Duties on Fuel and Lubricants) Act, 2002.txt
+data/Legal_Dataset/extracted_text/The Foreign Contribution (Regulation) Act, 2010.txt
+data/Legal_Dataset/extracted_text/The Foreign Exchange Management Act, 1999.txt
+data/Legal_Dataset/extracted_text/The Foreign Marriage Act, 1969.txt
+data/Legal_Dataset/extracted_text/The Foreign Trade (Development and Regulation) Act, 1992.txt
+data/Legal_Dataset/extracted_text/The Foreigners Law (Application and Amendment) Act, 1962.txt
+data/Legal_Dataset/extracted_text/The Forfeited Deposits Act, 1850.txt
+data/Legal_Dataset/extracted_text/The Former Secretary of State Service Officers (Conditions of Service) Act, 1972.txt
+data/Legal_Dataset/extracted_text/The Forward Contracts (Regulation) Act, 1952.txt
+data/Legal_Dataset/extracted_text/The Fugitive Economic Offenders Act, 2018.txt
+data/Legal_Dataset/extracted_text/The General Clauses Act, 1897.txt
+data/Legal_Dataset/extracted_text/The General Insurance Business (Nationalisation) Act, 1972.txt
+data/Legal_Dataset/extracted_text/The Geneva Conventions Act, 1960.txt
+data/Legal_Dataset/extracted_text/The Geographical Indications of Goods (Registration and Protection) Act, 1999.txt
+data/Legal_Dataset/extracted_text/The Gift-tax Act, 1958.txt
+data/Legal_Dataset/extracted_text/The Goa, Daman and Diu (Administration) Act, 1962.txt
+data/Legal_Dataset/extracted_text/The Goa, Daman and Diu (Extension of the Code of Civil Procedure and the Arbitration Act) Act, 1965.txt
+data/Legal_Dataset/extracted_text/The Goa, Daman and Diu Mining Concessions (Abolition and Declaration as Mining Leases) Act, 1987.txt
+data/Legal_Dataset/extracted_text/The Goa, Daman and Diu Reorganisation Act, 1987.txt
+data/Legal_Dataset/extracted_text/The Gold Bonds (Immunities and Exemptions) Act, 1993.txt
+data/Legal_Dataset/extracted_text/The Goods and Services Tax (Compensation to States) Act, 2017.txt
+data/Legal_Dataset/extracted_text/The Government Buildings Act, 1899.txt
+data/Legal_Dataset/extracted_text/The Government of National Capital Territory of Delhi Act, 1991.txt
+data/Legal_Dataset/extracted_text/The Government of Union Territories Act, 1963.txt
+data/Legal_Dataset/extracted_text/The Government Savings Promotion Act, 1873.txt
+data/Legal_Dataset/extracted_text/The Government Securities Act, 2006.txt
+data/Legal_Dataset/extracted_text/The Governors (Emoluments, Allowances and Privileges) Act, 1982.txt
+data/Legal_Dataset/extracted_text/The Gram Nyayalayas Act, 2008.txt
+data/Legal_Dataset/extracted_text/The Guardians and Wards Act, 1890.txt
+data/Legal_Dataset/extracted_text/The Haj Committee Act, 2002.txt
+data/Legal_Dataset/extracted_text/The Handlooms (Reservation of Articles for Production) Act, 1985.txt
+data/Legal_Dataset/extracted_text/The Haryana and Punjab Agricultural Universities Act, 1970.txt
+data/Legal_Dataset/extracted_text/The Haryana and Uttar Pradesh (Alteration of Boundaries) Act, 1979.txt
+data/Legal_Dataset/extracted_text/The Health Security Se National Security Cess Act, 2025.txt
+data/Legal_Dataset/extracted_text/The High Court at Bombay (Extension of Jurisdiction to Goa, Daman and Diu) Act, 1981.txt
+data/Legal_Dataset/extracted_text/The High Court at Patna (Establishment of a Permanent Bench at Ranchi) Act, 1976.txt
+data/Legal_Dataset/extracted_text/The High Court Judges Salaries and Conditions of Service Act, 1954.txt
+data/Legal_Dataset/extracted_text/The High Courts (Seals) Act, 1950.txt
+data/Legal_Dataset/extracted_text/The Himachal Pradesh and Bilaspur (New State) Act, 1954.txt
+data/Legal_Dataset/extracted_text/The Hind Cycles Limited and Sen-Raleigh Limited (Nationalisation) Act, 1980.txt
+data/Legal_Dataset/extracted_text/The Hindi Sahitya Sammelan Act, 1962.txt
+data/Legal_Dataset/extracted_text/The Hindu Adoptions and Maintenance Act, 1956.txt
+data/Legal_Dataset/extracted_text/The Hindu Disposition of Property Act, 1916.txt
+data/Legal_Dataset/extracted_text/The Hindu Gains of Learning Act, 1930.txt
+data/Legal_Dataset/extracted_text/The Hindu Marriage Act, 1955.txt
+data/Legal_Dataset/extracted_text/The Hindu Minority and Guardianship Act, 1956.txt
+data/Legal_Dataset/extracted_text/The Hindu Succession Act, 1956.txt
+data/Legal_Dataset/extracted_text/The Hotel-Receipts Tax Act, 1980.txt
+data/Legal_Dataset/extracted_text/The Human Immunodeficiency Virus and Acquired Immune Deficiency Syndrome (Prevention and Control) Act, 2017.txt
+data/Legal_Dataset/extracted_text/The Illegal Migrants (Determination by Tribunals) Act, 1983.txt
+data/Legal_Dataset/extracted_text/The Immigrants (Expulsion from Assam) Act, 1950.txt
+data/Legal_Dataset/extracted_text/The Immigration and Foreigners Act, 2025.txt
+data/Legal_Dataset/extracted_text/The Immoral Traffic (Prevention) Act, 1956.txt
+data/Legal_Dataset/extracted_text/The Improvements in Towns Act, 1850.txt
+data/Legal_Dataset/extracted_text/The Inchek Tyres Limited and National Rubber Manufacturers Limited (Nationalisation) Act, 1984.txt
+data/Legal_Dataset/extracted_text/The Indecent Representation of Women (Prohibition) Act, 1986.txt
+data/Legal_Dataset/extracted_text/The India International Arbitration Centre Act, 2019.txt
+data/Legal_Dataset/extracted_text/The Indian Antarctic Act, 2022.txt
+data/Legal_Dataset/extracted_text/The Indian Christian Marriage Act, 1872.txt
+data/Legal_Dataset/extracted_text/The Indian Contract Act, 1872.txt
+data/Legal_Dataset/extracted_text/The Indian Council of World Affairs Act, 2001.txt
+data/Legal_Dataset/extracted_text/The Indian Easements Act, 1882.txt
+data/Legal_Dataset/extracted_text/The Indian Forest Act, 1927.txt
+data/Legal_Dataset/extracted_text/The Indian Institute of Management Act, 2017.txt
+data/Legal_Dataset/extracted_text/The Indian Institute of Petroleum and Energy Act, 2017.txt
+data/Legal_Dataset/extracted_text/The Indian Institutes of Information Technology (Public-private Partnership) Act, 2017.txt
+data/Legal_Dataset/extracted_text/The Indian Institutes of Information Technology Act, 2014.txt
+data/Legal_Dataset/extracted_text/The Indian Maritime University Act, 2008.txt
+data/Legal_Dataset/extracted_text/The Indian Museum Act, 1910.txt
+data/Legal_Dataset/extracted_text/The Indian Naval Armament Act, 1923.txt
+data/Legal_Dataset/extracted_text/The Indian Nursing Council Act, 1947.txt
+data/Legal_Dataset/extracted_text/The Indian Partnership Act, 1932.txt
+data/Legal_Dataset/extracted_text/The Indian Ports Act 2025.txt
+data/Legal_Dataset/extracted_text/The Indian Red Cross Society Act, 1920.txt
+data/Legal_Dataset/extracted_text/The Indian Reserve Forces Act, 1888.txt
+data/Legal_Dataset/extracted_text/The Indian Soldiers (Litigation) Act, 1925.txt
+data/Legal_Dataset/extracted_text/The Indian Stamp Act, 1899.txt
+data/Legal_Dataset/extracted_text/The Indian Statistical Institute Act, 1959.txt
+data/Legal_Dataset/extracted_text/The Indian Succession Act, 1925.txt
+data/Legal_Dataset/extracted_text/The Indian Telegraph Act, 1885.txt
+data/Legal_Dataset/extracted_text/The Indian Tolls (Army and Air Force) Act, 1901.txt
+data/Legal_Dataset/extracted_text/The Indian Tolls Act, 1851.txt
+data/Legal_Dataset/extracted_text/The Indian Tolls Act, 1864.txt
+data/Legal_Dataset/extracted_text/The Indian Treasure-trove Act, 1878.txt
+data/Legal_Dataset/extracted_text/The Indian Trusts Act, 1882.txt
+data/Legal_Dataset/extracted_text/The Indian Veterinary Council Act, 1984.txt
+data/Legal_Dataset/extracted_text/The Indian Wireless Telegraphy Act, 1933.txt
+data/Legal_Dataset/extracted_text/The Indira Gandhi National Open University Act, 1985.txt
+data/Legal_Dataset/extracted_text/The Indira Gandhi National Tribal University Act, 2007.txt
+data/Legal_Dataset/extracted_text/The Indo-Tibetan Border Police Force Act, 1992.txt
+data/Legal_Dataset/extracted_text/The Industrial Development Bank (Transfer of Undertaking and Repeal) Act, 2003.txt
+data/Legal_Dataset/extracted_text/The Industrial Disputes (Banking and Insurance Companies) Act, 1949.txt
+data/Legal_Dataset/extracted_text/The Industrial Finance Corporation (Transfer of Undertaking and Repeal) Act, 1993.txt
+data/Legal_Dataset/extracted_text/The Industrial Reconstruction Bank (Transfer of Undertakings and Repeal) Act, 1997.txt
+data/Legal_Dataset/extracted_text/The Industrial Relations Code, 2020.txt
+data/Legal_Dataset/extracted_text/The Industries (Development and Regulation) Act, 1951.txt
+data/Legal_Dataset/extracted_text/The Infant Milk Substitutes, Feeding Bottles and Infant Foods (Regulation of Production, Supply and Distribution) Act, 1992.txt
+data/Legal_Dataset/extracted_text/The Inflammable Substances Act, 1952.txt
+data/Legal_Dataset/extracted_text/The Information Technology Act, 2000.txt
+data/Legal_Dataset/extracted_text/The Inland Vessels Act, 2021.txt
+data/Legal_Dataset/extracted_text/The Inland Waterways Authority of India Act, 1985.txt
+data/Legal_Dataset/extracted_text/The Insecticides Act, 1968.txt
+data/Legal_Dataset/extracted_text/The Insolvency and Bankruptcy Code, 2016..txt
+data/Legal_Dataset/extracted_text/The Institute of Teaching and Research in Ayurveda Act, 2020.txt
+data/Legal_Dataset/extracted_text/The Institutes of Technology Act, 1961.txt
+data/Legal_Dataset/extracted_text/The Insurance Act, 1938.txt
+data/Legal_Dataset/extracted_text/The Insurance Regulatory and Development Authority Act, 1999.txt
+data/Legal_Dataset/extracted_text/The Integrated Goods and Services Tax (Extension to Jammu and Kashmir) Act, 2017.txt
+data/Legal_Dataset/extracted_text/The Integrated Goods and Services Tax Act, 2017.txt
+data/Legal_Dataset/extracted_text/The Intelligence Organisations (Restriction of Rights) Act, 1985.txt
+data/Legal_Dataset/extracted_text/The Inter-Services Organisations (Command, Control and Discipline) Act, 2023.txt
+data/Legal_Dataset/extracted_text/The Inter-State Corporations Act, 1957.txt
+data/Legal_Dataset/extracted_text/The Inter-State River Water Disputes Act, 1956.txt
+data/Legal_Dataset/extracted_text/The Interest-tax Act, 1974.txt
+data/Legal_Dataset/extracted_text/The Interest Act, 1978.txt
+data/Legal_Dataset/extracted_text/The International Development Association (Status, Immunities and Privileges) Act, 1960.txt
+data/Legal_Dataset/extracted_text/The International Finance Corporation (Status, Immunities and Privileges) Act, 1958.txt
+data/Legal_Dataset/extracted_text/The International Financial Services Centres Authority Act, 2019.txt
+data/Legal_Dataset/extracted_text/The International Monetary Fund and Bank Act, 1945.txt
+data/Legal_Dataset/extracted_text/The Jallianwala Bagh National Memorial Act, 1951.txt
+data/Legal_Dataset/extracted_text/The Jamia Millia Islamia Act, 1988.txt
+data/Legal_Dataset/extracted_text/The Jammu and Kashmir (Extension of Laws) Act, 1956.txt
+data/Legal_Dataset/extracted_text/The Jammu and Kashmir Official Languages Act, 2020..txt
+data/Legal_Dataset/extracted_text/The Jammu and Kashmir Reorganisation Act, 2019.txt
+data/Legal_Dataset/extracted_text/The Jammu and Kashmir Representation of the People (Supplementary) Act, 1968.txt
+data/Legal_Dataset/extracted_text/The Jawaharlal Institute of Post-Graduate Medical Education and Research, Puducherry, Act, 2008.txt
+data/Legal_Dataset/extracted_text/The Jawaharlal Nehru University Act, 1966.txt
+data/Legal_Dataset/extracted_text/The Judges (Inquiry) Act, 1968.txt
+data/Legal_Dataset/extracted_text/The Judges (Protection) Act, 1985.txt
+data/Legal_Dataset/extracted_text/The Jute Companies (Nationalisation) Act, 1980.txt
+data/Legal_Dataset/extracted_text/The Jute Packaging Materials (Compulsory Use in Packing Commodities) Act, 1987.txt
+data/Legal_Dataset/extracted_text/The Juvenile Justice (Care and Protection of Children) Act, 2015..txt
+data/Legal_Dataset/extracted_text/The Kalakshetra Foundation Act, 1993.txt
+data/Legal_Dataset/extracted_text/The Kazis' Act, 1880.txt
+data/Legal_Dataset/extracted_text/The Kerala (Alteration of Name) Act, 2026.txt
+data/Legal_Dataset/extracted_text/The Khaddar (Protection of Name) Act, 1950.txt
+data/Legal_Dataset/extracted_text/The Khadi and Village Industries Commission Act, 1956.txt
+data/Legal_Dataset/extracted_text/The Khuda Bakhsh Oriental Public Library Act, 1969.txt
+data/Legal_Dataset/extracted_text/The King of Oudh's Estate Act, 1887.txt
+data/Legal_Dataset/extracted_text/The King of Oudh's Estate Act, 1888.txt
+data/Legal_Dataset/extracted_text/The King of Oudh's Estate Validation Act, 1917.txt
+data/Legal_Dataset/extracted_text/The Labour Laws (Simplification of Procedure for Furnishing Returns and Maintaining Registers by certain Establishments) Act, 1988.txt
+data/Legal_Dataset/extracted_text/The Lady Hardinge Medical College and Hospital (Acquisition and Miscellaneous Provisions) Act, 1977.txt
+data/Legal_Dataset/extracted_text/The Lalit Kala Akadami (Taking Over of Management) Act, 1997.txt
+data/Legal_Dataset/extracted_text/The Land Acquisition (Amendment and Validation) Act, 1967.txt
+data/Legal_Dataset/extracted_text/The Land Improvement Loans Act, 1883.txt
+data/Legal_Dataset/extracted_text/The Land Ports Authority of India Act, 2010.txt
+data/Legal_Dataset/extracted_text/The Laws Local Extent Act, 1874.txt
+data/Legal_Dataset/extracted_text/The Leaders and Chief Whips of Recognised Parties and Groups in Parliament (Facilities) Act, 1998.txt
+data/Legal_Dataset/extracted_text/The Legal Metrology Act, 2009.txt
+data/Legal_Dataset/extracted_text/The Legal Practitioners Act, 1879.txt
+data/Legal_Dataset/extracted_text/The Legal Representatives Suits Act, 1855.txt
+data/Legal_Dataset/extracted_text/The Legal Services Authorities Act, 1987.txt
+data/Legal_Dataset/extracted_text/The Legal Tender (Inscribed Notes) Act, 1964.txt
+data/Legal_Dataset/extracted_text/The Legislative Assembly of Nagaland (Change in Representation) Act, 1968.txt
+data/Legal_Dataset/extracted_text/The Life Insurance Corporation (Modification of Settlements) Act, 1976.txt
+data/Legal_Dataset/extracted_text/The Life Insurance Corporation Act, 1956.txt
+data/Legal_Dataset/extracted_text/The Limitation Act, 1963.txt
+data/Legal_Dataset/extracted_text/The Limited Liability Partnership Act, 2008.txt
+data/Legal_Dataset/extracted_text/The Live-stock Importation Act, 1898.txt
+data/Legal_Dataset/extracted_text/The Local Authorities Loans Act, 1914.txt
+data/Legal_Dataset/extracted_text/The Lok Sahayak Sena Act, 1956.txt
+data/Legal_Dataset/extracted_text/The Lokpal and Lokayuktas Act, 2013.txt
+data/Legal_Dataset/extracted_text/The Lotteries (Regulation) Act, 1998.txt
+data/Legal_Dataset/extracted_text/The Lushai Hills District (Change of Name) Act, 1954.txt
+data/Legal_Dataset/extracted_text/The Madhya Pradesh Reorganisation Act, 2000.txt
+data/Legal_Dataset/extracted_text/The Madras City Civil Court Act, 1892.txt
+data/Legal_Dataset/extracted_text/The Madras City Land Revenue Act, 1851.txt
+data/Legal_Dataset/extracted_text/The Madras Civil Courts' Act, 1873.txt
+data/Legal_Dataset/extracted_text/The Madras District Police Act, 1859.txt
+data/Legal_Dataset/extracted_text/The Madras Rent and Revenue Sales Act, 1839.txt
+data/Legal_Dataset/extracted_text/The Madras, Bengal and Bombay Children (Supplementary) Act, 1925.txt
+data/Legal_Dataset/extracted_text/The Mahatma Gandhi Antarrashtriya Hindi Vishwavidyalaya Act, 1996.txt
+data/Legal_Dataset/extracted_text/The Maintenance and Welfare of Parents and Senior Citizens Act, 2007.txt
+data/Legal_Dataset/extracted_text/The Maintenance Orders Enforcement Act, 1921.txt
+data/Legal_Dataset/extracted_text/The Major Port Authorities Act, 2021.txt
+data/Legal_Dataset/extracted_text/The Majority Act, 1875.txt
+data/Legal_Dataset/extracted_text/The Mangrol and Manavadar (Administration of Property) Act, 1949.txt
+data/Legal_Dataset/extracted_text/The Manipur (Courts) Act, 1955.txt
+data/Legal_Dataset/extracted_text/The Manipur (Hill Areas) District Councils Act, 1971.txt
+data/Legal_Dataset/extracted_text/The Manipur (Sales of Motor Spirit and Lubricants) Taxation Act, 1962.txt
+data/Legal_Dataset/extracted_text/The Manipur (Village Authorities in Hill Areas) Act, 1956.txt
+data/Legal_Dataset/extracted_text/The Manipur Land Revenue and Land Reforms Act, 1960.txt
+data/Legal_Dataset/extracted_text/The Manipur Municipalities Act, 1994.txt
+data/Legal_Dataset/extracted_text/The Manipur Panchayati Raj Act, 1994.txt
+data/Legal_Dataset/extracted_text/The Manipur University Act, 2005.txt
+data/Legal_Dataset/extracted_text/The Manoeuvres, Field Firing and Artillery Practice Act, 1938.txt
+data/Legal_Dataset/extracted_text/The Marine Aids to Navigation Act, 2021..txt
+data/Legal_Dataset/extracted_text/The Marine Insurance Act, 1963.txt
+data/Legal_Dataset/extracted_text/The Marine Products Export Development Authority Act, 1972.txt
+data/Legal_Dataset/extracted_text/The Maritime Anti-Piracy Act, 2022..txt
+data/Legal_Dataset/extracted_text/The Maritime Zones of India (Regulation of Fishing by Foreign Vessels) Act, 1981.txt
+data/Legal_Dataset/extracted_text/The Marking of Heavy Packages Act, 1951.txt
+data/Legal_Dataset/extracted_text/The Married Women's Property Act, 1874.txt
+data/Legal_Dataset/extracted_text/The Maulana Azad National Urdu University Act, 1996.txt
+data/Legal_Dataset/extracted_text/The Mediation Act, 2023.txt
+data/Legal_Dataset/extracted_text/The Medical Termination of Pregnancy Act, 1971.txt
+data/Legal_Dataset/extracted_text/The Mental Healthcare Act, 2017.txt
+data/Legal_Dataset/extracted_text/The Merchant Shipping Act, 2025.txt
+data/Legal_Dataset/extracted_text/The Metro Railways (Construction of Works) Act, 1978.txt
+data/Legal_Dataset/extracted_text/The Metro Railways (Operation and Maintenance) Act, 2002.txt
+data/Legal_Dataset/extracted_text/The Micro, Small and Medium Enterprises Development Act, 2006.txt
+data/Legal_Dataset/extracted_text/The Mines and Minerals (Development and Regulation) Act, 1957.txt
+data/Legal_Dataset/extracted_text/The Mizoram University Act, 2000.txt
+data/Legal_Dataset/extracted_text/The Motor Vehicles Act, 1988.txt
+data/Legal_Dataset/extracted_text/The Multi-State Co-operative Societies Act, 2002.txt
+data/Legal_Dataset/extracted_text/The Multimodal Transportation of Goods Act, 1993.txt
+data/Legal_Dataset/extracted_text/The Murshidabad Act, 1891.txt
+data/Legal_Dataset/extracted_text/The Murshidabad Estate Administration Act, 1933.txt
+data/Legal_Dataset/extracted_text/The Muslim Personal Law (Shariat) Application Act, 1937.txt
+data/Legal_Dataset/extracted_text/The Muslim Women (Protection of Rights on Divorce) Act, 1986.txt
+data/Legal_Dataset/extracted_text/The Muslim Women (Protection of Rights on Marriage) Act, 2019..txt
+data/Legal_Dataset/extracted_text/The Mussalman Wakf (Repeal) Act, 2025.txt
+data/Legal_Dataset/extracted_text/The Naga Hills-Tuensang Area Act, 1957.txt
+data/Legal_Dataset/extracted_text/The Nagaland University Act, 1989.txt
+data/Legal_Dataset/extracted_text/The Nalanda University Act, 2010.txt
+data/Legal_Dataset/extracted_text/The Narcotic Drugs and Psychotropic Substances Act, 1985.txt
+data/Legal_Dataset/extracted_text/The National Anti-Doping Act, 2022.txt
+data/Legal_Dataset/extracted_text/The National Bank for Agriculture and Rural Development Act, 1981.txt
+data/Legal_Dataset/extracted_text/The National Bank for Financing Infrastructure and Development Act, 2021.txt
+data/Legal_Dataset/extracted_text/The National Cadet Corps Act, 1948.txt
+data/Legal_Dataset/extracted_text/The National Capital Region Planning Board Act, 1985.txt
+data/Legal_Dataset/extracted_text/The National Capital Territory of Delhi (Recognition of Property Rights of Residents in Unauthorised Colonies) Act, 2019.txt
+data/Legal_Dataset/extracted_text/The National Capital Territory of Delhi Laws (Special Provisions) Second Act, 2011.txt
+data/Legal_Dataset/extracted_text/The National Co-operative Development Corporation Act, 1962.txt
+data/Legal_Dataset/extracted_text/The National Commission for Allied and Healthcare Professions Act, 2021.txt
+data/Legal_Dataset/extracted_text/The National Commission for Backward Classes (Repeal) Act, 2018.txt
+data/Legal_Dataset/extracted_text/The National Commission for Homoeopathy Act, 2020..txt
+data/Legal_Dataset/extracted_text/The National Commission for Indian System of Medicine Act, 2020.txt
+data/Legal_Dataset/extracted_text/The National Commission for Minorities Act, 1992.txt
+data/Legal_Dataset/extracted_text/The National Commission for Minority Educational Institutes Act, 2004.txt
+data/Legal_Dataset/extracted_text/The National Commission for Safai Karamcharis Act, 1993.txt
+data/Legal_Dataset/extracted_text/The National Commission for Women Act, 1990.txt
+data/Legal_Dataset/extracted_text/The National Company Limited (Acquisition and Transfer of Undertakings) Act, 1980.txt
+data/Legal_Dataset/extracted_text/The National Council for Teacher Education Act, 1993.txt
+data/Legal_Dataset/extracted_text/The National Dairy Development Board Act, 1987.txt
+data/Legal_Dataset/extracted_text/The National Dental Commission Act, 2023.txt
+data/Legal_Dataset/extracted_text/The National Food Security Act, 2013.txt
+data/Legal_Dataset/extracted_text/The National Forensic Sciences University Act, 2020.txt
+data/Legal_Dataset/extracted_text/The National Green Tribunal Act, 2010.txt
+data/Legal_Dataset/extracted_text/The National Highways Act, 1956.txt
+data/Legal_Dataset/extracted_text/The National Highways Authority of India Act, 1988.txt
+data/Legal_Dataset/extracted_text/The National Housing Bank Act, 1987.txt
+data/Legal_Dataset/extracted_text/The National Institute of Fashion Technology Act, 2006.txt
+data/Legal_Dataset/extracted_text/The National Institute of Mental Health and Neuro-Sciences, Bangalore Act, 2012.txt
+data/Legal_Dataset/extracted_text/The National Institutes of Design Act, 2014.txt
+data/Legal_Dataset/extracted_text/The National Institutes of Food Technology, Entrepreneurship and Management Act, 2021..txt
+data/Legal_Dataset/extracted_text/The National Institutes of Pharmaceutical Education and Research Act, 1998.txt
+data/Legal_Dataset/extracted_text/The National Institutes of Technology, Science Education and Research Act, 2007.txt
+data/Legal_Dataset/extracted_text/The National Investigation Agency Act, 2008.txt
+data/Legal_Dataset/extracted_text/The National Judicial Appointments Commission Act, 2014.txt
+data/Legal_Dataset/extracted_text/The National Jute Board Act, 2008.txt
+data/Legal_Dataset/extracted_text/The National Medical Commission Act, 2019.txt
+data/Legal_Dataset/extracted_text/The National Nursing and Midwifery Commission Act, 2023.txt
+data/Legal_Dataset/extracted_text/The National Rural Employment Guarantee (Extension to Jammu and Kashmir) Act, 2007.txt
+data/Legal_Dataset/extracted_text/The National Security Act, 1980.txt
+data/Legal_Dataset/extracted_text/The National Security Guard Act, 1986.txt
+data/Legal_Dataset/extracted_text/The National Service Act, 1972.txt
+data/Legal_Dataset/extracted_text/The National Sports Governance Act, 2025.txt
+data/Legal_Dataset/extracted_text/The National Sports University Act, 2018.txt
+data/Legal_Dataset/extracted_text/The National Tax Tribunal Act, 2005.txt
+data/Legal_Dataset/extracted_text/The National Trust for Welfare of Persons with Autism, Cerebral Palsy, Mental Retardation and Multiple Disabilities Act, 1999.txt
+data/Legal_Dataset/extracted_text/The National Waterways Act, 2016..txt
+data/Legal_Dataset/extracted_text/The Naval and Aircraft Prize Act, 1971.txt
+data/Legal_Dataset/extracted_text/The Navy Act, 1957.txt
+data/Legal_Dataset/extracted_text/The Negotiable Instruments Act, 1881.txt
+data/Legal_Dataset/extracted_text/The New Delhi Municipal Council Act, 1994.txt
+data/Legal_Dataset/extracted_text/The North-Eastern Areas (Reorganisation) Act, 1971.txt
+data/Legal_Dataset/extracted_text/The North-Eastern Council Act, 1971.txt
+data/Legal_Dataset/extracted_text/The North-Eastern Hill University Act, 1973.txt
+data/Legal_Dataset/extracted_text/The North-western Provinces and Oudh Act, 1890.txt
+data/Legal_Dataset/extracted_text/The Northern India Canal and Drainage Act, 1873.txt
+data/Legal_Dataset/extracted_text/The Northern Indian Ferries Act, 1878.txt
+data/Legal_Dataset/extracted_text/The Notaries Act, 1952.txt
+data/Legal_Dataset/extracted_text/The Oaths Act, 1969.txt
+data/Legal_Dataset/extracted_text/The Occupational Safety, Health and Working Conditions Code, 2020.txt
+data/Legal_Dataset/extracted_text/The Official Languages Act, 1963.txt
+data/Legal_Dataset/extracted_text/The Official Secrets Act, 1923.txt
+data/Legal_Dataset/extracted_text/The Official Trustees Act, 1913.txt
+data/Legal_Dataset/extracted_text/The Offshore Areas Mineral (Development and Regulation) Act, 2002.txt
+data/Legal_Dataset/extracted_text/The Oil and Natural Gas Commission (Transfer of Undertaking and Repeal) Act, 1993.txt
+data/Legal_Dataset/extracted_text/The Oil Industry (Development) Act, 1974.txt
+data/Legal_Dataset/extracted_text/The Oilfields (Regulation and Development) Act, 1948.txt
+data/Legal_Dataset/extracted_text/The Orissa (Alteration of Name) Act, 2011.txt
+data/Legal_Dataset/extracted_text/The Orissa Weights and Measures (Delhi Repeal) Act, 1958.txt
+data/Legal_Dataset/extracted_text/The Orphanages and other Charitable Homes (Supervision and Control) Act, 1960.txt
+data/Legal_Dataset/extracted_text/The Oudh Estates' Act, 1869.txt
+data/Legal_Dataset/extracted_text/The Oudh Laws Act, 1876.txt
+data/Legal_Dataset/extracted_text/The Oudh Taluqdar's Relief Act, 1870.txt
+data/Legal_Dataset/extracted_text/The Panjab District Boards Act, 1883.txt
+data/Legal_Dataset/extracted_text/The Parel Investments and Trading Private Limited and Domestic Gas Private Limited (Taking Over of Management) Repeal Act, 2005.txt
+data/Legal_Dataset/extracted_text/The Parliament (Prevention of Disqualification) Act, 1959.txt
+data/Legal_Dataset/extracted_text/The Parliamentary Proceedings (Protection of Publication) Act, 1977.txt
+data/Legal_Dataset/extracted_text/The Parsi Marriage and Divorce Act, 1936.txt
+data/Legal_Dataset/extracted_text/The Partition Act, 1893.txt
+data/Legal_Dataset/extracted_text/The Partition of Revenue-paying Estates Act, 1863.txt
+data/Legal_Dataset/extracted_text/The Passports Act, 1967.txt
+data/Legal_Dataset/extracted_text/The Patents Act, 1970.txt
+data/Legal_Dataset/extracted_text/The Payment and Settlement Systems Act, 2007.txt
+data/Legal_Dataset/extracted_text/The Pension Fund Regulatory and Development Authority Act, 2013.txt
+data/Legal_Dataset/extracted_text/The Pensions Act, 1871.txt
+data/Legal_Dataset/extracted_text/The Petroleum Act, 1934.txt
+data/Legal_Dataset/extracted_text/The Petroleum and Minerals Pipelines (Acquisition of Right of User in Land) Act, 1962.txt
+data/Legal_Dataset/extracted_text/The Petroleum and Natural Gas Regulatory Board Act, 2006.txt
+data/Legal_Dataset/extracted_text/The Pharmacy Act, 1948.txt
+data/Legal_Dataset/extracted_text/The Places of Worship (Special Provisions) Act, 1991.txt
+data/Legal_Dataset/extracted_text/The Poisons Act, 1919.txt
+data/Legal_Dataset/extracted_text/The Police-Forces (Restriction of Rights) Act, 1966.txt
+data/Legal_Dataset/extracted_text/The Police Act, 1861.txt
+data/Legal_Dataset/extracted_text/The Police Act, 1949.txt
+data/Legal_Dataset/extracted_text/The Police, Agra Act, 1854.txt
+data/Legal_Dataset/extracted_text/The Pondicherry (Administration) Act, 1962.txt
+data/Legal_Dataset/extracted_text/The Pondicherry (Alteration of Name) Act, 2006.txt
+data/Legal_Dataset/extracted_text/The Pondicherry (Extension of Laws) Act, 1968.txt
+data/Legal_Dataset/extracted_text/The Pondicherry University Act, 1985.txt
+data/Legal_Dataset/extracted_text/The Post-Graduate Institute of Medical Education and Research, Chandigarh, Act 1966.txt
+data/Legal_Dataset/extracted_text/The Post Office Act, 2023.txt
+data/Legal_Dataset/extracted_text/The Post Office Cash Certificates Act, 1917.txt
+data/Legal_Dataset/extracted_text/The Powers-of Attorney Act, 1882.txt
+data/Legal_Dataset/extracted_text/The Prasar Bharati (Broadcasting Corporation of India) Act, 1990.txt
+data/Legal_Dataset/extracted_text/The Pre-conception and Pre-natal Diagnostic Techniques (Prohibition of Sex Selection) Act, 1994.txt
+data/Legal_Dataset/extracted_text/The Preference Shares (Regulation of Dividends) Act, 1960.txt
+data/Legal_Dataset/extracted_text/The Presidency-Towns Insolvency Act, 1909.txt
+data/Legal_Dataset/extracted_text/The Presidency Small Cause Courts Act, 1882.txt
+data/Legal_Dataset/extracted_text/The President's Emoluments and Pension Act, 1951.txt
+data/Legal_Dataset/extracted_text/The President (Discharge of Functions) Act, 1969.txt
+data/Legal_Dataset/extracted_text/The Presidential and Vice-Presidential Elections Act, 1952.txt
+data/Legal_Dataset/extracted_text/The Press and Registration of Periodicals Act, 2023.txt
+data/Legal_Dataset/extracted_text/The Press Council Act, 1978.txt
+data/Legal_Dataset/extracted_text/The Prevention and Control of Infectious and Contagious Diseases in Animals Act, 2009.txt
+data/Legal_Dataset/extracted_text/The Prevention of Blackmarketing and Maintenance of Supplies of Essential Commodities Act, 1980.txt
+data/Legal_Dataset/extracted_text/The Prevention of Corruption Act, 1988.txt
+data/Legal_Dataset/extracted_text/The Prevention of Cruelty to Animals Act, 1960.txt
+data/Legal_Dataset/extracted_text/The Prevention of Damage to Public Property Act, 1984.txt
+data/Legal_Dataset/extracted_text/The Prevention of Illicit Traffic in Narcotic Drugs and Psychotropic Substances Act, 1988.txt
+data/Legal_Dataset/extracted_text/The Prevention of Insults to National Honour Act, 1971.txt
+data/Legal_Dataset/extracted_text/The Prevention of Money-Laundering Act, 2002.txt
+data/Legal_Dataset/extracted_text/The Prevention of Terrorism (Repeal) Act, 2004.txt
+data/Legal_Dataset/extracted_text/The Prisoners (Attendance in Courts) Act, 1955.txt
+data/Legal_Dataset/extracted_text/The Prisoners Act, 1900.txt
+data/Legal_Dataset/extracted_text/The Prisons Act, 1894.txt
+data/Legal_Dataset/extracted_text/The Private Security Agencies (Regulation) Act, 2005.txt
+data/Legal_Dataset/extracted_text/The Prize Chits and Money Circulation Schemes (Banning) Act, 1978.txt
+data/Legal_Dataset/extracted_text/The Prize Competitions Act, 1955.txt
+data/Legal_Dataset/extracted_text/The Probation of Offenders Act, 1958.txt
+data/Legal_Dataset/extracted_text/The Prohibition of Benami Property Transactions Act, 1988.txt
+data/Legal_Dataset/extracted_text/The Prohibition of Child Marriage Act, 2006.txt
+data/Legal_Dataset/extracted_text/The Prohibition of Electronic Cigarettes (Production, Manufacture, Import, Export, Transport, Sale, Distribution, Storage and Advertisement) Act, 2019.txt
+data/Legal_Dataset/extracted_text/The Prohibition of Employment as Manual Scavengers and their Rehabilitation Act, 2013.txt
+data/Legal_Dataset/extracted_text/The Promotion and Regulation of Online Gaming Act, 2025.txt
+data/Legal_Dataset/extracted_text/The Protection of Children from Sexual Offences Act, 2012.txt
+data/Legal_Dataset/extracted_text/The Protection of Civil Rights Act, 1955.txt
+data/Legal_Dataset/extracted_text/The Protection of Human Rights Act, 1993.txt
+data/Legal_Dataset/extracted_text/The Protection of Interests in Aircraft Objects Act, 2025.txt
+data/Legal_Dataset/extracted_text/The Protection of Plant Varieties and Farmers Rights Act, 2001.txt
+data/Legal_Dataset/extracted_text/The Protection of Women from Domestic Violence Act, 2005.txt
+data/Legal_Dataset/extracted_text/The Provident Funds Act, 1925.txt
+data/Legal_Dataset/extracted_text/The Provincial Insolvency Act, 1920.txt
+data/Legal_Dataset/extracted_text/The Provincial Small Cause Courts Act, 1887.txt
+data/Legal_Dataset/extracted_text/The Provisional collection of Taxes Act,2023.txt
+data/Legal_Dataset/extracted_text/The Provisions of the Panchayats (Extension to the Scheduled Areas) Act, 1996.txt
+data/Legal_Dataset/extracted_text/The Public Debt Act, 1944.txt
+data/Legal_Dataset/extracted_text/The Public Employment (Requirement as to Residence) Act, 1957.txt
+data/Legal_Dataset/extracted_text/The Public Examinations (Prevention of Unfair Means) Act, 2024.txt
+data/Legal_Dataset/extracted_text/The Public Financial Institutions (Obligation as to Fidelity and Secrecy) Act, 1983.txt
+data/Legal_Dataset/extracted_text/The Public Gambling Act, 1867.txt
+data/Legal_Dataset/extracted_text/The Public Liability Insurance Act, 1991.txt
+data/Legal_Dataset/extracted_text/The Public Premises (Eviction of Unauthorised Occupants) Act, 1971.txt
+data/Legal_Dataset/extracted_text/The Public Records Act, 1993.txt
+data/Legal_Dataset/extracted_text/The Public Sector Iron and Steel Companies (Restructuring) and Miscellaneous Provisions Act, 1978.txt
+data/Legal_Dataset/extracted_text/The Punjab Disturbed Areas Act, 1983.txt
+data/Legal_Dataset/extracted_text/The Punjab Land-Revenue Act, 1887.txt
+data/Legal_Dataset/extracted_text/The Punjab Laws Act, 1872.txt
+data/Legal_Dataset/extracted_text/The Punjab Municipal Corporation Law (Extension to Chandigarh) Act, 1994.txt
+data/Legal_Dataset/extracted_text/The Punjab Reorganisation Act, 1966.txt
+data/Legal_Dataset/extracted_text/The Punjab Tenancy Act, 1887..txt
+data/Legal_Dataset/extracted_text/The Railway Claims Tribunal Act, 1987.txt
+data/Legal_Dataset/extracted_text/The Railway Property (Unlawful Possession) Act, 1966.txt
+data/Legal_Dataset/extracted_text/The Railway Protection Force Act, 1957.txt
+data/Legal_Dataset/extracted_text/The Railways (Employment of Members of the Armed Forces) Act, 1965.txt
+data/Legal_Dataset/extracted_text/The Railways Act, 1989.txt
+data/Legal_Dataset/extracted_text/The Rajasthan and Madhya Pradesh (Transfer of Territories) Act, 1959.txt
+data/Legal_Dataset/extracted_text/The Rajghat Samadhi Act, 1951.txt
+data/Legal_Dataset/extracted_text/The Rajiv Gandhi Institute of Petroleum Technology Act, 2007.txt
+data/Legal_Dataset/extracted_text/The Rajiv Gandhi National Aviation University Act, 2013.txt
+data/Legal_Dataset/extracted_text/The Rajiv Gandhi National Institute of Youth Development Act, 2012.txt
+data/Legal_Dataset/extracted_text/The Rajiv Gandhi University Act, 2006.txt
+data/Legal_Dataset/extracted_text/The Rampur Raza Library Act, 1975.txt
+data/Legal_Dataset/extracted_text/The Rashtriya Raksha University Act, 2020..txt
+data/Legal_Dataset/extracted_text/The Readjustment of Representation of Scheduled Tribes in Assembly Constituencies of the State of Goa Act, 2025.txt
+data/Legal_Dataset/extracted_text/The Real Estate (Regulation and Development) Act, 2016..txt
+data/Legal_Dataset/extracted_text/The Reciprocity Act, 1943.txt
+data/Legal_Dataset/extracted_text/The Recovery Of Debts And Bankruptcy Act, 1993.txt
+data/Legal_Dataset/extracted_text/The Recycling of Ships Act, 2019.txt
+data/Legal_Dataset/extracted_text/The Regional Centre for Biotechnology Act, 2016..txt
+data/Legal_Dataset/extracted_text/The Regional Rural Banks Act, 1976.txt
+data/Legal_Dataset/extracted_text/The Registration Act, 1908.txt
+data/Legal_Dataset/extracted_text/The Registration of Births and Deaths Act, 1969.txt
+data/Legal_Dataset/extracted_text/The Rehabilitation Council of India Act, 1992.txt
+data/Legal_Dataset/extracted_text/The Rehabilitation Finance Administration Act, 1948.txt
+data/Legal_Dataset/extracted_text/The Religious endowments act, 1863.txt
+data/Legal_Dataset/extracted_text/The Religious Institutions (Prevention of Misuse) Act, 1988.txt
+data/Legal_Dataset/extracted_text/The Religious Societies Act, 1880.txt
+data/Legal_Dataset/extracted_text/The Remittances of Foreign Exchange and Investment in Foreign Exchange Bonds (Immunities and Exemptions) Act, 1991.txt
+data/Legal_Dataset/extracted_text/The Rent Recovery Act, 1853.txt
+data/Legal_Dataset/extracted_text/The Repatriation of Prisoners Act, 2003.txt
+data/Legal_Dataset/extracted_text/The Repealing and Amending (Second) Act, 2015.txt
+data/Legal_Dataset/extracted_text/The Repealing and Amending Act (Second) Act, 2017.txt
+data/Legal_Dataset/extracted_text/The Repealing and Amending Act, 2015.txt
+data/Legal_Dataset/extracted_text/The Repealing and Amending Act, 2016.txt
+data/Legal_Dataset/extracted_text/The Repealing and Amending Act, 2017.txt
+data/Legal_Dataset/extracted_text/The Repealing and Amending Act, 2019.txt
+data/Legal_Dataset/extracted_text/The Repealing and Amending Act, 2023.txt
+data/Legal_Dataset/extracted_text/The Repealing and Amending Act, 2025.txt
+data/Legal_Dataset/extracted_text/The Representation of the People Act, 1950.txt
+data/Legal_Dataset/extracted_text/The Representation of the People Act, 1951.txt
+data/Legal_Dataset/extracted_text/The Requisitioning and Acquisition of Immovable Property Act, 1952.txt
+data/Legal_Dataset/extracted_text/The Reserve and Auxiliary Air Forces Act, 1952.txt
+data/Legal_Dataset/extracted_text/The Reserve Bank (Transfer to Public Ownership) Act, 1948.txt
+data/Legal_Dataset/extracted_text/The Reserve Bank of India Act, 1934.txt
+data/Legal_Dataset/extracted_text/The Revenue Commissioners, Bombay Act, 1842.txt
+data/Legal_Dataset/extracted_text/The Revenue Recovery Act, 1890.txt
+data/Legal_Dataset/extracted_text/The Revenue, Bombay, 1842.txt
+data/Legal_Dataset/extracted_text/The Richardson and Cruddas Limited (Acquisition and Transfer of Undertaking) Act, 1972.txt
+data/Legal_Dataset/extracted_text/The Right of Children to Free and Compulsory Education Act, 2009.txt
+data/Legal_Dataset/extracted_text/The Right to Fair Compensation and Transparency in Land Acquisition, Rehabilitation and Resettlement Act, 2013.txt
+data/Legal_Dataset/extracted_text/The Right to Information Act, 2005.txt
+data/Legal_Dataset/extracted_text/The Rights of Persons with Disabilities Act, 2016..txt
+data/Legal_Dataset/extracted_text/The River Boards Act, 1956.txt
+data/Legal_Dataset/extracted_text/The Road Transport Corporations Act, 1950.txt
+data/Legal_Dataset/extracted_text/The Rubber Act, 1947.txt
+data/Legal_Dataset/extracted_text/The SAARC Convention (Suppression of Terrorism) Act, 1993.txt
+data/Legal_Dataset/extracted_text/The Salar Jung Museum Act, 1961.txt
+data/Legal_Dataset/extracted_text/The Salaries and Allowances of Ministers Act, 1952.txt
+data/Legal_Dataset/extracted_text/The Salaries and Allowances of Officers of Parliament Act, 1953.txt
+data/Legal_Dataset/extracted_text/The Salary and Allowances of Leaders of Opposition in Parliament Act, 1977.txt
+data/Legal_Dataset/extracted_text/The Salary, Allowances and Pension of Members of Parliament Act, 1954.txt
+data/Legal_Dataset/extracted_text/The Sale of Goods Act, 1930.txt
+data/Legal_Dataset/extracted_text/The Sarais' Act, 1867.txt
+data/Legal_Dataset/extracted_text/The Sashastra Seema Bal Act, 2007.txt
+data/Legal_Dataset/extracted_text/The Scheduled Areas (Assimilation of Laws) Act, 1951.txt
+data/Legal_Dataset/extracted_text/The Scheduled Areas (Assimilation of Laws) Act, 1953.txt
+data/Legal_Dataset/extracted_text/The Scheduled Castes and the Scheduled Tribes (Prevention of Atrocities) Act, 1989.txt
+data/Legal_Dataset/extracted_text/The Scheduled Securities (Hyderabad) Act,1949.txt
+data/Legal_Dataset/extracted_text/The Scheduled Tribes and Other Traditional Forest Dwellers (Recognition of Forest Rights) Act, 2006.txt
+data/Legal_Dataset/extracted_text/The School of Planning and Architecture Act, 2014.txt
+data/Legal_Dataset/extracted_text/The Seamen's Provident Fund Act, 1966.txt
+data/Legal_Dataset/extracted_text/The Seaward Artillery Practice Act, 1949.txt
+data/Legal_Dataset/extracted_text/The Securities and Exchange Board of India Act, 1992.txt
+data/Legal_Dataset/extracted_text/The Securities Contracts (Regulation) Act, 1956.txt
+data/Legal_Dataset/extracted_text/The Securitisation and Reconstruction of Financial Assets and Enforcement of Security Interest Act, 2002.txt
+data/Legal_Dataset/extracted_text/The Seeds Act, 1966.txt
+data/Legal_Dataset/extracted_text/The Semiconductor Integrated Circuits Layout-Design Act, 2000.txt
+data/Legal_Dataset/extracted_text/The Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013.txt
+data/Legal_Dataset/extracted_text/The Shillong (Rifle Range and Umlong) Cantonments Assimilation of Laws Act, 1954.txt
+data/Legal_Dataset/extracted_text/The Shore Nuisances (Bombay and Kotaba) Act, 1853.txt
+data/Legal_Dataset/extracted_text/The Sick Industrial Companies (Special Provisions) Repeal Act, 2003.txt
+data/Legal_Dataset/extracted_text/The Sick Textile Undertakings (Nationalisation) Act, 1974.txt
+data/Legal_Dataset/extracted_text/The Sikh Gurdwaras (Supplementary) Act, 1925..txt
+data/Legal_Dataset/extracted_text/The Sikkim University Act, 2006.txt
+data/Legal_Dataset/extracted_text/The Sir Dinshaw Manockjee Petit Act, 1893.txt
+data/Legal_Dataset/extracted_text/The Sir Jamsetjee Jejeebhoy Baronetcy Act, 1915.txt
+data/Legal_Dataset/extracted_text/The Slum Areas (Improvement and Clearance) Act, 1956.txt
+data/Legal_Dataset/extracted_text/The Small Industries Development Bank of India Act, 1989.txt
+data/Legal_Dataset/extracted_text/The Smugglers and Foreign Exchange Manipulators (Forfeiture of Property) Act, 1976.txt
+data/Legal_Dataset/extracted_text/The Societies Registration Act, 1860.txt
+data/Legal_Dataset/extracted_text/The South Asian University Act, 2008.txt
+data/Legal_Dataset/extracted_text/The Special Court (Trial of Offences Relating to Transactions in Securities) Act, 1992.txt
+data/Legal_Dataset/extracted_text/The Special Criminal Courts (Jurisdiction) Act, 1950.txt
+data/Legal_Dataset/extracted_text/The Special Economic Zones Act, 2005.txt
+data/Legal_Dataset/extracted_text/The Special Marriage Act, 1954.txt
+data/Legal_Dataset/extracted_text/The Special Protection Group Act, 1988.txt
+data/Legal_Dataset/extracted_text/The Specific Relief Act, 1963.txt
+data/Legal_Dataset/extracted_text/The Specified Bank Notes (Cessation of Liabilities) Act, 2017.txt
+data/Legal_Dataset/extracted_text/The Spices Board Act, 1986.txt
+data/Legal_Dataset/extracted_text/The Sports Broadcasting Signals (Mandatory Sharing with PrasarBharati) Act, 2007.txt
+data/Legal_Dataset/extracted_text/The Sree Chitra Tirunal Institute for Medical Sciences and Technology, Trivandrum Act, 1980.txt
+data/Legal_Dataset/extracted_text/The Stage-Carriages Act, 1861.txt
+data/Legal_Dataset/extracted_text/The State-Associated Banks (Miscellaneous Provisions) Act, 1962.txt
+data/Legal_Dataset/extracted_text/The State Armed Police Forces (Extension of Laws) Act, 1952.txt
+data/Legal_Dataset/extracted_text/The State Bank of India Act, 1955.txt
+data/Legal_Dataset/extracted_text/The State Bank of Sikkim (Acquisition of Shares) and Miscellaneous Provisions Act, 1982.txt
+data/Legal_Dataset/extracted_text/The State Emblem of India (Prohibition of Improper Use) Act, 2005.txt
+data/Legal_Dataset/extracted_text/The State Financial Corporations Act, 1951.txt
+data/Legal_Dataset/extracted_text/The State of Arunachal Pradesh Act, 1986.txt
+data/Legal_Dataset/extracted_text/The State of Himachal Pradesh Act, 1970.txt
+data/Legal_Dataset/extracted_text/The State of Mizoram Act, 1986.txt
+data/Legal_Dataset/extracted_text/The State of Nagaland Act, 1962.txt
+data/Legal_Dataset/extracted_text/The States Reorganisation Act, 1956.txt
+data/Legal_Dataset/extracted_text/The Street Vendors (Protection of Livelihood and Regulation of Street Vending) Act, 2014.txt
+data/Legal_Dataset/extracted_text/The Sugar Development Fund Act, 1982.txt
+data/Legal_Dataset/extracted_text/The Sugar Export Promotion Act, 1958.txt
+data/Legal_Dataset/extracted_text/The Suits Valuation Act, 1887.txt
+data/Legal_Dataset/extracted_text/The Suppression of Unlawful Acts against Safety of Civil Aviation Act, 1982.txt
+data/Legal_Dataset/extracted_text/The Suppression of Unlawful Acts Against Safety of Maritime Navigation and Fixed Platforms on Continental Shelf Act, 2002.txt
+data/Legal_Dataset/extracted_text/The Supreme Court (Enlargement of Criminal Appellate Jurisdiction) Act, 1970.txt
+data/Legal_Dataset/extracted_text/The Supreme Court (Number of Judges) Act, 1956.txt
+data/Legal_Dataset/extracted_text/The Supreme Court Judges (Salaries and Conditions of Service) Act, 1958.txt
+data/Legal_Dataset/extracted_text/The Surrogacy (Regulation) Act, 2021.txt
+data/Legal_Dataset/extracted_text/The Swadeshi Cotton Mills Company Limited (Acquisition and Transfer of Undertakings) Act, 1986.txt
+data/Legal_Dataset/extracted_text/The Tamil Nadu Legislative Council Act, 2010.txt
+data/Legal_Dataset/extracted_text/The Taxation Laws (Continuation and Validation of Recovery Proceedings) Act, 1964.txt
+data/Legal_Dataset/extracted_text/The Taxation Laws (Extension to Jammu and Kashmir) Act, 1972.txt
+data/Legal_Dataset/extracted_text/The Tea Act, 1953.txt
+data/Legal_Dataset/extracted_text/The Technology Development Board Act, 1995.txt
+data/Legal_Dataset/extracted_text/The Telecom Regulatory Authority of India Act, 1997.txt
+data/Legal_Dataset/extracted_text/The Telecommunications Act, 2023..txt
+data/Legal_Dataset/extracted_text/The Territorial Army Act, 1948.txt
+data/Legal_Dataset/extracted_text/The Territorial Waters, Continental Shelf, Exclusive Economic Zone and Other Maritime Zones Act, 1976.txt
+data/Legal_Dataset/extracted_text/The Terrorist Affected Areas (Special Courts) Act, 1984.txt
+data/Legal_Dataset/extracted_text/The Textile Undertakings (Nationalisation) Act, 1995.txt
+data/Legal_Dataset/extracted_text/The Textiles Committee Act, 1963.txt
+data/Legal_Dataset/extracted_text/The Tezpur University Act, 1993.txt
+data/Legal_Dataset/extracted_text/The Tobacco Board Act, 1975.txt
+data/Legal_Dataset/extracted_text/The Tokyo Convention Act, 1975.txt
+data/Legal_Dataset/extracted_text/The Trade Marks Act, 1999.txt
+data/Legal_Dataset/extracted_text/The Transfer of Prisoners Act, 1950.txt
+data/Legal_Dataset/extracted_text/The Transfer of Property Act, 1882.txt
+data/Legal_Dataset/extracted_text/The Transgender Persons (Protection of Rights) Act, 2019..txt
+data/Legal_Dataset/extracted_text/The Transplantation of Human Organs and Tissues Act, 1994.txt
+data/Legal_Dataset/extracted_text/The Tribhuvan Sahkari University Act, 2025.txt
+data/Legal_Dataset/extracted_text/The Tribunals Reforms Act, 2026.txt
+data/Legal_Dataset/extracted_text/The Tripura Land Revenue and Land Reforms Act, 1960.txt
+data/Legal_Dataset/extracted_text/The Tripura University Act, 2006.txt
+data/Legal_Dataset/extracted_text/The Tyre Corporation of India Limited (Disinvestment of Ownership) Act, 2007.txt
+data/Legal_Dataset/extracted_text/The Unified Waqf Management, Empowerment, Efficiency and Development Act, 1995.txt
+data/Legal_Dataset/extracted_text/The Union Duties of Excise (Distribution) Act, 1979.txt
+data/Legal_Dataset/extracted_text/The Union Territories (Direct Election to the House of the People) Act, 1965.txt
+data/Legal_Dataset/extracted_text/The Union Territories (Laws) Act, 1950.txt
+data/Legal_Dataset/extracted_text/The Union Territories (Separation of Judicial and Executive Functions) Act, 1969.txt
+data/Legal_Dataset/extracted_text/The Union Territories (Stamp and Court-fees Laws) Act, 1961.txt
+data/Legal_Dataset/extracted_text/The Union Territory Goods and Services Tax Act, 2017.txt
+data/Legal_Dataset/extracted_text/The Unit Trust of India (Transfer of Undertaking and Repeal) Act, 2002.txt
+data/Legal_Dataset/extracted_text/The United Nations (Privileges and Immunities) Act, 1947.txt
+data/Legal_Dataset/extracted_text/The United Nations (Security Council) Act, 1947.txt
+data/Legal_Dataset/extracted_text/The University Grants Commission Act, 1956.txt
+data/Legal_Dataset/extracted_text/The University of Allahabad Act, 2005.txt
+data/Legal_Dataset/extracted_text/The University of Hyderabad Act, 1974.txt
+data/Legal_Dataset/extracted_text/The Unlawful Activities (Prevention) Act, 1967.txt
+data/Legal_Dataset/extracted_text/The Urban Land (Ceiling and Regulation) Repeal Act, 1999.txt
+data/Legal_Dataset/extracted_text/The Usurious Loans Act, 1918.txt
+data/Legal_Dataset/extracted_text/The Uttar Pradesh Reorganisation Act, 2000.txt
+data/Legal_Dataset/extracted_text/The Uttaranchal (Alteration of Name) Act, 2006.txt
+data/Legal_Dataset/extracted_text/The Van (Sanrakshan Evam Samvardhan) Adhiniyam, 1980.txt
+data/Legal_Dataset/extracted_text/The Vice-President s Pension Act, 1997.txt
+data/Legal_Dataset/extracted_text/The Victoria Memorial Act, 1903.txt
+data/Legal_Dataset/extracted_text/The Visva-Bharati Act, 1951.txt
+data/Legal_Dataset/extracted_text/The Voluntary Surrender of Salaries (Exemption from Taxation) Act, 1961.txt
+data/Legal_Dataset/extracted_text/The Warehousing (Development and Regulation) Act, 2007.txt
+data/Legal_Dataset/extracted_text/The Warehousing Corporations (Supplementary) Act, 1965.txt
+data/Legal_Dataset/extracted_text/The Warehousing Corporations Act, 1962.txt
+data/Legal_Dataset/extracted_text/The Waste-Lands (Claims) Act, 1863.txt
+data/Legal_Dataset/extracted_text/The Water (Prevention and Control of Pollution) Act, 1974.txt
+data/Legal_Dataset/extracted_text/The Wealth-tax Act, 1957.txt
+data/Legal_Dataset/extracted_text/The Weapons of Mass Destruction and their Delivery Systems (Prohibition of Unlawful Activities) Act, 2005.txt
+data/Legal_Dataset/extracted_text/The West Godavari District (Assimilation of Laws on Federal Subjects) Act, 1949.txt
+data/Legal_Dataset/extracted_text/The White Phosphorus Matches Prohibition Act, 1913.txt
+data/Legal_Dataset/extracted_text/The Wild Life (Protection) Act, 1972.txt
+data/Legal_Dataset/extracted_text/The Works of Defence Act, 1903.txt
+data/Legal_Dataset/extracted_text/Tobacco Duty (Town of Bombay) Act, 1857.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/Hyderabad_Atiyat_Inquiries_Act_1952.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/Maharashtra Co-operative Societies Act, 1960.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/Maharashtra Land Requisition Act.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/Maharashtra Land Revenue Code, 1966.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/Maharashtra Ownership Flats Act, 1963.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/Maharashtra Prohibition Act.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/Maharashtra Regional and Town Planning Act, 1966.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/Maharashtra Rent Control Act, 1999.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/Maharashtra Stamp Act.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/Maharashtra Tenancy and Agricultural Lands Act.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/Maharashtra Village Panchayats Act.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/Maharashtra_Industrial_Relations_Act.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/Maharashtra_Lokayukta_Act_2023.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/Maharashtra_Revenue_Patels_Abolition_Office_Act_1962.pdf.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/Maharashtra_State_Tax_on_Professions_Trades_Callings_Employments_Act_1975.pdf.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Air (Prevention and Control of Pollution) Act, 1981.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Arbitration and Conciliation Act, 1996.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Arms Act, 1959.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Bharatiya Nagarik Suraksha Sanhita, 2023.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Bharatiya Nyaya Sanhita, 2023.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Bharatiya Sakshya Adhiniyam, 2023.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Biological Diversity Act, 2002.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Births, Deaths and Marriages Registration Act, 1886.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Bombay Civil Court's Act, 1869.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Bombay Rent-free Estates Act, 1851.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Bombay Reorganisation Act, 1960.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Bombay Revenue Jurisdiction Act, 1876.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Boundary-Marks, Bombay 1846.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Child and Adolescent Labour (Prohibition and Regulation) Act, 1986.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Citizenship Act, 1955.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The City of Bombay Municipal (Supplementary) Act, 1888.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Code of Civil Procedure, 1908.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Commercial Courts Act, 2015.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Companies Act, 2013.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Consumer Protection Act, 2019.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Copyright Act, 1957.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Court-Fees Act, 1870.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Dekkhan Agriculturists' Relief Act, 1879.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Delimitation Act, 2002.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Digital Personal Data Protection Act, 2023..txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Disaster Management Act, 2005.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Dissolution of Muslim Marriages Act, 1939.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Dowry Prohibition Act, 1961.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Drugs and Cosmetics Act, 1940.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Electricity Act, 2003.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Environment (Protection) Act, 1986.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Fatal Accidents Act, 1855.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Food Safety and Standards Act, 2006.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Geographical Indications of Goods (Registration and Protection) Act, 1999.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Guardians and Wards Act, 1890.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Hindu Adoptions and Maintenance Act, 1956.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Hindu Marriage Act, 1955.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Hindu Minority and Guardianship Act, 1956.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Hindu Succession Act, 1956.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Immoral Traffic (Prevention) Act, 1956.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Indian Christian Marriage Act, 1872.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Indian Contract Act, 1872.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Indian Easements Act, 1882.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Indian Forest Act, 1927.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Indian Partnership Act, 1932.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Indian Stamp Act, 1899.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Indian Succession Act, 1925.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Indian Trusts Act, 1882.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Information Technology Act, 2000.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Insolvency and Bankruptcy Code, 2016..txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Juvenile Justice (Care and Protection of Children) Act, 2015..txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Land Acquisition (Amendment and Validation) Act, 1967.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Legal Metrology Act, 2009.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Legal Services Authorities Act, 1987.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Limitation Act, 1963.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Limited Liability Partnership Act, 2008.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Maintenance and Welfare of Parents and Senior Citizens Act, 2007.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Majority Act, 1875.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Married Women's Property Act, 1874.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Mediation Act, 2023.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Medical Termination of Pregnancy Act, 1971.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Mental Healthcare Act, 2017.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Micro, Small and Medium Enterprises Development Act, 2006.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Motor Vehicles Act, 1988.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Muslim Personal Law (Shariat) Application Act, 1937.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Muslim Women (Protection of Rights on Divorce) Act, 1986.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Muslim Women (Protection of Rights on Marriage) Act, 2019..txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Narcotic Drugs and Psychotropic Substances Act, 1985.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The National Food Security Act, 2013.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Negotiable Instruments Act, 1881.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Notaries Act, 1952.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Official Secrets Act, 1923.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Partition Act, 1893.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Passports Act, 1967.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Patents Act, 1970.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Police Act, 1861.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Pre-conception and Pre-natal Diagnostic Techniques (Prohibition of Sex Selection) Act, 1994.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Prevention of Corruption Act, 1988.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Prevention of Illicit Traffic in Narcotic Drugs and Psychotropic Substances Act, 1988.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Prevention of Money-Laundering Act, 2002.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Prisons Act, 1894.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Probation of Offenders Act, 1958.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Prohibition of Child Marriage Act, 2006.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Protection of Children from Sexual Offences Act, 2012.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Protection of Civil Rights Act, 1955.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Protection of Human Rights Act, 1993.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Protection of Women from Domestic Violence Act, 2005.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Provincial Small Cause Courts Act, 1887.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Real Estate (Regulation and Development) Act, 2016..txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Recovery Of Debts And Bankruptcy Act, 1993.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Registration Act, 1908.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Revenue Commissioners, Bombay Act, 1842.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Revenue, Bombay, 1842.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Right of Children to Free and Compulsory Education Act, 2009.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Right to Fair Compensation and Transparency in Land Acquisition, Rehabilitation and Resettlement Act, 2013.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Right to Information Act, 2005.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Rights of Persons with Disabilities Act, 2016..txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Sale of Goods Act, 1930.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Scheduled Castes and the Scheduled Tribes (Prevention of Atrocities) Act, 1989.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Scheduled Tribes and Other Traditional Forest Dwellers (Recognition of Forest Rights) Act, 2006.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Securitisation and Reconstruction of Financial Assets and Enforcement of Security Interest Act, 2002.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Shore Nuisances (Bombay and Kotaba) Act, 1853.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Societies Registration Act, 1860.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Special Marriage Act, 1954.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Specific Relief Act, 1963.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Street Vendors (Protection of Livelihood and Regulation of Street Vending) Act, 2014.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Suits Valuation Act, 1887.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Surrogacy (Regulation) Act, 2021.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Telecommunications Act, 2023..txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Trade Marks Act, 1999.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Transfer of Property Act, 1882.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Transplantation of Human Organs and Tissues Act, 1994.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Unlawful Activities (Prevention) Act, 1967.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Usurious Loans Act, 1918.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Water (Prevention and Control of Pollution) Act, 1974.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/The Wild Life (Protection) Act, 1972.txt
+data/Legal_Dataset/Maharashtra_MVP/extracted_text/Tobacco Duty (Town of Bombay) Act, 1857.txt
+data/Legal_Dataset/Maharashtra_MVP/Maharashtra Co-operative Societies Act, 1960.pdf
+data/Legal_Dataset/Maharashtra_MVP/Maharashtra Land Requisition Act.pdf
+data/Legal_Dataset/Maharashtra_MVP/Maharashtra Land Revenue Code, 1966.pdf
+data/Legal_Dataset/Maharashtra_MVP/Maharashtra Ownership Flats Act, 1963.pdf
+data/Legal_Dataset/Maharashtra_MVP/Maharashtra Prohibition Act.pdf
+data/Legal_Dataset/Maharashtra_MVP/Maharashtra Regional and Town Planning Act, 1966.pdf
+data/Legal_Dataset/Maharashtra_MVP/Maharashtra Rent Control Act, 1999.pdf
+data/Legal_Dataset/Maharashtra_MVP/Maharashtra Stamp Act.pdf
+data/Legal_Dataset/Maharashtra_MVP/Maharashtra Tenancy and Agricultural Lands Act.pdf
+data/Legal_Dataset/Maharashtra_MVP/Maharashtra Village Panchayats Act.pdf
+data/Legal_Dataset/Maharashtra_MVP/maharashtra_text/Hyderabad_Atiyat_Inquiries_Act_1952.txt
+data/Legal_Dataset/Maharashtra_MVP/maharashtra_text/Maharashtra_Industrial_Relations_Act.txt
+data/Legal_Dataset/Maharashtra_MVP/maharashtra_text/Maharashtra_Lokayukta_Act_2023.txt
+data/Legal_Dataset/Maharashtra_MVP/maharashtra_text/Maharashtra_Revenue_Patels_Abolition_Office_Act_1962.pdf.txt
+data/Legal_Dataset/Maharashtra_MVP/maharashtra_text/Maharashtra_State_Tax_on_Professions_Trades_Callings_Employments_Act_1975.pdf.txt
+data/Legal_Dataset/Maharashtra_MVP/multilingual_staging/multilingual_lexicon_staging.json
+data/Legal_Dataset/Maharashtra_MVP/multilingual_staging/multilingual_manual_review.csv
+data/Legal_Dataset/Maharashtra_MVP/multilingual_staging/multilingual_validation_report.json
+data/Legal_Dataset/Maharashtra_MVP/multilingual_staging/section_language_alignment_staging.json
+data/Legal_Dataset/Maharashtra_MVP/staging/laws_staging.json
+data/Legal_Dataset/Maharashtra_MVP/staging/sections_staging.json
+data/Legal_Dataset/Maharashtra_MVP/The Air (Prevention and Control of Pollution) Act, 1981.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Arbitration and Conciliation Act, 1996.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Arms Act, 1959.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Bharatiya Nagarik Suraksha Sanhita, 2023.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Bharatiya Nyaya Sanhita, 2023.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Bharatiya Sakshya Adhiniyam, 2023.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Biological Diversity Act, 2002.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Births, Deaths and Marriages Registration Act, 1886.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Bombay Civil Court's Act, 1869.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Bombay Rent-free Estates Act, 1851.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Bombay Reorganisation Act, 1960.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Bombay Revenue Jurisdiction Act, 1876.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Boundary-Marks, Bombay 1846.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Child and Adolescent Labour (Prohibition and Regulation) Act, 1986.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Citizenship Act, 1955.pdf
+data/Legal_Dataset/Maharashtra_MVP/The City of Bombay Municipal (Supplementary) Act, 1888.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Code of Civil Procedure, 1908.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Commercial Courts Act, 2015.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Companies Act, 2013.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Consumer Protection Act, 2019.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Copyright Act, 1957.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Court-Fees Act, 1870.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Dekkhan Agriculturists' Relief Act, 1879.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Delimitation Act, 2002.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Digital Personal Data Protection Act, 2023..pdf
+data/Legal_Dataset/Maharashtra_MVP/The Disaster Management Act, 2005.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Dissolution of Muslim Marriages Act, 1939.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Dowry Prohibition Act, 1961.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Drugs and Cosmetics Act, 1940.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Electricity Act, 2003.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Environment (Protection) Act, 1986.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Fatal Accidents Act, 1855.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Food Safety and Standards Act, 2006.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Geographical Indications of Goods (Registration and Protection) Act, 1999.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Guardians and Wards Act, 1890.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Hindu Adoptions and Maintenance Act, 1956.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Hindu Marriage Act, 1955.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Hindu Minority and Guardianship Act, 1956.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Hindu Succession Act, 1956.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Immoral Traffic (Prevention) Act, 1956.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Indian Christian Marriage Act, 1872.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Indian Contract Act, 1872.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Indian Easements Act, 1882.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Indian Forest Act, 1927.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Indian Partnership Act, 1932.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Indian Stamp Act, 1899.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Indian Succession Act, 1925.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Indian Trusts Act, 1882.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Information Technology Act, 2000.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Insolvency and Bankruptcy Code, 2016..pdf
+data/Legal_Dataset/Maharashtra_MVP/The Juvenile Justice (Care and Protection of Children) Act, 2015..pdf
+data/Legal_Dataset/Maharashtra_MVP/The Land Acquisition (Amendment and Validation) Act, 1967.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Legal Metrology Act, 2009.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Legal Services Authorities Act, 1987.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Limitation Act, 1963.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Limited Liability Partnership Act, 2008.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Maintenance and Welfare of Parents and Senior Citizens Act, 2007.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Majority Act, 1875.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Married Women's Property Act, 1874.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Mediation Act, 2023.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Medical Termination of Pregnancy Act, 1971.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Mental Healthcare Act, 2017.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Micro, Small and Medium Enterprises Development Act, 2006.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Motor Vehicles Act, 1988.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Muslim Personal Law (Shariat) Application Act, 1937.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Muslim Women (Protection of Rights on Divorce) Act, 1986.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Muslim Women (Protection of Rights on Marriage) Act, 2019..pdf
+data/Legal_Dataset/Maharashtra_MVP/The Narcotic Drugs and Psychotropic Substances Act, 1985.pdf
+data/Legal_Dataset/Maharashtra_MVP/The National Food Security Act, 2013.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Negotiable Instruments Act, 1881.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Notaries Act, 1952.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Official Secrets Act, 1923.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Partition Act, 1893.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Passports Act, 1967.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Patents Act, 1970.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Police Act, 1861.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Pre-conception and Pre-natal Diagnostic Techniques (Prohibition of Sex Selection) Act, 1994.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Prevention of Corruption Act, 1988.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Prevention of Illicit Traffic in Narcotic Drugs and Psychotropic Substances Act, 1988.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Prevention of Money-Laundering Act, 2002.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Prisons Act, 1894.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Probation of Offenders Act, 1958.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Prohibition of Child Marriage Act, 2006.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Protection of Children from Sexual Offences Act, 2012.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Protection of Civil Rights Act, 1955.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Protection of Human Rights Act, 1993.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Protection of Women from Domestic Violence Act, 2005.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Provincial Small Cause Courts Act, 1887.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Real Estate (Regulation and Development) Act, 2016..pdf
+data/Legal_Dataset/Maharashtra_MVP/The Recovery Of Debts And Bankruptcy Act, 1993.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Registration Act, 1908.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Revenue Commissioners, Bombay Act, 1842.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Revenue, Bombay, 1842.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Right of Children to Free and Compulsory Education Act, 2009.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Right to Fair Compensation and Transparency in Land Acquisition, Rehabilitation and Resettlement Act, 2013.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Right to Information Act, 2005.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Rights of Persons with Disabilities Act, 2016..pdf
+data/Legal_Dataset/Maharashtra_MVP/The Sale of Goods Act, 1930.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Scheduled Castes and the Scheduled Tribes (Prevention of Atrocities) Act, 1989.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Scheduled Tribes and Other Traditional Forest Dwellers (Recognition of Forest Rights) Act, 2006.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Securitisation and Reconstruction of Financial Assets and Enforcement of Security Interest Act, 2002.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Shore Nuisances (Bombay and Kotaba) Act, 1853.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Societies Registration Act, 1860.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Special Marriage Act, 1954.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Specific Relief Act, 1963.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Street Vendors (Protection of Livelihood and Regulation of Street Vending) Act, 2014.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Suits Valuation Act, 1887.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Surrogacy (Regulation) Act, 2021.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Telecommunications Act, 2023..pdf
+data/Legal_Dataset/Maharashtra_MVP/The Trade Marks Act, 1999.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Transfer of Property Act, 1882.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Transplantation of Human Organs and Tissues Act, 1994.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Unlawful Activities (Prevention) Act, 1967.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Usurious Loans Act, 1918.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Water (Prevention and Control of Pollution) Act, 1974.pdf
+data/Legal_Dataset/Maharashtra_MVP/The Wild Life (Protection) Act, 1972.pdf
+data/Legal_Dataset/Maharashtra_MVP/Tobacco Duty (Town of Bombay) Act, 1857.pdf
+data/Legal_Dataset/Maharashtra_MVP/validation_reports/filename_anomalies.csv
+data/Legal_Dataset/Maharashtra_MVP/validation_reports/ingestion_quarantine_log.json
+data/Legal_Dataset/Maharashtra_MVP/validation_reports/manual_review_required.csv
+data/Legal_Dataset/Maharashtra_MVP/validation_reports/section_parser_report.json
+data/Legal_Dataset/PDFs/Extending certain Acts to Straits Settlement , 1852.pdf
+data/Legal_Dataset/PDFs/Madras Board of Revenue,1849.pdf
+data/Legal_Dataset/PDFs/The Aadhaar (Targeted Delivery of Financial and Other Subsidies, Benefits and Services) Act, 2016..pdf
+data/Legal_Dataset/PDFs/The Academy of Scientific and Innovative Research Act, 2011.pdf
+data/Legal_Dataset/PDFs/The Acquired Territories (Merger) Act, 1960.pdf
+data/Legal_Dataset/PDFs/The Acquisition of Certain Area at Ayodhya Act, 1993.pdf
+data/Legal_Dataset/PDFs/The Actuaries Act, 2006.pdf
+data/Legal_Dataset/PDFs/The Administrative Tribunals Act, 1985.pdf
+data/Legal_Dataset/PDFs/The Administrators-General Act, 1963.pdf
+data/Legal_Dataset/PDFs/The Admiralty (Jurisdiction and Settlement of Maritime Claims) Act, 2017.pdf
+data/Legal_Dataset/PDFs/The Advocates' Welfare Fund Act, 2001.pdf
+data/Legal_Dataset/PDFs/The Advocates Act, 1961.pdf
+data/Legal_Dataset/PDFs/The African Development Bank Act, 1983.pdf
+data/Legal_Dataset/PDFs/The African Development Fund Act, 1982.pdf
+data/Legal_Dataset/PDFs/The Agricultural and Processed Food Products Export Development Authority Act, 1985.pdf
+data/Legal_Dataset/PDFs/The Agricultural Produce (Grading and Marking) Act, 1937.pdf
+data/Legal_Dataset/PDFs/The Agriculturists' Loans Act, 1884.pdf
+data/Legal_Dataset/PDFs/The Air (Prevention and Control of Pollution) Act, 1981.pdf
+data/Legal_Dataset/PDFs/The Air Force Act, 1950.pdf
+data/Legal_Dataset/PDFs/The Airports Authority of India Act, 1994.pdf
+data/Legal_Dataset/PDFs/The Airports Economic Regulatory Authority of India Act, 2008.pdf
+data/Legal_Dataset/PDFs/The Ajmer Tenancy and Land Records Act, 1950.pdf
+data/Legal_Dataset/PDFs/The Aligarh Muslim University Act, 1920.pdf
+data/Legal_Dataset/PDFs/The All-India Institutes of Medical Science Act, 1956.pdf
+data/Legal_Dataset/PDFs/The All-India Services Act, 1951.pdf
+data/Legal_Dataset/PDFs/The All India Council for Technical Education Act, 1987.pdf
+data/Legal_Dataset/PDFs/The Anand Marriage Act, 1909.pdf
+data/Legal_Dataset/PDFs/The Ancient Monuments and Archaeological Sites and Remains Act, 1958.pdf
+data/Legal_Dataset/PDFs/The Ancient Monuments Preservation Act, 1904.pdf
+data/Legal_Dataset/PDFs/The Andhra Pradesh and Madras (Alteration of Boundaries) Act, 1959.pdf
+data/Legal_Dataset/PDFs/The Andhra Pradesh and Mysore (Transfer of Territory) Act, 1968.pdf
+data/Legal_Dataset/PDFs/The Andhra Pradesh Legislative Council Act, 2005.pdf
+data/Legal_Dataset/PDFs/The Andhra Pradesh Reorganisation Act, 2014.pdf
+data/Legal_Dataset/PDFs/The Andhra State Act, 1953.pdf
+data/Legal_Dataset/PDFs/The Anti-Apartheid (United Nations Convention) Act, 1981.pdf
+data/Legal_Dataset/PDFs/The Anti-Hijacking Act, 2016..pdf
+data/Legal_Dataset/PDFs/The Antiquities and Art Treasures Act, 1972.pdf
+data/Legal_Dataset/PDFs/The Anusandhan National Research Foundation Act, 2023.pdf
+data/Legal_Dataset/PDFs/The Apprentices Act, 1961.pdf
+data/Legal_Dataset/PDFs/The Arbitration and Conciliation Act, 1996.pdf
+data/Legal_Dataset/PDFs/The Architects Act, 1972.pdf
+data/Legal_Dataset/PDFs/The Armed Forces (Emergency Duties) Act, 1947.pdf
+data/Legal_Dataset/PDFs/The Armed Forces (Jammu and Kashmir) Special Powers Act, 1990.pdf
+data/Legal_Dataset/PDFs/The Armed Forces (Punjab and Chandigarh) Special Powers Act, 1983.pdf
+data/Legal_Dataset/PDFs/The Armed Forces (Special Powers) Act, 1958.pdf
+data/Legal_Dataset/PDFs/The Armed Forces Tribunal Act, 2007.pdf
+data/Legal_Dataset/PDFs/The Arms Act, 1959.pdf
+data/Legal_Dataset/PDFs/The Army Act, 1950.pdf
+data/Legal_Dataset/PDFs/The Army and Air Force (Disposal of Private Property) Act, 1950.pdf
+data/Legal_Dataset/PDFs/The Arya Marriage Validation Act, 1937.pdf
+data/Legal_Dataset/PDFs/The Asian Development Bank Act, 1966.pdf
+data/Legal_Dataset/PDFs/The Asiatic Society Act, 1984.pdf
+data/Legal_Dataset/PDFs/The Assam (Alteration of Boundaries) Act, 1951.pdf
+data/Legal_Dataset/PDFs/The Assam Reorganisation (Meghalaya) Act, 1969.pdf
+data/Legal_Dataset/PDFs/The Assam Rifles Act, 2006.pdf
+data/Legal_Dataset/PDFs/The Assam University Act, 1989.pdf
+data/Legal_Dataset/PDFs/The Assisted Reproductive Technology (Regulation) Act, 2021.pdf
+data/Legal_Dataset/PDFs/The Atomic Energy Act, 1962.pdf
+data/Legal_Dataset/PDFs/The Auroville Foundation Act, 1988.pdf
+data/Legal_Dataset/PDFs/The Authoritative Texts (Central Laws) Act, 1973.pdf
+data/Legal_Dataset/PDFs/The Babasaheb Bhimrao Ambedkar University Act, 1994.pdf
+data/Legal_Dataset/PDFs/The Banaras Hindu University Act, 1915.pdf
+data/Legal_Dataset/PDFs/The Bankers' Books Evidence Act, 1891.pdf
+data/Legal_Dataset/PDFs/The Banking Companies (Acquisition and Transfer of Undertakings) Act, 1970.pdf
+data/Legal_Dataset/PDFs/The Banking Companies (Acquisition and Transfer of Undertakings) Act, 1980.pdf
+data/Legal_Dataset/PDFs/The Banking Regulation Act, 1949.pdf
+data/Legal_Dataset/PDFs/The Banning of Unregulated Deposit Schemes Act, 2019.pdf
+data/Legal_Dataset/PDFs/The Bengal Bonded Warehouse Association Act, 1838.pdf
+data/Legal_Dataset/PDFs/The Bengal Bonded Warehouse Association Act, 1854.pdf
+data/Legal_Dataset/PDFs/The Bengal Embankment Act, 1855.pdf
+data/Legal_Dataset/PDFs/The Bengal Ghatwali Land Act, 1859.pdf
+data/Legal_Dataset/PDFs/The Bengal Indigo Contracts Act, 1836.pdf
+data/Legal_Dataset/PDFs/The Bengal Land Holder's Attendance Act, 1848.pdf
+data/Legal_Dataset/PDFs/The Bengal Land Revenue Sales Act, 1859.pdf
+data/Legal_Dataset/PDFs/The Bengal Military Police Act, 1892.pdf
+data/Legal_Dataset/PDFs/The Bengal, Agra and Assam Civil Courts Act, 1887.pdf
+data/Legal_Dataset/PDFs/The Betwa River Board Act, 1976.pdf
+data/Legal_Dataset/PDFs/The Bharatiya Nagarik Suraksha Sanhita, 2023.pdf
+data/Legal_Dataset/PDFs/The Bharatiya Nyaya Sanhita, 2023.pdf
+data/Legal_Dataset/PDFs/The Bharatiya Sakshya Adhiniyam, 2023.pdf
+data/Legal_Dataset/PDFs/The Bharatiya Vayuyan Adhiniyam, 2024.pdf
+data/Legal_Dataset/PDFs/The Bhopal Gas Leak Disaster (Processing of Claims) Act, 1985.pdf
+data/Legal_Dataset/PDFs/The Bihar and Uttar Pradesh (Alteration of Boundaries) Act, 1968.pdf
+data/Legal_Dataset/PDFs/The Bihar and West Bengal (Transfer of Territories) Act, 1956.pdf
+data/Legal_Dataset/PDFs/The Bihar Land Reforms Laws (Regulating Mines and Minerals) Validation Act, 1969..pdf
+data/Legal_Dataset/PDFs/The Bihar Reorganisation Act, 2000.pdf
+data/Legal_Dataset/PDFs/The Bihar Value Added Tax Act, 2005.pdf
+data/Legal_Dataset/PDFs/The Bilateral Netting of Qualified Financial Contracts Act, 2020.pdf
+data/Legal_Dataset/PDFs/The Bills of Lading Act, 2025.pdf
+data/Legal_Dataset/PDFs/The Biological Diversity Act, 2002.pdf
+data/Legal_Dataset/PDFs/The Bird and Company Limited (Acquisition and Transfer of Undertakings and Other Properties) Act, 1980.pdf
+data/Legal_Dataset/PDFs/The Births, Deaths and Marriages Registration Act, 1886.pdf
+data/Legal_Dataset/PDFs/The Black Money (Undisclosed Foreign Income and Assets) and Imposition of Tax Act, 2015.pdf
+data/Legal_Dataset/PDFs/The Boilers Act, 2025.pdf
+data/Legal_Dataset/PDFs/The Bombay Civil Court's Act, 1869.pdf
+data/Legal_Dataset/PDFs/The Bombay Rent-free Estates Act, 1851.pdf
+data/Legal_Dataset/PDFs/The Bombay Reorganisation Act, 1960.pdf
+data/Legal_Dataset/PDFs/The Bombay Revenue Jurisdiction Act, 1876.pdf
+data/Legal_Dataset/PDFs/The Bonded Labour System (Abolition) Act, 1976.pdf
+data/Legal_Dataset/PDFs/The Border Security Force Act, 1968.pdf
+data/Legal_Dataset/PDFs/The Boundary-Marks, Bombay 1846.pdf
+data/Legal_Dataset/PDFs/The Brahmaputra Board Act, 1980.pdf
+data/Legal_Dataset/PDFs/The British India Corporation Limited (Acquisition of Shares) Act, 1981.pdf
+data/Legal_Dataset/PDFs/The Broach and Kaira Incumbered Estates Act, 1877.pdf
+data/Legal_Dataset/PDFs/The Bureau of Indian Standards Act, 2016..pdf
+data/Legal_Dataset/PDFs/The Cable Television Networks (Regulation) Act, 1995.pdf
+data/Legal_Dataset/PDFs/The Calcutta High Court (Extension of Jurisdiction) Act, 1953.pdf
+data/Legal_Dataset/PDFs/The Calcutta High Court (Jurisdictional Limits) Act, 1919.pdf
+data/Legal_Dataset/PDFs/The Calcutta Land-Revenue Act, 1856.pdf
+data/Legal_Dataset/PDFs/The Calcutta Metro Railway (Operation and Maintenance) Temporary Provisions Act, 1985.pdf
+data/Legal_Dataset/PDFs/The Calcutta Port (Pilotage) Act, 1948.pdf
+data/Legal_Dataset/PDFs/The Cantonments (Extension of Rent Control Laws) Act, 1957.pdf
+data/Legal_Dataset/PDFs/The Cantonments Act, 2006.pdf
+data/Legal_Dataset/PDFs/The Cardamom Act, 1965.pdf
+data/Legal_Dataset/PDFs/The Carriage by Air Act, 1972.pdf
+data/Legal_Dataset/PDFs/The Carriage by Road Act, 2007.pdf
+data/Legal_Dataset/PDFs/The Carriage of Goods by Sea Act, 2025.pdf
+data/Legal_Dataset/PDFs/The Cattle-Trespass Act, 1871.pdf
+data/Legal_Dataset/PDFs/The Census Act, 1948.pdf
+data/Legal_Dataset/PDFs/The Central Agricultural University Act, 1992.pdf
+data/Legal_Dataset/PDFs/The Central Boards of Revenue Act, 1963.pdf
+data/Legal_Dataset/PDFs/The Central Educational Institutions (Reservation in Admission) Act, 2006.pdf
+data/Legal_Dataset/PDFs/The Central Educational Institutions (Reservation in Teachers Cadre) Act, 2019.pdf
+data/Legal_Dataset/PDFs/The Central Excise Act, 1944.pdf
+data/Legal_Dataset/PDFs/The Central Goods and Services Tax (Extension to Jammu and Kashmir) Act, 2017.pdf
+data/Legal_Dataset/PDFs/The Central Goods and Services Tax Act, 2017.pdf
+data/Legal_Dataset/PDFs/The Central Industrial Security Force Act, 1968.pdf
+data/Legal_Dataset/PDFs/The Central Laws (Extension to Arunachal Pradesh) Act, 1993.pdf
+data/Legal_Dataset/PDFs/The Central Laws (Extension to Jammu and Kashmir) Act, 1968.pdf
+data/Legal_Dataset/PDFs/The Central Provinces Court of Wards Act, 1899.pdf
+data/Legal_Dataset/PDFs/The Central Provinces Financial Commissioner's Act, 1908.pdf
+data/Legal_Dataset/PDFs/The Central Provinces Land-Revenue Act, 1881.pdf
+data/Legal_Dataset/PDFs/The Central Provinces Tenancy Act, 1898.pdf
+data/Legal_Dataset/PDFs/The Central Reserve Police Force Act, 1949.pdf
+data/Legal_Dataset/PDFs/The Central Road and Infrastructure Fund Act, 2000.pdf
+data/Legal_Dataset/PDFs/The Central Sales Tax Act, 1956.pdf
+data/Legal_Dataset/PDFs/The Central Sanskrit Universities Act, 2020.pdf
+data/Legal_Dataset/PDFs/The Central Silk Board Act, 1948.pdf
+data/Legal_Dataset/PDFs/The Central Universities Act, 2009.pdf
+data/Legal_Dataset/PDFs/The Central Vigilance Commission Act, 2003.pdf
+data/Legal_Dataset/PDFs/The Cess and Other Taxes on Minerals (Validation) Act, 1992.pdf
+data/Legal_Dataset/PDFs/The Chandigarh (Delegation of Powers) Act, 1987.pdf
+data/Legal_Dataset/PDFs/The Chandigarh Disturbed Areas Act, 1983.pdf
+data/Legal_Dataset/PDFs/The Charitable and Religious Trusts Act, 1920.pdf
+data/Legal_Dataset/PDFs/The Charitable Endowments Act, 1890.pdf
+data/Legal_Dataset/PDFs/The Chartered Accountants Act, 1949.pdf
+data/Legal_Dataset/PDFs/The Chemical Weapons Convention Act, 2000.pdf
+data/Legal_Dataset/PDFs/The Chief Election Commissioner And Other Election Commissioners (Appointment, Conditions of Service And Term of Office) Act, 2023.pdf
+data/Legal_Dataset/PDFs/The Child and Adolescent Labour (Prohibition and Regulation) Act, 1986.pdf
+data/Legal_Dataset/PDFs/The Chit Funds Act, 1982.pdf
+data/Legal_Dataset/PDFs/The Chutia Nagpur Encumbered Estates Act, 1876.pdf
+data/Legal_Dataset/PDFs/The Cigarettes and Other Tobacco Products (Prohibition of Advertisement and Regulation of Trade and Commerce, Production, Supply and Distribution) Act, 2003.pdf
+data/Legal_Dataset/PDFs/The Cinematograph Act, 1952.pdf
+data/Legal_Dataset/PDFs/The Citizenship Act, 1955.pdf
+data/Legal_Dataset/PDFs/The City of Bombay Municipal (Supplementary) Act, 1888.pdf
+data/Legal_Dataset/PDFs/The Civil Defence Act, 1968.pdf
+data/Legal_Dataset/PDFs/The Civil Liability for Nuclear Damage Act, 2010.pdf
+data/Legal_Dataset/PDFs/The Clinical Establishments (Registration and Regulation) Act, 2010.pdf
+data/Legal_Dataset/PDFs/The Co-operative Societies Act, 1912.pdf
+data/Legal_Dataset/PDFs/The Coal Bearing Areas (Acquisition and Development) Act, 1957.pdf
+data/Legal_Dataset/PDFs/The Coal India (Regulation of Transfers and Validation) Act, 2000.pdf
+data/Legal_Dataset/PDFs/The Coal Mines (Special Provisions) Act, 2015.pdf
+data/Legal_Dataset/PDFs/The Coal Mines Labour Welfare Fund (Repeal) Act, 1986.pdf
+data/Legal_Dataset/PDFs/The Coal Mines Provident Fund and Miscellaneous Provisions Act, 1948.pdf
+data/Legal_Dataset/PDFs/The Coast Guard Act, 1978.pdf
+data/Legal_Dataset/PDFs/The Coastal Aquaculture Authority Act, 2005.pdf
+data/Legal_Dataset/PDFs/The Coastal Shipping Act, 2025.pdf
+data/Legal_Dataset/PDFs/The Coconut Development Board Act, 1979.pdf
+data/Legal_Dataset/PDFs/The Code of Civil Procedure, 1908.pdf
+data/Legal_Dataset/PDFs/The Code on Social Security, 2020.pdf
+data/Legal_Dataset/PDFs/The Code on Wages, 2019.pdf
+data/Legal_Dataset/PDFs/The Coffee Act, 1942.pdf
+data/Legal_Dataset/PDFs/The Coinage Act, 2011.pdf
+data/Legal_Dataset/PDFs/The Coir Industry Act, 1953.pdf
+data/Legal_Dataset/PDFs/The Collection of Statistics Act, 2008.pdf
+data/Legal_Dataset/PDFs/The Commercial Courts Act, 2015.pdf
+data/Legal_Dataset/PDFs/The Commercial Documents Evidence Act, 1939.pdf
+data/Legal_Dataset/PDFs/The Commission for Air Quality Management in National Capital Region and Adjoining Areas Act, 2021.pdf
+data/Legal_Dataset/PDFs/The Commission of Sati (Prevention ) Act, 1987.pdf
+data/Legal_Dataset/PDFs/The Commissions for Protection of Child Rights Act, 2005.pdf
+data/Legal_Dataset/PDFs/The Commissions of Inquiry Act, 1952.pdf
+data/Legal_Dataset/PDFs/The Companies (Donations to National Funds) Act, 1951.pdf
+data/Legal_Dataset/PDFs/The Companies (Profits) Surtax Act, 1964.pdf
+data/Legal_Dataset/PDFs/The Companies Act, 2013.pdf
+data/Legal_Dataset/PDFs/The Company Secretaries Act, 1980.pdf
+data/Legal_Dataset/PDFs/The Compensatory Afforestation Fund Act, 2016..pdf
+data/Legal_Dataset/PDFs/The Competition Act, 2002.pdf
+data/Legal_Dataset/PDFs/The Comptroller Auditor-General's (Duties, Powers and Conditions of Service) Act, 1971.pdf
+data/Legal_Dataset/PDFs/The Conservation of Foreign Exchange and Prevention of Smuggling Activities Act, 1974.pdf
+data/Legal_Dataset/PDFs/The Consumer Protection Act, 2019.pdf
+data/Legal_Dataset/PDFs/The Contempt of Courts Act, 1971.pdf
+data/Legal_Dataset/PDFs/The Contingency Fund of India Act, 1950.pdf
+data/Legal_Dataset/PDFs/The Control of National Highways (Land and Traffic) Act, 2002.pdf
+data/Legal_Dataset/PDFs/The Copyright Act, 1957.pdf
+data/Legal_Dataset/PDFs/The Cost Accountants Act, 1959.pdf
+data/Legal_Dataset/PDFs/The Court-Fees Act, 1870.pdf
+data/Legal_Dataset/PDFs/The Credit Information Companies (Regulation) Act, 2005..pdf
+data/Legal_Dataset/PDFs/The Criminal Procedure (Identification) Act, 2022.pdf
+data/Legal_Dataset/PDFs/The Customs Act, 1962.pdf
+data/Legal_Dataset/PDFs/The Customs Tariff Act, 1975.pdf
+data/Legal_Dataset/PDFs/The Cutchi Memons Act, 1938.pdf
+data/Legal_Dataset/PDFs/The Dadra and Nagar Haveli Act, 1961.pdf
+data/Legal_Dataset/PDFs/The Dadra and Nagar Haveli and Daman and Diu (Merger of Union territories) Act, 2019.pdf
+data/Legal_Dataset/PDFs/The Dakshina Bharat Hindi Prachar Sabha Act, 1964.pdf
+data/Legal_Dataset/PDFs/The Dalmia Dadri Cement Limited (Acquisition and Transfer of Undertakings) Act, 1981.pdf
+data/Legal_Dataset/PDFs/The Dam Safety Act, 2021.pdf
+data/Legal_Dataset/PDFs/The Damodar Valley Corporation Act, 1948.pdf
+data/Legal_Dataset/PDFs/The Dehra Dun Act, 1871.pdf
+data/Legal_Dataset/PDFs/The Dekkhan Agriculturists' Relief Act, 1879.pdf
+data/Legal_Dataset/PDFs/The Delhi (Urban Areas) Tenant's Relief Act, 1961.pdf
+data/Legal_Dataset/PDFs/The Delhi and Ajmer-Merwara Land Development Act, 1948.pdf
+data/Legal_Dataset/PDFs/The Delhi Apartment Ownership Act, 1986.pdf
+data/Legal_Dataset/PDFs/The Delhi Development Act, 1957.pdf
+data/Legal_Dataset/PDFs/The Delhi High Court Act, 1966.pdf
+data/Legal_Dataset/PDFs/The Delhi Land Holdings (Ceiling) Act, 1960.pdf
+data/Legal_Dataset/PDFs/The Delhi Lands (Restrictions on Transfer) Act, 1972.pdf
+data/Legal_Dataset/PDFs/The Delhi Motor Vehicles Taxation Act, 1962.pdf
+data/Legal_Dataset/PDFs/The Delhi Municipal Corporation Act, 1957.pdf
+data/Legal_Dataset/PDFs/The Delhi Police Act, 1978.pdf
+data/Legal_Dataset/PDFs/The Delhi Primary Education Act, 1960.pdf
+data/Legal_Dataset/PDFs/The Delhi Rent Control Act, 1958.pdf
+data/Legal_Dataset/PDFs/The Delhi Sales Tax Act, 1975.pdf
+data/Legal_Dataset/PDFs/The Delhi School Education Act, 1973.pdf
+data/Legal_Dataset/PDFs/The Delhi Sikh Gurdwaras Act, 1971.pdf
+data/Legal_Dataset/PDFs/The Delhi Special Police Establishment Act, 1946.pdf
+data/Legal_Dataset/PDFs/The Delhi University Act, 1922.pdf
+data/Legal_Dataset/PDFs/The Delhi Urban Art Commission Act, 1973.pdf
+data/Legal_Dataset/PDFs/The Delimitation Act, 2002.pdf
+data/Legal_Dataset/PDFs/The Delivery of Books and Newspapers (Public Libraries) Act, 1954.pdf
+data/Legal_Dataset/PDFs/The Deo Estate Act.pdf
+data/Legal_Dataset/PDFs/The Departmental Inquiries (Enforcement of Attendance of Witnesses and Production of Documents) Act, 1972.pdf
+data/Legal_Dataset/PDFs/The Departmentalisation of Union Accounts (Transfer of Personnel) Act, 1976.pdf
+data/Legal_Dataset/PDFs/The Deposit Insurance and Credit Guarantee Corporation Act, 1961.pdf
+data/Legal_Dataset/PDFs/The Depositories Act, 1996.pdf
+data/Legal_Dataset/PDFs/The Designs Act, 2000.pdf
+data/Legal_Dataset/PDFs/The Destruction of Records Act, 1917.pdf
+data/Legal_Dataset/PDFs/The Destructive Insects and Pests (Amendment and Validation) Act, 1992..pdf
+data/Legal_Dataset/PDFs/The Destructive Insects and Pests Act, 1914.pdf
+data/Legal_Dataset/PDFs/The Digital Personal Data Protection Act, 2023..pdf
+data/Legal_Dataset/PDFs/The Diplomatic and Consular Officers (Oaths and Fees) (Extension to Jammu and Kashmir) Act, 1973.pdf
+data/Legal_Dataset/PDFs/The Diplomatic and Consular Officers (Oaths and Fees) Act, 1948.pdf
+data/Legal_Dataset/PDFs/The Diplomatic Relations (Vienna Convention) Act, 1972.pdf
+data/Legal_Dataset/PDFs/The Direct Tax Vivad se Vishwas Act, 2020.pdf
+data/Legal_Dataset/PDFs/The Disaster Management Act, 2005.pdf
+data/Legal_Dataset/PDFs/The Dissolution of Muslim Marriages Act, 1939.pdf
+data/Legal_Dataset/PDFs/The Disturbed Areas (Special Courts) Act, 1976.pdf
+data/Legal_Dataset/PDFs/The Divorce Act, 1869.pdf
+data/Legal_Dataset/PDFs/The Dock Workers (Regulation of Employment) (Inapplicability to Major Ports) Act, 1997.pdf
+data/Legal_Dataset/PDFs/The Dock Workers (Regulation of Employment) Act, 1948.pdf
+data/Legal_Dataset/PDFs/The Dowry Prohibition Act, 1961.pdf
+data/Legal_Dataset/PDFs/The Dr. Rajendra Prasad Central Agricultural University Act, 2016..pdf
+data/Legal_Dataset/PDFs/The Drugs and Cosmetics Act, 1940.pdf
+data/Legal_Dataset/PDFs/The Drugs and Magic Remedies (Objectionable Advertisement) Act, 1954.pdf
+data/Legal_Dataset/PDFs/The Durgah khawaja Saheb Act, 1955.pdf
+data/Legal_Dataset/PDFs/The Easements (Extending Act 5 of 1882), 1891.pdf
+data/Legal_Dataset/PDFs/The East Punjab Urban Rent Restriction Act (Extension to Chandigarh) Act, 1974.pdf
+data/Legal_Dataset/PDFs/The Economic Offences (Inapplicability of Limitation) Act, 1974.pdf
+data/Legal_Dataset/PDFs/The Election Laws (Extension to Sikkim) Act, 1976.pdf
+data/Legal_Dataset/PDFs/The Electricity Act, 2003.pdf
+data/Legal_Dataset/PDFs/The Emblems and Names (Prevention of Improper Use) Act, 1950.pdf
+data/Legal_Dataset/PDFs/The Emigration Act, 1983.pdf
+data/Legal_Dataset/PDFs/The Employment of Manual Scavengers and Construction of Dry Latrines (Prohibition) Act, 1993.pdf
+data/Legal_Dataset/PDFs/The Enemy Property Act, 1968.pdf
+data/Legal_Dataset/PDFs/The Energy Conservation Act, 2001.pdf
+data/Legal_Dataset/PDFs/The English and Foreign Languages University Act, 2006.pdf
+data/Legal_Dataset/PDFs/The Environment (Protection) Act, 1986.pdf
+data/Legal_Dataset/PDFs/The Epidemic Diseases Act, 1897.pdf
+data/Legal_Dataset/PDFs/The Essential Commodities Act, 1955.pdf
+data/Legal_Dataset/PDFs/The Essential Services Maintenance (Assam) Act, 1980.pdf
+data/Legal_Dataset/PDFs/The Expenditure-tax Act, 1987.pdf
+data/Legal_Dataset/PDFs/The Explosive Substances Act, 1908.pdf
+data/Legal_Dataset/PDFs/The Explosives Act, 1884.pdf
+data/Legal_Dataset/PDFs/The Export-Import Bank of India Act, 1981.pdf
+data/Legal_Dataset/PDFs/The Export (Quality Control and Inspection) Act, 1963.pdf
+data/Legal_Dataset/PDFs/The Extradition Act, 1962.pdf
+data/Legal_Dataset/PDFs/The Factoring Regulation Act, 2011.pdf
+data/Legal_Dataset/PDFs/The Family Courts Act, 1984.pdf
+data/Legal_Dataset/PDFs/The Faridabad Development Corporation Act, 1956.pdf
+data/Legal_Dataset/PDFs/The Farm Laws Repeal Act, 2021.pdf
+data/Legal_Dataset/PDFs/The Fatal Accidents Act, 1855.pdf
+data/Legal_Dataset/PDFs/The Finance Commission (Miscellaneous Provisions) Act, 1951.pdf
+data/Legal_Dataset/PDFs/The Fiscal Responsibility and Budget Management Act, 2003.pdf
+data/Legal_Dataset/PDFs/The Food Corporations Act, 1964.pdf
+data/Legal_Dataset/PDFs/The Food Safety and Standards Act, 2006.pdf
+data/Legal_Dataset/PDFs/The Footwear Design and Development Institute Act, 2017.pdf
+data/Legal_Dataset/PDFs/The Foreign Aircraft (Exemption from Taxes and Duties on Fuel and Lubricants) Act, 2002.pdf
+data/Legal_Dataset/PDFs/The Foreign Contribution (Regulation) Act, 2010.pdf
+data/Legal_Dataset/PDFs/The Foreign Exchange Management Act, 1999.pdf
+data/Legal_Dataset/PDFs/The Foreign Marriage Act, 1969.pdf
+data/Legal_Dataset/PDFs/The Foreign Trade (Development and Regulation) Act, 1992.pdf
+data/Legal_Dataset/PDFs/The Foreigners Law (Application and Amendment) Act, 1962.pdf
+data/Legal_Dataset/PDFs/The Forfeited Deposits Act, 1850.pdf
+data/Legal_Dataset/PDFs/The Former Secretary of State Service Officers (Conditions of Service) Act, 1972.pdf
+data/Legal_Dataset/PDFs/The Forward Contracts (Regulation) Act, 1952.pdf
+data/Legal_Dataset/PDFs/The Fugitive Economic Offenders Act, 2018.pdf
+data/Legal_Dataset/PDFs/The General Clauses Act, 1897.pdf
+data/Legal_Dataset/PDFs/The General Insurance Business (Nationalisation) Act, 1972.pdf
+data/Legal_Dataset/PDFs/The Geneva Conventions Act, 1960.pdf
+data/Legal_Dataset/PDFs/The Geographical Indications of Goods (Registration and Protection) Act, 1999.pdf
+data/Legal_Dataset/PDFs/The Gift-tax Act, 1958.pdf
+data/Legal_Dataset/PDFs/The Goa, Daman and Diu (Administration) Act, 1962.pdf
+data/Legal_Dataset/PDFs/The Goa, Daman and Diu (Extension of the Code of Civil Procedure and the Arbitration Act) Act, 1965.pdf
+data/Legal_Dataset/PDFs/The Goa, Daman and Diu Mining Concessions (Abolition and Declaration as Mining Leases) Act, 1987.pdf
+data/Legal_Dataset/PDFs/The Goa, Daman and Diu Reorganisation Act, 1987.pdf
+data/Legal_Dataset/PDFs/The Gold Bonds (Immunities and Exemptions) Act, 1993.pdf
+data/Legal_Dataset/PDFs/The Goods and Services Tax (Compensation to States) Act, 2017.pdf
+data/Legal_Dataset/PDFs/The Government Buildings Act, 1899.pdf
+data/Legal_Dataset/PDFs/The Government of National Capital Territory of Delhi Act, 1991.pdf
+data/Legal_Dataset/PDFs/The Government of Union Territories Act, 1963.pdf
+data/Legal_Dataset/PDFs/The Government Savings Promotion Act, 1873.pdf
+data/Legal_Dataset/PDFs/The Government Securities Act, 2006.pdf
+data/Legal_Dataset/PDFs/The Governors (Emoluments, Allowances and Privileges) Act, 1982.pdf
+data/Legal_Dataset/PDFs/The Gram Nyayalayas Act, 2008.pdf
+data/Legal_Dataset/PDFs/The Guardians and Wards Act, 1890.pdf
+data/Legal_Dataset/PDFs/The Haj Committee Act, 2002.pdf
+data/Legal_Dataset/PDFs/The Handlooms (Reservation of Articles for Production) Act, 1985.pdf
+data/Legal_Dataset/PDFs/The Haryana and Punjab Agricultural Universities Act, 1970.pdf
+data/Legal_Dataset/PDFs/The Haryana and Uttar Pradesh (Alteration of Boundaries) Act, 1979.pdf
+data/Legal_Dataset/PDFs/The Health Security Se National Security Cess Act, 2025.pdf
+data/Legal_Dataset/PDFs/The High Court at Bombay (Extension of Jurisdiction to Goa, Daman and Diu) Act, 1981.pdf
+data/Legal_Dataset/PDFs/The High Court at Patna (Establishment of a Permanent Bench at Ranchi) Act, 1976.pdf
+data/Legal_Dataset/PDFs/The High Court Judges Salaries and Conditions of Service Act, 1954.pdf
+data/Legal_Dataset/PDFs/The High Courts (Seals) Act, 1950.pdf
+data/Legal_Dataset/PDFs/The Himachal Pradesh and Bilaspur (New State) Act, 1954.pdf
+data/Legal_Dataset/PDFs/The Hind Cycles Limited and Sen-Raleigh Limited (Nationalisation) Act, 1980.pdf
+data/Legal_Dataset/PDFs/The Hindi Sahitya Sammelan Act, 1962.pdf
+data/Legal_Dataset/PDFs/The Hindu Adoptions and Maintenance Act, 1956.pdf
+data/Legal_Dataset/PDFs/The Hindu Disposition of Property Act, 1916.pdf
+data/Legal_Dataset/PDFs/The Hindu Gains of Learning Act, 1930.pdf
+data/Legal_Dataset/PDFs/The Hindu Marriage Act, 1955.pdf
+data/Legal_Dataset/PDFs/The Hindu Minority and Guardianship Act, 1956.pdf
+data/Legal_Dataset/PDFs/The Hindu Succession Act, 1956.pdf
+data/Legal_Dataset/PDFs/The Hotel-Receipts Tax Act, 1980.pdf
+data/Legal_Dataset/PDFs/The Human Immunodeficiency Virus and Acquired Immune Deficiency Syndrome (Prevention and Control) Act, 2017.pdf
+data/Legal_Dataset/PDFs/The Illegal Migrants (Determination by Tribunals) Act, 1983.pdf
+data/Legal_Dataset/PDFs/The Immigrants (Expulsion from Assam) Act, 1950.pdf
+data/Legal_Dataset/PDFs/The Immigration and Foreigners Act, 2025.pdf
+data/Legal_Dataset/PDFs/The Immoral Traffic (Prevention) Act, 1956.pdf
+data/Legal_Dataset/PDFs/The Improvements in Towns Act, 1850.pdf
+data/Legal_Dataset/PDFs/The Inchek Tyres Limited and National Rubber Manufacturers Limited (Nationalisation) Act, 1984.pdf
+data/Legal_Dataset/PDFs/The Indecent Representation of Women (Prohibition) Act, 1986.pdf
+data/Legal_Dataset/PDFs/The India International Arbitration Centre Act, 2019.pdf
+data/Legal_Dataset/PDFs/The Indian Antarctic Act, 2022.pdf
+data/Legal_Dataset/PDFs/The Indian Christian Marriage Act, 1872.pdf
+data/Legal_Dataset/PDFs/The Indian Contract Act, 1872.pdf
+data/Legal_Dataset/PDFs/The Indian Council of World Affairs Act, 2001.pdf
+data/Legal_Dataset/PDFs/The Indian Easements Act, 1882.pdf
+data/Legal_Dataset/PDFs/The Indian Forest Act, 1927.pdf
+data/Legal_Dataset/PDFs/The Indian Institute of Management Act, 2017.pdf
+data/Legal_Dataset/PDFs/The Indian Institute of Petroleum and Energy Act, 2017.pdf
+data/Legal_Dataset/PDFs/The Indian Institutes of Information Technology (Public-private Partnership) Act, 2017.pdf
+data/Legal_Dataset/PDFs/The Indian Institutes of Information Technology Act, 2014.pdf
+data/Legal_Dataset/PDFs/The Indian Maritime University Act, 2008.pdf
+data/Legal_Dataset/PDFs/The Indian Museum Act, 1910.pdf
+data/Legal_Dataset/PDFs/The Indian Naval Armament Act, 1923.pdf
+data/Legal_Dataset/PDFs/The Indian Nursing Council Act, 1947.pdf
+data/Legal_Dataset/PDFs/The Indian Partnership Act, 1932.pdf
+data/Legal_Dataset/PDFs/The Indian Ports Act 2025.pdf
+data/Legal_Dataset/PDFs/The Indian Red Cross Society Act, 1920.pdf
+data/Legal_Dataset/PDFs/The Indian Reserve Forces Act, 1888.pdf
+data/Legal_Dataset/PDFs/The Indian Soldiers (Litigation) Act, 1925.pdf
+data/Legal_Dataset/PDFs/The Indian Stamp Act, 1899.pdf
+data/Legal_Dataset/PDFs/The Indian Statistical Institute Act, 1959.pdf
+data/Legal_Dataset/PDFs/The Indian Succession Act, 1925.pdf
+data/Legal_Dataset/PDFs/The Indian Telegraph Act, 1885.pdf
+data/Legal_Dataset/PDFs/The Indian Tolls (Army and Air Force) Act, 1901.pdf
+data/Legal_Dataset/PDFs/The Indian Tolls Act, 1851.pdf
+data/Legal_Dataset/PDFs/The Indian Tolls Act, 1864.pdf
+data/Legal_Dataset/PDFs/The Indian Treasure-trove Act, 1878.pdf
+data/Legal_Dataset/PDFs/The Indian Trusts Act, 1882.pdf
+data/Legal_Dataset/PDFs/The Indian Veterinary Council Act, 1984.pdf
+data/Legal_Dataset/PDFs/The Indian Wireless Telegraphy Act, 1933.pdf
+data/Legal_Dataset/PDFs/The Indira Gandhi National Open University Act, 1985.pdf
+data/Legal_Dataset/PDFs/The Indira Gandhi National Tribal University Act, 2007.pdf
+data/Legal_Dataset/PDFs/The Indo-Tibetan Border Police Force Act, 1992.pdf
+data/Legal_Dataset/PDFs/The Industrial Development Bank (Transfer of Undertaking and Repeal) Act, 2003.pdf
+data/Legal_Dataset/PDFs/The Industrial Disputes (Banking and Insurance Companies) Act, 1949.pdf
+data/Legal_Dataset/PDFs/The Industrial Finance Corporation (Transfer of Undertaking and Repeal) Act, 1993.pdf
+data/Legal_Dataset/PDFs/The Industrial Reconstruction Bank (Transfer of Undertakings and Repeal) Act, 1997.pdf
+data/Legal_Dataset/PDFs/The Industrial Relations Code, 2020.pdf
+data/Legal_Dataset/PDFs/The Industries (Development and Regulation) Act, 1951.pdf
+data/Legal_Dataset/PDFs/The Infant Milk Substitutes, Feeding Bottles and Infant Foods (Regulation of Production, Supply and Distribution) Act, 1992.pdf
+data/Legal_Dataset/PDFs/The Inflammable Substances Act, 1952.pdf
+data/Legal_Dataset/PDFs/The Information Technology Act, 2000.pdf
+data/Legal_Dataset/PDFs/The Inland Vessels Act, 2021.pdf
+data/Legal_Dataset/PDFs/The Inland Waterways Authority of India Act, 1985.pdf
+data/Legal_Dataset/PDFs/The Insecticides Act, 1968.pdf
+data/Legal_Dataset/PDFs/The Insolvency and Bankruptcy Code, 2016..pdf
+data/Legal_Dataset/PDFs/The Institute of Teaching and Research in Ayurveda Act, 2020.pdf
+data/Legal_Dataset/PDFs/The Institutes of Technology Act, 1961.pdf
+data/Legal_Dataset/PDFs/The Insurance Act, 1938.pdf
+data/Legal_Dataset/PDFs/The Insurance Regulatory and Development Authority Act, 1999.pdf
+data/Legal_Dataset/PDFs/The Integrated Goods and Services Tax (Extension to Jammu and Kashmir) Act, 2017.pdf
+data/Legal_Dataset/PDFs/The Integrated Goods and Services Tax Act, 2017.pdf
+data/Legal_Dataset/PDFs/The Intelligence Organisations (Restriction of Rights) Act, 1985.pdf
+data/Legal_Dataset/PDFs/The Inter-Services Organisations (Command, Control and Discipline) Act, 2023.pdf
+data/Legal_Dataset/PDFs/The Inter-State Corporations Act, 1957.pdf
+data/Legal_Dataset/PDFs/The Inter-State River Water Disputes Act, 1956.pdf
+data/Legal_Dataset/PDFs/The Interest-tax Act, 1974.pdf
+data/Legal_Dataset/PDFs/The Interest Act, 1978.pdf
+data/Legal_Dataset/PDFs/The International Development Association (Status, Immunities and Privileges) Act, 1960.pdf
+data/Legal_Dataset/PDFs/The International Finance Corporation (Status, Immunities and Privileges) Act, 1958.pdf
+data/Legal_Dataset/PDFs/The International Financial Services Centres Authority Act, 2019.pdf
+data/Legal_Dataset/PDFs/The International Monetary Fund and Bank Act, 1945.pdf
+data/Legal_Dataset/PDFs/The Jallianwala Bagh National Memorial Act, 1951.pdf
+data/Legal_Dataset/PDFs/The Jamia Millia Islamia Act, 1988.pdf
+data/Legal_Dataset/PDFs/The Jammu and Kashmir (Extension of Laws) Act, 1956.pdf
+data/Legal_Dataset/PDFs/The Jammu and Kashmir Official Languages Act, 2020..pdf
+data/Legal_Dataset/PDFs/The Jammu and Kashmir Reorganisation Act, 2019.pdf
+data/Legal_Dataset/PDFs/The Jammu and Kashmir Representation of the People (Supplementary) Act, 1968.pdf
+data/Legal_Dataset/PDFs/The Jawaharlal Institute of Post-Graduate Medical Education and Research, Puducherry, Act, 2008.pdf
+data/Legal_Dataset/PDFs/The Jawaharlal Nehru University Act, 1966.pdf
+data/Legal_Dataset/PDFs/The Judges (Inquiry) Act, 1968.pdf
+data/Legal_Dataset/PDFs/The Judges (Protection) Act, 1985.pdf
+data/Legal_Dataset/PDFs/The Jute Companies (Nationalisation) Act, 1980.pdf
+data/Legal_Dataset/PDFs/The Jute Packaging Materials (Compulsory Use in Packing Commodities) Act, 1987.pdf
+data/Legal_Dataset/PDFs/The Juvenile Justice (Care and Protection of Children) Act, 2015..pdf
+data/Legal_Dataset/PDFs/The Kalakshetra Foundation Act, 1993.pdf
+data/Legal_Dataset/PDFs/The Kazis' Act, 1880.pdf
+data/Legal_Dataset/PDFs/The Kerala (Alteration of Name) Act, 2026.pdf
+data/Legal_Dataset/PDFs/The Khaddar (Protection of Name) Act, 1950.pdf
+data/Legal_Dataset/PDFs/The Khadi and Village Industries Commission Act, 1956.pdf
+data/Legal_Dataset/PDFs/The Khuda Bakhsh Oriental Public Library Act, 1969.pdf
+data/Legal_Dataset/PDFs/The King of Oudh's Estate Act, 1887.pdf
+data/Legal_Dataset/PDFs/The King of Oudh's Estate Act, 1888.pdf
+data/Legal_Dataset/PDFs/The King of Oudh's Estate Validation Act, 1917.pdf
+data/Legal_Dataset/PDFs/The Labour Laws (Simplification of Procedure for Furnishing Returns and Maintaining Registers by certain Establishments) Act, 1988.pdf
+data/Legal_Dataset/PDFs/The Lady Hardinge Medical College and Hospital (Acquisition and Miscellaneous Provisions) Act, 1977.pdf
+data/Legal_Dataset/PDFs/The Lalit Kala Akadami (Taking Over of Management) Act, 1997.pdf
+data/Legal_Dataset/PDFs/The Land Acquisition (Amendment and Validation) Act, 1967.pdf
+data/Legal_Dataset/PDFs/The Land Improvement Loans Act, 1883.pdf
+data/Legal_Dataset/PDFs/The Land Ports Authority of India Act, 2010.pdf
+data/Legal_Dataset/PDFs/The Laws Local Extent Act, 1874.pdf
+data/Legal_Dataset/PDFs/The Leaders and Chief Whips of Recognised Parties and Groups in Parliament (Facilities) Act, 1998.pdf
+data/Legal_Dataset/PDFs/The Legal Metrology Act, 2009.pdf
+data/Legal_Dataset/PDFs/The Legal Practitioners Act, 1879.pdf
+data/Legal_Dataset/PDFs/The Legal Representatives Suits Act, 1855.pdf
+data/Legal_Dataset/PDFs/The Legal Services Authorities Act, 1987.pdf
+data/Legal_Dataset/PDFs/The Legal Tender (Inscribed Notes) Act, 1964.pdf
+data/Legal_Dataset/PDFs/The Legislative Assembly of Nagaland (Change in Representation) Act, 1968.pdf
+data/Legal_Dataset/PDFs/The Life Insurance Corporation (Modification of Settlements) Act, 1976.pdf
+data/Legal_Dataset/PDFs/The Life Insurance Corporation Act, 1956.pdf
+data/Legal_Dataset/PDFs/The Limitation Act, 1963.pdf
+data/Legal_Dataset/PDFs/The Limited Liability Partnership Act, 2008.pdf
+data/Legal_Dataset/PDFs/The Live-stock Importation Act, 1898.pdf
+data/Legal_Dataset/PDFs/The Local Authorities Loans Act, 1914.pdf
+data/Legal_Dataset/PDFs/The Lok Sahayak Sena Act, 1956.pdf
+data/Legal_Dataset/PDFs/The Lokpal and Lokayuktas Act, 2013.pdf
+data/Legal_Dataset/PDFs/The Lotteries (Regulation) Act, 1998.pdf
+data/Legal_Dataset/PDFs/The Lushai Hills District (Change of Name) Act, 1954.pdf
+data/Legal_Dataset/PDFs/The Madhya Pradesh Reorganisation Act, 2000.pdf
+data/Legal_Dataset/PDFs/The Madras City Civil Court Act, 1892.pdf
+data/Legal_Dataset/PDFs/The Madras City Land Revenue Act, 1851.pdf
+data/Legal_Dataset/PDFs/The Madras Civil Courts' Act, 1873.pdf
+data/Legal_Dataset/PDFs/The Madras District Police Act, 1859.pdf
+data/Legal_Dataset/PDFs/The Madras Rent and Revenue Sales Act, 1839.pdf
+data/Legal_Dataset/PDFs/The Madras, Bengal and Bombay Children (Supplementary) Act, 1925.pdf
+data/Legal_Dataset/PDFs/The Mahatma Gandhi Antarrashtriya Hindi Vishwavidyalaya Act, 1996.pdf
+data/Legal_Dataset/PDFs/The Maintenance and Welfare of Parents and Senior Citizens Act, 2007.pdf
+data/Legal_Dataset/PDFs/The Maintenance Orders Enforcement Act, 1921.pdf
+data/Legal_Dataset/PDFs/The Major Port Authorities Act, 2021.pdf
+data/Legal_Dataset/PDFs/The Majority Act, 1875.pdf
+data/Legal_Dataset/PDFs/The Mangrol and Manavadar (Administration of Property) Act, 1949.pdf
+data/Legal_Dataset/PDFs/The Manipur (Courts) Act, 1955.pdf
+data/Legal_Dataset/PDFs/The Manipur (Hill Areas) District Councils Act, 1971.pdf
+data/Legal_Dataset/PDFs/The Manipur (Sales of Motor Spirit and Lubricants) Taxation Act, 1962.pdf
+data/Legal_Dataset/PDFs/The Manipur (Village Authorities in Hill Areas) Act, 1956.pdf
+data/Legal_Dataset/PDFs/The Manipur Land Revenue and Land Reforms Act, 1960.pdf
+data/Legal_Dataset/PDFs/The Manipur Municipalities Act, 1994.pdf
+data/Legal_Dataset/PDFs/The Manipur Panchayati Raj Act, 1994.pdf
+data/Legal_Dataset/PDFs/The Manipur University Act, 2005.pdf
+data/Legal_Dataset/PDFs/The Manoeuvres, Field Firing and Artillery Practice Act, 1938.pdf
+data/Legal_Dataset/PDFs/The Marine Aids to Navigation Act, 2021..pdf
+data/Legal_Dataset/PDFs/The Marine Insurance Act, 1963.pdf
+data/Legal_Dataset/PDFs/The Marine Products Export Development Authority Act, 1972.pdf
+data/Legal_Dataset/PDFs/The Maritime Anti-Piracy Act, 2022..pdf
+data/Legal_Dataset/PDFs/The Maritime Zones of India (Regulation of Fishing by Foreign Vessels) Act, 1981.pdf
+data/Legal_Dataset/PDFs/The Marking of Heavy Packages Act, 1951.pdf
+data/Legal_Dataset/PDFs/The Married Women's Property Act, 1874.pdf
+data/Legal_Dataset/PDFs/The Maulana Azad National Urdu University Act, 1996.pdf
+data/Legal_Dataset/PDFs/The Mediation Act, 2023.pdf
+data/Legal_Dataset/PDFs/The Medical Termination of Pregnancy Act, 1971.pdf
+data/Legal_Dataset/PDFs/The Mental Healthcare Act, 2017.pdf
+data/Legal_Dataset/PDFs/The Merchant Shipping Act, 2025.pdf
+data/Legal_Dataset/PDFs/The Metro Railways (Construction of Works) Act, 1978.pdf
+data/Legal_Dataset/PDFs/The Metro Railways (Operation and Maintenance) Act, 2002.pdf
+data/Legal_Dataset/PDFs/The Micro, Small and Medium Enterprises Development Act, 2006.pdf
+data/Legal_Dataset/PDFs/The Mines and Minerals (Development and Regulation) Act, 1957.pdf
+data/Legal_Dataset/PDFs/The Mizoram University Act, 2000.pdf
+data/Legal_Dataset/PDFs/The Motor Vehicles Act, 1988.pdf
+data/Legal_Dataset/PDFs/The Multi-State Co-operative Societies Act, 2002.pdf
+data/Legal_Dataset/PDFs/The Multimodal Transportation of Goods Act, 1993.pdf
+data/Legal_Dataset/PDFs/The Murshidabad Act, 1891.pdf
+data/Legal_Dataset/PDFs/The Murshidabad Estate Administration Act, 1933.pdf
+data/Legal_Dataset/PDFs/The Muslim Personal Law (Shariat) Application Act, 1937.pdf
+data/Legal_Dataset/PDFs/The Muslim Women (Protection of Rights on Divorce) Act, 1986.pdf
+data/Legal_Dataset/PDFs/The Muslim Women (Protection of Rights on Marriage) Act, 2019..pdf
+data/Legal_Dataset/PDFs/The Mussalman Wakf (Repeal) Act, 2025.pdf
+data/Legal_Dataset/PDFs/The Naga Hills-Tuensang Area Act, 1957.pdf
+data/Legal_Dataset/PDFs/The Nagaland University Act, 1989.pdf
+data/Legal_Dataset/PDFs/The Nalanda University Act, 2010.pdf
+data/Legal_Dataset/PDFs/The Narcotic Drugs and Psychotropic Substances Act, 1985.pdf
+data/Legal_Dataset/PDFs/The National Anti-Doping Act, 2022.pdf
+data/Legal_Dataset/PDFs/The National Bank for Agriculture and Rural Development Act, 1981.pdf
+data/Legal_Dataset/PDFs/The National Bank for Financing Infrastructure and Development Act, 2021.pdf
+data/Legal_Dataset/PDFs/The National Cadet Corps Act, 1948.pdf
+data/Legal_Dataset/PDFs/The National Capital Region Planning Board Act, 1985.pdf
+data/Legal_Dataset/PDFs/The National Capital Territory of Delhi (Recognition of Property Rights of Residents in Unauthorised Colonies) Act, 2019.pdf
+data/Legal_Dataset/PDFs/The National Capital Territory of Delhi Laws (Special Provisions) Second Act, 2011.pdf
+data/Legal_Dataset/PDFs/The National Co-operative Development Corporation Act, 1962.pdf
+data/Legal_Dataset/PDFs/The National Commission for Allied and Healthcare Professions Act, 2021.pdf
+data/Legal_Dataset/PDFs/The National Commission for Backward Classes (Repeal) Act, 2018.pdf
+data/Legal_Dataset/PDFs/The National Commission for Homoeopathy Act, 2020..pdf
+data/Legal_Dataset/PDFs/The National Commission for Indian System of Medicine Act, 2020.pdf
+data/Legal_Dataset/PDFs/The National Commission for Minorities Act, 1992.pdf
+data/Legal_Dataset/PDFs/The National Commission for Minority Educational Institutes Act, 2004.pdf
+data/Legal_Dataset/PDFs/The National Commission for Safai Karamcharis Act, 1993.pdf
+data/Legal_Dataset/PDFs/The National Commission for Women Act, 1990.pdf
+data/Legal_Dataset/PDFs/The National Company Limited (Acquisition and Transfer of Undertakings) Act, 1980.pdf
+data/Legal_Dataset/PDFs/The National Council for Teacher Education Act, 1993.pdf
+data/Legal_Dataset/PDFs/The National Dairy Development Board Act, 1987.pdf
+data/Legal_Dataset/PDFs/The National Dental Commission Act, 2023.pdf
+data/Legal_Dataset/PDFs/The National Food Security Act, 2013.pdf
+data/Legal_Dataset/PDFs/The National Forensic Sciences University Act, 2020.pdf
+data/Legal_Dataset/PDFs/The National Green Tribunal Act, 2010.pdf
+data/Legal_Dataset/PDFs/The National Highways Act, 1956.pdf
+data/Legal_Dataset/PDFs/The National Highways Authority of India Act, 1988.pdf
+data/Legal_Dataset/PDFs/The National Housing Bank Act, 1987.pdf
+data/Legal_Dataset/PDFs/The National Institute of Fashion Technology Act, 2006.pdf
+data/Legal_Dataset/PDFs/The National Institute of Mental Health and Neuro-Sciences, Bangalore Act, 2012.pdf
+data/Legal_Dataset/PDFs/The National Institutes of Design Act, 2014.pdf
+data/Legal_Dataset/PDFs/The National Institutes of Food Technology, Entrepreneurship and Management Act, 2021..pdf
+data/Legal_Dataset/PDFs/The National Institutes of Pharmaceutical Education and Research Act, 1998.pdf
+data/Legal_Dataset/PDFs/The National Institutes of Technology, Science Education and Research Act, 2007.pdf
+data/Legal_Dataset/PDFs/The National Investigation Agency Act, 2008.pdf
+data/Legal_Dataset/PDFs/The National Judicial Appointments Commission Act, 2014.pdf
+data/Legal_Dataset/PDFs/The National Jute Board Act, 2008.pdf
+data/Legal_Dataset/PDFs/The National Medical Commission Act, 2019.pdf
+data/Legal_Dataset/PDFs/The National Nursing and Midwifery Commission Act, 2023.pdf
+data/Legal_Dataset/PDFs/The National Rural Employment Guarantee (Extension to Jammu and Kashmir) Act, 2007.pdf
+data/Legal_Dataset/PDFs/The National Security Act, 1980.pdf
+data/Legal_Dataset/PDFs/The National Security Guard Act, 1986.pdf
+data/Legal_Dataset/PDFs/The National Service Act, 1972.pdf
+data/Legal_Dataset/PDFs/The National Sports Governance Act, 2025.pdf
+data/Legal_Dataset/PDFs/The National Sports University Act, 2018.pdf
+data/Legal_Dataset/PDFs/The National Tax Tribunal Act, 2005.pdf
+data/Legal_Dataset/PDFs/The National Trust for Welfare of Persons with Autism, Cerebral Palsy, Mental Retardation and Multiple Disabilities Act, 1999.pdf
+data/Legal_Dataset/PDFs/The National Waterways Act, 2016..pdf
+data/Legal_Dataset/PDFs/The Naval and Aircraft Prize Act, 1971.pdf
+data/Legal_Dataset/PDFs/The Navy Act, 1957.pdf
+data/Legal_Dataset/PDFs/The Negotiable Instruments Act, 1881.pdf
+data/Legal_Dataset/PDFs/The New Delhi Municipal Council Act, 1994.pdf
+data/Legal_Dataset/PDFs/The North-Eastern Areas (Reorganisation) Act, 1971.pdf
+data/Legal_Dataset/PDFs/The North-Eastern Council Act, 1971.pdf
+data/Legal_Dataset/PDFs/The North-Eastern Hill University Act, 1973.pdf
+data/Legal_Dataset/PDFs/The North-western Provinces and Oudh Act, 1890.pdf
+data/Legal_Dataset/PDFs/The Northern India Canal and Drainage Act, 1873.pdf
+data/Legal_Dataset/PDFs/The Northern Indian Ferries Act, 1878.pdf
+data/Legal_Dataset/PDFs/The Notaries Act, 1952.pdf
+data/Legal_Dataset/PDFs/The Oaths Act, 1969.pdf
+data/Legal_Dataset/PDFs/The Occupational Safety, Health and Working Conditions Code, 2020.pdf
+data/Legal_Dataset/PDFs/The Official Languages Act, 1963.pdf
+data/Legal_Dataset/PDFs/The Official Secrets Act, 1923.pdf
+data/Legal_Dataset/PDFs/The Official Trustees Act, 1913.pdf
+data/Legal_Dataset/PDFs/The Offshore Areas Mineral (Development and Regulation) Act, 2002.pdf
+data/Legal_Dataset/PDFs/The Oil and Natural Gas Commission (Transfer of Undertaking and Repeal) Act, 1993.pdf
+data/Legal_Dataset/PDFs/The Oil Industry (Development) Act, 1974.pdf
+data/Legal_Dataset/PDFs/The Oilfields (Regulation and Development) Act, 1948.pdf
+data/Legal_Dataset/PDFs/The Orissa (Alteration of Name) Act, 2011.pdf
+data/Legal_Dataset/PDFs/The Orissa Weights and Measures (Delhi Repeal) Act, 1958.pdf
+data/Legal_Dataset/PDFs/The Orphanages and other Charitable Homes (Supervision and Control) Act, 1960.pdf
+data/Legal_Dataset/PDFs/The Oudh Estates' Act, 1869.pdf
+data/Legal_Dataset/PDFs/The Oudh Laws Act, 1876.pdf
+data/Legal_Dataset/PDFs/The Oudh Taluqdar's Relief Act, 1870.pdf
+data/Legal_Dataset/PDFs/The Panjab District Boards Act, 1883.pdf
+data/Legal_Dataset/PDFs/The Parel Investments and Trading Private Limited and Domestic Gas Private Limited (Taking Over of Management) Repeal Act, 2005.pdf
+data/Legal_Dataset/PDFs/The Parliament (Prevention of Disqualification) Act, 1959.pdf
+data/Legal_Dataset/PDFs/The Parliamentary Proceedings (Protection of Publication) Act, 1977.pdf
+data/Legal_Dataset/PDFs/The Parsi Marriage and Divorce Act, 1936.pdf
+data/Legal_Dataset/PDFs/The Partition Act, 1893.pdf
+data/Legal_Dataset/PDFs/The Partition of Revenue-paying Estates Act, 1863.pdf
+data/Legal_Dataset/PDFs/The Passports Act, 1967.pdf
+data/Legal_Dataset/PDFs/The Patents Act, 1970.pdf
+data/Legal_Dataset/PDFs/The Payment and Settlement Systems Act, 2007.pdf
+data/Legal_Dataset/PDFs/The Pension Fund Regulatory and Development Authority Act, 2013.pdf
+data/Legal_Dataset/PDFs/The Pensions Act, 1871.pdf
+data/Legal_Dataset/PDFs/The Petroleum Act, 1934.pdf
+data/Legal_Dataset/PDFs/The Petroleum and Minerals Pipelines (Acquisition of Right of User in Land) Act, 1962.pdf
+data/Legal_Dataset/PDFs/The Petroleum and Natural Gas Regulatory Board Act, 2006.pdf
+data/Legal_Dataset/PDFs/The Pharmacy Act, 1948.pdf
+data/Legal_Dataset/PDFs/The Places of Worship (Special Provisions) Act, 1991.pdf
+data/Legal_Dataset/PDFs/The Poisons Act, 1919.pdf
+data/Legal_Dataset/PDFs/The Police-Forces (Restriction of Rights) Act, 1966.pdf
+data/Legal_Dataset/PDFs/The Police Act, 1861.pdf
+data/Legal_Dataset/PDFs/The Police Act, 1949.pdf
+data/Legal_Dataset/PDFs/The Police, Agra Act, 1854.pdf
+data/Legal_Dataset/PDFs/The Pondicherry (Administration) Act, 1962.pdf
+data/Legal_Dataset/PDFs/The Pondicherry (Alteration of Name) Act, 2006.pdf
+data/Legal_Dataset/PDFs/The Pondicherry (Extension of Laws) Act, 1968.pdf
+data/Legal_Dataset/PDFs/The Pondicherry University Act, 1985.pdf
+data/Legal_Dataset/PDFs/The Post-Graduate Institute of Medical Education and Research, Chandigarh, Act 1966.pdf
+data/Legal_Dataset/PDFs/The Post Office Act, 2023.pdf
+data/Legal_Dataset/PDFs/The Post Office Cash Certificates Act, 1917.pdf
+data/Legal_Dataset/PDFs/The Powers-of Attorney Act, 1882.pdf
+data/Legal_Dataset/PDFs/The Prasar Bharati (Broadcasting Corporation of India) Act, 1990.pdf
+data/Legal_Dataset/PDFs/The Pre-conception and Pre-natal Diagnostic Techniques (Prohibition of Sex Selection) Act, 1994.pdf
+data/Legal_Dataset/PDFs/The Preference Shares (Regulation of Dividends) Act, 1960.pdf
+data/Legal_Dataset/PDFs/The Presidency-Towns Insolvency Act, 1909.pdf
+data/Legal_Dataset/PDFs/The Presidency Small Cause Courts Act, 1882.pdf
+data/Legal_Dataset/PDFs/The President's Emoluments and Pension Act, 1951.pdf
+data/Legal_Dataset/PDFs/The President (Discharge of Functions) Act, 1969.pdf
+data/Legal_Dataset/PDFs/The Presidential and Vice-Presidential Elections Act, 1952.pdf
+data/Legal_Dataset/PDFs/The Press and Registration of Periodicals Act, 2023.pdf
+data/Legal_Dataset/PDFs/The Press Council Act, 1978.pdf
+data/Legal_Dataset/PDFs/The Prevention and Control of Infectious and Contagious Diseases in Animals Act, 2009.pdf
+data/Legal_Dataset/PDFs/The Prevention of Blackmarketing and Maintenance of Supplies of Essential Commodities Act, 1980.pdf
+data/Legal_Dataset/PDFs/The Prevention of Corruption Act, 1988.pdf
+data/Legal_Dataset/PDFs/The Prevention of Cruelty to Animals Act, 1960.pdf
+data/Legal_Dataset/PDFs/The Prevention of Damage to Public Property Act, 1984.pdf
+data/Legal_Dataset/PDFs/The Prevention of Illicit Traffic in Narcotic Drugs and Psychotropic Substances Act, 1988.pdf
+data/Legal_Dataset/PDFs/The Prevention of Insults to National Honour Act, 1971.pdf
+data/Legal_Dataset/PDFs/The Prevention of Money-Laundering Act, 2002.pdf
+data/Legal_Dataset/PDFs/The Prevention of Terrorism (Repeal) Act, 2004.pdf
+data/Legal_Dataset/PDFs/The Prisoners (Attendance in Courts) Act, 1955.pdf
+data/Legal_Dataset/PDFs/The Prisoners Act, 1900.pdf
+data/Legal_Dataset/PDFs/The Prisons Act, 1894.pdf
+data/Legal_Dataset/PDFs/The Private Security Agencies (Regulation) Act, 2005.pdf
+data/Legal_Dataset/PDFs/The Prize Chits and Money Circulation Schemes (Banning) Act, 1978.pdf
+data/Legal_Dataset/PDFs/The Prize Competitions Act, 1955.pdf
+data/Legal_Dataset/PDFs/The Probation of Offenders Act, 1958.pdf
+data/Legal_Dataset/PDFs/The Prohibition of Benami Property Transactions Act, 1988.pdf
+data/Legal_Dataset/PDFs/The Prohibition of Child Marriage Act, 2006.pdf
+data/Legal_Dataset/PDFs/The Prohibition of Electronic Cigarettes (Production, Manufacture, Import, Export, Transport, Sale, Distribution, Storage and Advertisement) Act, 2019.pdf
+data/Legal_Dataset/PDFs/The Prohibition of Employment as Manual Scavengers and their Rehabilitation Act, 2013.pdf
+data/Legal_Dataset/PDFs/The Promotion and Regulation of Online Gaming Act, 2025.pdf
+data/Legal_Dataset/PDFs/The Protection of Children from Sexual Offences Act, 2012.pdf
+data/Legal_Dataset/PDFs/The Protection of Civil Rights Act, 1955.pdf
+data/Legal_Dataset/PDFs/The Protection of Human Rights Act, 1993.pdf
+data/Legal_Dataset/PDFs/The Protection of Interests in Aircraft Objects Act, 2025.pdf
+data/Legal_Dataset/PDFs/The Protection of Plant Varieties and Farmers Rights Act, 2001.pdf
+data/Legal_Dataset/PDFs/The Protection of Women from Domestic Violence Act, 2005.pdf
+data/Legal_Dataset/PDFs/The Provident Funds Act, 1925.pdf
+data/Legal_Dataset/PDFs/The Provincial Insolvency Act, 1920.pdf
+data/Legal_Dataset/PDFs/The Provincial Small Cause Courts Act, 1887.pdf
+data/Legal_Dataset/PDFs/The Provisional collection of Taxes Act,2023.pdf
+data/Legal_Dataset/PDFs/The Provisions of the Panchayats (Extension to the Scheduled Areas) Act, 1996.pdf
+data/Legal_Dataset/PDFs/The Public Debt Act, 1944.pdf
+data/Legal_Dataset/PDFs/The Public Employment (Requirement as to Residence) Act, 1957.pdf
+data/Legal_Dataset/PDFs/The Public Examinations (Prevention of Unfair Means) Act, 2024.pdf
+data/Legal_Dataset/PDFs/The Public Financial Institutions (Obligation as to Fidelity and Secrecy) Act, 1983.pdf
+data/Legal_Dataset/PDFs/The Public Gambling Act, 1867.pdf
+data/Legal_Dataset/PDFs/The Public Liability Insurance Act, 1991.pdf
+data/Legal_Dataset/PDFs/The Public Premises (Eviction of Unauthorised Occupants) Act, 1971.pdf
+data/Legal_Dataset/PDFs/The Public Records Act, 1993.pdf
+data/Legal_Dataset/PDFs/The Public Sector Iron and Steel Companies (Restructuring) and Miscellaneous Provisions Act, 1978.pdf
+data/Legal_Dataset/PDFs/The Punjab Disturbed Areas Act, 1983.pdf
+data/Legal_Dataset/PDFs/The Punjab Land-Revenue Act, 1887.pdf
+data/Legal_Dataset/PDFs/The Punjab Laws Act, 1872.pdf
+data/Legal_Dataset/PDFs/The Punjab Municipal Corporation Law (Extension to Chandigarh) Act, 1994.pdf
+data/Legal_Dataset/PDFs/The Punjab Reorganisation Act, 1966.pdf
+data/Legal_Dataset/PDFs/The Punjab Tenancy Act, 1887..pdf
+data/Legal_Dataset/PDFs/The Railway Claims Tribunal Act, 1987.pdf
+data/Legal_Dataset/PDFs/The Railway Property (Unlawful Possession) Act, 1966.pdf
+data/Legal_Dataset/PDFs/The Railway Protection Force Act, 1957.pdf
+data/Legal_Dataset/PDFs/The Railways (Employment of Members of the Armed Forces) Act, 1965.pdf
+data/Legal_Dataset/PDFs/The Railways Act, 1989.pdf
+data/Legal_Dataset/PDFs/The Rajasthan and Madhya Pradesh (Transfer of Territories) Act, 1959.pdf
+data/Legal_Dataset/PDFs/The Rajghat Samadhi Act, 1951.pdf
+data/Legal_Dataset/PDFs/The Rajiv Gandhi Institute of Petroleum Technology Act, 2007.pdf
+data/Legal_Dataset/PDFs/The Rajiv Gandhi National Aviation University Act, 2013.pdf
+data/Legal_Dataset/PDFs/The Rajiv Gandhi National Institute of Youth Development Act, 2012.pdf
+data/Legal_Dataset/PDFs/The Rajiv Gandhi University Act, 2006.pdf
+data/Legal_Dataset/PDFs/The Rampur Raza Library Act, 1975.pdf
+data/Legal_Dataset/PDFs/The Rashtriya Raksha University Act, 2020..pdf
+data/Legal_Dataset/PDFs/The Readjustment of Representation of Scheduled Tribes in Assembly Constituencies of the State of Goa Act, 2025.pdf
+data/Legal_Dataset/PDFs/The Real Estate (Regulation and Development) Act, 2016..pdf
+data/Legal_Dataset/PDFs/The Reciprocity Act, 1943.pdf
+data/Legal_Dataset/PDFs/The Recovery Of Debts And Bankruptcy Act, 1993.pdf
+data/Legal_Dataset/PDFs/The Recycling of Ships Act, 2019.pdf
+data/Legal_Dataset/PDFs/The Regional Centre for Biotechnology Act, 2016..pdf
+data/Legal_Dataset/PDFs/The Regional Rural Banks Act, 1976.pdf
+data/Legal_Dataset/PDFs/The Registration Act, 1908.pdf
+data/Legal_Dataset/PDFs/The Registration of Births and Deaths Act, 1969.pdf
+data/Legal_Dataset/PDFs/The Rehabilitation Council of India Act, 1992.pdf
+data/Legal_Dataset/PDFs/The Rehabilitation Finance Administration Act, 1948.pdf
+data/Legal_Dataset/PDFs/The Religious endowments act, 1863.pdf
+data/Legal_Dataset/PDFs/The Religious Institutions (Prevention of Misuse) Act, 1988.pdf
+data/Legal_Dataset/PDFs/The Religious Societies Act, 1880.pdf
+data/Legal_Dataset/PDFs/The Remittances of Foreign Exchange and Investment in Foreign Exchange Bonds (Immunities and Exemptions) Act, 1991.pdf
+data/Legal_Dataset/PDFs/The Rent Recovery Act, 1853.pdf
+data/Legal_Dataset/PDFs/The Repatriation of Prisoners Act, 2003.pdf
+data/Legal_Dataset/PDFs/The Repealing and Amending (Second) Act, 2015.pdf
+data/Legal_Dataset/PDFs/The Repealing and Amending Act (Second) Act, 2017.pdf
+data/Legal_Dataset/PDFs/The Repealing and Amending Act, 2015.pdf
+data/Legal_Dataset/PDFs/The Repealing and Amending Act, 2016.pdf
+data/Legal_Dataset/PDFs/The Repealing and Amending Act, 2017.pdf
+data/Legal_Dataset/PDFs/The Repealing and Amending Act, 2019.pdf
+data/Legal_Dataset/PDFs/The Repealing and Amending Act, 2023.pdf
+data/Legal_Dataset/PDFs/The Repealing and Amending Act, 2025.pdf
+data/Legal_Dataset/PDFs/The Representation of the People Act, 1950.pdf
+data/Legal_Dataset/PDFs/The Representation of the People Act, 1951.pdf
+data/Legal_Dataset/PDFs/The Requisitioning and Acquisition of Immovable Property Act, 1952.pdf
+data/Legal_Dataset/PDFs/The Reserve and Auxiliary Air Forces Act, 1952.pdf
+data/Legal_Dataset/PDFs/The Reserve Bank (Transfer to Public Ownership) Act, 1948.pdf
+data/Legal_Dataset/PDFs/The Reserve Bank of India Act, 1934.pdf
+data/Legal_Dataset/PDFs/The Revenue Commissioners, Bombay Act, 1842.pdf
+data/Legal_Dataset/PDFs/The Revenue Recovery Act, 1890.pdf
+data/Legal_Dataset/PDFs/The Revenue, Bombay, 1842.pdf
+data/Legal_Dataset/PDFs/The Richardson and Cruddas Limited (Acquisition and Transfer of Undertaking) Act, 1972.pdf
+data/Legal_Dataset/PDFs/The Right of Children to Free and Compulsory Education Act, 2009.pdf
+data/Legal_Dataset/PDFs/The Right to Fair Compensation and Transparency in Land Acquisition, Rehabilitation and Resettlement Act, 2013.pdf
+data/Legal_Dataset/PDFs/The Right to Information Act, 2005.pdf
+data/Legal_Dataset/PDFs/The Rights of Persons with Disabilities Act, 2016..pdf
+data/Legal_Dataset/PDFs/The River Boards Act, 1956.pdf
+data/Legal_Dataset/PDFs/The Road Transport Corporations Act, 1950.pdf
+data/Legal_Dataset/PDFs/The Rubber Act, 1947.pdf
+data/Legal_Dataset/PDFs/The SAARC Convention (Suppression of Terrorism) Act, 1993.pdf
+data/Legal_Dataset/PDFs/The Salar Jung Museum Act, 1961.pdf
+data/Legal_Dataset/PDFs/The Salaries and Allowances of Ministers Act, 1952.pdf
+data/Legal_Dataset/PDFs/The Salaries and Allowances of Officers of Parliament Act, 1953.pdf
+data/Legal_Dataset/PDFs/The Salary and Allowances of Leaders of Opposition in Parliament Act, 1977.pdf
+data/Legal_Dataset/PDFs/The Salary, Allowances and Pension of Members of Parliament Act, 1954.pdf
+data/Legal_Dataset/PDFs/The Sale of Goods Act, 1930.pdf
+data/Legal_Dataset/PDFs/The Sarais' Act, 1867.pdf
+data/Legal_Dataset/PDFs/The Sashastra Seema Bal Act, 2007.pdf
+data/Legal_Dataset/PDFs/The Scheduled Areas (Assimilation of Laws) Act, 1951.pdf
+data/Legal_Dataset/PDFs/The Scheduled Areas (Assimilation of Laws) Act, 1953.pdf
+data/Legal_Dataset/PDFs/The Scheduled Castes and the Scheduled Tribes (Prevention of Atrocities) Act, 1989.pdf
+data/Legal_Dataset/PDFs/The Scheduled Securities (Hyderabad) Act,1949.pdf
+data/Legal_Dataset/PDFs/The Scheduled Tribes and Other Traditional Forest Dwellers (Recognition of Forest Rights) Act, 2006.pdf
+data/Legal_Dataset/PDFs/The School of Planning and Architecture Act, 2014.pdf
+data/Legal_Dataset/PDFs/The Seamen's Provident Fund Act, 1966.pdf
+data/Legal_Dataset/PDFs/The Seaward Artillery Practice Act, 1949.pdf
+data/Legal_Dataset/PDFs/The Securities and Exchange Board of India Act, 1992.pdf
+data/Legal_Dataset/PDFs/The Securities Contracts (Regulation) Act, 1956.pdf
+data/Legal_Dataset/PDFs/The Securitisation and Reconstruction of Financial Assets and Enforcement of Security Interest Act, 2002.pdf
+data/Legal_Dataset/PDFs/The Seeds Act, 1966.pdf
+data/Legal_Dataset/PDFs/The Semiconductor Integrated Circuits Layout-Design Act, 2000.pdf
+data/Legal_Dataset/PDFs/The Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013.pdf
+data/Legal_Dataset/PDFs/The Shillong (Rifle Range and Umlong) Cantonments Assimilation of Laws Act, 1954.pdf
+data/Legal_Dataset/PDFs/The Shore Nuisances (Bombay and Kotaba) Act, 1853.pdf
+data/Legal_Dataset/PDFs/The Sick Industrial Companies (Special Provisions) Repeal Act, 2003.pdf
+data/Legal_Dataset/PDFs/The Sick Textile Undertakings (Nationalisation) Act, 1974.pdf
+data/Legal_Dataset/PDFs/The Sikh Gurdwaras (Supplementary) Act, 1925..pdf
+data/Legal_Dataset/PDFs/The Sikkim University Act, 2006.pdf
+data/Legal_Dataset/PDFs/The Sir Dinshaw Manockjee Petit Act, 1893.pdf
+data/Legal_Dataset/PDFs/The Sir Jamsetjee Jejeebhoy Baronetcy Act, 1915.pdf
+data/Legal_Dataset/PDFs/The Slum Areas (Improvement and Clearance) Act, 1956.pdf
+data/Legal_Dataset/PDFs/The Small Industries Development Bank of India Act, 1989.pdf
+data/Legal_Dataset/PDFs/The Smugglers and Foreign Exchange Manipulators (Forfeiture of Property) Act, 1976.pdf
+data/Legal_Dataset/PDFs/The Societies Registration Act, 1860.pdf
+data/Legal_Dataset/PDFs/The South Asian University Act, 2008.pdf
+data/Legal_Dataset/PDFs/The Special Court (Trial of Offences Relating to Transactions in Securities) Act, 1992.pdf
+data/Legal_Dataset/PDFs/The Special Criminal Courts (Jurisdiction) Act, 1950.pdf
+data/Legal_Dataset/PDFs/The Special Economic Zones Act, 2005.pdf
+data/Legal_Dataset/PDFs/The Special Marriage Act, 1954.pdf
+data/Legal_Dataset/PDFs/The Special Protection Group Act, 1988.pdf
+data/Legal_Dataset/PDFs/The Specific Relief Act, 1963.pdf
+data/Legal_Dataset/PDFs/The Specified Bank Notes (Cessation of Liabilities) Act, 2017.pdf
+data/Legal_Dataset/PDFs/The Spices Board Act, 1986.pdf
+data/Legal_Dataset/PDFs/The Sports Broadcasting Signals (Mandatory Sharing with PrasarBharati) Act, 2007.pdf
+data/Legal_Dataset/PDFs/The Sree Chitra Tirunal Institute for Medical Sciences and Technology, Trivandrum Act, 1980.pdf
+data/Legal_Dataset/PDFs/The Stage-Carriages Act, 1861.pdf
+data/Legal_Dataset/PDFs/The State-Associated Banks (Miscellaneous Provisions) Act, 1962.pdf
+data/Legal_Dataset/PDFs/The State Armed Police Forces (Extension of Laws) Act, 1952.pdf
+data/Legal_Dataset/PDFs/The State Bank of India Act, 1955.pdf
+data/Legal_Dataset/PDFs/The State Bank of Sikkim (Acquisition of Shares) and Miscellaneous Provisions Act, 1982.pdf
+data/Legal_Dataset/PDFs/The State Emblem of India (Prohibition of Improper Use) Act, 2005.pdf
+data/Legal_Dataset/PDFs/The State Financial Corporations Act, 1951.pdf
+data/Legal_Dataset/PDFs/The State of Arunachal Pradesh Act, 1986.pdf
+data/Legal_Dataset/PDFs/The State of Himachal Pradesh Act, 1970.pdf
+data/Legal_Dataset/PDFs/The State of Mizoram Act, 1986.pdf
+data/Legal_Dataset/PDFs/The State of Nagaland Act, 1962.pdf
+data/Legal_Dataset/PDFs/The States Reorganisation Act, 1956.pdf
+data/Legal_Dataset/PDFs/The Street Vendors (Protection of Livelihood and Regulation of Street Vending) Act, 2014.pdf
+data/Legal_Dataset/PDFs/The Sugar Development Fund Act, 1982.pdf
+data/Legal_Dataset/PDFs/The Sugar Export Promotion Act, 1958.pdf
+data/Legal_Dataset/PDFs/The Suits Valuation Act, 1887.pdf
+data/Legal_Dataset/PDFs/The Suppression of Unlawful Acts against Safety of Civil Aviation Act, 1982.pdf
+data/Legal_Dataset/PDFs/The Suppression of Unlawful Acts Against Safety of Maritime Navigation and Fixed Platforms on Continental Shelf Act, 2002.pdf
+data/Legal_Dataset/PDFs/The Supreme Court (Enlargement of Criminal Appellate Jurisdiction) Act, 1970.pdf
+data/Legal_Dataset/PDFs/The Supreme Court (Number of Judges) Act, 1956.pdf
+data/Legal_Dataset/PDFs/The Supreme Court Judges (Salaries and Conditions of Service) Act, 1958.pdf
+data/Legal_Dataset/PDFs/The Surrogacy (Regulation) Act, 2021.pdf
+data/Legal_Dataset/PDFs/The Swadeshi Cotton Mills Company Limited (Acquisition and Transfer of Undertakings) Act, 1986.pdf
+data/Legal_Dataset/PDFs/The Tamil Nadu Legislative Council Act, 2010.pdf
+data/Legal_Dataset/PDFs/The Taxation Laws (Continuation and Validation of Recovery Proceedings) Act, 1964.pdf
+data/Legal_Dataset/PDFs/The Taxation Laws (Extension to Jammu and Kashmir) Act, 1972.pdf
+data/Legal_Dataset/PDFs/The Tea Act, 1953.pdf
+data/Legal_Dataset/PDFs/The Technology Development Board Act, 1995.pdf
+data/Legal_Dataset/PDFs/The Telecom Regulatory Authority of India Act, 1997.pdf
+data/Legal_Dataset/PDFs/The Telecommunications Act, 2023..pdf
+data/Legal_Dataset/PDFs/The Territorial Army Act, 1948.pdf
+data/Legal_Dataset/PDFs/The Territorial Waters, Continental Shelf, Exclusive Economic Zone and Other Maritime Zones Act, 1976.pdf
+data/Legal_Dataset/PDFs/The Terrorist Affected Areas (Special Courts) Act, 1984.pdf
+data/Legal_Dataset/PDFs/The Textile Undertakings (Nationalisation) Act, 1995.pdf
+data/Legal_Dataset/PDFs/The Textiles Committee Act, 1963.pdf
+data/Legal_Dataset/PDFs/The Tezpur University Act, 1993.pdf
+data/Legal_Dataset/PDFs/The Tobacco Board Act, 1975.pdf
+data/Legal_Dataset/PDFs/The Tokyo Convention Act, 1975.pdf
+data/Legal_Dataset/PDFs/The Trade Marks Act, 1999.pdf
+data/Legal_Dataset/PDFs/The Transfer of Prisoners Act, 1950.pdf
+data/Legal_Dataset/PDFs/The Transfer of Property Act, 1882.pdf
+data/Legal_Dataset/PDFs/The Transgender Persons (Protection of Rights) Act, 2019..pdf
+data/Legal_Dataset/PDFs/The Transplantation of Human Organs and Tissues Act, 1994.pdf
+data/Legal_Dataset/PDFs/The Tribhuvan Sahkari University Act, 2025.pdf
+data/Legal_Dataset/PDFs/The Tribunals Reforms Act, 2026.pdf
+data/Legal_Dataset/PDFs/The Tripura Land Revenue and Land Reforms Act, 1960.pdf
+data/Legal_Dataset/PDFs/The Tripura University Act, 2006.pdf
+data/Legal_Dataset/PDFs/The Tyre Corporation of India Limited (Disinvestment of Ownership) Act, 2007.pdf
+data/Legal_Dataset/PDFs/The Unified Waqf Management, Empowerment, Efficiency and Development Act, 1995.pdf
+data/Legal_Dataset/PDFs/The Union Duties of Excise (Distribution) Act, 1979.pdf
+data/Legal_Dataset/PDFs/The Union Territories (Direct Election to the House of the People) Act, 1965.pdf
+data/Legal_Dataset/PDFs/The Union Territories (Laws) Act, 1950.pdf
+data/Legal_Dataset/PDFs/The Union Territories (Separation of Judicial and Executive Functions) Act, 1969.pdf
+data/Legal_Dataset/PDFs/The Union Territories (Stamp and Court-fees Laws) Act, 1961.pdf
+data/Legal_Dataset/PDFs/The Union Territory Goods and Services Tax Act, 2017.pdf
+data/Legal_Dataset/PDFs/The Unit Trust of India (Transfer of Undertaking and Repeal) Act, 2002.pdf
+data/Legal_Dataset/PDFs/The United Nations (Privileges and Immunities) Act, 1947.pdf
+data/Legal_Dataset/PDFs/The United Nations (Security Council) Act, 1947.pdf
+data/Legal_Dataset/PDFs/The University Grants Commission Act, 1956.pdf
+data/Legal_Dataset/PDFs/The University of Allahabad Act, 2005.pdf
+data/Legal_Dataset/PDFs/The University of Hyderabad Act, 1974.pdf
+data/Legal_Dataset/PDFs/The Unlawful Activities (Prevention) Act, 1967.pdf
+data/Legal_Dataset/PDFs/The Urban Land (Ceiling and Regulation) Repeal Act, 1999.pdf
+data/Legal_Dataset/PDFs/The Usurious Loans Act, 1918.pdf
+data/Legal_Dataset/PDFs/The Uttar Pradesh Reorganisation Act, 2000.pdf
+data/Legal_Dataset/PDFs/The Uttaranchal (Alteration of Name) Act, 2006.pdf
+data/Legal_Dataset/PDFs/The Van (Sanrakshan Evam Samvardhan) Adhiniyam, 1980.pdf
+data/Legal_Dataset/PDFs/The Vice-President s Pension Act, 1997.pdf
+data/Legal_Dataset/PDFs/The Victoria Memorial Act, 1903.pdf
+data/Legal_Dataset/PDFs/The Visva-Bharati Act, 1951.pdf
+data/Legal_Dataset/PDFs/The Voluntary Surrender of Salaries (Exemption from Taxation) Act, 1961.pdf
+data/Legal_Dataset/PDFs/The Warehousing (Development and Regulation) Act, 2007.pdf
+data/Legal_Dataset/PDFs/The Warehousing Corporations (Supplementary) Act, 1965.pdf
+data/Legal_Dataset/PDFs/The Warehousing Corporations Act, 1962.pdf
+data/Legal_Dataset/PDFs/The Waste-Lands (Claims) Act, 1863.pdf
+data/Legal_Dataset/PDFs/The Water (Prevention and Control of Pollution) Act, 1974.pdf
+data/Legal_Dataset/PDFs/The Wealth-tax Act, 1957.pdf
+data/Legal_Dataset/PDFs/The Weapons of Mass Destruction and their Delivery Systems (Prohibition of Unlawful Activities) Act, 2005.pdf
+data/Legal_Dataset/PDFs/The West Godavari District (Assimilation of Laws on Federal Subjects) Act, 1949.pdf
+data/Legal_Dataset/PDFs/The White Phosphorus Matches Prohibition Act, 1913.pdf
+data/Legal_Dataset/PDFs/The Wild Life (Protection) Act, 1972.pdf
+data/Legal_Dataset/PDFs/The Works of Defence Act, 1903.pdf
+data/Legal_Dataset/PDFs/Tobacco Duty (Town of Bombay) Act, 1857.pdf
+data/Maharashtra_Laws/extracted_text/Hyderabad_Atiyat_Inquiries_Act_1952.txt
+data/Maharashtra_Laws/extracted_text/Maharashtra_Industrial_Relations_Act.txt
+data/Maharashtra_Laws/extracted_text/Maharashtra_Lokayukta_Act_2023.txt
+data/Maharashtra_Laws/extracted_text/Maharashtra_Revenue_Patels_Abolition_Office_Act_1962.pdf.txt
+data/Maharashtra_Laws/extracted_text/Maharashtra_State_Tax_on_Professions_Trades_Callings_Employments_Act_1975.pdf.txt
+data/Maharashtra_Laws/PDFs/Hyderabad_Atiyat_Inquiries_Act_1952.pdf
+data/Maharashtra_Laws/PDFs/Maharashtra_Industrial_Relations_Act.pdf
+data/Maharashtra_Laws/PDFs/Maharashtra_Lokayukta_Act_2023.pdf
+data/Maharashtra_Laws/PDFs/Maharashtra_Revenue_Patels_Abolition_Office_Act_1962.pdf.pdf
+data/Maharashtra_Laws/PDFs/Maharashtra_State_Tax_on_Professions_Trades_Callings_Employments_Act_1975.pdf.pdf
+database/articles.json
+database/articles_nlp.json
+database/Authentication/authentication_index.sql
+database/Authentication/authentication_verify.sql
+database/Authentication/insert_roles.sql
+database/Authentication/login_sessions.sql
+database/Authentication/password_resets.sql
+database/Authentication/roles.sql
+database/Authentication/user_profiles.sql
+database/Authentication/user_roles.sql
+database/Authentication/users.sql
+database/Authorities/authorities.sql
+database/Authorities/authority_index.sql
+database/Authorities/authority_verify.sql
+database/Authorities/case_authorities.sql
+database/Case_management/case_classifications.sql
+database/Case_management/case_keywords.sql
+database/Case_management/case_legal_sections.sql
+database/Case_management/case_updates.sql
+database/Case_management/cases.sql
+database/Complaint/complaints.sql
+database/Complaint/complaints_index.sql
+database/Complaint/complaints_verify.sql
+database/Constitution.pdf
+database/constitution_clean.txt
+database/constitution_raw.txt
+database/constitution_structured.json
+database/emotion/case_emotions.sql
+database/emotion/emotion_index.sql
+database/emotion/emotion_responces.sql
+database/emotion/emotion_verify.sql
+database/Lawyer/case_lawyer_refferals.sql
+database/Lawyer/lawyer.sql
+database/Lawyer/lawyer_index.sql
+database/Lawyer/lawyer_languages.sql
+database/Lawyer/lawyer_locations.sql
+database/Lawyer/lawyer_specializations.sql
+database/Lawyer/lawyer_verify.sql
+database/Lawyer/legal_aid_organizations.sql
+database/Legal_Dataset/keyword_concepts.sql
+database/Legal_Dataset/keyword_mapping.sql
+database/Legal_Dataset/keyword_synonyms.sql
+database/Legal_Dataset/keywords.sql
+database/Legal_Dataset/laws.sql
+database/Legal_Dataset/legal_concepts.sql
+database/Legal_Dataset/sections.sql
+database/reminder/index.sql
+database/reminder/notifications.sql
+database/reminder/reminders.sql
+database/reminder/verify.sql
+database/Rights/case_rights.sql
+database/Rights/rights.sql
+database/Rights/section_right_mappings.sql
+database/Security/audit_logs.sql
+database/Security/feedback.sql
+database/Security/security_index.sql
+database/Security/security_verify.sql
+docs/legal_dataset_canonical_resolution_validation_report.md
+docs/legal_dataset_database_mapping.md
+docs/legal_dataset_ingestion_conflict_report.md
+docs/legal_dataset_ingestion_dry_run_report.md
+docs/legal_dataset_ingestion_safety_review.md
+docs/legal_dataset_ingestion_workflow.md
+docs/legal_dataset_migration_execution_report.md
+docs/legal_dataset_migration_safety_review.md
+extracted_text.py
+README.md
+scripts/analyze_font_sizes.py
+scripts/build_multilingual_layer.py
+scripts/clean_text.py
+scripts/create_maharashtra_mvp.py
+scripts/debug_search.py
+scripts/download_central_acts.py
+scripts/download_maharashtra_acts.py
+scripts/extract_articles.py
+scripts/extract_laws.py
+scripts/extract_maharashtra_pdfs.py
+scripts/find_schedules.py
+scripts/identify_maharashtra_pdfs.py
+scripts/import_all_sections.py
+scripts/import_constitution.py
+scripts/import_laws.py
+scripts/import_maharashtra_sections.py
+scripts/ingest_legal_staging.py
+scripts/insert_keywords.py
+scripts/inspect_art_246.py
+scripts/inspect_db_state.py
+scripts/inspect_duplicates.py
+scripts/inspect_footnote_lines.py
+scripts/inspect_p60.py
+scripts/inspect_sched_headings.py
+scripts/nlp_process.py
+scripts/parse_constitution.py
+scripts/parse_constitution_diglot.py
+scripts/parse_maharashtra_mvp.py
+scripts/run_migration_002.py
+scripts/section_import_errors.txt
+scripts/test_font_spans.py
+scripts/test_refined_tokens.py
+scripts/test_schedules.py
+scripts/test_section_parser.py
+scripts/test_span_extraction.py
+scripts/test_stream_extraction.py
+scripts/test_title_matching.py
+scripts/validate_extracted_articles.py
+section_import_errors.txt

@@ -7,7 +7,10 @@ relevance ranking and query understanding integration.
 """
 
 from typing import Optional, List, Any
-from psycopg2.extras import RealDictCursor
+try:
+    from psycopg2.extras import RealDictCursor
+except ImportError:
+    RealDictCursor = Any  # type: ignore
 
 from app.schemas.search import SearchResponse, SearchResultItem
 from app.services.query_service import LegalQueryService, STOPWORDS
@@ -257,7 +260,9 @@ class LegalSearchService:
                     source_pdf=row.get("source_pdf"),
                     source_page_start=row.get("source_page_start"),
                     source_page_end=row.get("source_page_end"),
-                    manual_review_required=row.get("manual_review_required", False)
+                    manual_review_required=row.get("manual_review_required", False),
+                    rank_score=row.get("rank_score"),
+                    rank_reason=row.get("rank_reason")
                 )
             )
 

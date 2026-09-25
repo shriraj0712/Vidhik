@@ -10,7 +10,10 @@ All database queries are read-only and strictly parameterized.
 
 import re
 from typing import Optional, List, Set, Dict, Any, Tuple
-from psycopg2.extras import RealDictCursor
+try:
+    from psycopg2.extras import RealDictCursor
+except ImportError:
+    RealDictCursor = Any  # type: ignore
 
 from app.schemas.query import (
     LegalQueryAnalysis,

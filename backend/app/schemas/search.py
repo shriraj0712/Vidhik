@@ -25,6 +25,8 @@ class SearchResultItem(BaseModel):
     source_page_start: Optional[int] = Field(default=None, description="Starting page in source document")
     source_page_end: Optional[int] = Field(default=None, description="Ending page in source document")
     manual_review_required: Optional[bool] = Field(default=False, description="Flag indicating if OCR/extraction requires review")
+    rank_score: Optional[float] = Field(default=None, description="Deterministic legal relevance score")
+    rank_reason: Optional[str] = Field(default=None, description="Deterministic explanation of primary ranking factor")
 
 
 class SearchResponse(BaseModel):
