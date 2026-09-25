@@ -6,6 +6,13 @@ from .law import LawResponse, LawSummaryResponse, LawListResponse
 from .section import SectionResponse, SectionSummaryResponse, SectionListResponse
 from .search import SearchResponse, SearchResultItem
 from .query import LegalQueryAnalysis, MatchedTerm, MatchedConcept, MatchedSynonym
+from .rag import (
+    LegalSourceCitation,
+    RetrievedSectionContext,
+    RetrievalMetadata,
+    RAGQueryRequest,
+    RAGResponse
+)
 
 __all__ = [
     "LawResponse",
@@ -19,7 +26,12 @@ __all__ = [
     "LegalQueryAnalysis",
     "MatchedTerm",
     "MatchedConcept",
-    "MatchedSynonym"
+    "MatchedSynonym",
+    "LegalSourceCitation",
+    "RetrievedSectionContext",
+    "RetrievalMetadata",
+    "RAGQueryRequest",
+    "RAGResponse"
 ]
 
 

@@ -11,7 +11,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import init_db_pool, close_db_pool
-from app.routers import health_router, laws_router, sections_router, search_router
+from app.routers import health_router, laws_router, sections_router, search_router, rag_router
 
 
 @asynccontextmanager
@@ -35,6 +35,7 @@ app = FastAPI(
     - **Laws**: Search, filter, and inspect Central and State Acts.
     - **Sections**: Paginated queries, title search, and detailed section inspection.
     - **Search**: Multi-field legal search across statutes, section numbers, titles, and legal text.
+    - **RAG**: Grounded legal question answering and knowledge retrieval with verified citations.
     
     *All database interactions are strictly read-only and consume environment-driven configurations.*
     """,
@@ -52,7 +53,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins if allowed_origins else ["*"],
     allow_credentials=True,
-    allow_methods=["GET", "OPTIONS"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -61,6 +62,7 @@ app.include_router(health_router)
 app.include_router(laws_router)
 app.include_router(sections_router)
 app.include_router(search_router)
+app.include_router(rag_router)
 
 
 @app.get("/", tags=["Root"], summary="API Root Overview")
@@ -80,7 +82,9 @@ def root():
             "law_detail": "GET /api/laws/{law_id}",
             "sections_list": "GET /api/sections",
             "section_detail": "GET /api/sections/{section_id}",
-            "legal_search": "GET /api/search"
+            "legal_search": "GET /api/search",
+            "rag_query": "POST /api/rag/query",
+            "rag_health": "GET /api/rag/health"
         }
     }
 
