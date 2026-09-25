@@ -11,7 +11,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import init_db_pool, close_db_pool
-from app.routers import health_router, laws_router, sections_router, search_router, rag_router
+from app.routers import (
+    health_router,
+    laws_router,
+    sections_router,
+    search_router,
+    rag_router,
+    assistant_router
+)
 
 
 @asynccontextmanager
@@ -36,6 +43,7 @@ app = FastAPI(
     - **Sections**: Paginated queries, title search, and detailed section inspection.
     - **Search**: Multi-field legal search across statutes, section numbers, titles, and legal text.
     - **RAG**: Grounded legal question answering and knowledge retrieval with verified citations.
+    - **Assistant**: Conversational AI legal assistance with follow-up context and statutory grounding.
     
     *All database interactions are strictly read-only and consume environment-driven configurations.*
     """,
@@ -63,6 +71,7 @@ app.include_router(laws_router)
 app.include_router(sections_router)
 app.include_router(search_router)
 app.include_router(rag_router)
+app.include_router(assistant_router)
 
 
 @app.get("/", tags=["Root"], summary="API Root Overview")
@@ -84,7 +93,9 @@ def root():
             "section_detail": "GET /api/sections/{section_id}",
             "legal_search": "GET /api/search",
             "rag_query": "POST /api/rag/query",
-            "rag_health": "GET /api/rag/health"
+            "rag_health": "GET /api/rag/health",
+            "assistant_chat": "POST /api/assistant/chat",
+            "assistant_health": "GET /api/assistant/health"
         }
     }
 

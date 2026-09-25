@@ -13,6 +13,11 @@ from .rag import (
     RAGQueryRequest,
     RAGResponse
 )
+from .assistant import (
+    ChatMessage,
+    AssistantChatRequest,
+    AssistantChatResponse
+)
 
 __all__ = [
     "LawResponse",
@@ -31,7 +36,10 @@ __all__ = [
     "RetrievedSectionContext",
     "RetrievalMetadata",
     "RAGQueryRequest",
-    "RAGResponse"
+    "RAGResponse",
+    "ChatMessage",
+    "AssistantChatRequest",
+    "AssistantChatResponse"
 ]
 
 
