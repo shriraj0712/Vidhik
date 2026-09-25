@@ -75,6 +75,10 @@ const App = {
       });
     }
 
+    // Mobile Menu & Backdrop
+    document.getElementById('btn-mobile-menu-toggle')?.addEventListener('click', () => this.toggleMobileSidebar());
+    document.getElementById('mobile-backdrop')?.addEventListener('click', () => this.closeMobileSidebar());
+
     // Logout
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
@@ -185,6 +189,76 @@ const App = {
   },
 
   // -------------------------------------------------------------
+  // MOBILE NAVIGATION & HEADER HELPERS
+  // -------------------------------------------------------------
+  toggleMobileSidebar() {
+    const sb = document.querySelector('.sidebar');
+    const bd = document.getElementById('mobile-backdrop');
+    if (sb) sb.classList.toggle('open');
+    if (bd) bd.classList.toggle('active');
+  },
+
+  closeMobileSidebar() {
+    const sb = document.querySelector('.sidebar');
+    const bd = document.getElementById('mobile-backdrop');
+    if (sb) sb.classList.remove('open');
+    if (bd) bd.classList.remove('active');
+  },
+
+  handleCitizenQuickSearch(e) {
+    if (e) e.preventDefault();
+    const input = document.getElementById('citizen-quick-search-input');
+    if (!input) return;
+    const q = input.value.trim();
+    if (!q) {
+      this.showToast('Please enter a search query.', 'error');
+      return;
+    }
+    this.navigate('research');
+    const rInput = document.getElementById('research-query-input');
+    if (rInput) rInput.value = q;
+    this.handleLegalSearch();
+  },
+
+  handleLawyerQuickSearch(e) {
+    if (e) e.preventDefault();
+    const input = document.getElementById('lawyer-quick-search-input');
+    if (!input) return;
+    const q = input.value.trim();
+    if (!q) {
+      this.showToast('Please enter a search query.', 'error');
+      return;
+    }
+    this.navigate('research');
+    const rInput = document.getElementById('research-query-input');
+    if (rInput) rInput.value = q;
+    this.handleLegalSearch();
+  },
+
+  navigateToCurrentProfile() {
+    if (!this.user) return;
+    if (this.user.role === 'lawyer') {
+      this.navigate('profile');
+    } else {
+      this.navigate('citizen-profile');
+    }
+  },
+
+  navigateToNotifications(e) {
+    if (e) e.preventDefault();
+    const popover = document.getElementById('notifications-popover');
+    if (popover) {
+      popover.classList.remove('active');
+      popover.style.display = 'none';
+    }
+    if (this.user && (this.user.role === 'user' || this.user.role === 'citizen')) {
+      this.navigate('citizen-notifications');
+    } else {
+      this.showToast('Notifications are displayed in the Lawyer Dashboard activity feed.', 'info');
+    }
+  },
+
+  // -------------------------------------------------------------
   // API HELPER
   // -------------------------------------------------------------
   async api(endpoint, method = 'GET', body = null) {
@@ -200,6 +274,13 @@ const App = {
 
     const res = await fetch(endpoint, options);
     if (!res.ok) {
+      if (res.status === 401 && this.token && !endpoint.includes('/api/auth/login')) {
+        this.token = null;
+        this.user = null;
+        localStorage.removeItem('vidhik_token');
+        this.showLogin();
+        this.showToast('Session expired or unauthorized. Please sign in again.', 'error');
+      }
       let errorMsg = `API Error (${res.status})`;
       try {
         const errJson = await res.json();
@@ -360,6 +441,14 @@ const App = {
     if (nameEl) nameEl.innerText = this.user.full_name;
     if (roleEl) roleEl.innerText = (this.user.role === 'lawyer') ? 'Verified Advocate' : 'Citizen Account';
 
+    // Top Header User Chip
+    const hAvatar = document.getElementById('header-avatar');
+    const hName = document.getElementById('header-user-name');
+    const hRole = document.getElementById('header-user-role');
+    if (hAvatar) hAvatar.innerText = initials;
+    if (hName) hName.innerText = this.user.full_name;
+    if (hRole) hRole.innerText = (this.user.role === 'lawyer') ? 'Advocate' : 'Citizen';
+
     const dashGreeting = document.getElementById('dash-greeting-name');
     if (dashGreeting) dashGreeting.innerText = this.user.full_name;
     const citizenGreeting = document.getElementById('dash-citizen-greeting-name');
@@ -370,11 +459,12 @@ const App = {
   // ROUTING & NAVIGATION
   // -------------------------------------------------------------
   navigate(viewName) {
+    this.closeMobileSidebar();
     const isCitizen = this.user && (this.user.role === 'user' || this.user.role === 'citizen');
 
     // Strict role redirection for view access
     const lawyerOnlyViews = ['dashboard', 'clients', 'cases', 'documents', 'hearings', 'profile'];
-    const citizenOnlyViews = ['citizen-dashboard', 'citizen-cases', 'citizen-case-detail', 'citizen-documents', 'citizen-bookmarks', 'citizen-profile'];
+    const citizenOnlyViews = ['citizen-dashboard', 'citizen-cases', 'citizen-case-detail', 'citizen-documents', 'citizen-bookmarks', 'citizen-search-history', 'citizen-notifications', 'citizen-profile'];
 
     if (isCitizen && lawyerOnlyViews.includes(viewName)) {
       viewName = 'citizen-dashboard';
@@ -447,6 +537,12 @@ const App = {
         break;
       case 'citizen-bookmarks':
         this.loadCitizenBookmarks();
+        break;
+      case 'citizen-search-history':
+        this.loadSearchHistory();
+        break;
+      case 'citizen-notifications':
+        this.loadNotificationsView();
         break;
       case 'citizen-profile':
         this.loadCitizenProfile();
@@ -2425,6 +2521,117 @@ const App = {
         }
       }
 
+      // Render Recent Documents
+      const dList = document.getElementById('citizen-dash-documents-list');
+      if (dList) {
+        if (!data.recent_documents || data.recent_documents.length === 0) {
+          dList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No case documents uploaded yet. Use "+ Upload Doc" to attach case records.</div></div>';
+        } else {
+          dList.innerHTML = data.recent_documents.map(d => `
+            <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-weight: 500; font-size: 13.5px; color: var(--text-primary);">📄 ${this.escape(d.document_name)}</div>
+                <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">
+                  ${this.escape(d.document_type || 'Case File')} • ${this.escape(d.case_title || 'Legal Matter')}
+                </div>
+              </div>
+              <span class="badge badge-completed">${d.document_type || 'Attached'}</span>
+            </div>
+          `).join('');
+        }
+      }
+
+      // Render Tracked Procedure Progress
+      try {
+        const procData = await this.api('/api/citizen/procedures');
+        const pList = document.getElementById('citizen-dash-procedures-list');
+        if (pList) {
+          const procs = procData.procedures || [];
+          const activeProcs = procs.filter(p => (p.completed_count || 0) > 0 || p.is_tracked);
+          const displayProcs = activeProcs.length > 0 ? activeProcs : procs.slice(0, 3);
+          if (displayProcs.length === 0) {
+            pList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No procedures explored yet. Explore Procedure Checklists to track requirements.</div></div>';
+          } else {
+            pList.innerHTML = displayProcs.map(p => {
+              const comp = p.completed_count || 0;
+              const tot = p.required_docs_count || (p.documents ? p.documents.length : 1);
+              const pct = tot > 0 ? Math.round((comp / tot) * 100) : 0;
+              return `
+                <div class="procedure-progress-card" style="cursor: pointer;" onclick="App.openProcedureChecklist(${p.procedure_id})">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong style="font-size: 13.5px; color: #F8FAFC;">${this.escape(p.procedure_name)}</strong>
+                    <span style="font-size: 12px; color: var(--accent-cyan); font-weight: 600;">${pct}% Complete</span>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill" style="width: ${pct}%;"></div>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 6px;">
+                    <span>${comp} of ${tot} documents ready</span>
+                    <span>${this.escape(p.category_name || 'Legal Process')}</span>
+                  </div>
+                </div>
+              `;
+            }).join('');
+          }
+        }
+      } catch (procErr) {
+        console.warn('Could not load procedures for dashboard:', procErr);
+      }
+
+      // Render Saved Provisions
+      try {
+        const bmData = await this.api('/api/citizen/bookmarks');
+        const bList = document.getElementById('citizen-dash-bookmarks-list');
+        if (bList) {
+          const bms = Array.isArray(bmData) ? bmData : [];
+          if (bms.length === 0) {
+            bList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No saved provisions yet. Bookmark statutory sections from Legal Research.</div></div>';
+          } else {
+            bList.innerHTML = bms.slice(0, 4).map(b => `
+              <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="App.viewFullProvisionDetail(${b.section_id})">
+                <div>
+                  <div style="font-weight: 600; font-size: 13.5px; color: #F8FAFC;">Section ${this.escape(b.section_number)}: ${this.escape(b.section_title || '')}</div>
+                  <div style="font-size: 11.5px; color: var(--accent-cyan); margin-top: 2px;">📖 ${this.escape(b.law_name || 'Statute')}</div>
+                </div>
+                <div style="font-size: 11.5px; color: #818CF8;">View →</div>
+              </div>
+            `).join('');
+          }
+        }
+      } catch (bmErr) {
+        console.warn('Could not load bookmarks for dashboard:', bmErr);
+      }
+
+      // Render Recent Legal Searches
+      try {
+        const shData = await this.api('/api/citizen/search-history?limit=4');
+        const sList = document.getElementById('citizen-dash-searches-list');
+        if (sList) {
+          const searches = Array.isArray(shData) ? shData : [];
+          if (searches.length === 0) {
+            sList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No search history yet. Search statutes in Legal Research.</div></div>';
+          } else {
+            sList.innerHTML = `
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                ${searches.map(s => `
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(15, 23, 42, 0.4); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+                    <div>
+                      <span style="font-size: 13px; font-weight: 500; color: #F8FAFC;">🔍 "${this.escape(s.query_text)}"</span>
+                      <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 2px;">
+                        ${s.results_count || 0} provisions matched • ${new Date(s.searched_at).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <button class="search-again-btn" onclick="App.reSearchFromHistory('${this.escape(s.query_text)}', '${this.escape(s.filters && s.filters.jurisdiction ? s.filters.jurisdiction : '')}')">Search Again</button>
+                  </div>
+                `).join('')}
+              </div>
+            `;
+          }
+        }
+      } catch (shErr) {
+        console.warn('Could not load search history for dashboard:', shErr);
+      }
+
       // Render Notifications
       const nList = document.getElementById('citizen-dash-notifs-list');
       if (nList) {
@@ -3035,6 +3242,9 @@ const App = {
     try {
       await this.api(`/api/citizen/notifications/${id}/read`, 'PATCH');
       this.loadNotifications();
+      if (this.currentView === 'citizen-notifications') {
+        this.loadNotificationsView();
+      }
     } catch (err) {
       this.showToast(err.message, 'error');
     }
@@ -3045,8 +3255,204 @@ const App = {
       await this.api('/api/citizen/notifications/read-all', 'POST');
       this.showToast('All notifications marked as read.', 'info');
       this.loadNotifications();
+      if (this.currentView === 'citizen-notifications') {
+        this.loadNotificationsView();
+      }
     } catch (err) {
       this.showToast(err.message, 'error');
+    }
+  },
+
+  // -------------------------------------------------------------
+  // 7. CITIZEN SEARCH HISTORY VIEW
+  // -------------------------------------------------------------
+  citizenSearchHistory: [],
+
+  async loadSearchHistory() {
+    const container = document.getElementById('citizen-search-history-container');
+    if (!container) return;
+    container.innerHTML = '<div class="spinner"></div>';
+
+    try {
+      const data = await this.api('/api/citizen/search-history?limit=50');
+      this.citizenSearchHistory = Array.isArray(data) ? data : [];
+
+      const sbCount = document.getElementById('sidebar-citizen-sh-count');
+      if (sbCount) sbCount.innerText = this.citizenSearchHistory.length;
+
+      this.renderSearchHistoryList(this.citizenSearchHistory);
+    } catch (err) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-state-title">Error Loading History</div><div class="empty-state-desc">${this.escape(err.message)}</div></div>`;
+    }
+  },
+
+  renderSearchHistoryList(items) {
+    const container = document.getElementById('citizen-search-history-container');
+    if (!container) return;
+
+    if (!items || items.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">🔍</div>
+          <div class="empty-state-title">No Search History Found</div>
+          <div class="empty-state-desc">You haven't searched for any statutory provisions yet. Try queries like "anticipatory bail", "cheque bounce", or "consumer grievance".</div>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = items.map(s => `
+      <div class="search-history-card">
+        <div>
+          <div style="font-size: 15px; font-weight: 600; color: #F8FAFC; display: flex; align-items: center; gap: 8px;">
+            <span>🔍</span> "${this.escape(s.query_text)}"
+            ${s.filters && s.filters.jurisdiction ? `<span class="badge badge-active">${this.escape(s.filters.jurisdiction)}</span>` : ''}
+          </div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+            Matched <strong>${s.results_count || 0}</strong> statutory provisions • Searched on ${new Date(s.searched_at).toLocaleString()}
+          </div>
+        </div>
+        <div>
+          <button class="search-again-btn" onclick="App.reSearchFromHistory('${this.escape(s.query_text)}', '${this.escape(s.filters && s.filters.jurisdiction ? s.filters.jurisdiction : '')}')">
+            🔄 Search Again
+          </button>
+        </div>
+      </div>
+    `).join('');
+  },
+
+  filterSearchHistory() {
+    const term = (document.getElementById('citizen-sh-search')?.value || '').toLowerCase().trim();
+    if (!term) {
+      this.renderSearchHistoryList(this.citizenSearchHistory);
+      return;
+    }
+    const filtered = this.citizenSearchHistory.filter(s =>
+      s.query_text.toLowerCase().includes(term) ||
+      (s.filters && JSON.stringify(s.filters).toLowerCase().includes(term))
+    );
+    this.renderSearchHistoryList(filtered);
+  },
+
+  reSearchFromHistory(queryText, jurisdiction) {
+    this.navigate('research');
+    const qInput = document.getElementById('research-query-input');
+    const jSelect = document.getElementById('research-jurisdiction-select');
+    if (qInput) qInput.value = queryText;
+    if (jSelect && jurisdiction) jSelect.value = jurisdiction;
+    this.handleLegalSearch();
+  },
+
+  async clearSearchHistory() {
+    if (!confirm('Are you sure you want to clear your entire legal search history?')) return;
+    try {
+      await this.api('/api/citizen/search-history', 'DELETE');
+      this.showToast('Search history cleared successfully.', 'success');
+      this.citizenSearchHistory = [];
+      const sbCount = document.getElementById('sidebar-citizen-sh-count');
+      if (sbCount) sbCount.innerText = '0';
+      this.renderSearchHistoryList([]);
+    } catch (err) {
+      this.showToast('Failed to clear search history: ' + err.message, 'error');
+    }
+  },
+
+  // -------------------------------------------------------------
+  // 8. CITIZEN NOTIFICATIONS FULL VIEW
+  // -------------------------------------------------------------
+  notifFilterType: 'all',
+
+  async loadNotificationsView() {
+    const container = document.getElementById('citizen-notifications-view-container');
+    if (!container) return;
+    container.innerHTML = '<div class="spinner"></div>';
+
+    try {
+      const data = await this.api('/api/citizen/notifications');
+      this.citizenNotifications = data.notifications || [];
+      this.unreadNotifCount = data.unread_count || 0;
+
+      const badge = document.getElementById('sidebar-citizen-notif-count');
+      if (badge) badge.innerText = this.unreadNotifCount;
+      const countAll = document.getElementById('notif-view-count-all');
+      if (countAll) countAll.innerText = this.citizenNotifications.length;
+      const countUnread = document.getElementById('notif-view-count-unread');
+      if (countUnread) countUnread.innerText = this.unreadNotifCount;
+
+      this.renderNotificationsFullList();
+    } catch (err) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-state-title">Error Loading Notifications</div><div class="empty-state-desc">${this.escape(err.message)}</div></div>`;
+    }
+  },
+
+  filterNotificationsView(type) {
+    this.notifFilterType = type;
+    document.getElementById('btn-notif-tab-all')?.classList.toggle('active', type === 'all');
+    document.getElementById('btn-notif-tab-unread')?.classList.toggle('active', type === 'unread');
+    this.renderNotificationsFullList();
+  },
+
+  renderNotificationsFullList() {
+    const container = document.getElementById('citizen-notifications-view-container');
+    if (!container) return;
+
+    let items = this.citizenNotifications;
+    if (this.notifFilterType === 'unread') {
+      items = items.filter(n => !n.is_read);
+    }
+
+    if (items.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">🔔</div>
+          <div class="empty-state-title">No ${this.notifFilterType === 'unread' ? 'Unread ' : ''}Notifications</div>
+          <div class="empty-state-desc">You are all caught up on case alerts and court date reminders.</div>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = items.map(n => `
+      <div class="notif-full-card ${n.is_read ? '' : 'unread'}">
+        <div style="flex: 1;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+            ${n.is_read ? '' : '<span class="notif-dot"></span>'}
+            <strong style="font-size: 14.5px; color: ${n.is_read ? 'var(--text-secondary)' : '#F8FAFC'};">${this.escape(n.title)}</strong>
+            <span class="badge ${n.is_read ? 'badge-completed' : 'badge-active'}" style="font-size: 10px;">${n.is_read ? 'Read' : 'New'}</span>
+          </div>
+          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin: 6px 0;">${this.escape(n.message)}</p>
+          <div style="font-size: 11px; color: var(--text-muted);">${new Date(n.created_at).toLocaleString()} • ${this.escape(n.notification_type || 'Case Alert')}</div>
+        </div>
+        ${!n.is_read ? `
+          <button class="btn btn-secondary btn-sm" onclick="App.markSingleNotificationRead(${n.notification_id})">
+            ✓ Mark Read
+          </button>
+        ` : ''}
+      </div>
+    `).join('');
+  },
+
+  async markSingleNotificationRead(notifId) {
+    try {
+      await this.api(`/api/citizen/notifications/${notifId}/read`, 'PATCH');
+      this.showToast('Notification marked as read.', 'success');
+      const notif = this.citizenNotifications.find(n => n.notification_id === notifId);
+      if (notif) notif.is_read = true;
+      if (this.unreadNotifCount > 0) this.unreadNotifCount--;
+
+      const badge = document.getElementById('notif-badge');
+      if (badge) {
+        badge.innerText = this.unreadNotifCount;
+        badge.style.display = this.unreadNotifCount > 0 ? 'inline-block' : 'none';
+      }
+      const sbBadge = document.getElementById('sidebar-citizen-notif-count');
+      if (sbBadge) sbBadge.innerText = this.unreadNotifCount;
+      const countUnread = document.getElementById('notif-view-count-unread');
+      if (countUnread) countUnread.innerText = this.unreadNotifCount;
+
+      this.renderNotificationsFullList();
+    } catch (err) {
+      this.showToast('Failed to mark read: ' + err.message, 'error');
     }
   },
 

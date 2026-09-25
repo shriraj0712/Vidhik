@@ -110,6 +110,8 @@
   <!-- 2. MAIN APPLICATION SHELL                                      -->
   <!-- ============================================================== -->
   <div class="app-container" id="app-shell" style="display: none;">
+    <!-- Mobile Backdrop for sidebar drawer -->
+    <div id="mobile-backdrop" class="mobile-backdrop" onclick="App.closeMobileSidebar()"></div>
 
     <!-- SIDEBAR NAVIGATION -->
     <aside class="sidebar">
@@ -186,6 +188,24 @@
           </svg>
           Saved Provisions
           <span class="nav-badge" id="sidebar-citizen-bm-count">0</span>
+        </a>
+
+        <a class="nav-item" data-view="citizen-search-history">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Search History
+          <span class="nav-badge" id="sidebar-citizen-sh-count">0</span>
+        </a>
+
+        <a class="nav-item" data-view="citizen-notifications">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+          Notifications
+          <span class="nav-badge" id="sidebar-citizen-notif-count">0</span>
         </a>
 
         <a class="nav-item" data-view="citizen-profile">
@@ -303,13 +323,21 @@
 
       <!-- TOP HEADER -->
       <header class="top-header">
-        <div class="header-search">
-          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-            style="color: var(--text-muted);">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input type="text" id="global-search-input" placeholder="Quick search cases, statutes, procedures...">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <button id="btn-mobile-menu-toggle" class="mobile-menu-btn" onclick="App.toggleMobileSidebar()" aria-label="Toggle navigation menu" title="Toggle Navigation">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+
+          <div class="header-search">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              style="color: var(--text-muted);">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input type="text" id="global-search-input" placeholder="Quick search cases, statutes, procedures...">
+          </div>
         </div>
 
         <div style="display: flex; align-items: center; gap: 14px;">
@@ -332,6 +360,18 @@
               <div class="notif-list" id="notifications-list-container">
                 <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px;">No new notifications</div>
               </div>
+              <div class="notif-footer" style="padding: 10px 16px; border-top: 1px solid var(--border-subtle); text-align: center; background: rgba(15, 23, 42, 0.6);">
+                <a href="#" style="font-size: 12px; color: var(--accent-cyan); text-decoration: none;" onclick="App.navigateToNotifications(event)">View All Notifications →</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- User Profile Chip -->
+          <div class="header-user-chip" id="header-user-chip" onclick="App.navigateToCurrentProfile()" title="View Profile">
+            <div class="user-avatar-sm" id="header-avatar">RD</div>
+            <div class="user-info-sm">
+              <span class="user-name-sm" id="header-user-name">Adv. Rajesh Deshmukh</span>
+              <span class="user-role-badge" id="header-user-role">Lawyer</span>
             </div>
           </div>
 
@@ -417,6 +457,27 @@
               <div class="metric-value" id="kpi-documents">0</div>
               <div style="font-size: 11.5px; color: #22D3EE; margin-top: 4px;">Pleadings, evidence & notices</div>
             </div>
+          </div>
+
+          <!-- Lawyer Quick Statutory Search -->
+          <div class="card" style="margin-bottom: 24px; background: linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95)); border: 1px solid rgba(99, 102, 241, 0.3);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+              <div>
+                <h3 style="font-size: 15px; font-weight: 600; color: #F8FAFC; display: flex; align-items: center; gap: 8px;">
+                  <span>🔍</span> Quick Statutory & Provision Search
+                </h3>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+                  Search Central & State Acts or section numbers to review and link to case briefs
+                </p>
+              </div>
+              <span class="badge badge-active" style="font-size: 11px;">869 Acts • 41,442 Sections</span>
+            </div>
+            <form onsubmit="App.handleLawyerQuickSearch(event)" style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <input type="text" id="lawyer-quick-search-input" class="form-control" style="flex: 1; min-width: 260px;" placeholder="Search section number or legal title (e.g. 'Section 138 NI Act', 'Order 39 CPC', 'Article 226')...">
+              <button type="submit" class="btn btn-primary">
+                Search Corpus
+              </button>
+            </form>
           </div>
 
           <!-- Dashboard Grid: Hearings & Recent Cases -->
@@ -1311,6 +1372,27 @@
             </div>
           </div>
 
+          <!-- Quick Statutory & Legal Search Card -->
+          <div class="card" style="margin-bottom: 24px; background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95)); border: 1px solid rgba(99, 102, 241, 0.35); box-shadow: var(--shadow-md);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+              <div>
+                <h3 style="font-size: 16px; font-weight: 600; color: #F8FAFC; display: flex; align-items: center; gap: 8px;">
+                  <span>🔍</span> Quick Statutory & Legal Search
+                </h3>
+                <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">
+                  Direct search across 869 Central & State Acts and 41,442 statutory provisions with deterministic ranking
+                </p>
+              </div>
+              <span class="badge badge-active" style="font-size: 11px;">Deterministic Ranking</span>
+            </div>
+            <form id="citizen-quick-search-form" onsubmit="App.handleCitizenQuickSearch(event)" style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <input type="text" id="citizen-quick-search-input" class="form-control" style="flex: 1; min-width: 260px;" placeholder="e.g. 'Section 138 cheque dishonour', 'consumer complaint', 'bail', 'anticipatory bail'...">
+              <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">
+                Search Corpus
+              </button>
+            </form>
+          </div>
+
           <!-- Dashboard Grid -->
           <div class="dashboard-grid">
             <!-- Left Column: Active Cases & Hearings -->
@@ -1327,11 +1409,33 @@
               </div>
 
               <!-- Scheduled Hearings Card -->
-              <div class="card">
+              <div class="card" style="margin-bottom: 24px;">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
                   <h3 class="card-title">Upcoming Court Hearings & Dates</h3>
                 </div>
                 <div id="citizen-dash-hearings-list">
+                  <div class="spinner"></div>
+                </div>
+              </div>
+
+              <!-- Recent Case Documents Card -->
+              <div class="card" style="margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                  <h3 class="card-title">📄 Recent Case Documents</h3>
+                  <button class="btn btn-secondary btn-sm" onclick="App.navigate('citizen-documents')" style="font-size: 11.5px; padding: 4px 8px;">View All Docs →</button>
+                </div>
+                <div id="citizen-dash-documents-list">
+                  <div class="spinner"></div>
+                </div>
+              </div>
+
+              <!-- Procedure Checklists Progress Card -->
+              <div class="card">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                  <h3 class="card-title">📋 Tracked Procedure Progress</h3>
+                  <button class="btn btn-secondary btn-sm" onclick="App.navigate('documentation')" style="font-size: 11.5px; padding: 4px 8px;">Explore Procedures →</button>
+                </div>
+                <div id="citizen-dash-procedures-list">
                   <div class="spinner"></div>
                 </div>
               </div>
@@ -1358,6 +1462,17 @@
                 </div>
               </div>
 
+              <!-- Saved Provisions Card -->
+              <div class="card" style="margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+                  <h3 class="card-title">🔖 Saved Provisions</h3>
+                  <button class="btn btn-secondary btn-sm" onclick="App.navigate('citizen-bookmarks')" style="font-size: 11.5px; padding: 4px 8px;">View All Bookmarks →</button>
+                </div>
+                <div id="citizen-dash-bookmarks-list">
+                  <div class="spinner"></div>
+                </div>
+              </div>
+
               <!-- Recent Document Analyses -->
               <div class="card" style="margin-bottom: 24px;">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
@@ -1369,10 +1484,22 @@
                 </div>
               </div>
 
+              <!-- Recent Legal Searches -->
+              <div class="card" style="margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+                  <h3 class="card-title">🔍 Recent Legal Searches</h3>
+                  <button class="btn btn-secondary btn-sm" onclick="App.navigate('citizen-search-history')" style="font-size: 11.5px; padding: 4px 8px;">History →</button>
+                </div>
+                <div id="citizen-dash-searches-list">
+                  <div class="spinner"></div>
+                </div>
+              </div>
+
               <!-- Notifications Feed -->
               <div class="card">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
                   <h3 class="card-title">Recent Case Updates & Alerts</h3>
+                  <button class="btn btn-secondary btn-sm" onclick="App.navigate('citizen-notifications')" style="font-size: 11.5px; padding: 4px 8px;">View All →</button>
                 </div>
                 <div id="citizen-dash-notifs-list">
                   <div class="spinner"></div>
@@ -1561,6 +1688,62 @@
         </section>
 
         <!-- ============================================================== -->
+        <!-- CITIZEN VIEW: LEGAL SEARCH HISTORY                             -->
+        <!-- ============================================================== -->
+        <section id="view-citizen-search-history" class="view-panel" style="display: none;">
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">Legal Search History</h2>
+              <p class="page-subtitle">Your past queries, filters, and statutory research activities across Central & State Acts.</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn btn-secondary btn-sm" onclick="App.navigate('research')">
+                🔍 New Legal Search
+              </button>
+              <button class="btn btn-danger btn-sm" id="btn-clear-search-history" onclick="App.clearSearchHistory()">
+                🗑️ Clear History
+              </button>
+            </div>
+          </div>
+
+          <!-- History Filter Bar -->
+          <div style="margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
+            <input type="text" id="citizen-sh-search" class="form-control" placeholder="Filter search queries..." style="max-width: 360px;" oninput="App.filterSearchHistory()">
+          </div>
+
+          <div id="citizen-search-history-container">
+            <div class="spinner"></div>
+          </div>
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- CITIZEN VIEW: NOTIFICATIONS FEED & ALERTS                       -->
+        <!-- ============================================================== -->
+        <section id="view-citizen-notifications" class="view-panel" style="display: none;">
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">Notifications & Case Alerts</h2>
+              <p class="page-subtitle">Court hearing reminders, procedural milestones, and case activity updates.</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn btn-secondary btn-sm" onclick="App.markAllNotificationsRead()">
+                ✓ Mark All as Read
+              </button>
+            </div>
+          </div>
+
+          <!-- Tabs: All vs Unread -->
+          <div class="tab-nav" style="margin-bottom: 20px;">
+            <button class="tab-btn active" id="btn-notif-tab-all" onclick="App.filterNotificationsView('all')">All Notifications (<span id="notif-view-count-all">0</span>)</button>
+            <button class="tab-btn" id="btn-notif-tab-unread" onclick="App.filterNotificationsView('unread')">Unread Only (<span id="notif-view-count-unread">0</span>)</button>
+          </div>
+
+          <div id="citizen-notifications-view-container">
+            <div class="spinner"></div>
+          </div>
+        </section>
+
+        <!-- ============================================================== -->
         <!-- CITIZEN VIEW 6: CITIZEN PROFILE                                -->
         <!-- ============================================================== -->
         <section id="view-citizen-profile" class="view-panel" style="display: none;">
@@ -1661,6 +1844,21 @@
         </section>
 
       </div>
+
+      <!-- APPLICATION FOOTER -->
+      <footer class="app-footer">
+        <div class="footer-left">
+          <span class="footer-brand">⚖️ Vidhik AI</span>
+          <span class="footer-desc">AI-Native Indian Statutory Knowledge & Legal Workflow Platform</span>
+        </div>
+        <div class="footer-center">
+          <span class="status-indicator-live"></span>
+          <span class="status-text">PostgreSQL Live • 869 Central & State Acts • 41,442 Statutory Sections</span>
+        </div>
+        <div class="footer-right">
+          <span class="footer-note">Confidential & Compliant with Indian Evidence Act & IT Act</span>
+        </div>
+      </footer>
     </main>
   </div>
 
