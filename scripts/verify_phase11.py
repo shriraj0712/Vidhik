@@ -64,6 +64,25 @@ from app.database import get_db_cursor
 BASE_URL = "http://127.0.0.1:8000"
 client = httpx.Client(base_url=BASE_URL, timeout=15.0)
 
+# Pre-flight check: Verify backend and database availability
+try:
+    r_health = client.get("/lawyer")
+    if r_health.status_code not in (200, 307):
+        print(f"[ERROR] Server responded with unexpected status code {r_health.status_code}")
+        sys.exit(1)
+except httpx.ConnectError:
+    print("[ERROR] Backend server is not available at http://127.0.0.1:8000.")
+    print("Please ensure the Uvicorn server is running before executing tests:")
+    print("  python -m uvicorn app.main:app --host 127.0.0.1 --port 8000")
+    sys.exit(1)
+
+try:
+    with get_db_cursor() as cur:
+        cur.execute("SELECT 1;")
+except Exception as e:
+    print(f"[ERROR] PostgreSQL database is unavailable: {e}")
+    sys.exit(1)
+
 print("=" * 72)
 print("VIDHIK AI - PHASE 11 LEGAL DOCUMENT ANALYSIS VERIFICATION SUITE")
 print("=" * 72)
@@ -366,92 +385,129 @@ assert "Outside Vidhik Database" in fake_ref.relevance_explanation or "Unverifie
 # ==============================================================================
 print("\n[5/7] VERIFY REST API ENDPOINTS")
 
-# 5.1 POST /api/analysis/text
-payload_text = {
-    "text": COMPREHENSIVE_LEGAL_CONTRACT,
-    "document_title": "Commercial Lease E2E API Test.txt",
-    "case_id": None
-}
-r_text = client.post("/api/analysis/text", json=payload_text)
-assert r_text.status_code == 200, f"Text analysis failed: {r_text.text}"
-text_data = r_text.json()
-analysis_id = text_data["analysis_id"]
-print(f"  ✓ POST /api/analysis/text created Analysis #{analysis_id}")
-assert text_data["document_name"] == "Commercial Lease E2E API Test.txt"
-assert len(text_data["legal_references"]) > 0
+# 5.0 Strict 401 unauthenticated check on protected endpoints
+r_noauth = client.post("/api/analysis/1/save-to-case", json={"case_id": 1})
+assert r_noauth.status_code == 401, f"Expected 401 for unauthenticated save-to-case, got {r_noauth.status_code}"
+r_badtoken = client.post("/api/analysis/1/save-to-case", json={"case_id": 1}, headers={"Authorization": "Bearer bad_token_12345"})
+assert r_badtoken.status_code == 401, f"Expected 401 for invalid token, got {r_badtoken.status_code}"
+print("  ✓ Strict 401 authentication verified for protected analysis endpoints")
 
-# 5.2 POST /api/analysis/upload (TXT multipart)
-files = {
-    "file": ("e2e_contract.txt", sample_txt.encode("utf-8"), "text/plain")
-}
-r_upload_txt = client.post("/api/analysis/upload", files=files)
-assert r_upload_txt.status_code == 200, f"Upload failed: {r_upload_txt.text}"
-txt_upload_id = r_upload_txt.json()["analysis_id"]
-print(f"  ✓ POST /api/analysis/upload (.txt) created Analysis #{txt_upload_id}")
+# Authenticate lawyer session for protected endpoints
+r_auth = client.post("/api/auth/login", json={"email": "rajesh.advocate@vidhik.ai", "password": "password123"})
+assert r_auth.status_code == 200, f"Lawyer login failed: {r_auth.text}"
+client.headers["Authorization"] = f"Bearer {r_auth.json()['token']}"
 
-# 5.3 POST /api/analysis/upload (DOCX multipart)
-files_docx = {
-    "file": ("e2e_tenancy.docx", docx_bytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
-}
-r_upload_docx = client.post("/api/analysis/upload", files=files_docx)
-assert r_upload_docx.status_code == 200, f"DOCX upload failed: {r_upload_docx.text}"
-docx_upload_id = r_upload_docx.json()["analysis_id"]
-print(f"  ✓ POST /api/analysis/upload (.docx) created Analysis #{docx_upload_id}")
+created_analyses = []
+saved_note_id = None
+saved_document_id = None
 
-# 5.4 POST /api/analysis/upload (PDF multipart)
-files_pdf = {
-    "file": ("e2e_notice.pdf", raw_pdf_bytes, "application/pdf")
-}
-r_upload_pdf = client.post("/api/analysis/upload", files=files_pdf)
-assert r_upload_pdf.status_code == 200, f"PDF upload failed: {r_upload_pdf.text}"
-pdf_upload_id = r_upload_pdf.json()["analysis_id"]
-print(f"  ✓ POST /api/analysis/upload (.pdf) created Analysis #{pdf_upload_id}")
+try:
+    # 5.1 POST /api/analysis/text
+    payload_text = {
+        "text": COMPREHENSIVE_LEGAL_CONTRACT,
+        "document_title": "Commercial Lease E2E API Test.txt",
+        "case_id": None
+    }
+    r_text = client.post("/api/analysis/text", json=payload_text)
+    assert r_text.status_code == 200, f"Text analysis failed: {r_text.text}"
+    text_data = r_text.json()
+    analysis_id = text_data["analysis_id"]
+    created_analyses.append(analysis_id)
+    print(f"  ✓ POST /api/analysis/text created Analysis #{analysis_id}")
+    assert text_data["document_name"] == "Commercial Lease E2E API Test.txt"
+    assert len(text_data["legal_references"]) > 0
 
-# 5.5 Security: Upload rejection for invalid extension
-files_invalid = {
-    "file": ("malicious_script.exe", b"MZ fake executable binary", "application/x-msdownload")
-}
-r_invalid = client.post("/api/analysis/upload", files=files_invalid)
-assert r_invalid.status_code == 400, f"Expected 400, got {r_invalid.status_code}"
-print("  ✓ Security: Rejection of unsupported extension (.exe) returned 400 Bad Request")
+    # 5.2 POST /api/analysis/upload (TXT multipart)
+    files = {
+        "file": ("e2e_contract.txt", sample_txt.encode("utf-8"), "text/plain")
+    }
+    r_upload_txt = client.post("/api/analysis/upload", files=files)
+    assert r_upload_txt.status_code == 200, f"Upload failed: {r_upload_txt.text}"
+    txt_upload_id = r_upload_txt.json()["analysis_id"]
+    created_analyses.append(txt_upload_id)
+    print(f"  ✓ POST /api/analysis/upload (.txt) created Analysis #{txt_upload_id}")
 
-# 5.6 GET /api/analysis/{analysis_id}
-r_get = client.get(f"/api/analysis/{analysis_id}")
-assert r_get.status_code == 200
-get_data = r_get.json()
-assert get_data["analysis_id"] == analysis_id
-assert len(get_data["legal_references"]) > 0
-print(f"  ✓ GET /api/analysis/{analysis_id} retrieved complete structured analysis")
+    # 5.3 POST /api/analysis/upload (DOCX multipart)
+    files_docx = {
+        "file": ("e2e_tenancy.docx", docx_bytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+    }
+    r_upload_docx = client.post("/api/analysis/upload", files=files_docx)
+    assert r_upload_docx.status_code == 200, f"DOCX upload failed: {r_upload_docx.text}"
+    docx_upload_id = r_upload_docx.json()["analysis_id"]
+    created_analyses.append(docx_upload_id)
+    print(f"  ✓ POST /api/analysis/upload (.docx) created Analysis #{docx_upload_id}")
 
-# 5.7 GET /api/analysis/history
-r_hist = client.get("/api/analysis/history")
-assert r_hist.status_code == 200
-hist_data = r_hist.json()
-hist_list = hist_data.get("analyses", [])
-assert len(hist_list) >= 4
-print(f"  ✓ GET /api/analysis/history returned {len(hist_list)} cataloged analyses (Total: {hist_data.get('total')})")
+    # 5.4 POST /api/analysis/upload (PDF multipart)
+    files_pdf = {
+        "file": ("e2e_notice.pdf", raw_pdf_bytes, "application/pdf")
+    }
+    r_upload_pdf = client.post("/api/analysis/upload", files=files_pdf)
+    assert r_upload_pdf.status_code == 200, f"PDF upload failed: {r_upload_pdf.text}"
+    pdf_upload_id = r_upload_pdf.json()["analysis_id"]
+    created_analyses.append(pdf_upload_id)
+    print(f"  ✓ POST /api/analysis/upload (.pdf) created Analysis #{pdf_upload_id}")
 
-# 5.8 POST /api/analysis/{analysis_id}/save-to-case (Lawyer Integration)
-save_payload = {
-    "case_id": 1,
-    "save_as_document": True,
-    "save_summary_note": True,
-    "link_verified_sections": True
-}
-r_save = client.post(f"/api/analysis/{analysis_id}/save-to-case", json=save_payload)
-assert r_save.status_code == 200, f"Save to case failed: {r_save.text}"
-save_res = r_save.json()
-print(f"  ✓ POST /api/analysis/{analysis_id}/save-to-case succeeded:")
-print(f"    - Attached Document ID: {save_res.get('saved_document_id')}")
-print(f"    - Created Case Note ID: {save_res.get('saved_note_id')}")
-print(f"    - Linked Statutory Sections: {save_res.get('linked_sections_count')}")
+    # 5.5 Security: Upload rejection for invalid extension
+    files_invalid = {
+        "file": ("malicious_script.exe", b"MZ fake executable binary", "application/x-msdownload")
+    }
+    r_invalid = client.post("/api/analysis/upload", files=files_invalid)
+    assert r_invalid.status_code == 400, f"Expected 400, got {r_invalid.status_code}"
+    print("  ✓ Security: Rejection of unsupported extension (.exe) returned 400 Bad Request")
 
-# 5.9 DELETE /api/analysis/{analysis_id}
-# Clean up temporary test upload records
-for del_id in [txt_upload_id, docx_upload_id, pdf_upload_id]:
-    r_del = client.delete(f"/api/analysis/{del_id}")
-    assert r_del.status_code == 200
-print(f"  ✓ DELETE /api/analysis/{{analysis_id}} successfully purged test records")
+    # 5.6 GET /api/analysis/{analysis_id}
+    r_get = client.get(f"/api/analysis/{analysis_id}")
+    assert r_get.status_code == 200
+    get_data = r_get.json()
+    assert get_data["analysis_id"] == analysis_id
+    assert len(get_data["legal_references"]) > 0
+    print(f"  ✓ GET /api/analysis/{analysis_id} retrieved complete structured analysis")
+
+    # 5.7 GET /api/analysis/history
+    r_hist = client.get("/api/analysis/history")
+    assert r_hist.status_code == 200
+    hist_data = r_hist.json()
+    hist_list = hist_data.get("analyses", [])
+    assert len(hist_list) >= 4
+    print(f"  ✓ GET /api/analysis/history returned {len(hist_list)} cataloged analyses (Total: {hist_data.get('total')})")
+
+    # 5.8 POST /api/analysis/{analysis_id}/save-to-case (Lawyer Integration)
+    save_payload = {
+        "case_id": 1,
+        "save_as_document": True,
+        "save_summary_note": True,
+        "link_verified_sections": True
+    }
+    r_save = client.post(f"/api/analysis/{analysis_id}/save-to-case", json=save_payload)
+    assert r_save.status_code == 200, f"Save to case failed: {r_save.text}"
+    save_res = r_save.json()
+    saved_document_id = save_res.get('saved_document_id')
+    saved_note_id = save_res.get('saved_note_id')
+    print(f"  ✓ POST /api/analysis/{analysis_id}/save-to-case succeeded:")
+    print(f"    - Attached Document ID: {saved_document_id}")
+    print(f"    - Created Case Note ID: {saved_note_id}")
+    print(f"    - Linked Statutory Sections: {save_res.get('linked_sections_count')}")
+
+finally:
+    # 5.9 Clean up all temporary test analyses, notes, and attached documents
+    for del_id in created_analyses:
+        try:
+            client.delete(f"/api/analysis/{del_id}")
+        except Exception:
+            pass
+    if saved_note_id:
+        try:
+            client.delete(f"/api/lawyer/notes/{saved_note_id}")
+        except Exception:
+            pass
+    if saved_document_id:
+        try:
+            with get_db_cursor() as cur:
+                cur.execute("DELETE FROM case_documents WHERE document_id = %s;", (saved_document_id,))
+                cur.connection.commit()
+        except Exception:
+            pass
+    print("  ✓ Cleaned up all temporary test analyses and case attachments")
 
 
 # ==============================================================================

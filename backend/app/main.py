@@ -23,7 +23,8 @@ from app.routers import (
     auth_router,
     lawyer_router,
     documentation_router,
-    document_analysis_router
+    document_analysis_router,
+    citizen_router
 )
 
 
@@ -78,11 +79,21 @@ app.include_router(auth_router)
 app.include_router(lawyer_router)
 app.include_router(documentation_router)
 app.include_router(document_analysis_router)
+app.include_router(citizen_router)
 
 # Mount Static UI directory
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 STATIC_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+
+@app.get("/citizen", tags=["Citizen UI"], summary="Serve Citizen Portal UI")
+def serve_citizen_ui():
+    """Serves the single-page citizen workspace UI application."""
+    index_file = STATIC_DIR / "index.html"
+    if index_file.exists():
+        return FileResponse(index_file)
+    return {"message": "Citizen Module UI build is initializing."}
 
 
 @app.get("/lawyer", tags=["Lawyer UI"], summary="Serve Lawyer Workspace UI")
@@ -94,10 +105,10 @@ def serve_lawyer_ui():
     return {"message": "Lawyer Module UI build is initializing."}
 
 
-@app.get("/", tags=["Root"], summary="API Root & Lawyer Workspace Redirect")
+@app.get("/", tags=["Root"], summary="API Root & Workspace Redirect")
 def root():
     """
-    Root endpoint: serves the Lawyer Module UI if accessed via browser,
+    Root endpoint: serves the UI application if accessed via browser,
     otherwise provides API information and documentation links.
     """
     index_file = STATIC_DIR / "index.html"
@@ -111,6 +122,7 @@ def root():
         "documentation": "/docs",
         "health_check": "/health",
         "lawyer_workspace": "/lawyer",
+        "citizen_portal": "/citizen",
         "endpoints": {
             "health": "GET /health",
             "laws_list": "GET /api/laws",
@@ -119,6 +131,17 @@ def root():
             "section_detail": "GET /api/sections/{section_id}",
             "legal_search": "GET /api/search",
             "auth_login": "POST /api/auth/login",
+            "auth_register": "POST /api/auth/register",
+            "auth_logout": "POST /api/auth/logout",
+            "citizen_dashboard": "GET /api/citizen/dashboard",
+            "citizen_cases": "GET /api/citizen/cases",
+            "citizen_documents": "GET /api/citizen/documents",
+            "citizen_hearings": "GET /api/citizen/hearings",
+            "citizen_profile": "GET /api/citizen/profile",
+            "citizen_bookmarks": "GET /api/citizen/bookmarks",
+            "citizen_search_history": "GET /api/citizen/search-history",
+            "citizen_notifications": "GET /api/citizen/notifications",
+            "citizen_procedures": "GET /api/citizen/procedures",
             "lawyer_dashboard": "GET /api/lawyer/dashboard",
             "lawyer_clients": "GET /api/lawyer/clients",
             "lawyer_cases": "GET /api/lawyer/cases",

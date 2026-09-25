@@ -29,6 +29,26 @@ if sys.platform == "win32":
 BASE_URL = "http://127.0.0.1:8000"
 client = httpx.Client(base_url=BASE_URL, timeout=10.0)
 
+# Pre-flight check: Verify backend and database availability
+try:
+    r_health = client.get("/lawyer")
+    if r_health.status_code not in (200, 307):
+        print(f"[ERROR] Server responded with unexpected status code {r_health.status_code}")
+        sys.exit(1)
+except httpx.ConnectError:
+    print("[ERROR] Backend server is not available at http://127.0.0.1:8000.")
+    print("Please ensure the Uvicorn server is running before executing tests:")
+    print("  python -m uvicorn app.main:app --host 127.0.0.1 --port 8000")
+    sys.exit(1)
+
+from app.database import get_db_cursor
+try:
+    with get_db_cursor() as cur:
+        cur.execute("SELECT 1;")
+except Exception as e:
+    print(f"[ERROR] PostgreSQL database is unavailable: {e}")
+    sys.exit(1)
+
 print("=" * 70)
 print("VIDHIK AI - PHASE 12 DOCUMENTATION SUPPORT END-TO-END VERIFICATION")
 print("=" * 70)
@@ -199,13 +219,15 @@ test_note_payload = {
 note_res = client.post("/api/lawyer/cases/1/notes", headers=headers, json=test_note_payload)
 assert note_res.status_code == 200
 created_note = note_res.json()
-assert created_note["title"] == test_note_payload["title"]
-print(f"  ✓ Successfully attached checklist summary to Case 1 Notes (Note ID: {created_note['note_id']})")
-
-# Clean up test note
-del_res = client.delete(f"/api/lawyer/notes/{created_note['note_id']}", headers=headers)
-assert del_res.status_code == 200
-print(f"  ✓ Cleaned up test note {created_note['note_id']} after successful attachment verification")
+note_id = created_note["note_id"]
+try:
+    assert created_note["title"] == test_note_payload["title"]
+    print(f"  ✓ Successfully attached checklist summary to Case 1 Notes (Note ID: {note_id})")
+finally:
+    # Clean up test note
+    del_res = client.delete(f"/api/lawyer/notes/{note_id}", headers=headers)
+    assert del_res.status_code == 200
+    print(f"  ✓ Cleaned up test note {note_id} after successful attachment verification")
 
 # ----------------------------------------------------------------------
 # 10. EXISTING LEGAL SEARCH REGRESSION
@@ -239,35 +261,30 @@ print(f"  ✓ Lawyer Cases functional ({r_cases.json()['total']} cases cataloged
 # 12. ZERO-LOSS DATABASE CORPUS INTEGRITY
 # ----------------------------------------------------------------------
 print("\n[12/12] VERIFY ZERO-LOSS DATABASE CORPUS INTEGRITY")
-from app.database import get_db
-g = get_db()
-cur = next(g)
+with get_db_cursor() as cur:
+    cur.execute("SELECT count(*) FROM laws;")
+    laws_count = cur.fetchone()["count"]
+    assert laws_count == 869, f"Expected 869 laws, got {laws_count}"
 
-cur.execute("SELECT count(*) FROM laws;")
-laws_count = cur.fetchone()["count"]
-assert laws_count == 869, f"Expected 869 laws, got {laws_count}"
+    cur.execute("SELECT count(*) FROM sections;")
+    sections_count = cur.fetchone()["count"]
+    assert sections_count == 41442, f"Expected 41,442 sections, got {sections_count}"
 
-cur.execute("SELECT count(*) FROM sections;")
-sections_count = cur.fetchone()["count"]
-assert sections_count == 41442, f"Expected 41,442 sections, got {sections_count}"
+    cur.execute("SELECT count(*) FROM legal_lexicon;")
+    lexicon_count = cur.fetchone()["count"]
+    assert lexicon_count == 42, f"Expected 42 lexicon terms, got {lexicon_count}"
 
-cur.execute("SELECT count(*) FROM legal_lexicon;")
-lexicon_count = cur.fetchone()["count"]
-assert lexicon_count == 42, f"Expected 42 lexicon terms, got {lexicon_count}"
+    cur.execute("SELECT count(*) FROM section_alignments;")
+    alignments_count = cur.fetchone()["count"]
+    assert alignments_count == 9304, f"Expected 9,304 alignments, got {alignments_count}"
 
-cur.execute("SELECT count(*) FROM section_alignments;")
-alignments_count = cur.fetchone()["count"]
-assert alignments_count == 9304, f"Expected 9,304 alignments, got {alignments_count}"
+    cur.execute("SELECT count(*) FROM legal_procedures;")
+    proc_count = cur.fetchone()["count"]
+    assert proc_count == 8, f"Expected 8 procedures, got {proc_count}"
 
-cur.execute("SELECT count(*) FROM legal_procedures;")
-proc_count = cur.fetchone()["count"]
-assert proc_count == 8, f"Expected 8 procedures, got {proc_count}"
-
-cur.execute("SELECT count(*) FROM procedure_required_documents;")
-docs_count = cur.fetchone()["count"]
-assert docs_count == 48, f"Expected 48 documents, got {docs_count}"
-
-g.close()
+    cur.execute("SELECT count(*) FROM procedure_required_documents;")
+    docs_count = cur.fetchone()["count"]
+    assert docs_count == 48, f"Expected 48 documents, got {docs_count}"
 
 print(f"  ✓ laws: {laws_count} (100% Intact)")
 print(f"  ✓ sections: {sections_count} (100% Intact)")

@@ -14,7 +14,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, 
 from psycopg2.extras import RealDictCursor
 
 from app.database import get_db
-from app.services.auth_service import get_current_user, require_lawyer
+from app.services.auth_service import get_current_user, require_lawyer, get_optional_user
 from app.services.document_parser_service import DocumentParserService, ParsedDocument
 from app.services.document_analysis_service import DocumentAnalysisService
 from app.schemas.document_analysis import (
@@ -39,7 +39,7 @@ async def upload_and_analyze(
     document_title: Optional[str] = Form(None),
     case_id: Optional[int] = Form(None),
     db: RealDictCursor = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: Optional[dict] = Depends(get_optional_user)
 ):
     """
     Accepts a legal document as a file (.pdf, .docx, .txt) or direct text.
@@ -85,7 +85,7 @@ async def upload_and_analyze(
 def analyze_raw_text(
     payload: RawTextAnalysisRequest,
     db: RealDictCursor = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: Optional[dict] = Depends(get_optional_user)
 ):
     """
     JSON endpoint for analyzing raw pasted legal text or draft clauses.
@@ -117,7 +117,7 @@ def get_analysis_history(
     limit: int = Query(default=50, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
     db: RealDictCursor = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: Optional[dict] = Depends(get_optional_user)
 ):
     """
     Retrieves previous document analyses for the active lawyer/user session.
@@ -142,7 +142,7 @@ def get_analysis_history(
 def get_analysis_detail(
     analysis_id: int,
     db: RealDictCursor = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: Optional[dict] = Depends(get_optional_user)
 ):
     """
     Retrieves complete structured analysis report, parties, clauses, risks,
@@ -197,7 +197,7 @@ def save_analysis_to_case(
 def delete_analysis(
     analysis_id: int,
     db: RealDictCursor = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: Optional[dict] = Depends(get_optional_user)
 ):
     """
     Deletes an analysis record from the platform.

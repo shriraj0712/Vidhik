@@ -14,14 +14,14 @@
   --bg-card-hover: rgba(51, 65, 85, 0.85);
   --bg-elevated: #334155;
   --bg-glass: rgba(15, 23, 42, 0.82);
-  
+
   --border-subtle: rgba(148, 163, 184, 0.14);
   --border-focus: rgba(99, 102, 241, 0.5);
-  
+
   --text-primary: #F8FAFC;
   --text-secondary: #94A3B8;
   --text-muted: #64748B;
-  
+
   --accent-primary: #4F46E5;
   --accent-hover: #4338CA;
   --accent-light: rgba(99, 102, 241, 0.15);
@@ -29,17 +29,17 @@
   --accent-amber: #F59E0B;
   --accent-emerald: #10B981;
   --accent-rose: #F43F5E;
-  
+
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.25);
   --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.35);
   --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.45);
   --shadow-glow: 0 0 24px rgba(79, 70, 229, 0.28);
-  
+
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
   --radius-full: 9999px;
-  
+
   --sidebar-width: 260px;
   --header-height: 70px;
   --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1210,4 +1210,244 @@ textarea.form-control {
   font-size: 12.5px;
   color: #FCD34D;
   margin-bottom: 20px;
+}
+
+/* ===================================================================
+   PHASE 14: CITIZEN / USER MODULE DESIGN TOKENS
+   =================================================================== */
+
+/* Auth Tabs */
+.auth-tab-bar {
+  display: flex;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.6);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  border: 1px solid var(--border-subtle);
+}
+
+.auth-tab-btn {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+}
+
+.auth-tab-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.auth-tab-btn.active {
+  background: var(--accent-primary);
+  color: #FFFFFF;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.4);
+}
+
+/* Notification Bell & Dropdown */
+.notif-bell-container {
+  position: relative;
+  display: inline-block;
+}
+
+.notif-bell-btn {
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: var(--transition);
+}
+
+.notif-bell-btn:hover {
+  color: var(--text-primary);
+  border-color: rgba(99, 102, 241, 0.4);
+  background: var(--bg-elevated);
+}
+
+.notif-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--accent-rose);
+  color: #FFFFFF;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  box-shadow: 0 2px 6px rgba(244, 63, 94, 0.5);
+  border: 2px solid var(--bg-primary);
+}
+
+.notif-popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 340px;
+  max-height: 420px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-focus);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  animation: fadeInDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.notif-popover.active {
+  display: flex;
+}
+
+.notif-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(15, 23, 42, 0.4);
+}
+
+.notif-list {
+  overflow-y: auto;
+  max-height: 320px;
+}
+
+.notif-item {
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border-subtle);
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.notif-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.notif-item.unread {
+  background: rgba(79, 70, 229, 0.08);
+  border-left: 3px solid var(--accent-primary);
+}
+
+.notif-item-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 3px;
+}
+
+.notif-item-msg {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.notif-item-time {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Citizen Case Cards */
+.citizen-case-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  margin-bottom: 16px;
+  transition: var(--transition);
+  position: relative;
+}
+
+.citizen-case-card:hover {
+  border-color: rgba(99, 102, 241, 0.4);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.counsel-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(6, 182, 212, 0.1);
+  border: 1px solid rgba(6, 182, 212, 0.25);
+  color: var(--accent-cyan);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Bookmarks */
+.bookmark-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  margin-bottom: 14px;
+  transition: var(--transition);
+}
+
+.bookmark-card:hover {
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-bookmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid var(--border-subtle);
+  background: rgba(30, 41, 59, 0.6);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-bookmark:hover {
+  color: #FBBF24;
+  border-color: rgba(245, 158, 11, 0.4);
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.btn-bookmark.active {
+  color: #FBBF24;
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
