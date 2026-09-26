@@ -10,8 +10,8 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath("backend"))
 
-if sys.platform == "win32":
-    sys.stdout.reconfigure(encoding="utf-8")
+if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
+    getattr(sys.stdout, "reconfigure")(encoding="utf-8")
 
 from app.database import get_db_cursor
 
@@ -32,13 +32,17 @@ def run_migration():
     with get_db_cursor() as cur:
         # Pre-check counts
         cur.execute("SELECT count(*) as cnt FROM legal_procedures;")
-        old_proc_count = cur.fetchone()["cnt"]
+        r = cur.fetchone()
+        old_proc_count = r["cnt"] if r else 0
         cur.execute("SELECT count(*) as cnt FROM procedure_required_documents;")
-        old_doc_count = cur.fetchone()["cnt"]
+        r = cur.fetchone()
+        old_doc_count = r["cnt"] if r else 0
         cur.execute("SELECT count(*) as cnt FROM laws;")
-        old_laws = cur.fetchone()["cnt"]
+        r = cur.fetchone()
+        old_laws = r["cnt"] if r else 0
         cur.execute("SELECT count(*) as cnt FROM sections;")
-        old_sections = cur.fetchone()["cnt"]
+        r = cur.fetchone()
+        old_sections = r["cnt"] if r else 0
 
         print(f"Pre-migration state:")
         print(f"  - legal_procedures: {old_proc_count}")
@@ -51,13 +55,17 @@ def run_migration():
 
         # Post-check counts
         cur.execute("SELECT count(*) as cnt FROM legal_procedures;")
-        new_proc_count = cur.fetchone()["cnt"]
+        r = cur.fetchone()
+        new_proc_count = r["cnt"] if r else 0
         cur.execute("SELECT count(*) as cnt FROM procedure_required_documents;")
-        new_doc_count = cur.fetchone()["cnt"]
+        r = cur.fetchone()
+        new_doc_count = r["cnt"] if r else 0
         cur.execute("SELECT count(*) as cnt FROM laws;")
-        new_laws = cur.fetchone()["cnt"]
+        r = cur.fetchone()
+        new_laws = r["cnt"] if r else 0
         cur.execute("SELECT count(*) as cnt FROM sections;")
-        new_sections = cur.fetchone()["cnt"]
+        r = cur.fetchone()
+        new_sections = r["cnt"] if r else 0
 
         print(f"\nPost-migration state:")
         print(f"  - legal_procedures: {new_proc_count} (Expected: 25)")
@@ -76,6 +84,7 @@ def run_migration():
             assert p is not None, f"Missing procedure ID {pid}!"
             cur.execute("SELECT count(*) as cnt, COUNT(CASE WHEN is_mandatory = TRUE THEN 1 END) as mand FROM procedure_required_documents WHERE procedure_id = %s;", (pid,))
             doc_info = cur.fetchone()
+            assert doc_info is not None, f"Missing doc_info for procedure {pid}!"
             assert doc_info["cnt"] >= 4, f"Procedure {pid} has only {doc_info['cnt']} documents!"
             assert doc_info["mand"] >= 1, f"Procedure {pid} has 0 mandatory documents!"
             print(f"  ✓ [{pid:2d}] {p['procedure_name'][:48]:48} ({p['category']:26}) | Docs: {doc_info['cnt']} (Mandatory: {doc_info['mand']})")

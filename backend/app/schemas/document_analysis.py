@@ -39,7 +39,7 @@ class DocumentObligationRight(BaseModel):
     party: str = Field(..., description="The party bearing the obligation or possessing the right")
     type: str = Field(..., description="obligation, right, or duty")
     description: str = Field(..., description="Specific duty or entitlement described in document")
-    clause_reference: Optional[str] = Field(None, description="Associated clause category or number")
+    clause_reference: Optional[str] = Field(default=None, description="Associated clause category or number")
 
 
 class DocumentRisk(BaseModel):

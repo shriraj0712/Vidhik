@@ -383,7 +383,13 @@ class CitizenService:
             loc,
             ps
         ))
-        new_case = dict(db.fetchone())
+        row = db.fetchone()
+        if not row:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to create legal case."
+            )
+        new_case = dict(row)
         new_case["title"] = new_case.get("case_title")
         new_case["court"] = new_case.get("court_name")
         new_case["description"] = new_case.get("case_description")
@@ -485,6 +491,11 @@ class CitizenService:
             payload.description
         ))
         new_doc = db.fetchone()
+        if not new_doc:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to upload document."
+            )
 
         # Log case update
         db.execute("""
@@ -645,6 +656,11 @@ class CitizenService:
             RETURNING *;
         """, (user_id, payload.section_id, payload.notes, payload.tag or "General"))
         row = db.fetchone()
+        if not row:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to save statutory bookmark."
+            )
 
         # Fetch joined details
         db.execute("""
@@ -658,7 +674,13 @@ class CitizenService:
             JOIN laws l ON s.law_id = l.law_id
             WHERE b.bookmark_id = %s;
         """, (row["bookmark_id"],))
-        result = dict(db.fetchone())
+        fetched = db.fetchone()
+        if not fetched:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to retrieve bookmarked section details."
+            )
+        result = dict(fetched)
         db.connection.commit()
         return result
 
@@ -715,7 +737,8 @@ class CitizenService:
             VALUES (%s, %s, %s::jsonb, %s)
             RETURNING *;
         """, (user_id, clean_query, filter_json, results_count))
-        result = dict(db.fetchone())
+        row = db.fetchone()
+        result = dict(row) if row else {}
         db.connection.commit()
         return result
 
@@ -897,9 +920,16 @@ class CitizenService:
 
         db.connection.commit()
 
+        if not updated:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to update procedure tracker."
+            )
+
         # Count total documents for procedure
         db.execute("SELECT COUNT(*) AS total FROM procedure_required_documents WHERE procedure_id = %s;", (procedure_id,))
-        total_count = db.fetchone()["total"]
+        count_row = db.fetchone()
+        total_count = count_row["total"] if count_row else 0
 
         return {
             "tracker_id": updated["tracker_id"],

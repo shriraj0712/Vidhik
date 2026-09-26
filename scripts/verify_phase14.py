@@ -23,6 +23,7 @@ import os
 import time
 import uuid
 import atexit
+from typing import Any
 import httpx
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -30,8 +31,8 @@ from psycopg2.extras import RealDictCursor
 # Add backend directory to sys.path
 sys.path.insert(0, os.path.abspath("backend"))
 
-if sys.platform == "win32":
-    sys.stdout.reconfigure(encoding="utf-8")
+if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
+    getattr(sys.stdout, "reconfigure")(encoding="utf-8")
 
 from app.database import get_db_cursor
 
@@ -80,7 +81,8 @@ with get_db_cursor() as cur:
                 WHERE table_schema = 'public' AND table_name = %s
             );
         """, (tbl,))
-        exists = cur.fetchone()["exists"]
+        r = cur.fetchone()
+        exists = r["exists"] if r else False
         assert exists, f"Table '{tbl}' does not exist in public schema!"
         print(f"  ✓ Table '{tbl}' verified in database schema")
 
@@ -93,7 +95,8 @@ with get_db_cursor() as cur:
           AND tc.constraint_type IN ('UNIQUE', 'PRIMARY KEY')
           AND ccu.column_name = 'user_id';
     """)
-    assert cur.fetchone()["cnt"] > 0, "user_profiles missing UNIQUE constraint on user_id!"
+    r_c = cur.fetchone()
+    assert r_c is not None and r_c["cnt"] > 0, "user_profiles missing UNIQUE constraint on user_id!"
     print("  ✓ user_profiles: UNIQUE(user_id) constraint verified")
 
     # 1.3 Verify user_saved_sections unique constraint on (user_id, section_id)
@@ -122,15 +125,17 @@ with get_db_cursor() as cur:
 
     # 1.5 Verify blank profile rows created for existing users
     cur.execute("SELECT COUNT(*) as total_users FROM users;")
-    total_users = cur.fetchone()["total_users"]
+    r_u = cur.fetchone()
+    total_users = r_u["total_users"] if r_u else 0
     cur.execute("SELECT COUNT(*) as total_profiles FROM user_profiles;")
-    total_profiles = cur.fetchone()["total_profiles"]
+    r_p = cur.fetchone()
+    total_profiles = r_p["total_profiles"] if r_p else 0
     assert total_profiles >= total_users, f"Profiles ({total_profiles}) less than Users ({total_users})!"
     print(f"  ✓ user_profiles: {total_profiles} profile rows initialized for existing accounts")
 
 
 # Tracking state for reliable test data isolation & cleanup
-test_state = {
+test_state: dict[str, Any] = {
     "new_citizen_id": None,
     "sunita_case_id": None,
     "test_ana_id": None,
@@ -441,6 +446,7 @@ print("\n[9/14] VERIFY SAVED PROVISIONS (BOOKMARKS) CRUD & DEDUPLICATION")
 with get_db_cursor() as cur:
     cur.execute("SELECT section_id, section_number, section_title FROM sections ORDER BY section_id LIMIT 1;")
     sec = cur.fetchone()
+    assert sec is not None
     test_sec_id = sec["section_id"]
     test_sec_num = sec["section_number"]
 
@@ -536,6 +542,7 @@ print("\n[12/14] VERIFY PROCEDURE CHECKLIST TRACKER PERSISTENCE")
 with get_db_cursor() as cur:
     cur.execute("SELECT procedure_id, procedure_name FROM legal_procedures LIMIT 1;")
     proc = cur.fetchone()
+    assert proc is not None
     test_proc_id = proc["procedure_id"]
     test_proc_name = proc["procedure_name"]
     cur.execute("DELETE FROM user_procedure_trackers WHERE user_id = %s AND procedure_id = %s;", (sunita_id, test_proc_id))
@@ -620,34 +627,40 @@ test_state["test_ana_id"] = None
 print("\n[14/14] VERIFY ZERO-LOSS DATABASE LEGAL CORPUS INTEGRITY")
 with get_db_cursor() as cur:
     cur.execute("SELECT count(*) as cnt FROM laws;")
-    laws_count = cur.fetchone()["cnt"]
+    r = cur.fetchone()
+    laws_count = r["cnt"] if r else 0
     assert laws_count == 869, f"Expected 869 laws, got {laws_count}"
     print(f"  ✓ laws: {laws_count} (100% Intact)")
 
     cur.execute("SELECT count(*) as cnt FROM sections;")
-    sections_count = cur.fetchone()["cnt"]
+    r = cur.fetchone()
+    sections_count = r["cnt"] if r else 0
     assert sections_count == 41442, f"Expected 41442 sections, got {sections_count}"
     print(f"  ✓ sections: {sections_count} (100% Intact)")
 
     cur.execute("SELECT count(*) as cnt FROM legal_lexicon;")
-    lexicon_count = cur.fetchone()["cnt"]
+    r = cur.fetchone()
+    lexicon_count = r["cnt"] if r else 0
     assert lexicon_count == 42, f"Expected 42 lexicon terms, got {lexicon_count}"
     print(f"  ✓ legal_lexicon: {lexicon_count} (100% Intact)")
 
     cur.execute("SELECT count(*) as cnt FROM section_alignments;")
-    align_count = cur.fetchone()["cnt"]
+    r = cur.fetchone()
+    align_count = r["cnt"] if r else 0
     assert align_count == 9304, f"Expected 9304 alignments, got {align_count}"
     print(f"  ✓ section_alignments: {align_count} (100% Intact)")
 
     cur.execute("SELECT count(*) as cnt FROM legal_procedures;")
-    proc_count = cur.fetchone()["cnt"]
-    assert proc_count == 8, f"Expected 8 legal procedures, got {proc_count}"
-    print(f"  ✓ legal_procedures: {proc_count} (Phase 12 Intact)")
+    r = cur.fetchone()
+    proc_count = r["cnt"] if r else 0
+    assert proc_count == 25, f"Expected 25 legal procedures, got {proc_count}"
+    print(f"  ✓ legal_procedures: {proc_count} (Phase 12 Expanded)")
 
     cur.execute("SELECT count(*) as cnt FROM procedure_required_documents;")
-    doc_count = cur.fetchone()["cnt"]
-    assert doc_count == 48, f"Expected 48 required documents, got {doc_count}"
-    print(f"  ✓ procedure_required_documents: {doc_count} (Phase 12 Intact)")
+    r = cur.fetchone()
+    doc_count = r["cnt"] if r else 0
+    assert doc_count == 159, f"Expected 159 required documents, got {doc_count}"
+    print(f"  ✓ procedure_required_documents: {doc_count} (Phase 12 Expanded)")
 
     print("\n" + "=" * 74)
     print("ALL 14 PHASE 14 CITIZEN MODULE VERIFICATION SUITES PASSED WITH 100% SUCCESS!")

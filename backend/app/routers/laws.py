@@ -42,7 +42,8 @@ def get_laws(
     # Count total matching records
     count_sql = f"SELECT COUNT(*) AS total FROM laws{where_clause};"
     db.execute(count_sql, tuple(params))
-    total_count = db.fetchone()["total"]
+    total_row = db.fetchone()
+    total_count = total_row["total"] if total_row else 0
 
     # Fetch paginated rows
     data_sql = f"""

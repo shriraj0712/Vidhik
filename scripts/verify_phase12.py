@@ -23,8 +23,8 @@ import httpx
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-if sys.platform == "win32":
-    sys.stdout.reconfigure(encoding="utf-8")
+if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
+    getattr(sys.stdout, "reconfigure")(encoding="utf-8")
 
 BASE_URL = "http://127.0.0.1:8000"
 client = httpx.Client(base_url=BASE_URL, timeout=10.0)
@@ -281,27 +281,33 @@ print(f"  ✓ Lawyer Cases functional ({r_cases.json()['total']} cases cataloged
 print("\n[12/12] VERIFY ZERO-LOSS DATABASE CORPUS INTEGRITY")
 with get_db_cursor() as cur:
     cur.execute("SELECT count(*) FROM laws;")
-    laws_count = cur.fetchone()["count"]
+    r = cur.fetchone()
+    laws_count = r["count"] if r else 0
     assert laws_count == 869, f"Expected 869 laws, got {laws_count}"
 
     cur.execute("SELECT count(*) FROM sections;")
-    sections_count = cur.fetchone()["count"]
+    r = cur.fetchone()
+    sections_count = r["count"] if r else 0
     assert sections_count == 41442, f"Expected 41,442 sections, got {sections_count}"
 
     cur.execute("SELECT count(*) FROM legal_lexicon;")
-    lexicon_count = cur.fetchone()["count"]
+    r = cur.fetchone()
+    lexicon_count = r["count"] if r else 0
     assert lexicon_count == 42, f"Expected 42 lexicon terms, got {lexicon_count}"
 
     cur.execute("SELECT count(*) FROM section_alignments;")
-    alignments_count = cur.fetchone()["count"]
+    r = cur.fetchone()
+    alignments_count = r["count"] if r else 0
     assert alignments_count == 9304, f"Expected 9,304 alignments, got {alignments_count}"
 
     cur.execute("SELECT count(*) FROM legal_procedures;")
-    proc_count = cur.fetchone()["count"]
+    r = cur.fetchone()
+    proc_count = r["count"] if r else 0
     assert proc_count == 25, f"Expected 25 procedures, got {proc_count}"
 
     cur.execute("SELECT count(*) FROM procedure_required_documents;")
-    docs_count = cur.fetchone()["count"]
+    r = cur.fetchone()
+    docs_count = r["count"] if r else 0
     assert docs_count == 159, f"Expected 159 documents, got {docs_count}"
 
 print(f"  ✓ laws: {laws_count} (100% Intact)")

@@ -16,7 +16,7 @@ import re
 import json
 import logging
 from typing import Optional, List, Dict, Any, Tuple
-from datetime import datetime
+from datetime import datetime, timezone
 from psycopg2.extras import RealDictCursor
 
 from app.schemas.document_analysis import (
@@ -751,7 +751,7 @@ class DocumentAnalysisService:
                 legal_references=[],
                 raw_text_excerpt="",
                 case_id=case_id,
-                created_at=datetime.utcnow(),
+                created_at=datetime.now(timezone.utc),
                 is_scanned_or_empty=True,
                 warning_message=parsed_doc.warning_message
             )
@@ -792,7 +792,7 @@ class DocumentAnalysisService:
         raw_excerpt = text[:2500] if len(text) > 2500 else text
 
         analysis_id = None
-        created_at = datetime.utcnow()
+        created_at = datetime.now(timezone.utc)
 
         # 8. Persist Analysis into Database
         if persist:
@@ -1024,7 +1024,8 @@ class DocumentAnalysisService:
 
         count_sql = f"SELECT COUNT(*) AS total FROM legal_document_analyses lda{where_clause};"
         db.execute(count_sql, tuple(params))
-        total_count = db.fetchone()["total"]
+        total_row = db.fetchone()
+        total_count = total_row["total"] if total_row else 0
 
         query = f"""
             SELECT 

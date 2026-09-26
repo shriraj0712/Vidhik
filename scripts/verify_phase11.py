@@ -52,8 +52,8 @@ from psycopg2.extras import RealDictCursor
 # Add backend directory to sys.path
 sys.path.insert(0, os.path.abspath("backend"))
 
-if sys.platform == "win32":
-    sys.stdout.reconfigure(encoding="utf-8")
+if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
+    getattr(sys.stdout, "reconfigure")(encoding="utf-8")
 
 import pypdf
 import docx
@@ -377,7 +377,10 @@ print(f"    - Explanation: {fake_ref.relevance_explanation}")
 assert fake_ref.is_verified_in_db is False
 assert fake_ref.law_id is None
 assert fake_ref.section_id is None
-assert "Outside Vidhik Database" in fake_ref.relevance_explanation or "Unverified" in fake_ref.relevance_explanation
+assert fake_ref.relevance_explanation and (
+    "Outside Vidhik Database" in fake_ref.relevance_explanation
+    or "Unverified" in fake_ref.relevance_explanation
+)
 
 
 # ==============================================================================
@@ -516,41 +519,49 @@ finally:
 print("\n[6/7] VERIFY ZERO-LOSS DATABASE CORPUS INTEGRITY")
 with get_db_cursor() as cur:
     cur.execute("SELECT count(*) as cnt FROM laws;")
-    laws_count = cur.fetchone()["cnt"]
+    r = cur.fetchone()
+    laws_count = r["cnt"] if r else 0
     assert laws_count == 869, f"Expected 869 laws, got {laws_count}"
     print(f"  ✓ laws: {laws_count} (100% Intact)")
 
     cur.execute("SELECT count(*) as cnt FROM sections;")
-    sections_count = cur.fetchone()["cnt"]
+    r = cur.fetchone()
+    sections_count = r["cnt"] if r else 0
     assert sections_count == 41442, f"Expected 41442 sections, got {sections_count}"
     print(f"  ✓ sections: {sections_count} (100% Intact)")
 
     cur.execute("SELECT count(*) as cnt FROM legal_lexicon;")
-    lexicon_count = cur.fetchone()["cnt"]
+    r = cur.fetchone()
+    lexicon_count = r["cnt"] if r else 0
     assert lexicon_count == 42, f"Expected 42 lexicon terms, got {lexicon_count}"
     print(f"  ✓ legal_lexicon: {lexicon_count} (100% Intact)")
 
     cur.execute("SELECT count(*) as cnt FROM section_alignments;")
-    align_count = cur.fetchone()["cnt"]
+    r = cur.fetchone()
+    align_count = r["cnt"] if r else 0
     assert align_count == 9304, f"Expected 9304 alignments, got {align_count}"
     print(f"  ✓ section_alignments: {align_count} (100% Intact)")
 
     cur.execute("SELECT count(*) as cnt FROM legal_procedures;")
-    proc_count = cur.fetchone()["cnt"]
-    assert proc_count == 8, f"Expected 8 Phase 12 procedures, got {proc_count}"
-    print(f"  ✓ legal_procedures: {proc_count} (Phase 12 Intact)")
+    r = cur.fetchone()
+    proc_count = r["cnt"] if r else 0
+    assert proc_count == 25, f"Expected 25 Phase 12 procedures, got {proc_count}"
+    print(f"  ✓ legal_procedures: {proc_count} (Phase 12 Expanded)")
 
     cur.execute("SELECT count(*) as cnt FROM procedure_required_documents;")
-    doc_count = cur.fetchone()["cnt"]
-    assert doc_count == 48, f"Expected 48 Phase 12 required documents, got {doc_count}"
-    print(f"  ✓ procedure_required_documents: {doc_count} (Phase 12 Intact)")
+    r = cur.fetchone()
+    doc_count = r["cnt"] if r else 0
+    assert doc_count == 159, f"Expected 159 Phase 12 required documents, got {doc_count}"
+    print(f"  ✓ procedure_required_documents: {doc_count} (Phase 12 Expanded)")
 
     cur.execute("SELECT count(*) as cnt FROM legal_document_analyses;")
-    analysis_records_count = cur.fetchone()["cnt"]
+    r = cur.fetchone()
+    analysis_records_count = r["cnt"] if r else 0
     print(f"  ✓ legal_document_analyses: {analysis_records_count} active records (Phase 11 Operational)")
 
     cur.execute("SELECT count(*) as cnt FROM analysis_legal_references;")
-    ref_records_count = cur.fetchone()["cnt"]
+    r = cur.fetchone()
+    ref_records_count = r["cnt"] if r else 0
     print(f"  ✓ analysis_legal_references: {ref_records_count} grounded references (Phase 11 Operational)")
 
 

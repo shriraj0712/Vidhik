@@ -29,6 +29,7 @@ import os
 import time
 import uuid
 import atexit
+from typing import Any
 import httpx
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -36,8 +37,8 @@ from psycopg2.extras import RealDictCursor
 # Ensure backend directory is in python path
 sys.path.insert(0, os.path.abspath("backend"))
 
-if sys.platform == "win32":
-    sys.stdout.reconfigure(encoding="utf-8")
+if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
+    getattr(sys.stdout, "reconfigure")(encoding="utf-8")
 
 from app.database import get_db_cursor
 
@@ -49,7 +50,7 @@ print("VIDHIK AI - PHASE 16 FULL-STACK UI & INTEGRATION VERIFICATION SUITE")
 print("=" * 80)
 
 # Global test tracking for guaranteed cleanup
-cleanup_state = {
+cleanup_state: dict[str, Any] = {
     "test_user_id": None,
     "test_analysis_id": None,
     "test_bookmark_section_id": None,
@@ -320,6 +321,7 @@ try:
     with get_db_cursor() as cur:
         cur.execute("SELECT section_id, section_number, section_title FROM sections ORDER BY section_id LIMIT 1;")
         sample_sec = cur.fetchone()
+        assert sample_sec is not None
         sec_id = sample_sec["section_id"]
         cleanup_state["test_bookmark_section_id"] = sec_id
 
@@ -403,8 +405,8 @@ try:
     assert r_procs.status_code == 200, f"Procedures failed: {r_procs.text}"
     proc_json = r_procs.json()
     procs = proc_json.get("procedures", [])
-    assert proc_json.get("total") == 8, f"Expected 8 legal procedures, got {proc_json.get('total')}"
-    assert len(procs) == 8, f"Expected 8 procedure items in list, got {len(procs)}"
+    assert proc_json.get("total") == 25, f"Expected 25 legal procedures, got {proc_json.get('total')}"
+    assert len(procs) == 25, f"Expected 25 procedure items in list, got {len(procs)}"
     test_proc = procs[0]
     test_proc_id = test_proc["procedure_id"]
     cleanup_state["test_proc_id"] = test_proc_id
@@ -560,6 +562,7 @@ try:
     with get_db_cursor() as cur:
         cur.execute("SELECT current_database(), current_user, inet_server_port();")
         db_meta = cur.fetchone()
+        assert db_meta is not None
         assert db_meta["current_database"] == "vidhik_db"
         print(f"  ✓ Connected to PostgreSQL Database: '{db_meta['current_database']}' as user '{db_meta['current_user']}' on port {db_meta['inet_server_port']}")
 
@@ -569,34 +572,40 @@ try:
     print("\n[20/20] VERIFY ZERO-LOSS LEGAL CORPUS INTEGRITY")
     with get_db_cursor() as cur:
         cur.execute("SELECT count(*) as cnt FROM laws;")
-        laws_cnt = cur.fetchone()["cnt"]
+        r = cur.fetchone()
+        laws_cnt = r["cnt"] if r else 0
         assert laws_cnt == 869, f"Expected 869 laws, got {laws_cnt}"
         print(f"  ✓ laws: {laws_cnt} (100% Intact)")
 
         cur.execute("SELECT count(*) as cnt FROM sections;")
-        secs_cnt = cur.fetchone()["cnt"]
+        r = cur.fetchone()
+        secs_cnt = r["cnt"] if r else 0
         assert secs_cnt == 41442, f"Expected 41442 sections, got {secs_cnt}"
         print(f"  ✓ sections: {secs_cnt} (100% Intact)")
 
         cur.execute("SELECT count(*) as cnt FROM legal_lexicon;")
-        lex_cnt = cur.fetchone()["cnt"]
+        r = cur.fetchone()
+        lex_cnt = r["cnt"] if r else 0
         assert lex_cnt == 42, f"Expected 42 lexicon terms, got {lex_cnt}"
         print(f"  ✓ legal_lexicon: {lex_cnt} (100% Intact)")
 
         cur.execute("SELECT count(*) as cnt FROM section_alignments;")
-        align_cnt = cur.fetchone()["cnt"]
+        r = cur.fetchone()
+        align_cnt = r["cnt"] if r else 0
         assert align_cnt == 9304, f"Expected 9304 alignments, got {align_cnt}"
         print(f"  ✓ section_alignments: {align_cnt} (100% Intact)")
 
         cur.execute("SELECT count(*) as cnt FROM legal_procedures;")
-        proc_cnt = cur.fetchone()["cnt"]
-        assert proc_cnt == 8, f"Expected 8 legal procedures, got {proc_cnt}"
-        print(f"  ✓ legal_procedures: {proc_cnt} (Phase 12 Intact)")
+        r = cur.fetchone()
+        proc_cnt = r["cnt"] if r else 0
+        assert proc_cnt == 25, f"Expected 25 legal procedures, got {proc_cnt}"
+        print(f"  ✓ legal_procedures: {proc_cnt} (Phase 12 Expanded)")
 
         cur.execute("SELECT count(*) as cnt FROM procedure_required_documents;")
-        doc_cnt = cur.fetchone()["cnt"]
-        assert doc_cnt == 48, f"Expected 48 required documents, got {doc_cnt}"
-        print(f"  ✓ procedure_required_documents: {doc_cnt} (Phase 12 Intact)")
+        r = cur.fetchone()
+        doc_cnt = r["cnt"] if r else 0
+        assert doc_cnt == 159, f"Expected 159 required documents, got {doc_cnt}"
+        print(f"  ✓ procedure_required_documents: {doc_cnt} (Phase 12 Expanded)")
 
     print("\n" + "=" * 80)
     print("ALL 20 PHASE 16 FULL-STACK UI & INTEGRATION VERIFICATION CHECKS PASSED!")

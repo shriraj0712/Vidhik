@@ -131,6 +131,11 @@ class AuthService:
             RETURNING user_id, username, email, full_name, phone, role, is_active;
         """, (username, clean_email, password_h, full_name.strip(), clean_phone))
         new_user = db.fetchone()
+        if not new_user:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to create user record."
+            )
 
         # Create blank profile row
         db.execute("""

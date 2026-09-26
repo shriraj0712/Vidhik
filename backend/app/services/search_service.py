@@ -223,7 +223,7 @@ class LegalSearchService:
         """
         data_params = tuple(params + [candidate_pool_limit])
         db.execute(candidate_sql, data_params)
-        candidates = db.fetchall()
+        candidates = [dict(c) for c in db.fetchall()]
 
         # 5. Deterministic Relevance Ranking
         ranked_candidates = LegalRankingService.rank_candidates(
