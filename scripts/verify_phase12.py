@@ -98,8 +98,8 @@ print("\n[3/12] VERIFY PROCEDURES LISTING (/api/documentation/procedures)")
 r_proc = client.get("/api/documentation/procedures")
 assert r_proc.status_code == 200
 proc_data = r_proc.json()
-assert proc_data["total"] == 8, f"Expected 8 seeded procedures, got {proc_data['total']}"
-assert len(proc_data["procedures"]) == 8
+assert proc_data["total"] == 25, f"Expected 25 seeded procedures, got {proc_data['total']}"
+assert len(proc_data["procedures"]) == 25
 print(f"  ✓ Total Procedures Listed: {proc_data['total']}")
 for p in proc_data["procedures"]:
     print(f"    [{p['procedure_id']}] {p['procedure_name']} ({p['category']}) | Docs: {p['total_documents_count']} (Mandatory: {p['mandatory_documents_count']}, Supporting: {p['supporting_documents_count']})")
@@ -116,7 +116,24 @@ search_tests = [
     ("Divorce", "Petition for Mutual Consent Divorce"),
     ("Civil Suit", "Civil Suit Plaint Presentation & Institution"),
     ("Mutation", "Land Title Mutation (7/12 Extract Ferfar)"),
-    ("Co-operative", "Registration of Co-operative Society")
+    ("Co-operative", "Registration of Co-operative Society"),
+    ("Marriage", "Registration of Marriage (Special & Hindu Marriage Acts)"),
+    ("Birth", "Birth Certificate Registration and Correction"),
+    ("Death", "Death Certificate Registration and Correction"),
+    ("Gazette", "Name Change and Official Gazette Publication"),
+    ("Domicile", "Application for Domicile and Nationality Certificate"),
+    ("Income", "Application for Income Certificate"),
+    ("Caste", "Caste Certificate Issuance and Scrutiny Verification"),
+    ("Legal Heir", "Legal Heir / Surviving Member Certificate"),
+    ("Encumbrance", "Property Encumbrance Certificate (EC) & Title Search"),
+    ("Banking Ombudsman", "Banking Ombudsman / RBI Grievance Redressal"),
+    ("Insurance Ombudsman", "Insurance Ombudsman Complaint Filing"),
+    ("EPFO", "Employees' Provident Fund (EPFO / PF) Settlement Claim"),
+    ("Gratuity", "Payment of Gratuity Claim and Controlling Authority Application"),
+    ("Compensation", "Employee Compensation Claim for Workplace Injury"),
+    ("FIR", "First Information Report (FIR) / Police Complaint Filing"),
+    ("Bail", "Bail Application (Regular & Anticipatory Bail)"),
+    ("Legal Notice", "Statutory Legal Notice & Demand (Cheque Dishonour / Section 80 CPC)")
 ]
 for query, expected_title in search_tests:
     res = client.get(f"/api/documentation/procedures?search={query}").json()
@@ -130,12 +147,13 @@ for query, expected_title in search_tests:
 # ----------------------------------------------------------------------
 print("\n[5/12] VERIFY CATEGORY FILTERING")
 cat_tests = [
-    ("Property", 2),
+    ("Property", 3),
     ("Government Applications", 1),
-    ("Court / Litigation", 1),
-    ("Certificates / Registrations", 2),
-    ("Consumer / Commercial", 1),
-    ("Family / Personal", 1)
+    ("Court / Litigation", 4),
+    ("Certificates / Registrations", 9),
+    ("Consumer / Commercial", 3),
+    ("Family / Personal", 2),
+    ("Employment / Social", 3)
 ]
 for cat_name, expected_count in cat_tests:
     res = client.get(f"/api/documentation/procedures?category={cat_name}").json()
@@ -280,18 +298,18 @@ with get_db_cursor() as cur:
 
     cur.execute("SELECT count(*) FROM legal_procedures;")
     proc_count = cur.fetchone()["count"]
-    assert proc_count == 8, f"Expected 8 procedures, got {proc_count}"
+    assert proc_count == 25, f"Expected 25 procedures, got {proc_count}"
 
     cur.execute("SELECT count(*) FROM procedure_required_documents;")
     docs_count = cur.fetchone()["count"]
-    assert docs_count == 48, f"Expected 48 documents, got {docs_count}"
+    assert docs_count == 159, f"Expected 159 documents, got {docs_count}"
 
 print(f"  ✓ laws: {laws_count} (100% Intact)")
 print(f"  ✓ sections: {sections_count} (100% Intact)")
 print(f"  ✓ legal_lexicon: {lexicon_count} (100% Intact)")
 print(f"  ✓ section_alignments: {alignments_count} (100% Intact)")
-print(f"  ✓ legal_procedures: {proc_count} (Phase 12)")
-print(f"  ✓ procedure_required_documents: {docs_count} (Phase 12)")
+print(f"  ✓ legal_procedures: {proc_count} (Phase 12 Expanded)")
+print(f"  ✓ procedure_required_documents: {docs_count} (Phase 12 Expanded)")
 
 print("\n" + "=" * 70)
 print("ALL 12 PHASE 12 VERIFICATION SUITES COMPLETED WITH 100% SUCCESS!")
