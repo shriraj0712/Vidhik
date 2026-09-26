@@ -20,10 +20,12 @@ from app.schemas.knowledge_base import (
     EvidenceProvisionResponse,
     PredecessorMappingResponse,
     JudgmentResponse,
-    SectionFullContextResponse
+    SectionFullContextResponse,
+    ActMetadataResponse
 )
 
 router = APIRouter(prefix="/api/knowledge", tags=["Advanced Legal Knowledge Base (Phase 17)"])
+
 
 
 @router.get("/overview", response_model=KnowledgeOverviewResponse)
@@ -115,3 +117,35 @@ def get_section_context(
     predecessor mappings, and controlling judicial interpretations in a single unified response.
     """
     return LegalKnowledgeService.get_section_full_context(section_number=section_number, law_code=law, cursor=db)
+
+
+@router.get("/acts", response_model=List[ActMetadataResponse])
+def list_acts(db: RealDictCursor = Depends(get_db)):
+    """Lists metadata for all 24 Bare Acts in the Phase 17 corpus."""
+    return LegalKnowledgeService.get_acts(cursor=db)
+
+
+@router.get("/acts/{act_id}")
+def get_act_details(act_id: str, db: RealDictCursor = Depends(get_db)):
+    """Returns statutory provisions and metadata for a specific Bare Act."""
+    act_data = LegalKnowledgeService.get_act_by_id(act_id, cursor=db)
+    if not act_data:
+        raise HTTPException(status_code=404, detail=f"Bare Act '{act_id}' not found in knowledge base")
+    return act_data
+
+
+@router.get("/search")
+def search_knowledge(
+    q: str = Query(..., description="Search query across 24 Bare Acts"),
+    act: Optional[str] = Query(None, description="Optional Act filter (e.g. BNS, POCSO, NI Act, etc.)"),
+    limit: int = Query(20, ge=1, le=100),
+    db: RealDictCursor = Depends(get_db)
+):
+    """Multi-statute search across all 24 Bare Acts."""
+    results = LegalKnowledgeService.search_knowledge_base(query=q, act_filter=act, limit=limit, cursor=db)
+    return {
+        "query": q,
+        "total_results": len(results),
+        "results": results
+    }
+

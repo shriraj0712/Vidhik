@@ -145,3 +145,37 @@ class SectionFullContextResponse(BaseModel):
     evidence_provisions: List[EvidenceProvisionResponse] = Field(default_factory=list)
     predecessor_mappings: List[PredecessorMappingResponse] = Field(default_factory=list)
     judgments: List[JudgmentResponse] = Field(default_factory=list)
+
+
+class ActMetadataResponse(BaseModel):
+    act_id: int
+    act_name: str
+    short_name: str
+    act_number: Optional[str] = None
+    year: int
+    enactment_date: Optional[str] = None
+    effective_date: Optional[str] = None
+    jurisdiction: str = "Central / India"
+    category: str
+    provenance: str
+    status: str = "In Force"
+    total_sections: int = 0
+    offences_count: int = 0
+    punishments_count: int = 0
+    procedures_count: int = 0
+    evidence_count: int = 0
+    has_offences: bool = False
+    has_punishments: bool = False
+    has_procedures: bool = False
+    has_evidence: bool = False
+    has_amendments: bool = False
+    amendment_details: Optional[str] = None
+    judgments_status: str = "NOT IN SOURCE"
+    authorities: List[str] = Field(default_factory=list)
+
+
+class KnowledgeSearchResponse(BaseModel):
+    query: str
+    total_results: int
+    results: List[Dict[str, Any]]
+
