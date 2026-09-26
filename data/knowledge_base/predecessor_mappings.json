@@ -1,0 +1,178 @@
+[
+  {
+    "new_law_name": "Bharatiya Nyaya Sanhita, 2023",
+    "new_section_number": "100",
+    "old_law_name": "Indian Penal Code, 1860",
+    "old_section_number": "299",
+    "correspondence_type": "Identical",
+    "key_changes_summary": "Definition of culpable homicide preserved verbatim from IPC Section 299 with modernized numbering."
+  },
+  {
+    "new_law_name": "Bharatiya Nyaya Sanhita, 2023",
+    "new_section_number": "101",
+    "old_law_name": "Indian Penal Code, 1860",
+    "old_section_number": "300",
+    "correspondence_type": "Modified",
+    "key_changes_summary": "Substantive definition of murder preserved; reorganized with refined clauses and updated statutory cross-references."
+  },
+  {
+    "new_law_name": "Bharatiya Nyaya Sanhita, 2023",
+    "new_section_number": "103",
+    "old_law_name": "Indian Penal Code, 1860",
+    "old_section_number": "302",
+    "correspondence_type": "Substantially Altered",
+    "key_changes_summary": "Sub-section (1) retains death or life imprisonment for murder. Sub-section (2) introduces a new specific aggravated offence for mob lynching / murder committed by 5 or more on identity grounds."
+  },
+  {
+    "new_law_name": "Bharatiya Nyaya Sanhita, 2023",
+    "new_section_number": "106",
+    "old_law_name": "Indian Penal Code, 1860",
+    "old_section_number": "304A",
+    "correspondence_type": "Substantially Altered",
+    "key_changes_summary": "Sub-section (1) increases maximum term for rash/negligent driving death from 2 to 5 years. Sub-section (2) introduces hit-and-run provision punishable with up to 10 years for escaping without reporting."
+  },
+  {
+    "new_law_name": "Bharatiya Nyaya Sanhita, 2023",
+    "new_section_number": "111",
+    "old_law_name": "Indian Penal Code, 1860",
+    "old_section_number": "None (New Provision)",
+    "correspondence_type": "New Provision",
+    "key_changes_summary": "Brand new statutory chapter codifying Organised Crime (extortion, land grabbing, contract killing, cyber-crime syndicates) directly in general penal law."
+  },
+  {
+    "new_law_name": "Bharatiya Nyaya Sanhita, 2023",
+    "new_section_number": "113",
+    "old_law_name": "Indian Penal Code, 1860",
+    "old_section_number": "None (New Provision)",
+    "correspondence_type": "New Provision",
+    "key_changes_summary": "Brand new provision codifying Terrorist Acts threatening sovereignty, integrity, or security of India within general criminal code."
+  },
+  {
+    "new_law_name": "Bharatiya Nyaya Sanhita, 2023",
+    "new_section_number": "303",
+    "old_law_name": "Indian Penal Code, 1860",
+    "old_section_number": "378, 379",
+    "correspondence_type": "Substantially Altered",
+    "key_changes_summary": "Consolidates definition (former 378) and punishment (former 379). Adds a progressive proviso: mandatory Community Service for first-time petty theft where stolen value is under Rs. 5,000."
+  },
+  {
+    "new_law_name": "Bharatiya Nyaya Sanhita, 2023",
+    "new_section_number": "304",
+    "old_law_name": "Indian Penal Code, 1860",
+    "old_section_number": "None (New Provision)",
+    "correspondence_type": "New Provision",
+    "key_changes_summary": "Explicitly codifies 'Snatching' (chain/mobile snatching) as a distinct aggravated statutory theft category punishable with up to 3 years imprisonment and fine."
+  },
+  {
+    "new_law_name": "Bharatiya Nyaya Sanhita, 2023",
+    "new_section_number": "316",
+    "old_law_name": "Indian Penal Code, 1860",
+    "old_section_number": "405, 406",
+    "correspondence_type": "Modified",
+    "key_changes_summary": "Consolidates definition of criminal breach of trust (IPC 405) and punishment (IPC 406) into a single unified section, increasing sentence up to 5 years."
+  },
+  {
+    "new_law_name": "Bharatiya Nyaya Sanhita, 2023",
+    "new_section_number": "318",
+    "old_law_name": "Indian Penal Code, 1860",
+    "old_section_number": "415, 417, 420",
+    "correspondence_type": "Modified",
+    "key_changes_summary": "Consolidates cheating (IPC 415), simple cheating punishment (IPC 417), and aggravated cheating with inducement to deliver property (IPC 420) into subsections of Section 318."
+  },
+  {
+    "new_law_name": "Bharatiya Nyaya Sanhita, 2023",
+    "new_section_number": "351",
+    "old_law_name": "Indian Penal Code, 1860",
+    "old_section_number": "503, 506",
+    "correspondence_type": "Modified",
+    "key_changes_summary": "Consolidates criminal intimidation definition and sentence into Section 351."
+  },
+  {
+    "new_law_name": "Bharatiya Nyaya Sanhita, 2023",
+    "new_section_number": "356",
+    "old_law_name": "Indian Penal Code, 1860",
+    "old_section_number": "499, 500",
+    "correspondence_type": "Substantially Altered",
+    "key_changes_summary": "Consolidates defamation definition and penalty. Introduces Community Service as an alternative statutory sentencing option alongside simple imprisonment."
+  },
+  {
+    "new_law_name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+    "new_section_number": "35",
+    "old_law_name": "Code of Criminal Procedure, 1973",
+    "old_section_number": "41",
+    "correspondence_type": "Substantially Altered",
+    "key_changes_summary": "Mandates recording reasons for arrest under 7 years; introduces special safeguard requiring prior DSP permission before arresting senior citizens (above 60) for minor offences (< 3 years)."
+  },
+  {
+    "new_law_name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+    "new_section_number": "105",
+    "old_law_name": "Code of Criminal Procedure, 1973",
+    "old_section_number": "100",
+    "correspondence_type": "Substantially Altered",
+    "key_changes_summary": "Mandates audio-video electronic recording (videography) of entire search, seizure, and witness signing process with immediate electronic dispatch to Magistrate."
+  },
+  {
+    "new_law_name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+    "new_section_number": "173",
+    "old_law_name": "Code of Criminal Procedure, 1973",
+    "old_section_number": "154",
+    "correspondence_type": "Substantially Altered",
+    "key_changes_summary": "Codifies e-FIR with 3-day verification, Zero FIR across territorial limits, and preliminary inquiry (up to 14 days) for offences punishable with 3 to 7 years imprisonment."
+  },
+  {
+    "new_law_name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+    "new_section_number": "193",
+    "old_law_name": "Code of Criminal Procedure, 1973",
+    "old_section_number": "173",
+    "correspondence_type": "Modified",
+    "key_changes_summary": "Police final report (chargesheet) can be submitted electronically; strict statutory 60-day completion deadline for sexual offences and POCSO."
+  },
+  {
+    "new_law_name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+    "new_section_number": "479",
+    "old_law_name": "Code of Criminal Procedure, 1973",
+    "old_section_number": "436A",
+    "correspondence_type": "Substantially Altered",
+    "key_changes_summary": "Extends mandatory bail for undertrials: first-time offenders who have never been convicted in past are eligible for mandatory bail upon completing 1/3rd (instead of 1/2) of maximum detention term."
+  },
+  {
+    "new_law_name": "Bharatiya Sakshya Adhiniyam, 2023",
+    "new_section_number": "22",
+    "old_law_name": "Indian Evidence Act, 1872",
+    "old_section_number": "25",
+    "correspondence_type": "Identical",
+    "key_changes_summary": "Prohibition of confessions made to police officers preserved verbatim."
+  },
+  {
+    "new_law_name": "Bharatiya Sakshya Adhiniyam, 2023",
+    "new_section_number": "23",
+    "old_law_name": "Indian Evidence Act, 1872",
+    "old_section_number": "27",
+    "correspondence_type": "Identical",
+    "key_changes_summary": "Information leading to discovery of relevant fact/object in custody preserved verbatim."
+  },
+  {
+    "new_law_name": "Bharatiya Sakshya Adhiniyam, 2023",
+    "new_section_number": "57",
+    "old_law_name": "Indian Evidence Act, 1872",
+    "old_section_number": "62",
+    "correspondence_type": "Modified",
+    "key_changes_summary": "Adds Explanation 3 clarifying that each electronic store, memory or media storing digital records qualifies directly as primary evidence."
+  },
+  {
+    "new_law_name": "Bharatiya Sakshya Adhiniyam, 2023",
+    "new_section_number": "61",
+    "old_law_name": "Indian Evidence Act, 1872",
+    "old_section_number": "65A",
+    "correspondence_type": "Substantially Altered",
+    "key_changes_summary": "Expressly confers full legal parity and enforceability on electronic and digital records alongside traditional physical documents."
+  },
+  {
+    "new_law_name": "Bharatiya Sakshya Adhiniyam, 2023",
+    "new_section_number": "63",
+    "old_law_name": "Indian Evidence Act, 1872",
+    "old_section_number": "65B",
+    "correspondence_type": "Modified",
+    "key_changes_summary": "Standardizes electronic record certificate requirements under Section 63(4) incorporating Schedule certificate format, simplifying verification standards established by Supreme Court jurisprudence."
+  }
+]

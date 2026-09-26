@@ -1,0 +1,169 @@
+[
+  {
+    "section_number": "1",
+    "section_title": "Short title, extent and commencement",
+    "full_text": "(1) This Act may be called the Bharatiya Nagarik Suraksha Sanhita, 2023.\n(2) It extends to the whole of India except the State of Nagaland and the tribal areas, but the concerned State Government may, by notification, apply such provisions or any of them to the whole or part of the State of Nagaland or such tribal areas.\n(3) It shall come into force on such date as the Central Government may, by notification in the Official Gazette, appoint.",
+    "chapter": "CHAPTER I - PRELIMINARY",
+    "procedure_category": "Jurisdiction & Preliminary",
+    "procedure": {
+      "title": "Application of Bharatiya Nagarik Suraksha Sanhita",
+      "procedure_category": "Jurisdiction & Preliminary",
+      "description": "Statutory territorial applicability and commencement of the procedural code governing all criminal proceedings in India",
+      "statutory_steps": ["Check territorial applicability", "Ascertain date of commencement", "Apply provisions to inquiry and trial"],
+      "safeguards": ["Protection of tribal area customary procedures unless expressly notified"],
+      "timeline_days": null
+    },
+    "keywords": ["short title", "extent", "commencement", "territorial jurisdiction"]
+  },
+  {
+    "section_number": "35",
+    "section_title": "When police may arrest without warrant",
+    "full_text": "(1) Any police officer may without an order from a Magistrate and without a warrant, arrest any person who has been concerned in any cognizable offence, or against whom a reasonable complaint has been made, or credible information has been received, or a reasonable suspicion exists:\nProvided that for offences punishable with imprisonment for a term which may be less than three years or which may extend to seven years, arrest shall not be mandatory, and the police officer shall record reasons in writing if arrest is effected.\n(2) No arrest shall be made without prior permission of an officer not below the rank of Deputy Superintendent of Police where the offence is punishable with imprisonment for less than three years and the person is an infirm person or above sixty years of age.",
+    "chapter": "CHAPTER V - ARREST OF PERSONS",
+    "procedure_category": "Arrest",
+    "procedure": {
+      "title": "Arrest Without Warrant Procedure and Safeguards",
+      "procedure_category": "Arrest",
+      "description": "Comprehensive statutory rules governing arrest without warrant, mandate of recording reasons, and special protections for senior citizens and infirm individuals",
+      "statutory_steps": [
+        "Ascertain nature of offence (cognizable vs non-cognizable)",
+        "For offences punishable up to 7 years: evaluate necessity criteria and issue Section 35(3) notice of appearance",
+        "If arrest made: record reasons in writing immediately in diary",
+        "For person above 60 years or infirm where offence is < 3 years: obtain prior written permission from DSP"
+      ],
+      "safeguards": [
+        "Arrest not mandatory for offences under 7 years",
+        "Mandatory recording of reasons in case of arrest",
+        "Prior approval of DSP required for senior citizens (above 60) for minor offences",
+        "Mandatory entry in arrest memo"
+      ],
+      "timeline_days": 1
+    },
+    "keywords": ["arrest without warrant", "cognizable offence", "police power", "dsp permission", "senior citizen protection"]
+  },
+  {
+    "section_number": "105",
+    "section_title": "Recording of search and seizure through audio-video electronic means",
+    "full_text": "The process of conducting search of a place or taking possession of any property, article or thing under this Chapter or under section 185, including preparation of the list of things seized and the signature of witnesses, shall be recorded through audio-video electronic means preferably by mobile phone and the police officer shall forward without delay such recording to the District Magistrate, Sub-divisional Magistrate or Judicial Magistrate of the first class.",
+    "chapter": "CHAPTER VII - PROCESSES TO COMPEL THE PRODUCTION OF THINGS",
+    "procedure_category": "Search & Seizure",
+    "procedure": {
+      "title": "Mandatory Audio-Video Recording of Search and Seizure",
+      "procedure_category": "Search & Seizure",
+      "description": "Mandatory videographic recording of search operations, panchnama, witness signatures, and immediate electronic transmission to the Magistrate",
+      "statutory_steps": [
+        "Commence audio-video electronic recording prior to entering premises",
+        "Record search of premises and recovery of all seized items",
+        "Prepare seizure memo / panchnama on camera with independent witnesses",
+        "Capture witness signatures on camera",
+        "Forward unedited electronic recording without delay to the jurisdictional Magistrate"
+      ],
+      "safeguards": [
+        "Independent witness verification",
+        "Tamper-proof digital custody chain",
+        "Direct dispatch to Magistrate ensures transparency and prevents planting of evidence"
+      ],
+      "timeline_days": 1
+    },
+    "keywords": ["search and seizure", "audio-video recording", "videography", "electronic means", "panchnama", "magistrate"]
+  },
+  {
+    "section_number": "173",
+    "section_title": "Information in cognizable cases (FIR, e-FIR and Zero FIR)",
+    "full_text": "(1) Every information relating to the commission of a cognizable offence, if given orally to an officer in charge of a police station, shall be reduced to writing by him or under his direction, and be read over to the informant; and every such information, whether given in writing or reduced to writing as aforesaid, shall be signed by the person giving it, and the substance thereof shall be entered in a book to be kept by such officer in such form as the State Government may prescribe in this behalf:\nProvided that if the information is given by the woman against whom an offence under section 64, 65, 66, 67, 68, 69, 70, 71, 74, 75, 76, 77, 78 or 79 of the Bharatiya Nyaya Sanhita, 2023 is alleged to have been committed or attempted, then such information shall be recorded, by a woman police officer or any woman officer:\nProvided further that information may be given electronically (e-FIR), and the signature of the person giving it shall be taken within three days before such e-FIR is taken on record:\nProvided also that information relating to the commission of any cognizable offence, irrespective of the area where the offence is committed, may be given (Zero FIR) to a police station, and such police station shall register the information and transfer the same to the police station having jurisdiction.\n(3) On receipt of information of a cognizable offence punishable for three years or more but less than seven years, the officer in charge of a police station may, with the prior permission of an officer not below the rank of Deputy Superintendent of Police, proceed to conduct preliminary enquiry within a period of fourteen days to ascertain whether there exists a prima facie case for proceeding.",
+    "chapter": "CHAPTER XIII - INFORMATION TO THE POLICE AND THEIR POWERS TO INVESTIGATE",
+    "procedure_category": "FIR & Investigation",
+    "procedure": {
+      "title": "Registration of First Information Report (FIR), e-FIR, and Zero FIR",
+      "procedure_category": "FIR & Investigation",
+      "description": "Comprehensive framework for mandatory registration of FIR for cognizable offences, electronic FIR filing, Zero FIR across jurisdictional limits, and preliminary inquiry for 3-7 year offences",
+      "statutory_steps": [
+        "Receive oral or written information of cognizable offence",
+        "If e-FIR received: obtain signature of informant within 3 days",
+        "If crime occurred outside jurisdiction: register Zero FIR and transfer immediately to competent police station",
+        "For offences punishable between 3 and 7 years: with DSP approval, complete preliminary enquiry within 14 days",
+        "Provide free copy of FIR to informant immediately"
+      ],
+      "safeguards": [
+        "Zero FIR guarantees no victim is turned away due to territorial jurisdiction disputes",
+        "Women officer mandate for sexual offences",
+        "14-day strict statutory deadline for preliminary inquiry",
+        "Immediate free copy to informant"
+      ],
+      "timeline_days": 14
+    },
+    "keywords": ["fir", "first information report", "zero fir", "e-fir", "preliminary enquiry", "cognizable case", "14 days"]
+  },
+  {
+    "section_number": "193",
+    "section_title": "Report of police officer on completion of investigation (Challan / Chargesheet)",
+    "full_text": "(1) Every investigation under this Chapter shall be completed without unnecessary delay.\n(2) As soon as it is completed, the officer in charge of the police station shall forward to a Magistrate empowered to take cognizance of the offence on a police report, a report in the form prescribed by the State Government:\nProvided that investigation in relation to an offence under section 64, 65, 66, 67, 68, 70, 71 of the Bharatiya Nyaya Sanhita, 2023 or section 4, 6, 8 or 10 of the Protection of Children from Sexual Offences Act, 2012 shall be completed within two months from the date on which the information was recorded by the officer in charge of the police station.\n(3) The police officer shall submit the report through electronic means or physically, along with all documents, electronic records, statements recorded under section 180 and 183, and videographic recordings of search and seizure.",
+    "chapter": "CHAPTER XIII - INFORMATION TO THE POLICE AND THEIR POWERS TO INVESTIGATE",
+    "procedure_category": "Investigation & Chargesheet",
+    "procedure": {
+      "title": "Police Report on Completion of Investigation (Chargesheet)",
+      "procedure_category": "Investigation & Chargesheet",
+      "description": "Filing of final police report (chargesheet) with electronic submission options and 2-month strict deadline for sexual offences",
+      "statutory_steps": [
+        "Complete all investigative steps (evidence gathering, forensic report, witness statements)",
+        "For sexual offences / child sexual abuse: complete within 2 months (60 days)",
+        "Compile chargesheet in statutory format with all annexures, digital evidence, and electronic seizure logs",
+        "Forward electronically or physically to Magistrate taking cognizance",
+        "Supply copies to the accused"
+      ],
+      "safeguards": [
+        "Strict 60-day deadline for rape and POCSO cases",
+        "Electronic transparency of documents",
+        "Mandatory inclusion of search/seizure videography"
+      ],
+      "timeline_days": 60
+    },
+    "keywords": ["chargesheet", "police report", "final report", "completion of investigation", "two months", "pocso", "electronic submission"]
+  },
+  {
+    "section_number": "479",
+    "section_title": "Maximum period for which an undertrial prisoner can be detained",
+    "full_text": "(1) Where a person has, during the period of investigation, inquiry or trial under this Sanhita of an offence under any law (not being an offence for which the punishment of death or life imprisonment has been specified as one of the punishments under that law) undergone detention for a period extending up to one-half of the maximum period of imprisonment specified for that offence under that law, he shall be released by the Court on bail:\nProvided that where such person is a first-time offender (who has never been convicted of any offence in the past), he shall be released on bail by the Court if he has undergone detention for the period extending up to one-third of the maximum period of imprisonment specified for such offence under that law:\nProvided further that no such person shall in any case be detained during the period of investigation, inquiry or trial for more than the maximum period of imprisonment provided for the said offence.",
+    "chapter": "CHAPTER XXXV - PROVISIONS AS TO BAIL AND BONDS",
+    "procedure_category": "Bail",
+    "procedure": {
+      "title": "Undertrial Prisoner Release and First-Time Offender Bail",
+      "procedure_category": "Bail",
+      "description": "Statutory right to mandatory release on bail for undertrial prisoners after 1/2 of maximum term, and after 1/3 of maximum term for first-time offenders",
+      "statutory_steps": [
+        "Jail superintendent reviews detention duration of undertrials weekly",
+        "Ascertain whether person has prior convictions (first-time offender status)",
+        "If first-time offender completed 1/3rd of sentence: make immediate application to Court",
+        "If regular undertrial completed 1/2 of sentence: apply for mandatory release on personal bond or bail",
+        "Court orders release on bail without onerous conditions"
+      ],
+      "safeguards": [
+        "1/3rd detention threshold for first-time offenders greatly reduces jail overcrowding",
+        "Mandatory release prevents indefinite undertrial incarceration",
+        "Applies to all offences except those punishable by death or life imprisonment"
+      ],
+      "timeline_days": null
+    },
+    "keywords": ["bail", "undertrial prisoner", "first-time offender", "one-third detention", "half detention", "personal bond", "decongestion"]
+  },
+  {
+    "section_number": "531",
+    "section_title": "Repeal and savings",
+    "full_text": "(1) The Code of Criminal Procedure, 1973 (2 of 1974) is hereby repealed.\n(2) Notwithstanding such repeal,-\n(a) if, immediately before the date on which this Sanhita comes into force, there is any appeal, application, trial, inquiry or investigation pending, then, such appeal, application, trial, inquiry or investigation shall be disposed of, continued, held or made, as the case may be, in accordance with the provisions of the Code of Criminal Procedure, 1973, as in force immediately before such date, as if this Sanhita had not come into force;\n(b) all notifications published, proclamations issued, powers conferred, forms prescribed, local jurisdictions defined, sentences passed and orders, rules and appointments, not being appointments as Special Magistrates, made under the said Code, and which are in force immediately before the commencement of this Sanhita, shall be deemed, respectively, to have been published, issued, conferred, prescribed, defined, passed or made under the corresponding provisions of this Sanhita.",
+    "chapter": "CHAPTER XXXIX - REPEAL AND SAVINGS",
+    "procedure_category": "Transitional Provisions",
+    "procedure": {
+      "title": "Repeal of CrPC 1973 and Transitional Savings",
+      "procedure_category": "Transitional Provisions",
+      "description": "Repeals the Code of Criminal Procedure 1973 while protecting pending trials, inquiries, investigations and appeals instituted prior to commencement",
+      "statutory_steps": [
+        "Ascertain date of registration of FIR or institution of trial",
+        "If initiated prior to July 1, 2024: continue under CrPC 1973 provisions",
+        "If initiated on or after July 1, 2024: conduct under BNSS 2023 procedures"
+      ],
+      "safeguards": ["Preservation of pending trials and existing warrants/orders"],
+      "timeline_days": null
+    },
+    "keywords": ["repeal and savings", "code of criminal procedure", "crpc 1973", "transitional provisions", "pending trials"]
+  }
+]

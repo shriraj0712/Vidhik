@@ -1,0 +1,138 @@
+[
+  {
+    "case_title": "Arjun Panditrao Khotkar v. Kailash Kushanrao Gorantyal and Others",
+    "case_number": "Civil Appeal Nos. 2082-2083 of 2013",
+    "court": "Supreme Court of India",
+    "bench": "R.F. Nariman, S. Ravindra Bhat, V. Ramasubramanian, JJ.",
+    "judgment_date": "2020-07-14",
+    "citation": "(2020) 7 SCC 1",
+    "judgment_text": "The Supreme Court of India held that the certificate under Section 65B(4) of the Indian Evidence Act, 1872 is a condition precedent to the admissibility of electronic records by way of secondary evidence. Where the original electronic device is produced by the owner or person in control, Section 65B(4) certificate is unnecessary, and the primary electronic evidence is admissible under Section 62. This definitive interpretation is codified in Section 63 and Explanation 3 to Section 57 of the Bharatiya Sakshya Adhiniyam, 2023.",
+    "headnotes": "Electronic Evidence - Production of Certificate under Section 65B(4) is mandatory condition precedent for secondary electronic records. When original hardware/device produced, primary evidence rules apply.",
+    "source_url": "https://main.sci.gov.in/supremecourt/2013/37424/37424_2013_34_1501_22971_Judgement_14-Jul-2020.pdf",
+    "source_name": "Supreme Court of India Official Repository",
+    "source_type": "Supreme Court of India",
+    "language": "en",
+    "linked_sections": [
+      {
+        "law_name": "Bharatiya Sakshya Adhiniyam, 2023",
+        "section_number": "63",
+        "relationship_type": "Interpreted",
+        "relevance": "Direct",
+        "explanation": "Authoritative interpretation settling the mandatory nature of electronic certificates for secondary computer outputs, codified in Section 63 BSA."
+      },
+      {
+        "law_name": "Bharatiya Sakshya Adhiniyam, 2023",
+        "section_number": "57",
+        "relationship_type": "Applied",
+        "relevance": "Direct",
+        "explanation": "Affirms that producing the original device/media constitutes primary evidence (Explanation 3 to Section 57 BSA)."
+      }
+    ]
+  },
+  {
+    "case_title": "Satender Kumar Antil v. Central Bureau of Investigation and Another",
+    "case_number": "Special Leave to Appeal (Crl.) No. 5191 of 2021",
+    "court": "Supreme Court of India",
+    "bench": "Sanjay Kishan Kaul, M.M. Sundresh, JJ.",
+    "judgment_date": "2022-07-11",
+    "citation": "(2022) 10 SCC 51",
+    "judgment_text": "The Supreme Court issued comprehensive guidelines categorizing offences into four categories (A, B, C, D) to regulate arrests and bail applications. The Court underscored that bail is the rule and jail is the exception, directed strict adherence to Section 41 and 41A of CrPC (now Section 35 BNSS), and emphasized the duty of jail authorities to release undertrial prisoners who have completed maximum permissible detention without delay. These principles informed the revised undertrial protections and first-time offender one-third detention threshold enacted in Section 479 of the Bharatiya Nagarik Suraksha Sanhita, 2023.",
+    "headnotes": "Criminal Procedure - Bail Guidelines - Strict adherence to statutory provisions against mechanical arrests. Progressive release of undertrial prisoners who have completed substantial detention.",
+    "source_url": "https://main.sci.gov.in/supremecourt/2021/18501/18501_2021_1_1501_36750_Judgement_11-Jul-2022.pdf",
+    "source_name": "Supreme Court of India Official Repository",
+    "source_type": "Supreme Court of India",
+    "language": "en",
+    "linked_sections": [
+      {
+        "law_name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+        "section_number": "479",
+        "relationship_type": "Interpreted",
+        "relevance": "Direct",
+        "explanation": "Direct judicial basis for the proactive release of undertrial prisoners, including the 1/3rd detention threshold for first-time offenders."
+      },
+      {
+        "law_name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+        "section_number": "35",
+        "relationship_type": "Applied",
+        "relevance": "Direct",
+        "explanation": "Enforces procedural checks against mechanical arrests for offences punishable with up to 7 years imprisonment."
+      }
+    ]
+  },
+  {
+    "case_title": "Lalita Kumari v. Government of Uttar Pradesh and Others",
+    "case_number": "Writ Petition (Criminal) No. 68 of 2008",
+    "court": "Supreme Court of India (Constitution Bench)",
+    "bench": "P. Sathasivam, C.J., B.S. Chauhan, Ranjana P. Desai, Ranjan Gogoi, S.A. Bobde, JJ.",
+    "judgment_date": "2013-11-12",
+    "citation": "(2014) 2 SCC 1",
+    "judgment_text": "The Constitution Bench of the Supreme Court held that registration of First Information Report is mandatory under Section 154 of the Code of Criminal Procedure if the information discloses the commission of a cognizable offence. In certain exceptional categories (e.g. matrimonial disputes, commercial offences, medical negligence, corruption, cases with abnormal delay), a preliminary inquiry may be conducted, but must be completed within a time-bound manner. This landmark ruling is statutorily incorporated into Section 173(1) and Section 173(3) of the Bharatiya Nagarik Suraksha Sanhita, 2023, which codifies the 14-day preliminary inquiry window for 3-7 year offences.",
+    "headnotes": "Criminal Procedure - Mandatory Registration of FIR under Section 154 CrPC (now Section 173 BNSS). Preliminary inquiry permitted only in specified categories within strict time limit.",
+    "source_url": "https://main.sci.gov.in/supremecourt/2008/11725/11725_2008_Judgement_12-Nov-2013.pdf",
+    "source_name": "Supreme Court of India Official Repository",
+    "source_type": "Supreme Court of India",
+    "language": "en",
+    "linked_sections": [
+      {
+        "law_name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+        "section_number": "173",
+        "relationship_type": "Interpreted",
+        "relevance": "Direct",
+        "explanation": "Foundation for mandatory FIR registration for cognizable offences and statutory recognition of the 14-day preliminary inquiry window in Section 173(3) BNSS."
+      }
+    ]
+  },
+  {
+    "case_title": "Bachan Singh v. State of Punjab",
+    "case_number": "Criminal Appeal No. 273 of 1979",
+    "court": "Supreme Court of India (Constitution Bench)",
+    "bench": "Y.V. Chandrachud, C.J., A. Sarkaria, N.L. Untwalia, A.D. Koshal, P.N. Bhagwati, JJ.",
+    "judgment_date": "1980-05-09",
+    "citation": "(1980) 2 SCC 684",
+    "judgment_text": "The Constitution Bench established the 'rarest of rare cases' doctrine for sentencing an offender to death for murder. The Court held that the extreme penalty of death should be imposed only when the alternative option of life imprisonment is unquestionably foreclosed, after balancing aggravating and mitigating circumstances relating to both the crime and the criminal. This constitutional standard governs sentencing under Section 103(1) of the Bharatiya Nyaya Sanhita, 2023.",
+    "headnotes": "Penal Law - Murder Sentencing - Death penalty is an exception to be awarded only in the 'rarest of rare cases' when the alternative of life imprisonment is unquestionably foreclosed.",
+    "source_url": "https://main.sci.gov.in/supremecourt/1979/273/273_1979_Judgement_09-May-1980.pdf",
+    "source_name": "Supreme Court of India Official Repository",
+    "source_type": "Supreme Court of India",
+    "language": "en",
+    "linked_sections": [
+      {
+        "law_name": "Bharatiya Nyaya Sanhita, 2023",
+        "section_number": "103",
+        "relationship_type": "Applied",
+        "relevance": "Direct",
+        "explanation": "Provides the controlling judicial doctrine restricting imposition of the death penalty under Section 103 BNS to the rarest of rare cases."
+      },
+      {
+        "law_name": "Bharatiya Nyaya Sanhita, 2023",
+        "section_number": "4",
+        "relationship_type": "Applied",
+        "relevance": "Direct",
+        "explanation": "Interprets death penalty as an exceptional punishment among statutory sentencing alternatives in Section 4 BNS."
+      }
+    ]
+  },
+  {
+    "case_title": "Shafhi Mohammad v. State of Himachal Pradesh",
+    "case_number": "Special Leave to Appeal (Crl.) No. 2302 of 2017",
+    "court": "Supreme Court of India",
+    "bench": "A.K. Goel, U.U. Lalit, JJ.",
+    "judgment_date": "2018-01-30",
+    "citation": "(2018) 2 SCC 801",
+    "judgment_text": "The Supreme Court highlighted the critical need for introducing videography and electronic audio-video recording during police investigation, scene of crime inspection, search, and recovery to enhance transparency, credibility of evidence, and rule out planting of incriminating material. This judicial recommendation is now formally enacted as a mandatory statutory requirement under Section 105 of the Bharatiya Nagarik Suraksha Sanhita, 2023.",
+    "headnotes": "Criminal Investigation - Audio-Video Recording - Directing widespread use of photography and videography in search, seizure and scene of crime to prevent false implication.",
+    "source_url": "https://main.sci.gov.in/supremecourt/2017/2302/2302_2017_Judgement_30-Jan-2018.pdf",
+    "source_name": "Supreme Court of India Official Repository",
+    "source_type": "Supreme Court of India",
+    "language": "en",
+    "linked_sections": [
+      {
+        "law_name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+        "section_number": "105",
+        "relationship_type": "Interpreted",
+        "relevance": "Direct",
+        "explanation": "Catalyzed the statutory codification of mandatory videography for search and seizure in Section 105 BNSS."
+      }
+    ]
+  }
+]
