@@ -10,6 +10,7 @@ from .auth import router as auth_router
 from .lawyer import router as lawyer_router
 from .documentation import router as documentation_router
 from .knowledge_base import router as knowledge_base_router
+from .authorities import router as authorities_router
 
 __all__ = [
     "health_router",
@@ -20,6 +21,7 @@ __all__ = [
     "lawyer_router",
     "documentation_router",
     "knowledge_base_router",
+    "authorities_router",
 ]
 
 

@@ -23,7 +23,8 @@ from app.routers import (
     auth_router,
     lawyer_router,
     documentation_router,
-    knowledge_base_router
+    knowledge_base_router,
+    authorities_router
 )
 
 
@@ -78,6 +79,7 @@ app.include_router(auth_router)
 app.include_router(lawyer_router)
 app.include_router(documentation_router)
 app.include_router(knowledge_base_router)
+app.include_router(authorities_router)
 
 # Mount Static UI directory
 STATIC_DIR = Path(__file__).resolve().parent / "static"
