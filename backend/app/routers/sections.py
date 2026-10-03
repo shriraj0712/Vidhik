@@ -47,7 +47,8 @@ def get_sections(
     # Count total matching records
     count_sql = f"SELECT COUNT(*) AS total FROM sections{where_clause};"
     db.execute(count_sql, tuple(params))
-    total_count = db.fetchone()["total"]
+    total_row = db.fetchone()
+    total_count = total_row["total"] if total_row else 0
 
     # Fetch paginated rows with actual existing columns
     data_sql = f"""

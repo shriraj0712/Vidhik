@@ -86,7 +86,8 @@ class DocumentationService:
             {where_clause};
         """
         db.execute(count_sql, tuple(params))
-        total_count = db.fetchone()["total"]
+        total_row = db.fetchone()
+        total_count = total_row["total"] if total_row else 0
 
         # Main data query with document aggregates
         data_sql = f"""

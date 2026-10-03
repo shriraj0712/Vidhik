@@ -9,11 +9,33 @@ Documents, Hearings, Case Notes, Legal Research, and Lawyer Profile.
 import sys
 import httpx
 
-if sys.platform == "win32":
-    sys.stdout.reconfigure(encoding="utf-8")
+if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
+    getattr(sys.stdout, "reconfigure")(encoding="utf-8")
 
 BASE_URL = "http://127.0.0.1:8000"
 client = httpx.Client(base_url=BASE_URL, timeout=10.0)
+
+# Pre-flight check: Verify backend and database availability
+try:
+    r_health = client.get("/lawyer")
+    if r_health.status_code not in (200, 307):
+        print(f"[ERROR] Server responded with unexpected status code {r_health.status_code}")
+        sys.exit(1)
+except httpx.ConnectError:
+    print("[ERROR] Backend server is not available at http://127.0.0.1:8000.")
+    print("Please ensure the Uvicorn server is running before executing tests:")
+    print("  python -m uvicorn app.main:app --host 127.0.0.1 --port 8000")
+    sys.exit(1)
+
+import os
+sys.path.insert(0, os.path.abspath("backend"))
+from app.database import get_db_cursor
+try:
+    with get_db_cursor() as cur:
+        cur.execute("SELECT 1;")
+except Exception as e:
+    print(f"[ERROR] PostgreSQL database is unavailable: {e}")
+    sys.exit(1)
 
 print("=" * 65)
 print("VIDHIK AI - PHASE 13 LAWYER MODULE END-TO-END VERIFICATION")
@@ -100,11 +122,13 @@ new_note_res = client.post("/api/lawyer/cases/1/notes", headers=headers, json={
 })
 assert new_note_res.status_code == 200
 created_note = new_note_res.json()
-print(f"  ✓ Note Created: ID {created_note['note_id']} - {created_note['title']}")
-
-del_note_res = client.delete(f"/api/lawyer/notes/{created_note['note_id']}", headers=headers)
-assert del_note_res.status_code == 200
-print(f"  ✓ Note Successfully Deleted: ID {created_note['note_id']}")
+note_id = created_note["note_id"]
+try:
+    print(f"  ✓ Note Created: ID {note_id} - {created_note['title']}")
+finally:
+    del_note_res = client.delete(f"/api/lawyer/notes/{note_id}", headers=headers)
+    assert del_note_res.status_code == 200
+    print(f"  ✓ Note Successfully Deleted: ID {note_id}")
 
 # 8. HEARINGS MANAGEMENT
 print("\n[8/11] VERIFY HEARINGS MANAGEMENT")
@@ -145,6 +169,11 @@ link_res = client.post("/api/lawyer/cases/1/sections", headers=headers, json={
 assert link_res.status_code == 200
 link_data = link_res.json()
 print(f"  ✓ Successfully Linked Section {link_data['section_number']} to Case 1 (Score: {link_data['relevance_score']}%)")
+
+# Clean up linked test section from Case 1
+with get_db_cursor() as cur:
+    cur.execute("DELETE FROM case_legal_sections WHERE case_id = 1 AND section_id = %s;", (top_match["section_id"],))
+    cur.connection.commit()
 
 # 11. LAWYER PROFILE
 print("\n[11/11] VERIFY LAWYER PROFILE")

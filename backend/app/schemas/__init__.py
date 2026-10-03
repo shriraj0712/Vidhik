@@ -15,6 +15,27 @@ from .documentation import (
     ProcedureListResponse
 )
 
+from .citizen import (
+    RegisterRequest,
+    CitizenProfileResponse,
+    CitizenProfileUpdate,
+    CitizenDashboardMetrics,
+    CitizenCaseResponse,
+    CitizenCaseDetailResponse,
+    CitizenCaseCreate,
+    CitizenDocumentResponse,
+    CitizenDocumentUpload,
+    BookmarkCreate,
+    BookmarkResponse,
+    BookmarkListResponse,
+    SearchHistoryCreate,
+    SearchHistoryResponse,
+    NotificationResponse,
+    NotificationListResponse,
+    ProcedureTrackerResponse,
+    ProcedureTrackerToggle
+)
+
 __all__ = [
     "LawResponse",
     "LawSummaryResponse",
@@ -33,7 +54,23 @@ __all__ = [
     "ProcedureDetail",
     "ChecklistResponse",
     "CategoryResponse",
-    "ProcedureListResponse"
+    "ProcedureListResponse",
+    "RegisterRequest",
+    "CitizenProfileResponse",
+    "CitizenProfileUpdate",
+    "CitizenDashboardMetrics",
+    "CitizenCaseResponse",
+    "CitizenCaseDetailResponse",
+    "CitizenCaseCreate",
+    "CitizenDocumentResponse",
+    "CitizenDocumentUpload",
+    "BookmarkCreate",
+    "BookmarkResponse",
+    "BookmarkListResponse",
+    "SearchHistoryCreate",
+    "SearchHistoryResponse",
+    "NotificationResponse",
+    "NotificationListResponse",
+    "ProcedureTrackerResponse",
+    "ProcedureTrackerToggle"
 ]
-
-

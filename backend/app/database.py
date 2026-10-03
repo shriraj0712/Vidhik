@@ -8,7 +8,7 @@ All database operations are read-only and consume environment variables.
 import os
 from pathlib import Path
 from contextlib import contextmanager
-from typing import Generator
+from typing import Generator, Optional
 import psycopg2
 from psycopg2.pool import ThreadedConnectionPool
 from psycopg2.extras import RealDictCursor
@@ -28,7 +28,7 @@ DB_MIN_CONN = int(os.getenv("DB_MIN_CONN", "1"))
 DB_MAX_CONN = int(os.getenv("DB_MAX_CONN", "10"))
 
 # Global connection pool reference
-_pool: ThreadedConnectionPool = None
+_pool: Optional[ThreadedConnectionPool] = None
 
 
 def init_db_pool():
@@ -59,6 +59,8 @@ def get_db_connection():
     global _pool
     if _pool is None or _pool.closed:
         init_db_pool()
+    if _pool is None:
+        raise Exception("Database connection pool could not be initialized")
     return _pool.getconn()
 
 
@@ -99,6 +101,8 @@ def check_db_connection() -> dict:
         with get_db_cursor() as cur:
             cur.execute("SELECT 1 AS ping, current_database() AS db_name, version() AS version;")
             row = cur.fetchone()
+            if not row:
+                raise Exception("No ping response from database")
             return {
                 "status": "connected",
                 "database": row["db_name"],

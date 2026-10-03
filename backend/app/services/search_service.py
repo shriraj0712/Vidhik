@@ -96,7 +96,7 @@ class LegalSearchService:
         return None
 
     @classmethod
-    def search(
+    def retrieve_ranked_candidates(
         cls,
         db: RealDictCursor,
         query: str,
@@ -104,38 +104,48 @@ class LegalSearchService:
         offset: int = 0,
         law_id: Optional[int] = None,
         jurisdiction: Optional[str] = None
-    ) -> SearchResponse:
+    ) -> Tuple[List[Dict[str, Any]], int, Any]:
         """
-        Executes a safe, parameterized multi-field ILIKE candidate search against
-        `laws` and `sections`, integrating LegalQueryService for query analysis
-        and LegalRankingService for deterministic relevance ranking.
+        Executes query analysis via LegalQueryService, constructs parameterized
+        multi-field search conditions, retrieves statutory candidates from PostgreSQL,
+        and applies deterministic relevance ranking via LegalRankingService.
+
+        Shared core retrieval method reused across LegalSearchService and LegalRAGService.
 
         :param db: RealDictCursor database cursor dependency
         :param query: Required search query string
-        :param limit: Maximum number of records to return (1-50)
+        :param limit: Maximum candidate pool limit to retrieve
         :param offset: Number of records to skip
         :param law_id: Optional filter by parent Law ID
         :param jurisdiction: Optional filter by jurisdiction name
-        :return: SearchResponse containing pagination metadata and deterministically ranked results
+        :return: Tuple of (ranked_candidates_list, total_match_count, query_analysis_object)
         """
         clean_q = query.strip()
         if not clean_q:
-            return SearchResponse(
-                query=query,
-                total=0,
-                limit=limit,
-                offset=offset,
-                results=[]
-            )
+            empty_analysis = LegalQueryService.analyze_query(db, "")
+            return [], 0, empty_analysis
 
         # 1. Query Understanding & Statutory Terminology Analysis
         query_analysis = LegalQueryService.analyze_query(db, clean_q)
 
-        # 2. Candidate Retrieval Conditions
-        search_phrases = [clean_q]
+        # 2. Candidate Retrieval Conditions with Multilingual Terminology Expansion
+        search_phrases: List[str] = [clean_q]
+
         for t in query_analysis.matched_terms:
-            if t.term_en and t.term_en.lower() != clean_q.lower():
+            if t.term_en and t.term_en.lower() != clean_q.lower() and t.term_en not in search_phrases:
                 search_phrases.append(t.term_en)
+            if t.term_mr and t.term_mr != clean_q and t.term_mr not in search_phrases:
+                search_phrases.append(t.term_mr)
+            if t.term_hi and t.term_hi != clean_q and t.term_hi not in search_phrases:
+                search_phrases.append(t.term_hi)
+
+        for syn in query_analysis.matched_synonyms:
+            for s_mr in syn.synonyms_mr:
+                if s_mr and s_mr != clean_q and s_mr not in search_phrases:
+                    search_phrases.append(s_mr)
+            for s_hi in syn.synonyms_hi:
+                if s_hi and s_hi != clean_q and s_hi not in search_phrases:
+                    search_phrases.append(s_hi)
 
         conditions: List[str] = []
         params: List[Any] = []
@@ -144,7 +154,8 @@ class LegalSearchService:
         for sp in search_phrases:
             search_param = f"%{sp}%"
             conditions.append(
-                "(l.law_name ILIKE %s OR l.short_name ILIKE %s OR s.section_number ILIKE %s OR s.section_title ILIKE %s OR s.description ILIKE %s OR s.full_text ILIKE %s)"
+                "(l.law_name ILIKE %s OR l.short_name ILIKE %s OR s.section_number ILIKE %s "
+                "OR s.section_title ILIKE %s OR s.description ILIKE %s OR s.full_text ILIKE %s)"
             )
             params.extend([search_param] * 6)
 
@@ -156,7 +167,8 @@ class LegalSearchService:
             for tok in q_sig:
                 tp = f"%{tok}%"
                 tok_conditions.append(
-                    "(l.law_name ILIKE %s OR l.short_name ILIKE %s OR s.section_title ILIKE %s OR s.description ILIKE %s OR s.full_text ILIKE %s)"
+                    "(l.law_name ILIKE %s OR l.short_name ILIKE %s OR s.section_title ILIKE %s "
+                    "OR s.description ILIKE %s OR s.full_text ILIKE %s)"
                 )
                 params.extend([tp] * 5)
             conditions.append("(" + " AND ".join(tok_conditions) + ")")
@@ -190,13 +202,7 @@ class LegalSearchService:
         total_count = count_result["total"] if count_result else 0
 
         if total_count == 0:
-            return SearchResponse(
-                query=query,
-                total=0,
-                limit=limit,
-                offset=offset,
-                results=[]
-            )
+            return [], 0, query_analysis
 
         # 4. Candidate Retrieval for In-Memory Deterministic Ranking
         candidate_pool_limit = max(limit + offset, 250)
@@ -210,6 +216,7 @@ class LegalSearchService:
                 s.section_title,
                 s.description,
                 s.full_text,
+                s.section_uid,
                 COALESCE(s.jurisdiction, l.jurisdiction) AS jurisdiction,
                 COALESCE(s.source_pdf, l.source_pdf) AS source_pdf,
                 s.source_page_start,
@@ -232,10 +239,62 @@ class LegalSearchService:
             query_analysis=query_analysis
         )
 
-        # 6. Pagination Slice
+        return ranked_candidates, total_count, query_analysis
+
+    @classmethod
+    def search(
+        cls,
+        db: RealDictCursor,
+        query: str,
+        limit: int = 10,
+        offset: int = 0,
+        law_id: Optional[int] = None,
+        jurisdiction: Optional[str] = None
+    ) -> SearchResponse:
+        """
+        Executes a safe, parameterized multi-field legal search delegating to
+        `retrieve_ranked_candidates` and formatting results with contextual snippets.
+
+        :param db: RealDictCursor database cursor dependency
+        :param query: Required search query string
+        :param limit: Maximum number of records to return (1-50)
+        :param offset: Number of records to skip
+        :param law_id: Optional filter by parent Law ID
+        :param jurisdiction: Optional filter by jurisdiction name
+        :return: SearchResponse containing pagination metadata and deterministically ranked results
+        """
+        clean_q = query.strip()
+        if not clean_q:
+            return SearchResponse(
+                query=query,
+                total=0,
+                limit=limit,
+                offset=offset,
+                results=[]
+            )
+
+        ranked_candidates, total_count, _ = cls.retrieve_ranked_candidates(
+            db=db,
+            query=clean_q,
+            limit=limit,
+            offset=offset,
+            law_id=law_id,
+            jurisdiction=jurisdiction
+        )
+
+        if total_count == 0 or not ranked_candidates:
+            return SearchResponse(
+                query=query,
+                total=0,
+                limit=limit,
+                offset=offset,
+                results=[]
+            )
+
+        # Pagination Slice
         paginated_candidates = ranked_candidates[offset : offset + limit]
 
-        # 7. Response Item Serialization & Snippet Generation
+        # Response Item Serialization & Snippet Generation
         results: List[SearchResultItem] = []
         for row in paginated_candidates:
             snippet = cls.extract_snippet(

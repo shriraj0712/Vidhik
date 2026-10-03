@@ -23,11 +23,31 @@ import httpx
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-if sys.platform == "win32":
-    sys.stdout.reconfigure(encoding="utf-8")
+if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
+    getattr(sys.stdout, "reconfigure")(encoding="utf-8")
 
 BASE_URL = "http://127.0.0.1:8000"
 client = httpx.Client(base_url=BASE_URL, timeout=10.0)
+
+# Pre-flight check: Verify backend and database availability
+try:
+    r_health = client.get("/lawyer")
+    if r_health.status_code not in (200, 307):
+        print(f"[ERROR] Server responded with unexpected status code {r_health.status_code}")
+        sys.exit(1)
+except httpx.ConnectError:
+    print("[ERROR] Backend server is not available at http://127.0.0.1:8000.")
+    print("Please ensure the Uvicorn server is running before executing tests:")
+    print("  python -m uvicorn app.main:app --host 127.0.0.1 --port 8000")
+    sys.exit(1)
+
+from app.database import get_db_cursor
+try:
+    with get_db_cursor() as cur:
+        cur.execute("SELECT 1;")
+except Exception as e:
+    print(f"[ERROR] PostgreSQL database is unavailable: {e}")
+    sys.exit(1)
 
 print("=" * 70)
 print("VIDHIK AI - PHASE 12 DOCUMENTATION SUPPORT END-TO-END VERIFICATION")
@@ -78,8 +98,8 @@ print("\n[3/12] VERIFY PROCEDURES LISTING (/api/documentation/procedures)")
 r_proc = client.get("/api/documentation/procedures")
 assert r_proc.status_code == 200
 proc_data = r_proc.json()
-assert proc_data["total"] == 8, f"Expected 8 seeded procedures, got {proc_data['total']}"
-assert len(proc_data["procedures"]) == 8
+assert proc_data["total"] == 25, f"Expected 25 seeded procedures, got {proc_data['total']}"
+assert len(proc_data["procedures"]) == 25
 print(f"  ✓ Total Procedures Listed: {proc_data['total']}")
 for p in proc_data["procedures"]:
     print(f"    [{p['procedure_id']}] {p['procedure_name']} ({p['category']}) | Docs: {p['total_documents_count']} (Mandatory: {p['mandatory_documents_count']}, Supporting: {p['supporting_documents_count']})")
@@ -96,7 +116,24 @@ search_tests = [
     ("Divorce", "Petition for Mutual Consent Divorce"),
     ("Civil Suit", "Civil Suit Plaint Presentation & Institution"),
     ("Mutation", "Land Title Mutation (7/12 Extract Ferfar)"),
-    ("Co-operative", "Registration of Co-operative Society")
+    ("Co-operative", "Registration of Co-operative Society"),
+    ("Marriage", "Registration of Marriage (Special & Hindu Marriage Acts)"),
+    ("Birth", "Birth Certificate Registration and Correction"),
+    ("Death", "Death Certificate Registration and Correction"),
+    ("Gazette", "Name Change and Official Gazette Publication"),
+    ("Domicile", "Application for Domicile and Nationality Certificate"),
+    ("Income", "Application for Income Certificate"),
+    ("Caste", "Caste Certificate Issuance and Scrutiny Verification"),
+    ("Legal Heir", "Legal Heir / Surviving Member Certificate"),
+    ("Encumbrance", "Property Encumbrance Certificate (EC) & Title Search"),
+    ("Banking Ombudsman", "Banking Ombudsman / RBI Grievance Redressal"),
+    ("Insurance Ombudsman", "Insurance Ombudsman Complaint Filing"),
+    ("EPFO", "Employees' Provident Fund (EPFO / PF) Settlement Claim"),
+    ("Gratuity", "Payment of Gratuity Claim and Controlling Authority Application"),
+    ("Compensation", "Employee Compensation Claim for Workplace Injury"),
+    ("FIR", "First Information Report (FIR) / Police Complaint Filing"),
+    ("Bail", "Bail Application (Regular & Anticipatory Bail)"),
+    ("Legal Notice", "Statutory Legal Notice & Demand (Cheque Dishonour / Section 80 CPC)")
 ]
 for query, expected_title in search_tests:
     res = client.get(f"/api/documentation/procedures?search={query}").json()
@@ -110,12 +147,13 @@ for query, expected_title in search_tests:
 # ----------------------------------------------------------------------
 print("\n[5/12] VERIFY CATEGORY FILTERING")
 cat_tests = [
-    ("Property", 2),
+    ("Property", 3),
     ("Government Applications", 1),
-    ("Court / Litigation", 1),
-    ("Certificates / Registrations", 2),
-    ("Consumer / Commercial", 1),
-    ("Family / Personal", 1)
+    ("Court / Litigation", 4),
+    ("Certificates / Registrations", 9),
+    ("Consumer / Commercial", 3),
+    ("Family / Personal", 2),
+    ("Employment / Social", 3)
 ]
 for cat_name, expected_count in cat_tests:
     res = client.get(f"/api/documentation/procedures?category={cat_name}").json()
@@ -199,13 +237,15 @@ test_note_payload = {
 note_res = client.post("/api/lawyer/cases/1/notes", headers=headers, json=test_note_payload)
 assert note_res.status_code == 200
 created_note = note_res.json()
-assert created_note["title"] == test_note_payload["title"]
-print(f"  ✓ Successfully attached checklist summary to Case 1 Notes (Note ID: {created_note['note_id']})")
-
-# Clean up test note
-del_res = client.delete(f"/api/lawyer/notes/{created_note['note_id']}", headers=headers)
-assert del_res.status_code == 200
-print(f"  ✓ Cleaned up test note {created_note['note_id']} after successful attachment verification")
+note_id = created_note["note_id"]
+try:
+    assert created_note["title"] == test_note_payload["title"]
+    print(f"  ✓ Successfully attached checklist summary to Case 1 Notes (Note ID: {note_id})")
+finally:
+    # Clean up test note
+    del_res = client.delete(f"/api/lawyer/notes/{note_id}", headers=headers)
+    assert del_res.status_code == 200
+    print(f"  ✓ Cleaned up test note {note_id} after successful attachment verification")
 
 # ----------------------------------------------------------------------
 # 10. EXISTING LEGAL SEARCH REGRESSION
@@ -239,42 +279,43 @@ print(f"  ✓ Lawyer Cases functional ({r_cases.json()['total']} cases cataloged
 # 12. ZERO-LOSS DATABASE CORPUS INTEGRITY
 # ----------------------------------------------------------------------
 print("\n[12/12] VERIFY ZERO-LOSS DATABASE CORPUS INTEGRITY")
-from app.database import get_db
-g = get_db()
-cur = next(g)
+with get_db_cursor() as cur:
+    cur.execute("SELECT count(*) FROM laws;")
+    r = cur.fetchone()
+    laws_count = r["count"] if r else 0
+    assert laws_count == 869, f"Expected 869 laws, got {laws_count}"
 
-cur.execute("SELECT count(*) FROM laws;")
-laws_count = cur.fetchone()["count"]
-assert laws_count == 869, f"Expected 869 laws, got {laws_count}"
+    cur.execute("SELECT count(*) FROM sections;")
+    r = cur.fetchone()
+    sections_count = r["count"] if r else 0
+    assert sections_count == 41442, f"Expected 41,442 sections, got {sections_count}"
 
-cur.execute("SELECT count(*) FROM sections;")
-sections_count = cur.fetchone()["count"]
-assert sections_count == 41442, f"Expected 41,442 sections, got {sections_count}"
+    cur.execute("SELECT count(*) FROM legal_lexicon;")
+    r = cur.fetchone()
+    lexicon_count = r["count"] if r else 0
+    assert lexicon_count == 42, f"Expected 42 lexicon terms, got {lexicon_count}"
 
-cur.execute("SELECT count(*) FROM legal_lexicon;")
-lexicon_count = cur.fetchone()["count"]
-assert lexicon_count == 42, f"Expected 42 lexicon terms, got {lexicon_count}"
+    cur.execute("SELECT count(*) FROM section_alignments;")
+    r = cur.fetchone()
+    alignments_count = r["count"] if r else 0
+    assert alignments_count == 9304, f"Expected 9,304 alignments, got {alignments_count}"
 
-cur.execute("SELECT count(*) FROM section_alignments;")
-alignments_count = cur.fetchone()["count"]
-assert alignments_count == 9304, f"Expected 9,304 alignments, got {alignments_count}"
+    cur.execute("SELECT count(*) FROM legal_procedures;")
+    r = cur.fetchone()
+    proc_count = r["count"] if r else 0
+    assert proc_count == 25, f"Expected 25 procedures, got {proc_count}"
 
-cur.execute("SELECT count(*) FROM legal_procedures;")
-proc_count = cur.fetchone()["count"]
-assert proc_count == 8, f"Expected 8 procedures, got {proc_count}"
-
-cur.execute("SELECT count(*) FROM procedure_required_documents;")
-docs_count = cur.fetchone()["count"]
-assert docs_count == 48, f"Expected 48 documents, got {docs_count}"
-
-g.close()
+    cur.execute("SELECT count(*) FROM procedure_required_documents;")
+    r = cur.fetchone()
+    docs_count = r["count"] if r else 0
+    assert docs_count == 159, f"Expected 159 documents, got {docs_count}"
 
 print(f"  ✓ laws: {laws_count} (100% Intact)")
 print(f"  ✓ sections: {sections_count} (100% Intact)")
 print(f"  ✓ legal_lexicon: {lexicon_count} (100% Intact)")
 print(f"  ✓ section_alignments: {alignments_count} (100% Intact)")
-print(f"  ✓ legal_procedures: {proc_count} (Phase 12)")
-print(f"  ✓ procedure_required_documents: {docs_count} (Phase 12)")
+print(f"  ✓ legal_procedures: {proc_count} (Phase 12 Expanded)")
+print(f"  ✓ procedure_required_documents: {docs_count} (Phase 12 Expanded)")
 
 print("\n" + "=" * 70)
 print("ALL 12 PHASE 12 VERIFICATION SUITES COMPLETED WITH 100% SUCCESS!")

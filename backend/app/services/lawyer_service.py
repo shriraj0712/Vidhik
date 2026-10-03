@@ -14,6 +14,7 @@ Implements all core operations for the Lawyer Workspace:
 
 from typing import Optional, List, Dict, Any
 from datetime import date, datetime
+from fastapi import HTTPException, status
 from psycopg2.extras import RealDictCursor
 
 from app.schemas.lawyer import (
@@ -47,7 +48,8 @@ class LawyerService:
             FROM cases
             WHERE assigned_lawyer_id = %s;
         """, (lawyer_id,))
-        total_clients = db.fetchone()["total_clients"] or 0
+        row_clients = db.fetchone()
+        total_clients = (row_clients["total_clients"] if row_clients else 0) or 0
 
         # Active Cases
         db.execute("""
@@ -55,7 +57,8 @@ class LawyerService:
             FROM cases
             WHERE assigned_lawyer_id = %s AND status = 'active';
         """, (lawyer_id,))
-        active_cases = db.fetchone()["active_cases"] or 0
+        row_cases = db.fetchone()
+        active_cases = (row_cases["active_cases"] if row_cases else 0) or 0
 
         # Upcoming Hearings
         db.execute("""
@@ -63,7 +66,8 @@ class LawyerService:
             FROM reminders
             WHERE lawyer_id = %s AND reminder_date >= %s AND status = 'scheduled';
         """, (lawyer_id, today))
-        upcoming_hearings = db.fetchone()["upcoming_hearings"] or 0
+        row_hearings = db.fetchone()
+        upcoming_hearings = (row_hearings["upcoming_hearings"] if row_hearings else 0) or 0
 
         # Recent Documents Count
         db.execute("""
@@ -71,7 +75,8 @@ class LawyerService:
             FROM case_documents
             WHERE lawyer_id = %s;
         """, (lawyer_id,))
-        recent_documents_count = db.fetchone()["recent_docs"] or 0
+        row_docs = db.fetchone()
+        recent_documents_count = (row_docs["recent_docs"] if row_docs else 0) or 0
 
         # Recent Cases (5 latest)
         db.execute("""
@@ -210,7 +215,12 @@ class LawyerService:
         """, (username, data.email.lower().strip(), data.full_name.strip(), data.phone))
         created = db.fetchone()
         db.connection.commit()
-        return ClientResponse(**created, active_cases_count=0)
+        if not created:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to create client user."
+            )
+        return ClientResponse(**dict(created), active_cases_count=0)
 
     @staticmethod
     def update_client(db: RealDictCursor, client_id: int, data: ClientUpdate) -> Optional[ClientResponse]:
@@ -390,6 +400,11 @@ class LawyerService:
             data.location, data.police_station, data.case_description
         ))
         res = db.fetchone()
+        if not res:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to create case."
+            )
         case_id = res["case_id"]
 
         # Insert initial activity record
@@ -483,6 +498,11 @@ class LawyerService:
             data.mime_type or 'application/pdf', data.description
         ))
         res = db.fetchone()
+        if not res:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to create document record."
+            )
         doc_id = res["document_id"]
         db.connection.commit()
 
@@ -564,6 +584,11 @@ class LawyerService:
             data.status or 'scheduled', data.priority or 'normal', data.notes
         ))
         res = db.fetchone()
+        if not res:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to create hearing record."
+            )
         h_id = res["reminder_id"]
         db.connection.commit()
 
@@ -625,12 +650,20 @@ class LawyerService:
         """, (data.case_id, lawyer_id, data.title, data.content.strip(), data.is_pinned))
         res = db.fetchone()
         db.connection.commit()
+        if not res:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to create case note."
+            )
 
         notes = LawyerService.list_notes(db, data.case_id, lawyer_id)
         for n in notes:
             if n.note_id == res["note_id"]:
                 return n
-        raise Exception("Failed to retrieve created note")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve created note."
+        )
 
     @staticmethod
     def update_note(db: RealDictCursor, note_id: int, lawyer_id: int, data: NoteUpdate) -> Optional[NoteResponse]:
@@ -699,6 +732,11 @@ class LawyerService:
         """, (case_id, data.section_id, data.relevance_score, data.explanation))
         res = db.fetchone()
         db.connection.commit()
+        if not res:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to link section to case."
+            )
 
         # Fetch section and law details
         db.execute("""
@@ -708,6 +746,11 @@ class LawyerService:
             WHERE s.section_id = %s;
         """, (data.section_id,))
         sec = db.fetchone()
+        if not sec:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Section not found in legal corpus."
+            )
 
         return CaseSectionLinkResponse(
             case_id=case_id,

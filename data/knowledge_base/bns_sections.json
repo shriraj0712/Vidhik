@@ -1,0 +1,406 @@
+[
+  {
+    "section_number": "1",
+    "section_title": "Short title, commencement and application",
+    "full_text": "(1) This Act may be called the Bharatiya Nyaya Sanhita, 2023.\n(2) It shall come into force on such date as the Central Government may, by notification in the Official Gazette, appoint.\n(3) Every person shall be liable to punishment under this Sanhita and not otherwise for every act or omission contrary to the provisions thereof, of which he shall be guilty within India.\n(4) Any person liable, by any law for the time being in force in India, to be tried for an offence committed beyond India shall be dealt with according to the provisions of this Sanhita for any act committed beyond India in the same manner as if such act had been committed within India.",
+    "chapter": "CHAPTER I - PRELIMINARY",
+    "is_definition": false,
+    "is_exception": false,
+    "is_offence": false,
+    "keywords": ["short title", "commencement", "jurisdiction", "extra-territorial application"]
+  },
+  {
+    "section_number": "2",
+    "section_title": "Definitions",
+    "full_text": "In this Sanhita, unless the context otherwise requires,-\n(1) 'act' denotes as well a series of acts as a single act;\n(2) 'animal' denotes any living creature, other than a human being;\n(3) 'child' means any person below the age of eighteen years;\n(8) 'document' means any matter expressed or described upon any substance by means of letters, figures or marks, or by more than one of those means, and includes electronic and digital records;\n(10) 'fraudulently' means doing anything with intent to defraud but not otherwise;\n(11) 'good faith': nothing is said to be done or believed in 'good faith' which is done or believed without due care and attention;\n(14) 'injury' denotes any harm whatever illegally caused to any person, in body, mind, reputation or property;\n(15) 'illegal' and 'legally bound to do': the word 'illegal' is applicable to everything which is an offence or which is prohibited by law, or which furnishes ground for a civil action;\n(17) 'judge' denotes not only every person who is officially designated as a Judge, but also every person who is empowered by law to give, in any legal proceeding, a definitive judgment;\n(20) 'movable property' includes corporeal property of every description, except land and things attached to the earth or permanently fastened to anything which is attached to the earth;\n(24) 'public servant' denotes a person falling under any of the descriptions mentioned in this clause, including any Judge, arbitrator, or officer in the service or pay of the Government;\n(39) 'wrongful gain' is gain by unlawful means of property to which the person gaining is not legally entitled;\n(40) 'wrongful loss' is the loss by unlawful means of property to which the person losing it is legally entitled.",
+    "chapter": "CHAPTER I - PRELIMINARY",
+    "is_definition": true,
+    "is_exception": false,
+    "is_offence": false,
+    "keywords": ["definitions", "child", "document", "electronic record", "injury", "public servant", "wrongful gain"]
+  },
+  {
+    "section_number": "4",
+    "section_title": "Punishments",
+    "full_text": "The punishments to which offenders are liable under the provisions of this Sanhita are,-\n(a) Death;\n(b) Imprisonment for life, which means imprisonment for the remainder of that person's natural life;\n(c) Imprisonment, which is of two descriptions, namely:-(1) Rigorous, that is, with hard labour; (2) Simple;\n(d) Forfeiture of property;\n(e) Fine;\n(f) Community service.",
+    "chapter": "CHAPTER II - OF PUNISHMENTS",
+    "is_definition": false,
+    "is_exception": false,
+    "is_offence": false,
+    "keywords": ["punishments", "death penalty", "life imprisonment", "rigorous", "simple", "fine", "community service"]
+  },
+  {
+    "section_number": "14",
+    "section_title": "Act done by a person bound, or by mistake of fact believing himself bound, by law",
+    "full_text": "Nothing is an offence which is done by a person who is, or who by reason of a mistake of fact and not by reason of a mistake of law in good faith believes himself to be, bound by law to do it.",
+    "chapter": "CHAPTER III - GENERAL EXCEPTIONS",
+    "is_definition": false,
+    "is_exception": true,
+    "is_offence": false,
+    "keywords": ["general exception", "mistake of fact", "good faith", "bound by law"]
+  },
+  {
+    "section_number": "18",
+    "section_title": "Accident in doing a lawful act",
+    "full_text": "Nothing is an offence which is done by accident or misfortune, and without any criminal intention or knowledge in the doing of a lawful act in a lawful manner by lawful means and with proper care and caution.",
+    "chapter": "CHAPTER III - GENERAL EXCEPTIONS",
+    "is_definition": false,
+    "is_exception": true,
+    "is_offence": false,
+    "keywords": ["general exception", "accident", "misfortune", "lawful act", "care and caution"]
+  },
+  {
+    "section_number": "22",
+    "section_title": "Act of a person of unsound mind",
+    "full_text": "Nothing is an offence which is done by a person who, at the time of doing it, by reason of unsoundness of mind, is incapable of knowing the nature of the act, or that he is doing what is either wrong or contrary to law.",
+    "chapter": "CHAPTER III - GENERAL EXCEPTIONS",
+    "is_definition": false,
+    "is_exception": true,
+    "is_offence": false,
+    "keywords": ["general exception", "insanity", "unsound mind", "mcnaghten rule"]
+  },
+  {
+    "section_number": "34",
+    "section_title": "Things done in private defence",
+    "full_text": "Nothing is an offence which is done in the exercise of the right of private defence.",
+    "chapter": "CHAPTER III - GENERAL EXCEPTIONS",
+    "is_definition": false,
+    "is_exception": true,
+    "is_offence": false,
+    "keywords": ["general exception", "private defence", "self defence", "protection of body and property"]
+  },
+  {
+    "section_number": "100",
+    "section_title": "Culpable homicide",
+    "full_text": "Whoever causes death by doing an act with the intention of causing death, or with the intention of causing such bodily injury as is likely to cause death, or with the knowledge that he is likely by such act to cause death, commits the offence of culpable homicide.",
+    "chapter": "CHAPTER VI - OF OFFENCES AGAINST THE HUMAN BODY",
+    "is_definition": true,
+    "is_exception": false,
+    "is_offence": true,
+    "offence": {
+      "offence_name": "Culpable Homicide",
+      "description": "Causing death with intent or knowledge of likelihood of death without qualifying as murder",
+      "cognizable_status": "Cognizable",
+      "bailable_status": "Non-Bailable",
+      "compoundable_status": "Non-Compoundable",
+      "triable_by": "Court of Session"
+    },
+    "punishment": {
+      "punishment_type": "Imprisonment for life or up to 10 years, and fine",
+      "description": "Punishable under Section 105 BNS depending on intention vs knowledge",
+      "minimum_punishment": "None",
+      "maximum_punishment": "Imprisonment for life or 10 years",
+      "fine_details": "Liable to fine",
+      "imprisonment_details": "Life imprisonment or term up to 10 years",
+      "community_service": false
+    },
+    "keywords": ["culpable homicide", "causing death", "bodily injury", "human body"]
+  },
+  {
+    "section_number": "101",
+    "section_title": "Murder",
+    "full_text": "Except in the cases hereinafter excepted, culpable homicide is murder, if the act by which the death is caused is done with the intention of causing death, or 2ndly.-If it is done with the intention of causing such bodily injury as the offender knows to be likely to cause the death of the person to whom the harm is caused, or 3rdly.-If it is done with the intention of causing bodily injury to any person and the bodily injury intended to be inflicted is sufficient in the ordinary course of nature to cause death, or 4thly.-If the person committing the act knows that it is so imminently dangerous that it must, in all probability, cause death or such bodily injury as is likely to cause death, and commits such act without any excuse for incurring the risk of causing death or such injury as aforesaid.",
+    "chapter": "CHAPTER VI - OF OFFENCES AGAINST THE HUMAN BODY",
+    "is_definition": true,
+    "is_exception": false,
+    "is_offence": true,
+    "offence": {
+      "offence_name": "Murder",
+      "description": "Intentionally causing death or bodily injury sufficient in ordinary course of nature to cause death",
+      "cognizable_status": "Cognizable",
+      "bailable_status": "Non-Bailable",
+      "compoundable_status": "Non-Compoundable",
+      "triable_by": "Court of Session"
+    },
+    "punishment": {
+      "punishment_type": "Death or Imprisonment for Life, and Fine",
+      "description": "Whoever commits murder shall be punished with death or imprisonment for life, and shall also be liable to fine (Section 103 BNS)",
+      "minimum_punishment": "Imprisonment for life",
+      "maximum_punishment": "Death penalty",
+      "fine_details": "Mandatory fine",
+      "imprisonment_details": "Life imprisonment remainder of natural life or Death",
+      "community_service": false
+    },
+    "keywords": ["murder", "culpable homicide", "death", "imminently dangerous act", "intention"]
+  },
+  {
+    "section_number": "103",
+    "section_title": "Punishment for murder",
+    "full_text": "(1) Whoever commits murder shall be punished with death or imprisonment for life, and shall also be liable to fine.\n(2) When a group of five or more persons acting in concert commits murder on the ground of race, caste or community, sex, place of birth, language, personal belief or any other similar ground, each member of such group shall be punished with death or with imprisonment for life, and shall also be liable to fine.",
+    "chapter": "CHAPTER VI - OF OFFENCES AGAINST THE HUMAN BODY",
+    "is_definition": false,
+    "is_exception": false,
+    "is_offence": true,
+    "offence": {
+      "offence_name": "Punishment for Murder and Mob Lynching",
+      "description": "Murder, including murder committed by group of 5 or more on ground of race, caste, community, or personal belief",
+      "cognizable_status": "Cognizable",
+      "bailable_status": "Non-Bailable",
+      "compoundable_status": "Non-Compoundable",
+      "triable_by": "Court of Session"
+    },
+    "punishment": {
+      "punishment_type": "Death or Imprisonment for Life, and Fine",
+      "description": "Death or imprisonment for life, and liable to fine",
+      "minimum_punishment": "Imprisonment for life",
+      "maximum_punishment": "Death",
+      "fine_details": "Mandatory fine",
+      "imprisonment_details": "Life imprisonment remainder of natural life or capital punishment",
+      "community_service": false
+    },
+    "keywords": ["murder punishment", "mob lynching", "group murder", "caste hate crime", "death penalty"]
+  },
+  {
+    "section_number": "106",
+    "section_title": "Causing death by negligence",
+    "full_text": "(1) Whoever causes the death of any person by doing any rash or negligent act not amounting to culpable homicide, shall be punished with imprisonment of either description for a term which may extend to five years, and shall also be liable to fine.\n(2) Whoever causes the death of any person by doing any rash or negligent act not amounting to culpable homicide and escapes without reporting it to a police officer or a Magistrate soon after the incident, shall be punished with imprisonment of either description of a term which may extend to ten years, and shall also be liable to fine.",
+    "chapter": "CHAPTER VI - OF OFFENCES AGAINST THE HUMAN BODY",
+    "is_definition": false,
+    "is_exception": false,
+    "is_offence": true,
+    "offence": {
+      "offence_name": "Causing Death by Negligence and Hit-and-Run",
+      "description": "Causing death by rash or negligent act, with enhanced penalty for escaping without reporting (hit and run)",
+      "cognizable_status": "Cognizable",
+      "bailable_status": "Bailable (Sub-sec 1) / Non-Bailable (Sub-sec 2)",
+      "compoundable_status": "Non-Compoundable",
+      "triable_by": "Magistrate of the first class"
+    },
+    "punishment": {
+      "punishment_type": "Imprisonment up to 5 years (Standard) or up to 10 years (Hit-and-Run), and Fine",
+      "description": "Up to 5 years under sub-section (1); up to 10 years under sub-section (2) for failure to report",
+      "minimum_punishment": "None",
+      "maximum_punishment": "10 years imprisonment",
+      "fine_details": "Liable to fine",
+      "imprisonment_details": "Either description up to 5 years or 10 years",
+      "community_service": false
+    },
+    "keywords": ["negligence", "rash driving", "hit and run", "accidental death", "failure to report"]
+  },
+  {
+    "section_number": "111",
+    "section_title": "Organised crime",
+    "full_text": "(1) Any continuing unlawful activity including kidnapping, robbery, vehicle theft, extortion, land grabbing, contract killing, economic offence, cyber-crimes having severe consequences, trafficking in persons, drugs, weapons or illicit goods or services, using violence, intimidation, or coercion by a person, either singly or jointly, as a member of a crime syndicate or on behalf of such syndicate, shall be an offence of organised crime.\n(2) Whoever commits organised crime shall,-\n(a) if such offence has resulted in the death of any person, be punished with death or imprisonment for life, and shall also be liable to fine which shall not be less than ten lakh rupees;\n(b) in any other case, be punished with imprisonment for a term which shall not be less than five years but which may extend to imprisonment for life, and shall also be liable to fine which shall not be less than five lakh rupees.",
+    "chapter": "CHAPTER VII - OF OFFENCES AGAINST THE STATE AND PUBLIC TRANQUILLITY",
+    "is_definition": true,
+    "is_exception": false,
+    "is_offence": true,
+    "offence": {
+      "offence_name": "Organised Crime",
+      "description": "Continuing unlawful activity including extortion, contract killing, land grabbing, cyber-crimes by crime syndicates",
+      "cognizable_status": "Cognizable",
+      "bailable_status": "Non-Bailable",
+      "compoundable_status": "Non-Compoundable",
+      "triable_by": "Special Court / Court of Session"
+    },
+    "punishment": {
+      "punishment_type": "Death or Life Imprisonment (if death caused) / 5 years to Life (other cases), and mandatory fine",
+      "description": "Death or Life imprisonment + fine min Rs. 10 Lakhs if death caused; otherwise 5 years to Life + fine min Rs. 5 Lakhs",
+      "minimum_punishment": "5 years imprisonment and Rs. 5 Lakhs fine",
+      "maximum_punishment": "Death penalty and Rs. 10 Lakhs fine",
+      "fine_details": "Mandatory fine of Rs. 5,00,000 to Rs. 10,00,000 minimum",
+      "imprisonment_details": "5 years to Life or Death",
+      "community_service": false
+    },
+    "keywords": ["organised crime", "syndicate", "extortion", "contract killing", "cyber-crime", "gangster"]
+  },
+  {
+    "section_number": "113",
+    "section_title": "Terrorist act",
+    "full_text": "(1) Whoever does any act with the intent to threaten or likely to threaten the unity, integrity, sovereignty, or security of India or with the intent to strike terror in the people or any section of the people in India or in any foreign country, commits a terrorist act.\n(2) Whoever commits a terrorist act shall,-\n(a) if such act has resulted in the death of any person, be punished with death or imprisonment for life, and shall also be liable to fine;\n(b) in any other case, be punished with imprisonment for a term which shall not be less than five years but which may extend to imprisonment for life, and shall also be liable to fine.",
+    "chapter": "CHAPTER VII - OF OFFENCES AGAINST THE STATE AND PUBLIC TRANQUILLITY",
+    "is_definition": true,
+    "is_exception": false,
+    "is_offence": true,
+    "offence": {
+      "offence_name": "Terrorist Act",
+      "description": "Acts threatening sovereignty, integrity, or security of India or striking terror in public",
+      "cognizable_status": "Cognizable",
+      "bailable_status": "Non-Bailable",
+      "compoundable_status": "Non-Compoundable",
+      "triable_by": "Special Court / Court of Session"
+    },
+    "punishment": {
+      "punishment_type": "Death or Life Imprisonment (if death caused) / 5 years to Life, and Fine",
+      "description": "Death or imprisonment for life if death caused; 5 years to Life in other cases, with fine",
+      "minimum_punishment": "5 years imprisonment",
+      "maximum_punishment": "Death penalty",
+      "fine_details": "Liable to fine",
+      "imprisonment_details": "5 years to Life or Death",
+      "community_service": false
+    },
+    "keywords": ["terrorist act", "sovereignty", "security of india", "terror", "explosives", "weapons"]
+  },
+  {
+    "section_number": "303",
+    "section_title": "Theft",
+    "full_text": "(1) Whoever, intending to take dishonestly any movable property out of the possession of any person without that person's consent, moves that property in order to such taking, is said to commit theft.\n(2) Whoever commits theft shall be punished with imprisonment of either description for a term which may extend to three years, or with fine, or with both, and in case of second or subsequent conviction of any person under this section, he shall be punished with rigorous imprisonment for a term which shall not be less than one year but which may extend to five years and with fine:\nProvided that in cases of theft where the value of the stolen property is less than five thousand rupees, and a person is convicted for the first time, he shall be punished with community service.",
+    "chapter": "CHAPTER XVII - OF OFFENCES AGAINST PROPERTY",
+    "is_definition": true,
+    "is_exception": false,
+    "is_offence": true,
+    "offence": {
+      "offence_name": "Theft",
+      "description": "Dishonestly moving movable property out of person's possession without consent",
+      "cognizable_status": "Cognizable",
+      "bailable_status": "Non-Bailable (except petty first offence)",
+      "compoundable_status": "Compoundable with permission of Court",
+      "triable_by": "Any Magistrate"
+    },
+    "punishment": {
+      "punishment_type": "Imprisonment up to 3 years, or Fine, or Both; Community Service for petty first theft under Rs. 5000",
+      "description": "Imprisonment up to 3 years or fine or both; Proviso prescribes Community Service if property value < Rs. 5,000 for first offence",
+      "minimum_punishment": "Community Service (petty first offence)",
+      "maximum_punishment": "3 years (or 5 years rigorous on repeat conviction)",
+      "fine_details": "Liable to fine",
+      "imprisonment_details": "Either description up to 3 years (up to 5 years for repeat)",
+      "community_service": true
+    },
+    "keywords": ["theft", "dishonest taking", "movable property", "community service", "petty theft"]
+  },
+  {
+    "section_number": "304",
+    "section_title": "Snatching",
+    "full_text": "(1) Theft is 'snatching' if, in order to commit theft, the offender suddenly or quickly or forcibly seizes or secures or grabs or takes away from any person or from his possession any movable property.\n(2) Whoever commits snatching shall be punished with imprisonment of either description for a term which may extend to three years, and shall also be liable to fine.",
+    "chapter": "CHAPTER XVII - OF OFFENCES AGAINST PROPERTY",
+    "is_definition": true,
+    "is_exception": false,
+    "is_offence": true,
+    "offence": {
+      "offence_name": "Snatching",
+      "description": "Theft committed by suddenly, quickly or forcibly grabbing or seizing movable property from person",
+      "cognizable_status": "Cognizable",
+      "bailable_status": "Non-Bailable",
+      "compoundable_status": "Non-Compoundable",
+      "triable_by": "Any Magistrate"
+    },
+    "punishment": {
+      "punishment_type": "Imprisonment up to 3 years, and Fine",
+      "description": "Imprisonment of either description up to three years, and liable to fine",
+      "minimum_punishment": "None",
+      "maximum_punishment": "3 years imprisonment",
+      "fine_details": "Liable to fine",
+      "imprisonment_details": "Either description up to 3 years",
+      "community_service": false
+    },
+    "keywords": ["snatching", "chain snatching", "forcible seizure", "grab", "quick theft"]
+  },
+  {
+    "section_number": "316",
+    "section_title": "Criminal breach of trust",
+    "full_text": "(1) Whoever, being in any manner entrusted with property, or with any dominion over property, dishonestly misappropriates or converts to his own use that property, or dishonestly uses or disposes of that property in violation of any direction of law prescribing the mode in which such trust is to be discharged, or of any legal contract, express or implied, which he has made touching the discharge of such trust, or wilfully suffers any other person so to do, commits criminal breach of trust.\n(2) Whoever commits criminal breach of trust shall be punished with imprisonment of either description for a term which may extend to five years, or with fine, or with both.",
+    "chapter": "CHAPTER XVII - OF OFFENCES AGAINST PROPERTY",
+    "is_definition": true,
+    "is_exception": false,
+    "is_offence": true,
+    "offence": {
+      "offence_name": "Criminal Breach of Trust",
+      "description": "Dishonest misappropriation or conversion of entrusted property in violation of trust or legal direction",
+      "cognizable_status": "Cognizable",
+      "bailable_status": "Non-Bailable",
+      "compoundable_status": "Compoundable with permission of Court",
+      "triable_by": "Magistrate of the first class"
+    },
+    "punishment": {
+      "punishment_type": "Imprisonment up to 5 years, or Fine, or Both",
+      "description": "Imprisonment of either description for a term which may extend to five years, or with fine, or with both",
+      "minimum_punishment": "None",
+      "maximum_punishment": "5 years imprisonment",
+      "fine_details": "Liable to fine",
+      "imprisonment_details": "Either description up to 5 years",
+      "community_service": false
+    },
+    "keywords": ["criminal breach of trust", "entrustment", "misappropriation", "property trust"]
+  },
+  {
+    "section_number": "318",
+    "section_title": "Cheating",
+    "full_text": "(1) Whoever, by deceiving any person, fraudulently or dishonestly induces the person so deceived to deliver any property to any person, or to consent that any person shall retain any property, or intentionally induces the person so deceived to do or omit to do anything which he would not do or omit if he were not so deceived, and which act or omission causes or is likely to cause damage or harm to that person in body, mind, reputation or property, is said to 'cheat'.\n(2) Whoever cheats shall be punished with imprisonment of either description for a term which may extend to three years, or with fine, or with both.\n(4) Whoever cheats and thereby dishonestly induces the person deceived to deliver any property to any person, or to make, alter or destroy the whole or any part of a valuable security, shall be punished with imprisonment of either description for a term which may extend to seven years, and shall also be liable to fine.",
+    "chapter": "CHAPTER XVII - OF OFFENCES AGAINST PROPERTY",
+    "is_definition": true,
+    "is_exception": false,
+    "is_offence": true,
+    "offence": {
+      "offence_name": "Cheating and Dishonestly Inducing Delivery of Property",
+      "description": "Deceiving any person fraudulently or dishonestly to induce delivery of property or valuable security",
+      "cognizable_status": "Cognizable",
+      "bailable_status": "Non-Bailable (for aggravated cheating under sub-sec 4)",
+      "compoundable_status": "Compoundable with permission of Court",
+      "triable_by": "Magistrate of the first class"
+    },
+    "punishment": {
+      "punishment_type": "Imprisonment up to 3 years (Simple) / up to 7 years (Aggravated), and Fine",
+      "description": "Up to 3 years under sub-section (2); up to 7 years and mandatory fine under sub-section (4)",
+      "minimum_punishment": "None",
+      "maximum_punishment": "7 years imprisonment",
+      "fine_details": "Liable to fine",
+      "imprisonment_details": "Either description up to 7 years",
+      "community_service": false
+    },
+    "keywords": ["cheating", "fraud", "dishonest inducement", "delivery of property", "valuable security"]
+  },
+  {
+    "section_number": "351",
+    "section_title": "Criminal intimidation",
+    "full_text": "(1) Whoever threatens another with any injury to his person, reputation or property, or to the person or reputation of any one in whom that person is interested, with intent to cause alarm to that person, or to cause that person to do any act which he is not legally bound to do, or to omit to do any act which that person is legally entitled to do, as the means of avoiding the execution of such threat, commits criminal intimidation.\n(2) Whoever commits the offence of criminal intimidation shall be punished with imprisonment of either description for a term which may extend to two years, or with fine, or with both.",
+    "chapter": "CHAPTER XIX - OF CRIMINAL INTIMIDATION, INSULT, ANNOYANCE, DEFAMATION, ETC.",
+    "is_definition": true,
+    "is_exception": false,
+    "is_offence": true,
+    "offence": {
+      "offence_name": "Criminal Intimidation",
+      "description": "Threatening person with injury to person, reputation or property with intent to cause alarm",
+      "cognizable_status": "Non-Cognizable",
+      "bailable_status": "Bailable",
+      "compoundable_status": "Compoundable by the person intimidated",
+      "triable_by": "Any Magistrate"
+    },
+    "punishment": {
+      "punishment_type": "Imprisonment up to 2 years, or Fine, or Both",
+      "description": "Imprisonment of either description for a term which may extend to two years, or with fine, or with both",
+      "minimum_punishment": "None",
+      "maximum_punishment": "2 years imprisonment",
+      "fine_details": "Liable to fine",
+      "imprisonment_details": "Either description up to 2 years",
+      "community_service": false
+    },
+    "keywords": ["criminal intimidation", "threat", "injury", "alarm", "blackmail"]
+  },
+  {
+    "section_number": "356",
+    "section_title": "Defamation",
+    "full_text": "(1) Whoever, by words either spoken or intended to be read, or by signs or by visible representations, makes or publishes in any manner, any imputation concerning any person intending to harm, or knowing or having reason to believe that such imputation will harm, the reputation of such person, is said, except in the cases hereinafter expected, to defame that person.\n(2) Whoever defames another shall be punished with simple imprisonment for a term which may extend to two years, or with fine, or with both or with community service.",
+    "chapter": "CHAPTER XIX - OF CRIMINAL INTIMIDATION, INSULT, ANNOYANCE, DEFAMATION, ETC.",
+    "is_definition": true,
+    "is_exception": false,
+    "is_offence": true,
+    "offence": {
+      "offence_name": "Defamation",
+      "description": "Making or publishing imputation concerning person intending or knowing it will harm reputation",
+      "cognizable_status": "Non-Cognizable",
+      "bailable_status": "Bailable",
+      "compoundable_status": "Compoundable by person defamed",
+      "triable_by": "Court of Session (if against public dignitaries) or Magistrate of first class"
+    },
+    "punishment": {
+      "punishment_type": "Simple Imprisonment up to 2 years, or Fine, or Both, or Community Service",
+      "description": "Simple imprisonment for a term which may extend to two years, or with fine, or with both or with community service",
+      "minimum_punishment": "Community Service",
+      "maximum_punishment": "2 years simple imprisonment",
+      "fine_details": "Liable to fine",
+      "imprisonment_details": "Simple imprisonment up to 2 years",
+      "community_service": true
+    },
+    "keywords": ["defamation", "harm to reputation", "imputation", "community service", "slander", "libel"]
+  },
+  {
+    "section_number": "358",
+    "section_title": "Repeal and savings",
+    "full_text": "(1) The Indian Penal Code (45 of 1860) is hereby repealed.\n(2) Notwithstanding the repeal of the said Code, such repeal shall not affect,-\n(a) the previous operation of the Code so repealed or anything duly done or suffered thereunder;\n(b) any right, privilege, obligation or liability acquired, accrued or incurred under the Code so repealed;\n(c) any penalty, forfeiture or punishment incurred in respect of any offence committed against the Code so repealed;\n(d) any investigation, legal proceeding or remedy in respect of any such right, privilege, obligation, liability, penalty, forfeiture or punishment as aforesaid.",
+    "chapter": "CHAPTER XX - REPEAL AND SAVINGS",
+    "is_definition": false,
+    "is_exception": false,
+    "is_offence": false,
+    "keywords": ["repeal and savings", "indian penal code", "ipc repeal", "transitional provisions"]
+  }
+]

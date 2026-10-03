@@ -16,6 +16,12 @@ const App = {
   currentDocSearch: '',
   activeChecklistProcedure: null,
   checklistState: {},
+  authMode: 'citizen',
+  citizenCases: [],
+  citizenDocuments: [],
+  citizenBookmarks: [],
+  citizenNotifications: [],
+  unreadNotifCount: 0,
 
   // -------------------------------------------------------------
   // INITIALIZATION
@@ -43,6 +49,14 @@ const App = {
       });
     });
 
+    // Auth Mode Switcher Tabs
+    document.querySelectorAll('.auth-tab-btn[data-auth-tab]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mode = btn.getAttribute('data-auth-tab');
+        this.switchAuthMode(mode);
+      });
+    });
+
     // Login Form
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
@@ -52,15 +66,50 @@ const App = {
       });
     }
 
+    // Register Form
+    const registerForm = document.getElementById('register-form');
+    if (registerForm) {
+      registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await this.handleRegister(e);
+      });
+    }
+
+    // Mobile Menu & Backdrop
+    document.getElementById('btn-mobile-menu-toggle')?.addEventListener('click', () => this.toggleMobileSidebar());
+    document.getElementById('mobile-backdrop')?.addEventListener('click', () => this.closeMobileSidebar());
+
     // Logout
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
       logoutBtn.addEventListener('click', () => this.handleLogout());
     }
 
-    // Header Quick Buttons
+    // Header Quick Buttons (Lawyer)
     document.getElementById('btn-quick-new-client')?.addEventListener('click', () => this.openAddClientModal());
     document.getElementById('btn-quick-new-case')?.addEventListener('click', () => this.openCreateCaseModal());
+
+    // Header Quick Buttons (Citizen)
+    document.getElementById('btn-citizen-quick-new-case')?.addEventListener('click', () => this.openCitizenNewCaseModal());
+
+    // Notification Bell & Popover
+    const bellBtn = document.getElementById('btn-notifications-bell');
+    if (bellBtn) {
+      bellBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.toggleNotificationsPopover();
+      });
+    }
+    document.getElementById('btn-mark-all-read')?.addEventListener('click', () => this.markAllNotificationsRead());
+
+    // Close notifications popover on click outside
+    document.addEventListener('click', (e) => {
+      const popover = document.getElementById('notifications-popover');
+      const bell = document.getElementById('btn-notifications-bell');
+      if (popover && popover.style.display !== 'none' && !popover.contains(e.target) && (!bell || !bell.contains(e.target))) {
+        popover.style.display = 'none';
+      }
+    });
 
     // Global Search
     const gSearch = document.getElementById('global-search-input');
@@ -85,7 +134,7 @@ const App = {
       });
     }
 
-    // Case Details Tabs
+    // Case Details Tabs (Lawyer)
     document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.tab-btn[data-tab]').forEach(b => b.classList.remove('active'));
@@ -93,6 +142,24 @@ const App = {
         btn.classList.add('active');
         const tabId = btn.getAttribute('data-tab');
         document.getElementById(tabId)?.classList.add('active');
+      });
+    });
+
+    // Case Details Tabs (Citizen)
+    document.querySelectorAll('.tab-btn[data-citizen-tab]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn[data-citizen-tab]').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.citizen-tab-pane').forEach(p => {
+          p.classList.remove('active');
+          p.style.display = 'none';
+        });
+        btn.classList.add('active');
+        const tabId = btn.getAttribute('data-citizen-tab');
+        const pane = document.getElementById(tabId);
+        if (pane) {
+          pane.classList.add('active');
+          pane.style.display = 'block';
+        }
       });
     });
 
@@ -114,10 +181,81 @@ const App = {
     document.getElementById('form-add-note')?.addEventListener('submit', (e) => this.submitAddNote(e));
     document.getElementById('form-link-provision')?.addEventListener('submit', (e) => this.submitLinkProvision(e));
     document.getElementById('form-edit-profile')?.addEventListener('submit', (e) => this.submitEditProfile(e));
+    document.getElementById('form-citizen-profile')?.addEventListener('submit', (e) => this.submitCitizenProfile(e));
     document.getElementById('research-search-form')?.addEventListener('submit', (e) => {
       e.preventDefault();
       this.handleLegalSearch();
     });
+  },
+
+  // -------------------------------------------------------------
+  // MOBILE NAVIGATION & HEADER HELPERS
+  // -------------------------------------------------------------
+  toggleMobileSidebar() {
+    const sb = document.querySelector('.sidebar');
+    const bd = document.getElementById('mobile-backdrop');
+    if (sb) sb.classList.toggle('open');
+    if (bd) bd.classList.toggle('active');
+  },
+
+  closeMobileSidebar() {
+    const sb = document.querySelector('.sidebar');
+    const bd = document.getElementById('mobile-backdrop');
+    if (sb) sb.classList.remove('open');
+    if (bd) bd.classList.remove('active');
+  },
+
+  handleCitizenQuickSearch(e) {
+    if (e) e.preventDefault();
+    const input = document.getElementById('citizen-quick-search-input');
+    if (!input) return;
+    const q = input.value.trim();
+    if (!q) {
+      this.showToast('Please enter a search query.', 'error');
+      return;
+    }
+    this.navigate('research');
+    const rInput = document.getElementById('research-query-input');
+    if (rInput) rInput.value = q;
+    this.handleLegalSearch();
+  },
+
+  handleLawyerQuickSearch(e) {
+    if (e) e.preventDefault();
+    const input = document.getElementById('lawyer-quick-search-input');
+    if (!input) return;
+    const q = input.value.trim();
+    if (!q) {
+      this.showToast('Please enter a search query.', 'error');
+      return;
+    }
+    this.navigate('research');
+    const rInput = document.getElementById('research-query-input');
+    if (rInput) rInput.value = q;
+    this.handleLegalSearch();
+  },
+
+  navigateToCurrentProfile() {
+    if (!this.user) return;
+    if (this.user.role === 'lawyer') {
+      this.navigate('profile');
+    } else {
+      this.navigate('citizen-profile');
+    }
+  },
+
+  navigateToNotifications(e) {
+    if (e) e.preventDefault();
+    const popover = document.getElementById('notifications-popover');
+    if (popover) {
+      popover.classList.remove('active');
+      popover.style.display = 'none';
+    }
+    if (this.user && (this.user.role === 'user' || this.user.role === 'citizen')) {
+      this.navigate('citizen-notifications');
+    } else {
+      this.showToast('Notifications are displayed in the Lawyer Dashboard activity feed.', 'info');
+    }
   },
 
   // -------------------------------------------------------------
@@ -136,6 +274,13 @@ const App = {
 
     const res = await fetch(endpoint, options);
     if (!res.ok) {
+      if (res.status === 401 && this.token && !endpoint.includes('/api/auth/login')) {
+        this.token = null;
+        this.user = null;
+        localStorage.removeItem('vidhik_token');
+        this.showLogin();
+        this.showToast('Session expired or unauthorized. Please sign in again.', 'error');
+      }
       let errorMsg = `API Error (${res.status})`;
       try {
         const errJson = await res.json();
@@ -149,6 +294,73 @@ const App = {
   // -------------------------------------------------------------
   // AUTHENTICATION
   // -------------------------------------------------------------
+  switchAuthMode(mode) {
+    this.authMode = mode;
+    document.querySelectorAll('.auth-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector(`.auth-tab-btn[data-auth-tab="${mode}"]`)?.classList.add('active');
+
+    const loginForm = document.getElementById('login-form');
+    const regForm = document.getElementById('register-form');
+    const demoContainer = document.getElementById('login-demo-container');
+    const subtitle = document.getElementById('auth-card-subtitle');
+
+    if (mode === 'register') {
+      if (loginForm) loginForm.style.display = 'none';
+      if (regForm) regForm.style.display = 'block';
+      if (demoContainer) demoContainer.style.display = 'none';
+      if (subtitle) subtitle.innerText = 'Create your citizen account to track cases and legal documents.';
+    } else {
+      if (loginForm) loginForm.style.display = 'block';
+      if (regForm) regForm.style.display = 'none';
+      if (demoContainer) demoContainer.style.display = 'block';
+
+      if (mode === 'citizen') {
+        if (subtitle) subtitle.innerText = 'Access your personal case tracker, documents, and legal updates.';
+        this.fillDemoLogin('sunita.sharma@example.com', 'password123');
+      } else {
+        if (subtitle) subtitle.innerText = 'Advocate and legal counsel professional practice suite.';
+        this.fillDemoLogin('rajesh.advocate@vidhik.ai', 'password123');
+      }
+    }
+  },
+
+  fillDemoLogin(email, password = 'password123') {
+    const emailInput = document.getElementById('login-email');
+    const pwdInput = document.getElementById('login-password');
+    if (emailInput) emailInput.value = email;
+    if (pwdInput) pwdInput.value = password;
+  },
+
+  async handleRegister(e) {
+    const fullName = document.getElementById('reg-fullname').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const phone = document.getElementById('reg-phone').value.trim();
+    const password = document.getElementById('reg-password').value;
+    const confirmPwd = document.getElementById('reg-confirm-password').value;
+
+    if (password !== confirmPwd) {
+      this.showToast('Passwords do not match.', 'error');
+      return;
+    }
+
+    try {
+      const data = await this.api('/api/auth/register', 'POST', {
+        full_name: fullName,
+        email: email,
+        phone: phone || null,
+        password: password
+      });
+
+      this.token = data.token;
+      this.user = data;
+      localStorage.setItem('vidhik_token', this.token);
+      this.showToast(`Welcome to Vidhik AI, ${data.full_name}!`, 'success');
+      this.showApp();
+    } catch (err) {
+      this.showToast(err.message, 'error');
+    }
+  },
+
   async handleLogin() {
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
@@ -169,7 +381,12 @@ const App = {
     this.user = await this.api('/api/auth/me');
   },
 
-  handleLogout() {
+  async handleLogout() {
+    try {
+      if (this.token) {
+        await this.api('/api/auth/logout', 'POST', {}).catch(() => {});
+      }
+    } catch (e) {}
     this.token = null;
     this.user = null;
     localStorage.removeItem('vidhik_token');
@@ -186,21 +403,75 @@ const App = {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app-shell').style.display = 'flex';
     this.updateUserUI();
-    this.navigate('dashboard');
+
+    const isCitizen = this.user && (this.user.role === 'user' || this.user.role === 'citizen');
+    const citizenNav = document.getElementById('sidebar-citizen-nav');
+    const lawyerNav = document.getElementById('sidebar-lawyer-nav');
+    const lawyerBtns = document.getElementById('lawyer-quick-actions');
+    const citizenBtns = document.getElementById('citizen-quick-actions');
+    const brandBadge = document.getElementById('brand-badge-text');
+
+    if (isCitizen) {
+      if (citizenNav) citizenNav.style.display = 'block';
+      if (lawyerNav) lawyerNav.style.display = 'none';
+      if (lawyerBtns) lawyerBtns.style.display = 'none';
+      if (citizenBtns) citizenBtns.style.display = 'flex';
+      if (brandBadge) brandBadge.innerText = 'Citizen Portal';
+      this.navigate('citizen-dashboard');
+    } else {
+      if (citizenNav) citizenNav.style.display = 'none';
+      if (lawyerNav) lawyerNav.style.display = 'block';
+      if (lawyerBtns) lawyerBtns.style.display = 'flex';
+      if (citizenBtns) citizenBtns.style.display = 'none';
+      if (brandBadge) brandBadge.innerText = 'Advocate Suite';
+      this.navigate('dashboard');
+    }
+
+    this.loadNotifications();
   },
 
   updateUserUI() {
     if (!this.user) return;
-    const initials = this.user.full_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
-    document.getElementById('sidebar-lawyer-avatar').innerText = initials;
-    document.getElementById('sidebar-lawyer-name').innerText = this.user.full_name;
-    document.getElementById('dash-greeting-name').innerText = this.user.full_name;
+    const initials = this.user.full_name ? this.user.full_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'U';
+    const avatar = document.getElementById('sidebar-lawyer-avatar');
+    const nameEl = document.getElementById('sidebar-lawyer-name');
+    const roleEl = document.getElementById('sidebar-lawyer-role');
+
+    if (avatar) avatar.innerText = initials;
+    if (nameEl) nameEl.innerText = this.user.full_name;
+    if (roleEl) roleEl.innerText = (this.user.role === 'lawyer') ? 'Verified Advocate' : 'Citizen Account';
+
+    // Top Header User Chip
+    const hAvatar = document.getElementById('header-avatar');
+    const hName = document.getElementById('header-user-name');
+    const hRole = document.getElementById('header-user-role');
+    if (hAvatar) hAvatar.innerText = initials;
+    if (hName) hName.innerText = this.user.full_name;
+    if (hRole) hRole.innerText = (this.user.role === 'lawyer') ? 'Advocate' : 'Citizen';
+
+    const dashGreeting = document.getElementById('dash-greeting-name');
+    if (dashGreeting) dashGreeting.innerText = this.user.full_name;
+    const citizenGreeting = document.getElementById('dash-citizen-greeting-name');
+    if (citizenGreeting) citizenGreeting.innerText = this.user.full_name;
   },
 
   // -------------------------------------------------------------
   // ROUTING & NAVIGATION
   // -------------------------------------------------------------
   navigate(viewName) {
+    this.closeMobileSidebar();
+    const isCitizen = this.user && (this.user.role === 'user' || this.user.role === 'citizen');
+
+    // Strict role redirection for view access
+    const lawyerOnlyViews = ['dashboard', 'clients', 'cases', 'documents', 'hearings', 'profile'];
+    const citizenOnlyViews = ['citizen-dashboard', 'citizen-cases', 'citizen-case-detail', 'citizen-documents', 'citizen-bookmarks', 'citizen-search-history', 'citizen-notifications', 'citizen-profile'];
+
+    if (isCitizen && lawyerOnlyViews.includes(viewName)) {
+      viewName = 'citizen-dashboard';
+    } else if (!isCitizen && citizenOnlyViews.includes(viewName)) {
+      viewName = 'dashboard';
+    }
+
     this.currentView = viewName;
 
     // Update Sidebar Active Class
@@ -246,8 +517,35 @@ const App = {
       case 'documentation':
         this.loadDocumentationModule();
         break;
+      case 'document-analysis':
+        this.loadDocumentAnalysisModule();
+        break;
       case 'profile':
         this.loadProfile();
+        break;
+      case 'citizen-dashboard':
+        this.loadCitizenDashboard();
+        break;
+      case 'citizen-cases':
+        this.loadCitizenCases();
+        break;
+      case 'citizen-case-detail':
+        if (this.currentCaseId) this.loadCitizenCaseDetail(this.currentCaseId);
+        break;
+      case 'citizen-documents':
+        this.loadCitizenDocuments();
+        break;
+      case 'citizen-bookmarks':
+        this.loadCitizenBookmarks();
+        break;
+      case 'citizen-search-history':
+        this.loadSearchHistory();
+        break;
+      case 'citizen-notifications':
+        this.loadNotificationsView();
+        break;
+      case 'citizen-profile':
+        this.loadCitizenProfile();
         break;
     }
   },
@@ -531,7 +829,7 @@ const App = {
       document.getElementById('cd-court').innerText = data.court_name || 'Designated Court';
       document.getElementById('cd-opposite').innerText = data.opposite_party || 'None Specified';
       document.getElementById('cd-type-badge').innerText = data.case_type || 'General Matter';
-      
+
       const badge = document.getElementById('cd-status-badge');
       badge.innerText = data.status;
       badge.className = `badge badge-${data.status}`;
@@ -916,6 +1214,19 @@ const App = {
       // Call existing legal search endpoint
       const data = await this.api(`/api/search?${query.toString()}`);
 
+      // Record citizen search history if logged in as citizen
+      if (this.token && this.user && (this.user.role === 'user' || this.user.role === 'citizen')) {
+        try {
+          await this.api('/api/citizen/search-history', 'POST', {
+            query_text: q,
+            filters: jurisdiction ? { jurisdiction } : {},
+            results_count: data.total || (data.results ? data.results.length : 0)
+          });
+        } catch (shErr) {
+          console.warn('Could not record search history:', shErr);
+        }
+      }
+
       if (!data.results || data.results.length === 0) {
         container.innerHTML = `
           <div class="empty-state">
@@ -925,6 +1236,8 @@ const App = {
         `;
         return;
       }
+
+      const isCitizen = this.user && (this.user.role === 'user' || this.user.role === 'citizen');
 
       container.innerHTML = `
         <div style="margin-bottom: 16px; font-size: 13.5px; color: var(--text-secondary);">
@@ -942,19 +1255,25 @@ const App = {
                 <span class="badge badge-completed">${r.jurisdiction || 'Central'}</span>
               </div>
             </div>
-            
+
             <!-- Contextual Snippet generated by LegalSearchService -->
             <div style="font-size: 13.5px; line-height: 1.7; color: var(--text-secondary); background: var(--bg-primary); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin: 12px 0;">
               ${this.escape(r.snippet)}
             </div>
 
-            <div style="display: flex; gap: 10px; align-items: center; justify-content: flex-end; margin-top: 10px;">
+            <div style="display: flex; gap: 10px; align-items: center; justify-content: flex-end; margin-top: 10px; flex-wrap: wrap;">
               <button class="btn btn-secondary btn-sm" onclick="App.viewFullProvisionDetail(${r.section_id})">
                 📖 View Verbatim Section
               </button>
-              <button class="btn btn-primary btn-sm" onclick="App.openLinkToCaseModal(${r.section_id}, '${this.escape(r.section_number)}', '${this.escape(r.law_name)}')">
-                🔗 Link to Case Brief
-              </button>
+              ${isCitizen ? `
+                <button class="btn btn-primary btn-sm" onclick="App.quickBookmarkSection(${r.section_id})">
+                  🔖 Bookmark Section
+                </button>
+              ` : `
+                <button class="btn btn-primary btn-sm" onclick="App.openLinkToCaseModal(${r.section_id}, '${this.escape(r.section_number)}', '${this.escape(r.law_name)}')">
+                  🔗 Link to Case Brief
+                </button>
+              `}
             </div>
           </div>
         `).join('')}
@@ -975,6 +1294,22 @@ const App = {
       document.getElementById('m-prov-fulltext').innerText = sec.full_text || sec.section_text || 'No verbatim text available.';
 
       this.selectedProvision = sec;
+
+      const linkBtn = document.getElementById('m-prov-btn-link');
+      if (linkBtn) {
+        const isCitizen = this.user && (this.user.role === 'user' || this.user.role === 'citizen');
+        if (isCitizen) {
+          linkBtn.innerText = '🔖 Bookmark Provision';
+          linkBtn.onclick = () => {
+            App.quickBookmarkSection(sec.section_id);
+            App.closeModals();
+          };
+        } else {
+          linkBtn.innerText = '🔗 Save & Link to Case';
+          linkBtn.onclick = () => App.openLinkToCaseModalFromProvision();
+        }
+      }
+
       document.getElementById('modal-provision-detail').classList.add('active');
     } catch (err) {
       this.showToast('Failed to load section: ' + err.message, 'error');
@@ -1324,6 +1659,24 @@ const App = {
       const savedState = localStorage.getItem(`vidhik_chk_${procedureId}`);
       this.checklistState[procedureId] = savedState ? JSON.parse(savedState) : {};
 
+      // If user is citizen, load and merge persistent tracker state
+      if (this.token && this.user && (this.user.role === 'user' || this.user.role === 'citizen')) {
+        try {
+          const trackers = await this.api('/api/citizen/procedures');
+          const tracker = (trackers || []).find(t => t.procedure_id === procedureId);
+          if (tracker && tracker.completed_documents && Array.isArray(tracker.completed_documents)) {
+            const allDocs = [...(data.mandatory_documents || []), ...(data.supporting_documents || [])];
+            allDocs.forEach(d => {
+              if (tracker.completed_documents.includes(d.document_name)) {
+                this.checklistState[procedureId][d.doc_req_id] = true;
+              }
+            });
+          }
+        } catch (trkErr) {
+          console.warn('Could not load citizen procedure trackers:', trkErr);
+        }
+      }
+
       // Render Mandatory & Supporting lists
       const mandContainer = document.getElementById('chk-mandatory-docs-list');
       if (data.mandatory_documents && data.mandatory_documents.length > 0) {
@@ -1393,6 +1746,17 @@ const App = {
     }
     this.checklistState[procId][docId] = isChecked;
     localStorage.setItem(`vidhik_chk_${procId}`, JSON.stringify(this.checklistState[procId]));
+
+    // If citizen, persist to backend
+    if (this.token && this.user && (this.user.role === 'user' || this.user.role === 'citizen') && this.activeChecklistProcedure) {
+      const allDocs = [...(this.activeChecklistProcedure.mandatory_documents || []), ...(this.activeChecklistProcedure.supporting_documents || [])];
+      const targetDoc = allDocs.find(d => d.doc_req_id === docId);
+      if (targetDoc) {
+        this.api(`/api/citizen/procedures/${procId}/toggle-doc`, 'POST', {
+          document_name: targetDoc.document_name
+        }).catch(err => console.warn('Could not persist doc toggle:', err));
+      }
+    }
 
     const card = document.getElementById(`doc-card-${docId}`);
     if (card) {
@@ -1491,6 +1855,1604 @@ const App = {
       this.showToast(`Checklist saved to Case #${caseId} brief as a pinned strategy note!`, 'success');
     } catch (err) {
       this.showToast('Failed to attach checklist: ' + err.message, 'error');
+    }
+  },
+
+  // -------------------------------------------------------------
+  // PHASE 11: LEGAL DOCUMENT ANALYSIS MODULE
+  // -------------------------------------------------------------
+  analysisMode: 'file',
+  selectedAnalysisFile: null,
+  activeAnalysisResult: null,
+
+  async loadDocumentAnalysisModule() {
+    this.populateAnalysisCaseDropdown();
+    this.loadAnalysisHistory();
+  },
+
+  async populateAnalysisCaseDropdown() {
+    const dropdown = document.getElementById('analysis-case-dropdown');
+    if (!dropdown) return;
+    try {
+      const data = await this.api('/api/lawyer/cases');
+      dropdown.innerHTML = '<option value="">-- Standalone (No Case) --</option>' + (data.cases || []).map(c => `
+        <option value="${c.case_id}">${this.escape(c.case_title)} (${c.case_number || 'Brief'})</option>
+      `).join('');
+    } catch (e) {
+      console.warn('Could not populate analysis cases:', e);
+    }
+  },
+
+  switchAnalysisMode(mode) {
+    this.analysisMode = mode;
+    const btnFile = document.getElementById('btn-mode-file');
+    const btnText = document.getElementById('btn-mode-text');
+    const paneFile = document.getElementById('pane-analysis-file');
+    const paneText = document.getElementById('pane-analysis-text');
+
+    if (mode === 'file') {
+      btnFile?.classList.add('active');
+      btnText?.classList.remove('active');
+      if (paneFile) paneFile.style.display = 'block';
+      if (paneText) paneText.style.display = 'none';
+    } else {
+      btnText?.classList.add('active');
+      btnFile?.classList.remove('active');
+      if (paneText) paneText.style.display = 'block';
+      if (paneFile) paneFile.style.display = 'none';
+    }
+  },
+
+  handleAnalysisFileSelect(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 15 * 1024 * 1024) {
+      this.showToast('File exceeds maximum size of 15 MB.', 'error');
+      e.target.value = '';
+      return;
+    }
+
+    this.selectedAnalysisFile = file;
+    const chip = document.getElementById('selected-file-chip');
+    const nameEl = document.getElementById('selected-file-name');
+    const sizeEl = document.getElementById('selected-file-size');
+
+    if (nameEl) nameEl.innerText = file.name;
+    if (sizeEl) sizeEl.innerText = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+    if (chip) chip.style.display = 'flex';
+  },
+
+  handleDragOver(e) {
+    e.preventDefault();
+    document.getElementById('analysis-dropzone')?.classList.add('dragover');
+  },
+
+  handleDragLeave(e) {
+    e.preventDefault();
+    document.getElementById('analysis-dropzone')?.classList.remove('dragover');
+  },
+
+  handleFileDrop(e) {
+    e.preventDefault();
+    document.getElementById('analysis-dropzone')?.classList.remove('dragover');
+    const file = e.dataTransfer?.files?.[0];
+    if (!file) return;
+
+    const lower = file.name.toLowerCase();
+    if (!lower.endsWith('.pdf') && !lower.endsWith('.docx') && !lower.endsWith('.txt')) {
+      this.showToast('Only .pdf, .docx, and .txt files are supported.', 'error');
+      return;
+    }
+
+    if (file.size > 15 * 1024 * 1024) {
+      this.showToast('File exceeds maximum size of 15 MB.', 'error');
+      return;
+    }
+
+    this.selectedAnalysisFile = file;
+    const chip = document.getElementById('selected-file-chip');
+    const nameEl = document.getElementById('selected-file-name');
+    const sizeEl = document.getElementById('selected-file-size');
+
+    if (nameEl) nameEl.innerText = file.name;
+    if (sizeEl) sizeEl.innerText = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+    if (chip) chip.style.display = 'flex';
+  },
+
+  clearAnalysisFile(e) {
+    if (e) e.stopPropagation();
+    this.selectedAnalysisFile = null;
+    const input = document.getElementById('analysis-file-input');
+    if (input) input.value = '';
+    const chip = document.getElementById('selected-file-chip');
+    if (chip) chip.style.display = 'none';
+  },
+
+  resetAnalysisInput() {
+    this.clearAnalysisFile();
+    const txt = document.getElementById('analysis-text-content');
+    if (txt) txt.value = '';
+    const title = document.getElementById('analysis-text-title');
+    if (title) title.value = '';
+
+    document.getElementById('analysis-input-card').style.display = 'block';
+    document.getElementById('analysis-loading-card').style.display = 'none';
+    document.getElementById('analysis-results-card').style.display = 'none';
+  },
+
+  async submitDocumentAnalysis() {
+    const caseVal = document.getElementById('analysis-case-dropdown')?.value;
+    const caseId = caseVal ? parseInt(caseVal) : null;
+
+    const formData = new FormData();
+    if (caseId) formData.append('case_id', caseId);
+
+    if (this.analysisMode === 'file') {
+      if (!this.selectedAnalysisFile) {
+        this.showToast('Please select or drop a legal document file (.pdf, .docx, .txt).', 'error');
+        return;
+      }
+      formData.append('file', this.selectedAnalysisFile);
+    } else {
+      const textVal = document.getElementById('analysis-text-content')?.value?.trim();
+      if (!textVal || textVal.length < 10) {
+        this.showToast('Please paste at least 10 characters of legal document text.', 'error');
+        return;
+      }
+      formData.append('text', textVal);
+      const titleVal = document.getElementById('analysis-text-title')?.value?.trim();
+      if (titleVal) formData.append('document_title', titleVal);
+    }
+
+    // UI Loading state
+    document.getElementById('analysis-input-card').style.display = 'none';
+    document.getElementById('analysis-loading-card').style.display = 'block';
+    document.getElementById('analysis-results-card').style.display = 'none';
+
+    try {
+      const headers = {};
+      if (this.token) {
+        headers['Authorization'] = `Bearer ${this.token}`;
+      }
+
+      const res = await fetch('/api/analysis/upload', {
+        method: 'POST',
+        headers: headers,
+        body: formData
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.detail || `Server returned error ${res.status}`);
+      }
+
+      const data = await res.json();
+      this.renderAnalysisResults(data);
+      this.loadAnalysisHistory();
+      this.showToast('Document analyzed successfully!', 'success');
+    } catch (err) {
+      document.getElementById('analysis-input-card').style.display = 'block';
+      document.getElementById('analysis-loading-card').style.display = 'none';
+      this.showToast('Analysis failed: ' + err.message, 'error');
+    }
+  },
+
+  renderAnalysisResults(data) {
+    this.activeAnalysisResult = data;
+
+    // Header Meta
+    document.getElementById('res-doc-type').innerText = data.document_type || 'Unknown / Unclassified';
+    document.getElementById('res-file-type').innerText = (data.file_type || 'TEXT').toUpperCase();
+    document.getElementById('res-doc-name').innerText = data.document_name;
+    const sizeKB = (data.file_size_bytes / 1024).toFixed(1);
+    const hash = data.file_hash_sha256 ? data.file_hash_sha256.substring(0, 16) + '...' : 'N/A';
+    document.getElementById('res-doc-meta').innerText = `Size: ${sizeKB} KB • Checksum: sha256:${hash}`;
+
+    const caseBadge = document.getElementById('res-case-badge');
+    if (data.case_id) {
+      caseBadge.style.display = 'inline-block';
+      caseBadge.innerText = `Case #${data.case_id}`;
+    } else {
+      caseBadge.style.display = 'none';
+    }
+
+    // Warning
+    const warnAlert = document.getElementById('res-warning-alert');
+    const warnText = document.getElementById('res-warning-text');
+    if (data.warning_message) {
+      warnAlert.style.display = 'flex';
+      warnText.innerText = data.warning_message;
+    } else {
+      warnAlert.style.display = 'none';
+    }
+
+    // Executive Summary & Takeaways
+    document.getElementById('res-summary-text').innerText = data.summary || 'Summary unavailable.';
+    const takeawaysBox = document.getElementById('res-takeaways-container');
+    takeawaysBox.innerHTML = (data.executive_takeaways || []).map(t => `
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-subtle); padding: 10px 14px; border-radius: var(--radius-sm); font-size: 13px; color: #E2E8F0; display: flex; align-items: center; gap: 8px;">
+        <span style="color: #818CF8; font-weight: bold;">•</span> ${this.escape(t)}
+      </div>
+    `).join('');
+
+    // Tab Counts
+    document.getElementById('res-parties-count').innerText = (data.parties || []).length;
+    document.getElementById('res-dates-count').innerText = (data.dates || []).length;
+    document.getElementById('res-values-count').innerText = (data.monetary_values || []).length;
+    document.getElementById('res-clauses-count').innerText = (data.clauses || []).length;
+    document.getElementById('res-risks-count').innerText = (data.identified_risks || []).length;
+    document.getElementById('res-actions-count').innerText = (data.missing_information || []).length + (data.action_items || []).length;
+    document.getElementById('res-statutes-count').innerText = (data.legal_references || []).length;
+
+    // 1. Parties
+    const pBody = document.getElementById('res-parties-table-body');
+    if (!data.parties || data.parties.length === 0) {
+      pBody.innerHTML = '<tr><td colspan="3"><div class="empty-state"><div class="empty-state-desc">No specific contracting parties or litigants were explicitly identified.</div></div></td></tr>';
+    } else {
+      pBody.innerHTML = data.parties.map(p => `
+        <tr>
+          <td><strong>${this.escape(p.name)}</strong></td>
+          <td><span class="badge badge-active">${this.escape(p.role)}</span></td>
+          <td style="font-size: 12px; color: var(--text-muted);">${this.escape(p.raw_text || '-')}</td>
+        </tr>
+      `).join('');
+    }
+
+    // 2. Dates & Values
+    const dList = document.getElementById('res-dates-list');
+    if (!data.dates || data.dates.length === 0) {
+      dList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No dates explicitly identified.</div></div>';
+    } else {
+      dList.innerHTML = data.dates.map(d => `
+        <div style="padding: 10px 0; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <strong style="color: #F8FAFC; font-size: 14px;">${this.escape(d.label)}</strong>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">${this.escape(d.context || '')}</div>
+          </div>
+          <span class="badge badge-completed" style="font-size: 12px;">${this.escape(d.date_str)}</span>
+        </div>
+      `).join('');
+    }
+
+    const vList = document.getElementById('res-values-list');
+    if (!data.monetary_values || data.monetary_values.length === 0) {
+      vList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No monetary values detected.</div></div>';
+    } else {
+      vList.innerHTML = data.monetary_values.map(v => `
+        <div style="padding: 10px 0; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <strong style="color: #F8FAFC; font-size: 14px;">${this.escape(v.label)}</strong>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">${this.escape(v.context || '')}</div>
+          </div>
+          <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #34D399; font-size: 14px;">${this.escape(v.amount_text)}</span>
+        </div>
+      `).join('');
+    }
+
+    // 3. Clauses & Obligations
+    const cList = document.getElementById('res-clauses-list');
+    if (!data.clauses || data.clauses.length === 0) {
+      cList.innerHTML = '<div class="card"><div class="empty-state"><div class="empty-state-desc">No standard statutory clause patterns were extracted.</div></div></div>';
+    } else {
+      cList.innerHTML = data.clauses.map(c => `
+        <div class="clause-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <strong style="font-size: 15px; color: #F8FAFC;">${this.escape(c.title)}</strong>
+            <span class="badge badge-active">${this.escape(c.category)}</span>
+          </div>
+          <p style="font-size: 13px; color: #94A3B8; margin-bottom: 10px; line-height: 1.5;">${this.escape(c.explanation || '')}</p>
+          <div style="background: rgba(15, 23, 42, 0.7); border-left: 3px solid var(--accent-primary); padding: 10px 14px; border-radius: var(--radius-sm); font-size: 12.5px; color: #CBD5E1; font-style: italic; line-height: 1.6;">
+            "${this.escape(c.text_excerpt)}"
+          </div>
+        </div>
+      `).join('');
+    }
+
+    const oList = document.getElementById('res-obligations-list');
+    if (!data.obligations_and_rights || data.obligations_and_rights.length === 0) {
+      oList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No specific rights or obligations distinguished.</div></div>';
+    } else {
+      oList.innerHTML = data.obligations_and_rights.map(o => `
+        <div style="padding: 10px 0; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: flex-start; gap: 12px;">
+          <span class="badge ${o.type === 'obligation' ? 'badge-mandatory' : 'badge-supporting'}">${o.type.toUpperCase()}</span>
+          <div>
+            <strong style="font-size: 13px; color: #F8FAFC;">${this.escape(o.party)}:</strong>
+            <span style="font-size: 13px; color: var(--text-secondary); margin-left: 4px;">${this.escape(o.description)}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // 4. Risks & Issues
+    const rList = document.getElementById('res-risks-list');
+    if (!data.identified_risks || data.identified_risks.length === 0) {
+      rList.innerHTML = '<div class="card"><div class="empty-state"><div class="empty-state-desc">No rule-based potential legal issues detected in this document.</div></div></div>';
+    } else {
+      rList.innerHTML = data.identified_risks.map(r => `
+        <div class="risk-card severity-${r.severity.toLowerCase()}">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <strong style="font-size: 15px; color: #F8FAFC;">${this.escape(r.title)}</strong>
+            <span class="badge ${r.severity === 'High' ? 'badge-mandatory' : (r.severity === 'Medium' ? 'badge-supporting' : 'badge-completed')}">
+              ${r.severity} Priority Issue
+            </span>
+          </div>
+          <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 8px;">
+            ${this.escape(r.description)}
+          </p>
+          ${r.evidence_excerpt ? `
+            <div style="font-size: 12px; color: var(--text-muted); background: rgba(15, 23, 42, 0.5); padding: 6px 10px; border-radius: var(--radius-sm); margin-bottom: 8px;">
+              🔍 Evidence: ${this.escape(r.evidence_excerpt)}
+            </div>
+          ` : ''}
+          ${r.recommendation ? `
+            <div style="font-size: 12.5px; color: #38BDF8; font-weight: 500;">
+              💡 Recommendation: ${this.escape(r.recommendation)}
+            </div>
+          ` : ''}
+        </div>
+      `).join('');
+    }
+
+    // 5. Missing Info & Actions
+    const mList = document.getElementById('res-missing-list');
+    if (!data.missing_information || data.missing_information.length === 0) {
+      mList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No obvious structural omissions detected.</div></div>';
+    } else {
+      mList.innerHTML = data.missing_information.map(m => `
+        <div style="padding: 10px 0; border-bottom: 1px solid var(--border-subtle);">
+          <strong style="font-size: 14px; color: #FDA4AF;">⚠️ ${this.escape(m.item)}</strong>
+          <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">${this.escape(m.description)}</div>
+          <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">Grounds: ${this.escape(m.why_expected)}</div>
+        </div>
+      `).join('');
+    }
+
+    const aList = document.getElementById('res-actions-list');
+    if (!data.action_items || data.action_items.length === 0) {
+      aList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No specific action items generated.</div></div>';
+    } else {
+      aList.innerHTML = data.action_items.map(a => `
+        <div style="padding: 10px 0; border-bottom: 1px solid var(--border-subtle);">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <strong style="font-size: 14px; color: #F8FAFC;">${this.escape(a.task)}</strong>
+            <span class="badge ${a.priority === 'High' ? 'badge-mandatory' : 'badge-completed'}">${a.priority}</span>
+          </div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+            👤 Assigned: ${this.escape(a.responsible_party || 'Advocate')} • Trigger: ${this.escape(a.deadline_or_trigger || 'Prior to filing')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // 6. Grounded Statutory Provisions
+    const sList = document.getElementById('res-statutes-list');
+    if (!data.legal_references || data.legal_references.length === 0) {
+      sList.innerHTML = '<div class="card"><div class="empty-state"><div class="empty-state-desc">No statutory provisions were mentioned or matched in this document.</div></div></div>';
+    } else {
+      sList.innerHTML = data.legal_references.map(s => `
+        <div class="grounded-ref-card">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <strong style="font-size: 16px; color: #F8FAFC;">${this.escape(s.citation_text)}</strong>
+                ${s.is_verified_in_db ? `
+                  <span class="verified-badge">✓ Verified in Vidhik DB</span>
+                ` : `
+                  <span class="unverified-badge">✕ Unverified / Outside Vidhik DB</span>
+                `}
+              </div>
+              ${s.law_name ? `
+                <div style="font-size: 13.5px; color: var(--accent-cyan); margin-top: 3px;">
+                  📜 ${this.escape(s.law_name)} ${s.section_number ? `• Section ${this.escape(s.section_number)}` : ''}
+                </div>
+              ` : ''}
+            </div>
+            ${s.section_id ? `
+              <button class="btn btn-secondary btn-sm" onclick="App.openSectionDetail(${s.section_id})">
+                Inspect Section ↗
+              </button>
+            ` : ''}
+          </div>
+          ${s.section_title ? `
+            <div style="font-size: 13px; font-weight: 500; color: #CBD5E1; margin-bottom: 6px;">
+              Title: ${this.escape(s.section_title)}
+            </div>
+          ` : ''}
+          <div style="font-size: 12.5px; color: var(--text-muted); line-height: 1.5;">
+            ${this.escape(s.relevance_explanation || '')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Reveal results
+    document.getElementById('analysis-input-card').style.display = 'none';
+    document.getElementById('analysis-loading-card').style.display = 'none';
+    document.getElementById('analysis-results-card').style.display = 'block';
+
+    // Switch to first results tab
+    this.switchResTab('parties');
+  },
+
+  switchResTab(tabName) {
+    document.querySelectorAll('.tab-btn[data-res-tab]').forEach(btn => {
+      if (btn.getAttribute('data-res-tab') === tabName) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+    const panes = ['parties', 'dates-values', 'clauses', 'risks', 'actions', 'statutes'];
+    panes.forEach(p => {
+      const el = document.getElementById(`res-tab-${p}`);
+      if (el) {
+        el.style.display = (p === tabName) ? 'block' : 'none';
+      }
+    });
+  },
+
+  async openSaveAnalysisModal() {
+    if (!this.activeAnalysisResult) return;
+    const select = document.getElementById('m-save-analysis-case-select');
+    select.innerHTML = '<option value="">Loading active cases...</option>';
+    try {
+      const data = await this.api('/api/lawyer/cases');
+      select.innerHTML = (data.cases || []).map(c => `
+        <option value="${c.case_id}" ${this.activeAnalysisResult.case_id === c.case_id ? 'selected' : ''}>
+          ${this.escape(c.case_title)} (${c.case_number || 'Brief'})
+        </option>
+      `).join('');
+      document.getElementById('modal-save-analysis-to-case').classList.add('active');
+    } catch (e) {
+      this.showToast('Failed to load lawyer cases: ' + e.message, 'error');
+    }
+  },
+
+  async submitSaveAnalysisToCase(e) {
+    e.preventDefault();
+    if (!this.activeAnalysisResult || !this.activeAnalysisResult.analysis_id) {
+      this.showToast('Please analyze a document first before saving to a case.', 'error');
+      return;
+    }
+
+    const caseId = parseInt(document.getElementById('m-save-analysis-case-select').value);
+    if (!caseId) {
+      this.showToast('Please select a target case.', 'error');
+      return;
+    }
+
+    const payload = {
+      case_id: caseId,
+      save_as_document: document.getElementById('m-save-chk-doc').checked,
+      save_summary_note: document.getElementById('m-save-chk-note').checked,
+      link_verified_sections: document.getElementById('m-save-chk-sec').checked
+    };
+
+    try {
+      const res = await this.api(`/api/analysis/${this.activeAnalysisResult.analysis_id}/save-to-case`, 'POST', payload);
+      this.showToast(`Analysis saved to Case #${caseId}! (${res.linked_sections_count} sections linked)`, 'success');
+      this.closeModals();
+      this.loadAnalysisHistory();
+    } catch (err) {
+      this.showToast('Save to case failed: ' + err.message, 'error');
+    }
+  },
+
+  exportAnalysisSummary() {
+    if (!this.activeAnalysisResult) return;
+    const a = this.activeAnalysisResult;
+    let md = `# VIDHIK AI LEGAL DOCUMENT ANALYSIS REPORT\n`;
+    md += `Document: ${a.document_name}\n`;
+    md += `Classification: ${a.document_type}\n`;
+    md += `Generated: ${new Date().toLocaleString()}\n`;
+    md += `Checksum: ${a.file_hash_sha256 || 'N/A'}\n\n`;
+    md += `## EXECUTIVE SUMMARY\n${a.summary}\n\n`;
+    md += `## KEY TAKEAWAYS\n` + (a.executive_takeaways || []).map(t => `- ${t}`).join('\n') + `\n\n`;
+    md += `## PARTIES IDENTIFIED\n` + (a.parties || []).map(p => `- ${p.name} (${p.role})`).join('\n') + `\n\n`;
+    md += `## POTENTIAL ISSUES / RISKS\n` + (a.identified_risks || []).map(r => `[${r.severity}] ${r.title}: ${r.description}`).join('\n') + `\n\n`;
+    md += `## STATUTORY GROUNDING\n` + (a.legal_references || []).map(s => `- ${s.citation_text} | Verified: ${s.is_verified_in_db}`).join('\n') + `\n\n`;
+    md += `---\nDISCLAIMER: Automated research tool. Does not constitute formal legal counsel.\n`;
+
+    const blob = new Blob([md], { type: 'text/markdown;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Vidhik_Analysis_${a.document_name.replace(/[^a-zA-Z0-9]/g, '_')}.md`;
+    link.click();
+    URL.revokeObjectURL(url);
+    this.showToast('Analysis report downloaded.', 'success');
+  },
+
+  async loadAnalysisHistory() {
+    const container = document.getElementById('analysis-history-container');
+    if (!container) return;
+
+    try {
+      const data = await this.api('/api/analysis/history');
+      if (!data.analyses || data.analyses.length === 0) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No historical analyses yet. Upload or paste a document to begin.</div></div>';
+        return;
+      }
+
+      container.innerHTML = data.analyses.map(h => `
+        <div style="background: rgba(15, 23, 42, 0.5); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <strong style="color: #F8FAFC; font-size: 15px;">${this.escape(h.document_name)}</strong>
+              <span class="badge badge-active">${this.escape(h.document_type)}</span>
+              ${h.case_title ? `<span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #A5B4FC;">Case: ${this.escape(h.case_title)}</span>` : ''}
+            </div>
+            <div style="font-size: 12.5px; color: var(--text-muted); margin-top: 4px;">
+              ${this.escape(h.summary_preview)}
+            </div>
+            <div style="font-size: 11.5px; color: #64748B; margin-top: 4px;">
+              ${new Date(h.created_at).toLocaleDateString()} • Issues: ${h.risks_count} • Verified Provisions: ${h.verified_references_count}
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-secondary btn-sm" onclick="App.loadAnalysisById(${h.analysis_id})">Open Report</button>
+            <button class="btn btn-danger btn-sm" onclick="App.deleteAnalysis(${h.analysis_id})">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    } catch (e) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-state-desc">Could not load history: ${this.escape(e.message)}</div></div>`;
+    }
+  },
+
+  async loadAnalysisById(analysisId) {
+    try {
+      const data = await this.api(`/api/analysis/${analysisId}`);
+      this.renderAnalysisResults(data);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (e) {
+      this.showToast('Could not load analysis: ' + e.message, 'error');
+    }
+  },
+
+  async deleteAnalysis(analysisId) {
+    if (!confirm('Are you sure you want to delete this analysis report?')) return;
+    try {
+      await this.api(`/api/analysis/${analysisId}`, 'DELETE');
+      this.showToast('Analysis deleted.', 'success');
+      this.loadAnalysisHistory();
+      if (this.activeAnalysisResult && this.activeAnalysisResult.analysis_id === analysisId) {
+        this.resetAnalysisInput();
+      }
+    } catch (e) {
+      this.showToast('Delete failed: ' + e.message, 'error');
+    }
+  },
+
+  // =============================================================
+  // PHASE 14: CITIZEN / USER MODULE
+  // =============================================================
+
+  // 1. Citizen Dashboard
+  async loadCitizenDashboard() {
+    try {
+      const data = await this.api('/api/citizen/dashboard');
+
+      // Update KPIs
+      const kCases = document.getElementById('kpi-citizen-cases');
+      const kDocs = document.getElementById('kpi-citizen-docs');
+      const kHearings = document.getElementById('kpi-citizen-hearings');
+      const kBookmarks = document.getElementById('kpi-citizen-bookmarks');
+
+      if (kCases) kCases.innerText = data.metrics.active_cases;
+      if (kDocs) kDocs.innerText = data.metrics.total_documents;
+      if (kHearings) kHearings.innerText = data.metrics.upcoming_hearings;
+      if (kBookmarks) kBookmarks.innerText = data.metrics.saved_sections;
+
+      // Update sidebar counts
+      const sbCases = document.getElementById('sidebar-c-case-count');
+      const sbDocs = document.getElementById('sidebar-c-doc-count');
+      const sbBm = document.getElementById('sidebar-c-bm-count');
+      if (sbCases) sbCases.innerText = data.metrics.active_cases;
+      if (sbDocs) sbDocs.innerText = data.metrics.total_documents;
+      if (sbBm) sbBm.innerText = data.metrics.saved_sections;
+
+      // Render Active Cases List
+      const cList = document.getElementById('citizen-dash-cases-list');
+      if (cList) {
+        if (!data.recent_cases || data.recent_cases.length === 0) {
+          cList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">You do not have any registered legal matters yet. Use "+ File New Matter" to register a case.</div></div>';
+        } else {
+          cList.innerHTML = data.recent_cases.map(c => `
+            <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="App.openCitizenCaseDetail(${c.case_id})">
+              <div>
+                <div style="font-weight: 600; color: var(--text-primary); font-size: 14px;">${this.escape(c.title)}</div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
+                  🏛️ ${this.escape(c.court || 'Court / Forum')} • <code>${this.escape(c.case_number || 'Matter Brief')}</code>
+                </div>
+                ${c.lawyer_name ? `<div style="font-size: 11.5px; color: var(--accent-cyan); margin-top: 2px;">Assigned Counsel: ${this.escape(c.lawyer_name)}</div>` : ''}
+              </div>
+              <div style="text-align: right;">
+                <span class="badge badge-${c.status}">${c.status}</span>
+                <div style="font-size: 11px; color: #818CF8; margin-top: 4px;">View Matter →</div>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+
+      // Render Upcoming Hearings
+      const hList = document.getElementById('citizen-dash-hearings-list');
+      if (hList) {
+        if (!data.upcoming_hearings || data.upcoming_hearings.length === 0) {
+          hList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No upcoming court hearings scheduled.</div></div>';
+        } else {
+          hList.innerHTML = data.upcoming_hearings.map(h => `
+            <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-weight: 600; color: var(--text-primary); font-size: 14px;">${this.escape(h.title)}</div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
+                  ⚖️ ${this.escape(h.case_title || 'Legal Matter')} (${this.escape(h.court_name || 'Designated Court')})
+                </div>
+              </div>
+              <div style="text-align: right;">
+                <span class="badge badge-active">${h.reminder_date}</span>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">${h.reminder_time || '10:30 AM'}</div>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+
+      // Render Recent Document Analyses
+      const aList = document.getElementById('citizen-dash-analyses-list');
+      if (aList) {
+        if (!data.recent_analyses || data.recent_analyses.length === 0) {
+          aList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No analyzed legal documents yet. Analyze an agreement or notice to check risk flags.</div></div>';
+        } else {
+          aList.innerHTML = data.recent_analyses.map(a => `
+            <div style="padding: 10px 0; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="App.navigate('document-analysis'); App.loadAnalysisById(${a.analysis_id});">
+              <div>
+                <div style="font-size: 13.5px; font-weight: 500; color: var(--text-primary);">📄 ${this.escape(a.document_name)}</div>
+                <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">
+                  ${this.escape(a.document_type)} • ${new Date(a.created_at).toLocaleDateString()}
+                </div>
+              </div>
+              <div style="font-size: 12px; color: var(--accent-cyan);">View Report →</div>
+            </div>
+          `).join('');
+        }
+      }
+
+      // Render Recent Documents
+      const dList = document.getElementById('citizen-dash-documents-list');
+      if (dList) {
+        if (!data.recent_documents || data.recent_documents.length === 0) {
+          dList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No case documents uploaded yet. Use "+ Upload Doc" to attach case records.</div></div>';
+        } else {
+          dList.innerHTML = data.recent_documents.map(d => `
+            <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-weight: 500; font-size: 13.5px; color: var(--text-primary);">📄 ${this.escape(d.document_name)}</div>
+                <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">
+                  ${this.escape(d.document_type || 'Case File')} • ${this.escape(d.case_title || 'Legal Matter')}
+                </div>
+              </div>
+              <span class="badge badge-completed">${d.document_type || 'Attached'}</span>
+            </div>
+          `).join('');
+        }
+      }
+
+      // Render Tracked Procedure Progress
+      try {
+        const procData = await this.api('/api/citizen/procedures');
+        const pList = document.getElementById('citizen-dash-procedures-list');
+        if (pList) {
+          const procs = procData.procedures || [];
+          const activeProcs = procs.filter(p => (p.completed_count || 0) > 0 || p.is_tracked);
+          const displayProcs = activeProcs.length > 0 ? activeProcs : procs.slice(0, 3);
+          if (displayProcs.length === 0) {
+            pList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No procedures explored yet. Explore Procedure Checklists to track requirements.</div></div>';
+          } else {
+            pList.innerHTML = displayProcs.map(p => {
+              const comp = p.completed_count || 0;
+              const tot = p.required_docs_count || (p.documents ? p.documents.length : 1);
+              const pct = tot > 0 ? Math.round((comp / tot) * 100) : 0;
+              return `
+                <div class="procedure-progress-card" style="cursor: pointer;" onclick="App.openProcedureChecklist(${p.procedure_id})">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong style="font-size: 13.5px; color: #F8FAFC;">${this.escape(p.procedure_name)}</strong>
+                    <span style="font-size: 12px; color: var(--accent-cyan); font-weight: 600;">${pct}% Complete</span>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill" style="width: ${pct}%;"></div>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 6px;">
+                    <span>${comp} of ${tot} documents ready</span>
+                    <span>${this.escape(p.category_name || 'Legal Process')}</span>
+                  </div>
+                </div>
+              `;
+            }).join('');
+          }
+        }
+      } catch (procErr) {
+        console.warn('Could not load procedures for dashboard:', procErr);
+      }
+
+      // Render Saved Provisions
+      try {
+        const bmData = await this.api('/api/citizen/bookmarks');
+        const bList = document.getElementById('citizen-dash-bookmarks-list');
+        if (bList) {
+          const bms = Array.isArray(bmData) ? bmData : [];
+          if (bms.length === 0) {
+            bList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No saved provisions yet. Bookmark statutory sections from Legal Research.</div></div>';
+          } else {
+            bList.innerHTML = bms.slice(0, 4).map(b => `
+              <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="App.viewFullProvisionDetail(${b.section_id})">
+                <div>
+                  <div style="font-weight: 600; font-size: 13.5px; color: #F8FAFC;">Section ${this.escape(b.section_number)}: ${this.escape(b.section_title || '')}</div>
+                  <div style="font-size: 11.5px; color: var(--accent-cyan); margin-top: 2px;">📖 ${this.escape(b.law_name || 'Statute')}</div>
+                </div>
+                <div style="font-size: 11.5px; color: #818CF8;">View →</div>
+              </div>
+            `).join('');
+          }
+        }
+      } catch (bmErr) {
+        console.warn('Could not load bookmarks for dashboard:', bmErr);
+      }
+
+      // Render Recent Legal Searches
+      try {
+        const shData = await this.api('/api/citizen/search-history?limit=4');
+        const sList = document.getElementById('citizen-dash-searches-list');
+        if (sList) {
+          const searches = Array.isArray(shData) ? shData : [];
+          if (searches.length === 0) {
+            sList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No search history yet. Search statutes in Legal Research.</div></div>';
+          } else {
+            sList.innerHTML = `
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                ${searches.map(s => `
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(15, 23, 42, 0.4); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+                    <div>
+                      <span style="font-size: 13px; font-weight: 500; color: #F8FAFC;">🔍 "${this.escape(s.query_text)}"</span>
+                      <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 2px;">
+                        ${s.results_count || 0} provisions matched • ${new Date(s.searched_at).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <button class="search-again-btn" onclick="App.reSearchFromHistory('${this.escape(s.query_text)}', '${this.escape(s.filters && s.filters.jurisdiction ? s.filters.jurisdiction : '')}')">Search Again</button>
+                  </div>
+                `).join('')}
+              </div>
+            `;
+          }
+        }
+      } catch (shErr) {
+        console.warn('Could not load search history for dashboard:', shErr);
+      }
+
+      // Render Notifications
+      const nList = document.getElementById('citizen-dash-notifs-list');
+      if (nList) {
+        if (!data.recent_notifications || data.recent_notifications.length === 0) {
+          nList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No new notifications.</div></div>';
+        } else {
+          nList.innerHTML = data.recent_notifications.map(n => `
+            <div style="padding: 10px 0; border-bottom: 1px solid var(--border-subtle);">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <strong style="font-size: 13.5px; color: ${n.is_read ? 'var(--text-secondary)' : '#F8FAFC'};">${this.escape(n.title)}</strong>
+                <span style="font-size: 11px; color: var(--text-muted);">${new Date(n.created_at).toLocaleDateString()}</span>
+              </div>
+              <div style="font-size: 12.5px; color: var(--text-secondary); margin-top: 3px;">${this.escape(n.message)}</div>
+            </div>
+          `).join('');
+        }
+      }
+    } catch (err) {
+      this.showToast('Failed to load citizen dashboard: ' + err.message, 'error');
+    }
+  },
+
+  // 2. Citizen Cases
+  async loadCitizenCases() {
+    const container = document.getElementById('citizen-cases-container');
+    if (!container) return;
+    container.innerHTML = '<div class="spinner"></div>';
+
+    try {
+      const cases = await this.api('/api/citizen/cases');
+      this.citizenCases = cases || [];
+      this.renderCitizenCasesList(this.citizenCases);
+    } catch (err) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-state-title">Error Loading Cases</div><div class="empty-state-desc">${this.escape(err.message)}</div></div>`;
+    }
+  },
+
+  renderCitizenCasesList(cases) {
+    const container = document.getElementById('citizen-cases-container');
+    if (!container) return;
+
+    if (!cases || cases.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">⚖️</div>
+          <div class="empty-state-title">No Legal Matters Registered</div>
+          <div class="empty-state-desc">You do not have any civil or statutory matters registered. Click "+ File New Matter" to open a case file.</div>
+          <button class="btn btn-primary" style="margin-top: 14px;" onclick="App.openCitizenNewCaseModal()">+ File New Matter</button>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = cases.map(c => `
+      <div class="card" style="margin-bottom: 16px; border: 1px solid var(--border-subtle); transition: border-color 0.2s ease; cursor: pointer;" onclick="App.openCitizenCaseDetail(${c.case_id})">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
+              <span class="badge badge-${c.status}">${c.status}</span>
+              <span class="badge badge-completed">${this.escape(c.case_type || 'Civil Matter')}</span>
+              ${c.case_number ? `<span style="font-size: 12px; color: var(--accent-cyan); font-family: monospace;">${this.escape(c.case_number)}</span>` : ''}
+            </div>
+            <h3 style="font-size: 18px; color: #F8FAFC; margin-bottom: 4px;">${this.escape(c.title)}</h3>
+            <div style="font-size: 13px; color: var(--text-muted);">
+              🏛️ ${this.escape(c.court || 'Court / Judicial Forum')} • Opposite Party: <strong style="color: var(--text-secondary);">${this.escape(c.opposite_party || 'Unspecified')}</strong>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            ${c.lawyer_name ? `
+              <div style="background: rgba(15, 23, 42, 0.6); padding: 6px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); display: inline-block;">
+                <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Assigned Counsel</div>
+                <div style="font-size: 12.5px; font-weight: 600; color: #818CF8;">${this.escape(c.lawyer_name)}</div>
+              </div>
+            ` : `
+              <span class="badge" style="background: rgba(100, 116, 139, 0.2); color: #94A3B8;">Self Represented</span>
+            `}
+          </div>
+        </div>
+
+        ${c.description ? `
+          <div style="font-size: 13px; color: var(--text-secondary); margin-top: 12px; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+            ${this.escape(c.description)}
+          </div>
+        ` : ''}
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-subtle); font-size: 12px; color: var(--text-muted);">
+          <div>
+            ${c.filing_date ? `Filing Date: ${c.filing_date}` : (c.created_at ? `Created: ${new Date(c.created_at).toLocaleDateString()}` : '')}
+          </div>
+          <div style="display: flex; gap: 14px; align-items: center;">
+            <span>📄 ${c.documents_count || 0} Docs</span>
+            <span>📅 ${c.hearings_count || 0} Hearings</span>
+            <span style="color: var(--accent-cyan); font-weight: 500;">Open Matter Brief →</span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  },
+
+  filterCitizenCases() {
+    const q = (document.getElementById('citizen-case-search')?.value || '').toLowerCase();
+    const status = document.getElementById('citizen-case-status-filter')?.value || '';
+
+    const filtered = (this.citizenCases || []).filter(c => {
+      const matchQ = !q || (c.title && c.title.toLowerCase().includes(q)) ||
+                     (c.court && c.court.toLowerCase().includes(q)) ||
+                     (c.opposite_party && c.opposite_party.toLowerCase().includes(q));
+      const matchStatus = !status || c.status === status;
+      return matchQ && matchStatus;
+    });
+
+    this.renderCitizenCasesList(filtered);
+  },
+
+  openCitizenCaseDetail(caseId) {
+    this.currentCaseId = caseId;
+    this.navigate('citizen-case-detail');
+  },
+
+  async loadCitizenCaseDetail(caseId) {
+    try {
+      const c = await this.api(`/api/citizen/cases/${caseId}`);
+
+      // Header Info
+      document.getElementById('c-detail-title').innerText = c.title;
+      document.getElementById('c-detail-number').innerText = c.case_number ? `CASE #${c.case_number}` : 'MATTER BRIEF';
+      document.getElementById('c-detail-type').innerText = c.case_type || 'Civil Matter';
+      document.getElementById('c-detail-court').innerText = `🏛️ ${c.court || 'Court / Forum Name'}`;
+
+      const stBadge = document.getElementById('c-detail-status');
+      stBadge.innerText = c.status;
+      stBadge.className = `badge badge-${c.status}`;
+
+      // Assigned Counsel
+      const counselBox = document.getElementById('c-detail-lawyer-card');
+      if (c.lawyer) {
+        counselBox.style.display = 'block';
+        document.getElementById('c-detail-lawyer-name').innerText = c.lawyer.full_name;
+        document.getElementById('c-detail-lawyer-spec').innerText = c.lawyer.specializations || 'Advocate High Court';
+        document.getElementById('c-detail-lawyer-contact').innerText = `📞 ${c.lawyer.phone || 'Contact via Chambers'} • 📧 ${c.lawyer.email}`;
+      } else {
+        counselBox.style.display = 'none';
+      }
+
+      // Facts & Details
+      document.getElementById('c-detail-description').innerText = c.description || 'No description summary entered.';
+      document.getElementById('c-detail-opposite').innerText = c.opposite_party || 'None specified';
+      document.getElementById('c-detail-filing-date').innerText = c.filing_date || 'Pending';
+      document.getElementById('c-detail-incident-date').innerText = c.incident_date || 'N/A';
+      document.getElementById('c-detail-police').innerText = `${c.police_station || ''} ${c.location ? `(${c.location})` : ''}`.trim() || 'N/A';
+
+      // Counts
+      const docCount = c.documents ? c.documents.length : 0;
+      const hearingCount = c.hearings ? c.hearings.length : 0;
+      document.getElementById('c-tab-doc-count').innerText = docCount;
+      document.getElementById('c-tab-hearing-count').innerText = hearingCount;
+
+      // Render Documents Tab
+      const dList = document.getElementById('c-detail-docs-list');
+      if (!c.documents || c.documents.length === 0) {
+        dList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No documents uploaded for this matter yet. Click "+ Upload Document" to attach records.</div></div>';
+      } else {
+        dList.innerHTML = c.documents.map(d => `
+          <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-weight: 500; color: #F8FAFC; font-size: 14px;">📄 ${this.escape(d.document_name)}</div>
+              <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+                <span class="badge badge-completed">${this.escape(d.document_type)}</span>
+                ${d.description ? ` • ${this.escape(d.description)}` : ''}
+              </div>
+            </div>
+            <div style="font-size: 11.5px; color: var(--text-muted);">
+              ${new Date(d.uploaded_at).toLocaleDateString()}
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Render Hearings Tab
+      const hList = document.getElementById('c-detail-hearings-list');
+      if (!c.hearings || c.hearings.length === 0) {
+        hList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No court appearances or hearings scheduled for this case.</div></div>';
+      } else {
+        hList.innerHTML = c.hearings.map(h => `
+          <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-weight: 600; color: #F8FAFC; font-size: 14px;">${this.escape(h.title)}</div>
+              <div style="font-size: 12.5px; color: var(--text-secondary); margin-top: 3px;">
+                🏛️ ${this.escape(h.court_name || 'Designated Court')} • Presiding: ${this.escape(h.judge_name || 'Hon\'ble Judge')}
+              </div>
+              ${h.notes ? `<div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">📝 ${this.escape(h.notes)}</div>` : ''}
+            </div>
+            <div style="text-align: right;">
+              <span class="badge badge-active">${h.reminder_date}</span>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">${h.reminder_time || '10:30 AM'}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Render Updates Tab
+      const uList = document.getElementById('c-detail-updates-list');
+      if (!c.updates || c.updates.length === 0) {
+        uList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No procedural updates logged for this matter yet.</div></div>';
+      } else {
+        uList.innerHTML = c.updates.map(u => `
+          <div style="display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border-subtle);">
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(99, 102, 241, 0.15); color: #818CF8; display: flex; align-items: center; justify-content: center; font-size: 14px;">
+              ⚡
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 14px; font-weight: 600; color: var(--text-primary);">${this.escape(u.update_title)}</div>
+              <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">${this.escape(u.update_description)}</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+                Logged by: ${this.escape(u.updated_by_name || 'Legal Counsel')} • ${new Date(u.update_date).toLocaleDateString()}
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Render Sections Tab
+      const sList = document.getElementById('c-detail-sections-list');
+      if (!c.legal_sections || c.legal_sections.length === 0) {
+        sList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No statutory provisions have been associated with this case file.</div></div>';
+      } else {
+        sList.innerHTML = c.legal_sections.map(s => `
+          <div class="card" style="margin-bottom: 12px; border: 1px solid var(--border-subtle);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div>
+                <span class="badge badge-active" style="margin-bottom: 4px;">Section ${this.escape(s.section_number)}</span>
+                <h4 style="font-size: 15px; color: #F8FAFC;">${this.escape(s.section_title || 'Section Provision')}</h4>
+                <div style="font-size: 13px; color: var(--accent-cyan);">${this.escape(s.law_name)}</div>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="App.viewFullProvisionDetail(${s.section_id})">Inspect Section</button>
+            </div>
+            ${s.explanation ? `
+              <div style="font-size: 12.5px; color: var(--text-secondary); margin-top: 8px; background: var(--bg-primary); padding: 8px 12px; border-radius: var(--radius-sm);">
+                <strong>Legal Rationale:</strong> ${this.escape(s.explanation)}
+              </div>
+            ` : ''}
+          </div>
+        `).join('');
+      }
+
+    } catch (err) {
+      this.showToast('Could not load case details: ' + err.message, 'error');
+    }
+  },
+
+  openCitizenNewCaseModal() {
+    const form = document.getElementById('form-citizen-new-case');
+    if (form) form.reset();
+    document.getElementById('modal-citizen-new-case')?.classList.add('active');
+  },
+
+  async submitCitizenNewCase(e) {
+    e.preventDefault();
+    const payload = {
+      title: document.getElementById('m-c-case-title').value.trim(),
+      case_type: document.getElementById('m-c-case-type').value || 'Civil Litigation',
+      court: document.getElementById('m-c-case-court').value.trim() || null,
+      opposite_party: document.getElementById('m-c-case-opposite').value.trim() || null,
+      incident_date: document.getElementById('m-c-case-incident-date').value || null,
+      police_station: document.getElementById('m-c-case-police').value.trim() || null,
+      location: document.getElementById('m-c-case-location').value.trim() || null,
+      description: document.getElementById('m-c-case-description').value.trim()
+    };
+
+    try {
+      const created = await this.api('/api/citizen/cases', 'POST', payload);
+      this.showToast('Legal matter registered successfully!', 'success');
+      this.closeModals();
+      if (this.currentView === 'citizen-cases') {
+        this.loadCitizenCases();
+      } else {
+        this.openCitizenCaseDetail(created.case_id);
+      }
+    } catch (err) {
+      this.showToast('Could not file case: ' + err.message, 'error');
+    }
+  },
+
+  // 3. Citizen Documents
+  async loadCitizenDocuments() {
+    const container = document.getElementById('citizen-docs-container');
+    if (!container) return;
+    container.innerHTML = '<div class="spinner"></div>';
+
+    try {
+      const docs = await this.api('/api/citizen/documents');
+      this.citizenDocuments = docs || [];
+
+      if (this.citizenDocuments.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📄</div>
+            <div class="empty-state-title">No Documents Uploaded</div>
+            <div class="empty-state-desc">You have not uploaded any case documents or legal filings yet. Click "+ Upload Document" to save legal files.</div>
+            <button class="btn btn-primary" style="margin-top: 14px;" onclick="App.openCitizenUploadDocModal()">+ Upload Document</button>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = this.citizenDocuments.map(d => `
+        <div class="card" style="margin-bottom: 12px; border: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <strong style="color: #F8FAFC; font-size: 15px;">📄 ${this.escape(d.document_name)}</strong>
+              <span class="badge badge-completed">${this.escape(d.document_type)}</span>
+              ${d.case_title ? `<span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #A5B4FC;">Matter: ${this.escape(d.case_title)}</span>` : ''}
+            </div>
+            ${d.description ? `<div style="font-size: 12.5px; color: var(--text-muted); margin-top: 4px;">${this.escape(d.description)}</div>` : ''}
+            <div style="font-size: 11.5px; color: #64748B; margin-top: 4px;">
+              Uploaded: ${new Date(d.uploaded_at).toLocaleDateString()}
+            </div>
+          </div>
+          <div>
+            ${d.case_id ? `
+              <button class="btn btn-secondary btn-sm" onclick="App.openCitizenCaseDetail(${d.case_id})">View Matter →</button>
+            ` : ''}
+          </div>
+        </div>
+      `).join('');
+    } catch (err) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-state-desc">Could not load documents: ${this.escape(err.message)}</div></div>`;
+    }
+  },
+
+  async openCitizenUploadDocModal(preselectedCaseId = null) {
+    const select = document.getElementById('m-c-doc-case-select');
+    if (select) {
+      select.innerHTML = '<option value="">General / Unassigned Document</option>';
+      try {
+        if (!this.citizenCases || this.citizenCases.length === 0) {
+          this.citizenCases = await this.api('/api/citizen/cases');
+        }
+        (this.citizenCases || []).forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.case_id;
+          opt.innerText = `${c.title} (${c.case_number || 'Brief'})`;
+          if (preselectedCaseId && c.case_id === preselectedCaseId) {
+            opt.selected = true;
+          }
+          select.appendChild(opt);
+        });
+      } catch (e) {
+        console.warn('Could not populate citizen cases in upload modal:', e);
+      }
+    }
+
+    const form = document.getElementById('form-citizen-upload-doc');
+    if (form) form.reset();
+    if (preselectedCaseId && select) select.value = preselectedCaseId;
+    document.getElementById('modal-citizen-upload-doc')?.classList.add('active');
+  },
+
+  async submitCitizenUploadDoc(e) {
+    e.preventDefault();
+    const caseSelect = document.getElementById('m-c-doc-case-select');
+    const caseId = caseSelect && caseSelect.value ? parseInt(caseSelect.value) : null;
+    const docName = document.getElementById('m-c-doc-name').value.trim();
+    const docType = document.getElementById('m-c-doc-type').value;
+    const desc = document.getElementById('m-c-doc-desc').value.trim() || null;
+
+    try {
+      await this.api('/api/citizen/documents', 'POST', {
+        case_id: caseId,
+        document_name: docName,
+        document_type: docType,
+        description: desc
+      });
+      this.showToast('Document uploaded successfully!', 'success');
+      this.closeModals();
+      if (this.currentView === 'citizen-case-detail' && this.currentCaseId) {
+        this.loadCitizenCaseDetail(this.currentCaseId);
+      } else if (this.currentView === 'citizen-documents') {
+        this.loadCitizenDocuments();
+      } else {
+        this.loadCitizenDashboard();
+      }
+    } catch (err) {
+      this.showToast('Upload failed: ' + err.message, 'error');
+    }
+  },
+
+  // 4. Saved Legal Provisions (Bookmarks)
+  async loadCitizenBookmarks() {
+    const container = document.getElementById('citizen-bookmarks-container');
+    if (!container) return;
+    container.innerHTML = '<div class="spinner"></div>';
+
+    try {
+      const bookmarks = await this.api('/api/citizen/bookmarks');
+      this.citizenBookmarks = bookmarks || [];
+      this.renderCitizenBookmarksList(this.citizenBookmarks);
+    } catch (err) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-state-desc">Could not load bookmarks: ${this.escape(err.message)}</div></div>`;
+    }
+  },
+
+  renderCitizenBookmarksList(bookmarks) {
+    const container = document.getElementById('citizen-bookmarks-container');
+    if (!container) return;
+
+    if (!bookmarks || bookmarks.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">🔖</div>
+          <div class="empty-state-title">No Saved Provisions</div>
+          <div class="empty-state-desc">You have not bookmarked any statutory sections. Search Central & State laws and bookmark key sections for quick reference.</div>
+          <button class="btn btn-secondary btn-sm" style="margin-top: 14px;" onclick="App.navigate('research')">🔍 Go to Legal Research</button>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = bookmarks.map(b => `
+      <div class="card" style="margin-bottom: 14px; border: 1px solid var(--border-subtle);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 4px;">
+              <span class="badge badge-active">Section ${this.escape(b.section_number)}</span>
+              <span class="badge badge-completed">${this.escape(b.tag || 'General')}</span>
+            </div>
+            <h3 style="font-size: 17px; color: #F8FAFC; margin-bottom: 2px;">${this.escape(b.section_title || 'Section Provision')}</h3>
+            <div style="font-size: 13.5px; color: var(--accent-cyan); font-weight: 500;">📖 ${this.escape(b.law_name)}</div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-secondary btn-sm" onclick="App.viewFullProvisionDetail(${b.section_id})">📖 View Text</button>
+            <button class="btn btn-danger btn-sm" onclick="App.deleteBookmark(${b.section_id})">✕ Remove</button>
+          </div>
+        </div>
+
+        ${b.notes ? `
+          <div style="font-size: 13px; color: #CBD5E1; background: rgba(15, 23, 42, 0.5); padding: 10px 14px; border-radius: var(--radius-sm); margin: 10px 0; border: 1px solid var(--border-subtle);">
+            📝 <strong>My Reference Note:</strong> ${this.escape(b.notes)}
+          </div>
+        ` : ''}
+
+        <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
+          Saved on ${new Date(b.created_at).toLocaleDateString()}
+        </div>
+      </div>
+    `).join('');
+  },
+
+  filterBookmarks() {
+    const q = (document.getElementById('citizen-bm-search')?.value || '').toLowerCase();
+    const filtered = (this.citizenBookmarks || []).filter(b => {
+      return !q || (b.section_number && b.section_number.toLowerCase().includes(q)) ||
+                   (b.section_title && b.section_title.toLowerCase().includes(q)) ||
+                   (b.law_name && b.law_name.toLowerCase().includes(q)) ||
+                   (b.notes && b.notes.toLowerCase().includes(q));
+    });
+    this.renderCitizenBookmarksList(filtered);
+  },
+
+  async quickBookmarkSection(sectionId, note = null) {
+    try {
+      await this.api('/api/citizen/bookmarks', 'POST', {
+        section_id: sectionId,
+        notes: note,
+        tag: 'General'
+      });
+      this.showToast('Section bookmarked to your saved provisions!', 'success');
+      if (this.currentView === 'citizen-bookmarks') {
+        this.loadCitizenBookmarks();
+      }
+    } catch (err) {
+      this.showToast(err.message, 'error');
+    }
+  },
+
+  async deleteBookmark(sectionId) {
+    if (!confirm('Remove this section from your saved provisions?')) return;
+    try {
+      await this.api(`/api/citizen/bookmarks/${sectionId}`, 'DELETE');
+      this.showToast('Bookmark removed.', 'info');
+      this.loadCitizenBookmarks();
+    } catch (err) {
+      this.showToast('Could not delete bookmark: ' + err.message, 'error');
+    }
+  },
+
+  // 5. Citizen Profile
+  async loadCitizenProfile() {
+    try {
+      const data = await this.api('/api/citizen/profile');
+
+      // Overview Card
+      const nameEl = document.getElementById('c-prof-display-name');
+      const emailEl = document.getElementById('c-prof-email-display');
+      const idEl = document.getElementById('c-prof-userid');
+      const dateEl = document.getElementById('c-prof-created');
+      const avatarEl = document.getElementById('c-prof-avatar');
+
+      if (nameEl) nameEl.innerText = data.full_name;
+      if (emailEl) emailEl.innerText = data.email;
+      if (idEl) idEl.innerText = `#USER-${data.user_id}`;
+      if (dateEl) dateEl.innerText = data.created_at ? new Date(data.created_at).toLocaleDateString() : 'Active';
+      if (avatarEl && data.full_name) {
+        avatarEl.innerText = data.full_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+      }
+
+      // Form inputs
+      document.getElementById('c-prof-fullname').value = data.full_name || '';
+      document.getElementById('c-prof-phone').value = data.phone || '';
+      document.getElementById('c-prof-dob').value = data.date_of_birth || '';
+      document.getElementById('c-prof-lang').value = data.preferred_language || 'en';
+      document.getElementById('c-prof-address').value = data.address || '';
+      document.getElementById('c-prof-city').value = data.city || '';
+      document.getElementById('c-prof-state').value = data.state || '';
+      document.getElementById('c-prof-pincode').value = data.pincode || '';
+      document.getElementById('c-prof-occupation').value = data.occupation || '';
+      document.getElementById('c-prof-emergency').value = data.emergency_contact || '';
+    } catch (err) {
+      this.showToast('Could not load profile: ' + err.message, 'error');
+    }
+  },
+
+  async submitCitizenProfile(e) {
+    e.preventDefault();
+    const payload = {
+      full_name: document.getElementById('c-prof-fullname').value.trim(),
+      phone: document.getElementById('c-prof-phone').value.trim() || null,
+      date_of_birth: document.getElementById('c-prof-dob').value || null,
+      preferred_language: document.getElementById('c-prof-lang').value || 'en',
+      address: document.getElementById('c-prof-address').value.trim() || null,
+      city: document.getElementById('c-prof-city').value.trim() || null,
+      state: document.getElementById('c-prof-state').value.trim() || null,
+      pincode: document.getElementById('c-prof-pincode').value.trim() || null,
+      occupation: document.getElementById('c-prof-occupation').value.trim() || null,
+      emergency_contact: document.getElementById('c-prof-emergency').value.trim() || null
+    };
+
+    try {
+      const updated = await this.api('/api/citizen/profile', 'PUT', payload);
+      this.showToast('Profile updated successfully!', 'success');
+      this.user.full_name = updated.full_name;
+      this.updateUserUI();
+      this.loadCitizenProfile();
+    } catch (err) {
+      this.showToast('Update failed: ' + err.message, 'error');
+    }
+  },
+
+  // 6. Notifications
+  async loadNotifications() {
+    if (!this.token) return;
+    try {
+      const data = await this.api('/api/citizen/notifications');
+      this.citizenNotifications = data.notifications || [];
+      this.unreadNotifCount = data.unread_count || 0;
+
+      const badge = document.getElementById('notif-badge');
+      if (badge) {
+        if (this.unreadNotifCount > 0) {
+          badge.innerText = this.unreadNotifCount;
+          badge.style.display = 'inline-block';
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+
+      this.renderNotificationsList(this.citizenNotifications);
+    } catch (err) {
+      console.warn('Could not load notifications:', err);
+    }
+  },
+
+  renderNotificationsList(notifs) {
+    const container = document.getElementById('notifications-list-container');
+    if (!container) return;
+
+    if (!notifs || notifs.length === 0) {
+      container.innerHTML = '<div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px;">No notifications.</div>';
+      return;
+    }
+
+    container.innerHTML = notifs.map(n => `
+      <div style="padding: 12px 16px; border-bottom: 1px solid var(--border-subtle); background: ${n.is_read ? 'transparent' : 'rgba(99, 102, 241, 0.08)'}; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+        <div style="flex: 1;">
+          <div style="font-size: 13.5px; font-weight: 600; color: ${n.is_read ? 'var(--text-secondary)' : '#F8FAFC'};">${this.escape(n.title)}</div>
+          <div style="font-size: 12.5px; color: var(--text-muted); margin-top: 3px; line-height: 1.4;">${this.escape(n.message)}</div>
+          <div style="font-size: 11px; color: #64748B; margin-top: 4px;">${new Date(n.created_at).toLocaleDateString()}</div>
+        </div>
+        ${!n.is_read ? `
+          <button class="btn btn-secondary btn-sm" style="font-size: 11px; padding: 3px 6px;" onclick="App.markNotificationRead(${n.notification_id})">Mark Read</button>
+        ` : ''}
+      </div>
+    `).join('');
+  },
+
+  toggleNotificationsPopover() {
+    const popover = document.getElementById('notifications-popover');
+    if (!popover) return;
+    if (popover.style.display === 'none' || !popover.style.display) {
+      popover.style.display = 'block';
+      this.loadNotifications();
+    } else {
+      popover.style.display = 'none';
+    }
+  },
+
+  async markNotificationRead(id) {
+    try {
+      await this.api(`/api/citizen/notifications/${id}/read`, 'PATCH');
+      this.loadNotifications();
+      if (this.currentView === 'citizen-notifications') {
+        this.loadNotificationsView();
+      }
+    } catch (err) {
+      this.showToast(err.message, 'error');
+    }
+  },
+
+  async markAllNotificationsRead() {
+    try {
+      await this.api('/api/citizen/notifications/read-all', 'POST');
+      this.showToast('All notifications marked as read.', 'info');
+      this.loadNotifications();
+      if (this.currentView === 'citizen-notifications') {
+        this.loadNotificationsView();
+      }
+    } catch (err) {
+      this.showToast(err.message, 'error');
+    }
+  },
+
+  // -------------------------------------------------------------
+  // 7. CITIZEN SEARCH HISTORY VIEW
+  // -------------------------------------------------------------
+  citizenSearchHistory: [],
+
+  async loadSearchHistory() {
+    const container = document.getElementById('citizen-search-history-container');
+    if (!container) return;
+    container.innerHTML = '<div class="spinner"></div>';
+
+    try {
+      const data = await this.api('/api/citizen/search-history?limit=50');
+      this.citizenSearchHistory = Array.isArray(data) ? data : [];
+
+      const sbCount = document.getElementById('sidebar-citizen-sh-count');
+      if (sbCount) sbCount.innerText = this.citizenSearchHistory.length;
+
+      this.renderSearchHistoryList(this.citizenSearchHistory);
+    } catch (err) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-state-title">Error Loading History</div><div class="empty-state-desc">${this.escape(err.message)}</div></div>`;
+    }
+  },
+
+  renderSearchHistoryList(items) {
+    const container = document.getElementById('citizen-search-history-container');
+    if (!container) return;
+
+    if (!items || items.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">🔍</div>
+          <div class="empty-state-title">No Search History Found</div>
+          <div class="empty-state-desc">You haven't searched for any statutory provisions yet. Try queries like "anticipatory bail", "cheque bounce", or "consumer grievance".</div>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = items.map(s => `
+      <div class="search-history-card">
+        <div>
+          <div style="font-size: 15px; font-weight: 600; color: #F8FAFC; display: flex; align-items: center; gap: 8px;">
+            <span>🔍</span> "${this.escape(s.query_text)}"
+            ${s.filters && s.filters.jurisdiction ? `<span class="badge badge-active">${this.escape(s.filters.jurisdiction)}</span>` : ''}
+          </div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+            Matched <strong>${s.results_count || 0}</strong> statutory provisions • Searched on ${new Date(s.searched_at).toLocaleString()}
+          </div>
+        </div>
+        <div>
+          <button class="search-again-btn" onclick="App.reSearchFromHistory('${this.escape(s.query_text)}', '${this.escape(s.filters && s.filters.jurisdiction ? s.filters.jurisdiction : '')}')">
+            🔄 Search Again
+          </button>
+        </div>
+      </div>
+    `).join('');
+  },
+
+  filterSearchHistory() {
+    const term = (document.getElementById('citizen-sh-search')?.value || '').toLowerCase().trim();
+    if (!term) {
+      this.renderSearchHistoryList(this.citizenSearchHistory);
+      return;
+    }
+    const filtered = this.citizenSearchHistory.filter(s =>
+      s.query_text.toLowerCase().includes(term) ||
+      (s.filters && JSON.stringify(s.filters).toLowerCase().includes(term))
+    );
+    this.renderSearchHistoryList(filtered);
+  },
+
+  reSearchFromHistory(queryText, jurisdiction) {
+    this.navigate('research');
+    const qInput = document.getElementById('research-query-input');
+    const jSelect = document.getElementById('research-jurisdiction-select');
+    if (qInput) qInput.value = queryText;
+    if (jSelect && jurisdiction) jSelect.value = jurisdiction;
+    this.handleLegalSearch();
+  },
+
+  async clearSearchHistory() {
+    if (!confirm('Are you sure you want to clear your entire legal search history?')) return;
+    try {
+      await this.api('/api/citizen/search-history', 'DELETE');
+      this.showToast('Search history cleared successfully.', 'success');
+      this.citizenSearchHistory = [];
+      const sbCount = document.getElementById('sidebar-citizen-sh-count');
+      if (sbCount) sbCount.innerText = '0';
+      this.renderSearchHistoryList([]);
+    } catch (err) {
+      this.showToast('Failed to clear search history: ' + err.message, 'error');
+    }
+  },
+
+  // -------------------------------------------------------------
+  // 8. CITIZEN NOTIFICATIONS FULL VIEW
+  // -------------------------------------------------------------
+  notifFilterType: 'all',
+
+  async loadNotificationsView() {
+    const container = document.getElementById('citizen-notifications-view-container');
+    if (!container) return;
+    container.innerHTML = '<div class="spinner"></div>';
+
+    try {
+      const data = await this.api('/api/citizen/notifications');
+      this.citizenNotifications = data.notifications || [];
+      this.unreadNotifCount = data.unread_count || 0;
+
+      const badge = document.getElementById('sidebar-citizen-notif-count');
+      if (badge) badge.innerText = this.unreadNotifCount;
+      const countAll = document.getElementById('notif-view-count-all');
+      if (countAll) countAll.innerText = this.citizenNotifications.length;
+      const countUnread = document.getElementById('notif-view-count-unread');
+      if (countUnread) countUnread.innerText = this.unreadNotifCount;
+
+      this.renderNotificationsFullList();
+    } catch (err) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-state-title">Error Loading Notifications</div><div class="empty-state-desc">${this.escape(err.message)}</div></div>`;
+    }
+  },
+
+  filterNotificationsView(type) {
+    this.notifFilterType = type;
+    document.getElementById('btn-notif-tab-all')?.classList.toggle('active', type === 'all');
+    document.getElementById('btn-notif-tab-unread')?.classList.toggle('active', type === 'unread');
+    this.renderNotificationsFullList();
+  },
+
+  renderNotificationsFullList() {
+    const container = document.getElementById('citizen-notifications-view-container');
+    if (!container) return;
+
+    let items = this.citizenNotifications;
+    if (this.notifFilterType === 'unread') {
+      items = items.filter(n => !n.is_read);
+    }
+
+    if (items.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">🔔</div>
+          <div class="empty-state-title">No ${this.notifFilterType === 'unread' ? 'Unread ' : ''}Notifications</div>
+          <div class="empty-state-desc">You are all caught up on case alerts and court date reminders.</div>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = items.map(n => `
+      <div class="notif-full-card ${n.is_read ? '' : 'unread'}">
+        <div style="flex: 1;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+            ${n.is_read ? '' : '<span class="notif-dot"></span>'}
+            <strong style="font-size: 14.5px; color: ${n.is_read ? 'var(--text-secondary)' : '#F8FAFC'};">${this.escape(n.title)}</strong>
+            <span class="badge ${n.is_read ? 'badge-completed' : 'badge-active'}" style="font-size: 10px;">${n.is_read ? 'Read' : 'New'}</span>
+          </div>
+          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin: 6px 0;">${this.escape(n.message)}</p>
+          <div style="font-size: 11px; color: var(--text-muted);">${new Date(n.created_at).toLocaleString()} • ${this.escape(n.notification_type || 'Case Alert')}</div>
+        </div>
+        ${!n.is_read ? `
+          <button class="btn btn-secondary btn-sm" onclick="App.markSingleNotificationRead(${n.notification_id})">
+            ✓ Mark Read
+          </button>
+        ` : ''}
+      </div>
+    `).join('');
+  },
+
+  async markSingleNotificationRead(notifId) {
+    try {
+      await this.api(`/api/citizen/notifications/${notifId}/read`, 'PATCH');
+      this.showToast('Notification marked as read.', 'success');
+      const notif = this.citizenNotifications.find(n => n.notification_id === notifId);
+      if (notif) notif.is_read = true;
+      if (this.unreadNotifCount > 0) this.unreadNotifCount--;
+
+      const badge = document.getElementById('notif-badge');
+      if (badge) {
+        badge.innerText = this.unreadNotifCount;
+        badge.style.display = this.unreadNotifCount > 0 ? 'inline-block' : 'none';
+      }
+      const sbBadge = document.getElementById('sidebar-citizen-notif-count');
+      if (sbBadge) sbBadge.innerText = this.unreadNotifCount;
+      const countUnread = document.getElementById('notif-view-count-unread');
+      if (countUnread) countUnread.innerText = this.unreadNotifCount;
+
+      this.renderNotificationsFullList();
+    } catch (err) {
+      this.showToast('Failed to mark read: ' + err.message, 'error');
     }
   },
 

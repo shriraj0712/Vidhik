@@ -1,6 +1,6 @@
 # Vidhik Platform - Backend API Service
 
-FastAPI-powered REST backend for the **Vidhik Legal Platform**, providing low-latency, read-only query capabilities over Indian statutory laws, statutory sections, legal lexicon, and constitutional provisions stored in PostgreSQL (`vidhik_db`).
+FastAPI-powered REST backend for the **Vidhik Legal Platform**, providing unified legal research, citizen & lawyer workspaces, hardened JWT/bcrypt authentication, conversational AI assistance, grounded RAG, and an advanced legal knowledge base over Indian statutory laws stored in PostgreSQL (`vidhik_db`).
 
 ---
 
@@ -10,78 +10,107 @@ FastAPI-powered REST backend for the **Vidhik Legal Platform**, providing low-la
 backend/
 ├── app/
 │   ├── __init__.py           # Package versioning
-│   ├── main.py               # FastAPI application entry point, CORS, lifespan
+│   ├── main.py               # FastAPI entry point, middleware pipeline, SPA routing
 │   ├── database.py           # Thread-safe PostgreSQL connection pool (psycopg2)
+│   ├── core/
+│   │   ├── __init__.py
+│   │   └── security.py       # Bcrypt password hashing, SHA-256 upgrade, signed JWT
+│   ├── middleware/
+│   │   ├── __init__.py
+│   │   ├── rate_limiter.py   # Token-bucket / IP-based sliding window rate limiter
+│   │   └── security_headers.py # HSTS, CSP, XSS, Frame protection headers
 │   ├── models/
 │   │   ├── __init__.py
-│   │   ├── law.py            # Dataclass model representing the laws table
-│   │   └── section.py        # Dataclass model representing the sections table
+│   │   ├── law.py            # Dataclass model representing laws table
+│   │   └── section.py        # Dataclass model representing sections table
 │   ├── schemas/
 │   │   ├── __init__.py
-│   │   ├── law.py            # Pydantic response schemas (LawResponse, LawListResponse)
-│   │   ├── section.py        # Pydantic response schemas (SectionResponse, SectionListResponse)
-│   │   ├── search.py         # Pydantic response schemas (SearchResponse, SearchResultItem)
-│   │   └── query.py          # Pydantic models for LegalQueryAnalysis & Lexicon Matching
+│   │   ├── law.py            # Law response schemas
+│   │   ├── section.py        # Section response schemas
+│   │   ├── search.py         # Search response schemas
+│   │   ├── query.py          # Multilingual query analysis schemas
+│   │   ├── citizen.py        # Citizen dashboard, cases, profile schemas
+│   │   ├── lawyer.py         # Lawyer clients, cases, notes schemas
+│   │   ├── documentation.py  # Legal procedures & checklists schemas
+│   │   ├── document_analysis.py # Document analysis & entity extraction schemas
+│   │   ├── assistant.py      # Conversational AI assistant schemas
+│   │   ├── rag.py            # Grounded RAG query schemas
+│   │   └── knowledge_base.py # BNS/BNSS/BSA & 24 Bare Acts knowledge schemas
 │   ├── services/
 │   │   ├── __init__.py
-│   │   ├── search_service.py # Dedicated service layer for legal search logic
-│   │   └── query_service.py  # Legal query understanding & terminology expansion service
+│   │   ├── auth_service.py   # User registration, login, JWT session, RBAC
+│   │   ├── audit_service.py  # Security audit logging
+│   │   ├── citizen_service.py # Citizen case and document operations
+│   │   ├── lawyer_service.py # Advocate client, case, and note operations
+│   │   ├── documentation_service.py # 25 citizen procedures & checklists
+│   │   ├── document_analysis_service.py # Contract clause parsing & risk assessment
+│   │   ├── document_parser_service.py # PDF (pypdf) and DOCX (python-docx) extraction
+│   │   ├── query_service.py  # Multilingual NLP query understanding & Devanagari normalization
+│   │   ├── ranking_service.py # Lexicon candidate ranking & TF-IDF scoring
+│   │   ├── search_service.py # Legal search and snippet generation
+│   │   ├── assistant_service.py # Multi-turn conversational AI legal assistant
+│   │   ├── rag_service.py    # Grounded RAG synthesis with source coordinates
+│   │   ├── context_builder.py # Statutory context deduplication & disclaimers
+│   │   ├── llm_provider.py   # OfflineMock, Gemini, and OpenAI provider implementations
+│   │   └── knowledge_service.py # Advanced statutory knowledge retrieval
+│   ├── static/               # Production Single-Page Application (index.html, app.js, styles.css)
 │   └── routers/
 │       ├── __init__.py
-│       ├── health.py         # GET /health service and DB ping endpoint
-│       ├── laws.py           # GET /api/laws and GET /api/laws/{law_id} endpoints
-│       ├── sections.py       # GET /api/sections and GET /api/sections/{section_id} endpoints
-│       └── search.py         # GET /api/search multi-field legal search endpoint
+│       ├── health.py         # GET /health system status and DB ping
+│       ├── laws.py           # GET /api/laws/{law_id}
+│       ├── sections.py       # GET /api/sections/{section_id}
+│       ├── search.py         # GET /api/search multi-field legal search
+│       ├── auth.py           # /api/auth (register, login, me, logout)
+│       ├── citizen.py        # /api/citizen (dashboard, cases, docs, bookmarks, etc.)
+│       ├── lawyer.py         # /api/lawyer (dashboard, clients, cases, notes, etc.)
+│       ├── documentation.py  # /api/documentation (categories, procedures, checklists)
+│       ├── document_analysis.py # /api/analysis (upload, text, history, save-to-case)
+│       ├── assistant.py      # /api/assistant (chat, health)
+│       ├── rag.py            # /api/rag (query, health)
+│       └── knowledge_base.py # /api/knowledge (overview, offences, punishments, acts, etc.)
+├── tests/                    # 27 automated unit and integration tests
 ├── .env.example              # Environment variables template
-├── .env                      # Local environment configuration (ignored in git)
-├── requirements.txt          # Python dependencies
+├── requirements.txt          # Production Python dependencies
 └── README.md                 # Backend documentation
 ```
 
 ---
 
-## 2. Prerequisites
+## 2. Prerequisites & Setup
 
 * **Python 3.10+** (Tested on Python 3.14)
-* **PostgreSQL 14+** running with the existing `vidhik_db` database
-* Network access to `localhost:5432`
+* **PostgreSQL 14+** running with database `vidhik_db`
 
----
-
-## 3. Setup & Installation
-
-### Step 1: Navigate to the Backend Directory
+### Step 1: Navigate to Backend Directory
 ```bash
 cd backend
 ```
 
-### Step 2: Configure Environment Variables
-Copy `.env.example` to `.env` and adjust credentials if needed:
+### Step 2: Configure Environment
 ```bash
 cp .env.example .env
 ```
-
-Environment variables supported in `.env`:
+Edit `.env` to configure your PostgreSQL credentials and optional LLM keys:
 ```env
-# Database Credentials
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=vidhik_db
 DB_USER=postgres
-DB_PASSWORD=your_secure_password_here
+DB_PASSWORD=your_password_here
 
-# Connection Pool Settings
-DB_MIN_CONN=1
-DB_MAX_CONN=10
+# Security & JWT
+JWT_SECRET_KEY=change-me-in-production-use-a-strong-random-secret
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+REFRESH_TOKEN_EXPIRE_DAYS=7
 
-# Server Settings
-APP_HOST=127.0.0.1
-APP_PORT=8000
-APP_ENV=development
-DEBUG=True
+# Rate Limiter
+RATE_LIMIT_REQUESTS_PER_MINUTE=60
 
-# CORS Settings (comma-separated origins)
-ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,http://localhost:8000
+# AI Provider ('mock', 'gemini', or 'openai')
+LLM_PROVIDER=mock
+GEMINI_API_KEY=
+OPENAI_API_KEY=
 ```
 
 ### Step 3: Install Dependencies
@@ -91,147 +120,62 @@ pip install -r requirements.txt
 
 ---
 
-## 4. Running the Backend Server
+## 3. Running the Server
 
-### Option A: Using Uvicorn CLI (Recommended for Development)
+From inside the `backend` directory:
 ```bash
-# From inside the backend directory:
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
-
-### Option B: Using Python Module Runner
+Or using python module runner:
 ```bash
-# From inside the backend directory:
-python -m app.main
+python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-The server will be available at:
-* **Base URL**: `http://127.0.0.1:8000`
-* **Swagger Interactive UI**: `http://127.0.0.1:8000/docs`
+Available Documentation URLs:
+* **Interactive Swagger UI**: `http://127.0.0.1:8000/docs`
 * **ReDoc Documentation**: `http://127.0.0.1:8000/redoc`
+* **Single-Page Application**: `http://127.0.0.1:8000/`
 
 ---
 
-## 5. Available API Endpoints
+## 4. Standardized API Modules (12 Routers)
 
-### 1. Root Information
-* **Endpoint:** `GET /`
-* **Description:** Returns API platform metadata and available routes.
-
-### 2. Health Check
-* **Endpoint:** `GET /health`
-* **Description:** Pings the PostgreSQL database and returns service and database connection status.
-* **Sample Response:**
-```json
-{
-  "status": "healthy",
-  "service": "Vidhik Legal Platform API",
-  "version": "1.0.0",
-  "timestamp": "2026-09-15T14:35:00.000000Z",
-  "database": {
-    "status": "connected",
-    "database": "vidhik_db",
-    "version": "PostgreSQL 18.1"
-  }
-}
-```
-
-### 3. List Laws (Paginated & Filterable)
-* **Endpoint:** `GET /api/laws`
-* **Query Parameters:**
-  * `limit` (int, default=20, max=100): Maximum records to retrieve.
-  * `offset` (int, default=0): Number of records to skip.
-  * `jurisdiction` (string, optional): Filter by jurisdiction (e.g. `India`, `Maharashtra`).
-  * `search` (string, optional): Search by law name or slug.
-
-### 4. Get Law by ID
-* **Endpoint:** `GET /api/laws/{law_id}`
-* **Path Parameter:** `law_id` (integer)
-* **Description:** Returns complete record metadata for a single law.
-
-### 5. List Sections (Paginated & Filterable)
-* **Endpoint:** `GET /api/sections`
-* **Query Parameters:**
-  * `limit` (int, default=20, max=100): Maximum records to retrieve.
-  * `offset` (int, default=0): Number of records to skip.
-  * `law_id` (int, optional): Filter sections by parent statutory law ID.
-  * `section_number` (string, optional): Filter by exact or partial section number (e.g. `144`, `302`, `10A`).
-  * `section_title` (string, optional): Search keyword matching section title.
-* **Sample Request:**
-  `GET http://127.0.0.1:8000/api/sections?limit=5&law_id=1178`
-* **Sample Response:**
-```json
-{
-  "total": 1,
-  "limit": 5,
-  "offset": 0,
-  "sections": [
-    {
-      "section_id": 1,
-      "law_id": 1178,
-      "section_number": "1",
-      "section_title": "Extending Acts 24,1841 and 17,1843 to Straits Settlements.",
-      "section_uid": null,
-      "chapter_number": null,
-      "chapter_title": null,
-      "source_pdf": null,
-      "source_page_start": null,
-      "source_page_end": null,
-      "page_start": null,
-      "page_end": null,
-      "manual_review_required": false,
-      "is_omitted": false
-    }
-  ]
-}
-```
-
-### 6. Get Section by ID
-* **Endpoint:** `GET /api/sections/{section_id}`
-* **Path Parameter:** `section_id` (integer)
-* **Description:** Returns full section record including statutory text (`full_text`/`section_text`), structural counts, chapter/part hierarchy, and PDF coordinates.
-
-### 7. Search Legal Corpus (Multi-Field Relational ILIKE Search)
-* **Endpoint:** `GET /api/search`
-* **Query Parameters:**
-  * `q` (string, required): Search query text matching law name, short name, section number, section title, description, or full text.
-  * `limit` (int, default=10, max=50): Maximum search results to return (1-50).
-  * `offset` (int, default=0): Number of records to skip.
-  * `law_id` (int, optional, >0): Filter search results by parent statute ID.
-  * `jurisdiction` (string, optional): Filter search results by jurisdiction (e.g. `India`, `Maharashtra`).
-* **Sample Request:**
-  `GET http://127.0.0.1:8000/api/search?q=contract&limit=5`
-* **Sample Response:**
-```json
-{
-  "query": "contract",
-  "total": 315,
-  "limit": 5,
-  "offset": 0,
-  "results": [
-    {
-      "law_id": 14,
-      "law_name": "The Air (Prevention and Control of Pollution) Act, 1981",
-      "section_id": 566,
-      "section_number": "5",
-      "section_title": "Constitution of State Boards.",
-      "snippet": "... of this Act, to acquire and dispose of property and to contract, and may by the said name sue or be sued.",
-      "jurisdiction": "Central",
-      "source_pdf": "A1981-14.pdf",
-      "source_page_start": 3,
-      "source_page_end": 4,
-      "manual_review_required": false
-    }
-  ]
-}
-```
+1. **Health (`/health`)**: System status and PostgreSQL connectivity probe.
+2. **Laws (`/api/laws`)**: Central and State statutory law inspection.
+3. **Sections (`/api/sections`)**: Statutory section retrieval and hierarchy.
+4. **Search (`/api/search`)**: Fast multi-field legal search with snippet extraction.
+5. **Authentication (`/api/auth`)**: JWT/bcrypt registration, login, session inspection (`/me`), and logout.
+6. **Citizen Module (`/api/citizen`)**: Dashboard metrics, case management, document vault, hearing calendar, bookmarks, search history, in-app notifications, and procedural trackers.
+7. **Lawyer Module (`/api/lawyer`)**: Advocate dashboard, client directory, case management, 6-tab case brief detail, document repository, court hearing scheduler, confidential case notes, profile.
+8. **Documentation (`/api/documentation`)**: 25 authoritative citizen procedural guides, categories, and checklists.
+9. **Document Analysis (`/api/analysis`)**: PDF/DOCX contract parsing, party and date extraction, clause risk scoring, and case attachment.
+10. **AI Legal Assistant (`/api/assistant`)**: Multi-turn conversational legal assistant with conversation turn bounding and citation preservation.
+11. **Legal RAG Engine (`/api/rag`)**: Grounded statutory retrieval and citation synthesis.
+12. **Knowledge Base (`/api/knowledge`)**: Advanced BNS/BNSS/BSA and 24 Bare Acts knowledge retrieval APIs.
 
 ---
 
-## 6. Architectural & Security Guarantees
+## 5. Testing & Compilation
 
-1. **No Hardcoded Passwords**: All credentials and connection strings are read securely from `.env` via `python-dotenv`.
-2. **Read-Only Database Operations**: Endpoints perform only parameterized `SELECT` queries. No `INSERT`, `UPDATE`, `DELETE`, `DROP`, or schema modification can be executed via the API.
-3. **Connection Pooling**: Uses `psycopg2.pool.ThreadedConnectionPool` to manage database connections efficiently across concurrent requests.
-4. **SQL Injection Protection**: All database queries use parameterized SQL tuples (`%s` placeholders).
+Run the test suite from the project root:
+```bash
+pytest backend/tests -v
+```
 
+Run Python compilation across all backend packages:
+```bash
+python -m compileall backend
+```
+
+*Current Verified Baseline*: **27/27 tests passing** with 0 compilation errors.
+
+---
+
+## 6. Security Guarantees
+
+* **Password Hashing**: Bcrypt with work factor 12.
+* **Legacy Migration**: Transparent SHA-256 detection and re-hashing.
+* **JWT Tokens**: RFC 7519 signed JSON Web Tokens (`HS256`).
+* **RBAC**: Enforced role dependencies (`require_citizen`, `require_lawyer`, `require_admin`).
+* **Middleware Pipeline**: `SecurityHeadersMiddleware`, `RateLimiterMiddleware`, and `CORSMiddleware`.
+* **Audit Logging**: `AuditService` logging auth attempts and security events.
