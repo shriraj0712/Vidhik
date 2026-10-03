@@ -1,6 +1,6 @@
 # Vidhik Platform - Backend API Service
 
-FastAPI-powered REST backend for the **Vidhik Legal Platform**, providing unified legal research, citizen & lawyer workflows, hardened JWT/bcrypt authentication, conversational AI assistance, grounded RAG, and an advanced legal knowledge base over Indian statutory laws stored in PostgreSQL (`vidhik_db`).
+FastAPI-powered REST backend for the **Vidhik Legal Platform**, providing unified legal research, citizen & lawyer workspaces, hardened JWT/bcrypt authentication, conversational AI assistance, grounded RAG, and an advanced legal knowledge base over Indian statutory laws stored in PostgreSQL (`vidhik_db`).
 
 ---
 
@@ -53,7 +53,7 @@ backend/
 │   │   ├── context_builder.py # Statutory context deduplication & disclaimers
 │   │   ├── llm_provider.py   # OfflineMock, Gemini, and OpenAI provider implementations
 │   │   └── knowledge_service.py # Advanced statutory knowledge retrieval
-│   ├── static/               # SPA Frontend assets (index.html, app.js, styles.css)
+│   ├── static/               # Production Single-Page Application (index.html, app.js, styles.css)
 │   └── routers/
 │       ├── __init__.py
 │       ├── health.py         # GET /health system status and DB ping
@@ -70,7 +70,7 @@ backend/
 │       └── knowledge_base.py # /api/knowledge (overview, offences, punishments, acts, etc.)
 ├── tests/                    # 27 automated unit and integration tests
 ├── .env.example              # Environment variables template
-├── requirements.txt          # Python dependencies
+├── requirements.txt          # Production Python dependencies
 └── README.md                 # Backend documentation
 ```
 
@@ -79,46 +79,103 @@ backend/
 ## 2. Prerequisites & Setup
 
 * **Python 3.10+** (Tested on Python 3.14)
-* **PostgreSQL 14+** running `vidhik_db`
-* Configure `.env`:
+* **PostgreSQL 14+** running with database `vidhik_db`
+
+### Step 1: Navigate to Backend Directory
+```bash
+cd backend
+```
+
+### Step 2: Configure Environment
 ```bash
 cp .env.example .env
 ```
+Edit `.env` to configure your PostgreSQL credentials and optional LLM keys:
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=vidhik_db
+DB_USER=postgres
+DB_PASSWORD=your_password_here
 
-Install dependencies:
+# Security & JWT
+JWT_SECRET_KEY=change-me-in-production-use-a-strong-random-secret
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+REFRESH_TOKEN_EXPIRE_DAYS=7
+
+# Rate Limiter
+RATE_LIMIT_REQUESTS_PER_MINUTE=60
+
+# AI Provider ('mock', 'gemini', or 'openai')
+LLM_PROVIDER=mock
+GEMINI_API_KEY=
+OPENAI_API_KEY=
+```
+
+### Step 3: Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-Run tests:
-```bash
-pytest tests -v
-```
+---
 
-Run the development server:
+## 3. Running the Server
+
+From inside the `backend` directory:
 ```bash
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
+Or using python module runner:
+```bash
+python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
 
-Access API Documentation:
+Available Documentation URLs:
 * **Interactive Swagger UI**: `http://127.0.0.1:8000/docs`
-* **ReDoc**: `http://127.0.0.1:8000/redoc`
-* **SPA Frontend**: `http://127.0.0.1:8000/`
+* **ReDoc Documentation**: `http://127.0.0.1:8000/redoc`
+* **Single-Page Application**: `http://127.0.0.1:8000/`
 
 ---
 
-## 3. Core Architecture Guarantees
+## 4. Standardized API Modules (12 Routers)
 
-1. **Security & Cryptography**: Bcrypt password hashing with work factor 12, legacy SHA-256 transparent upgrade detection, and signed RFC 7519 JWT tokens.
-2. **Role-Based Access Control**: Granular RBAC supporting `citizen`, `lawyer`, and `admin` roles.
-3. **Middleware Pipeline**: Hardened security headers (HSTS, CSP, XSS protection) and sliding-window rate limiting.
-4. **Deterministic AI & Offline Mode**: `OfflineMockLLMProvider` ensures full local testability with zero network calls and deterministic responses.
-5. **Schema Isolation**: Strict separation between Phase 16 `legal_procedures` (25 citizen procedural guides) and Phase 17 `statutory_procedures` (BNSS criminal procedures).
+1. **Health (`/health`)**: System status and PostgreSQL connectivity probe.
+2. **Laws (`/api/laws`)**: Central and State statutory law inspection.
+3. **Sections (`/api/sections`)**: Statutory section retrieval and hierarchy.
+4. **Search (`/api/search`)**: Fast multi-field legal search with snippet extraction.
+5. **Authentication (`/api/auth`)**: JWT/bcrypt registration, login, session inspection (`/me`), and logout.
+6. **Citizen Module (`/api/citizen`)**: Dashboard metrics, case management, document vault, hearing calendar, bookmarks, search history, in-app notifications, and procedural trackers.
+7. **Lawyer Module (`/api/lawyer`)**: Advocate dashboard, client directory, case management, 6-tab case brief detail, document repository, court hearing scheduler, confidential case notes, profile.
+8. **Documentation (`/api/documentation`)**: 25 authoritative citizen procedural guides, categories, and checklists.
+9. **Document Analysis (`/api/analysis`)**: PDF/DOCX contract parsing, party and date extraction, clause risk scoring, and case attachment.
+10. **AI Legal Assistant (`/api/assistant`)**: Multi-turn conversational legal assistant with conversation turn bounding and citation preservation.
+11. **Legal RAG Engine (`/api/rag`)**: Grounded statutory retrieval and citation synthesis.
+12. **Knowledge Base (`/api/knowledge`)**: Advanced BNS/BNSS/BSA and 24 Bare Acts knowledge retrieval APIs.
 
 ---
 
-## 4. Current Boundaries & Roadmap
+## 5. Testing & Compilation
 
-* **AI Assistant UI**: Backend `/api/assistant/chat` complete and tested; frontend chat widget scheduled for Step 12.
-* **Bare Acts Catalog UI**: 24 Acts datasets (3,252 sections) and APIs complete; frontend explorer view scheduled for Step 12.
-* **Phase 17 Live Ingestion**: Schema migration `009` and ingestion scripts ready; live PostgreSQL ingestion scheduled for Step 11.
+Run the test suite from the project root:
+```bash
+pytest backend/tests -v
+```
+
+Run Python compilation across all backend packages:
+```bash
+python -m compileall backend
+```
+
+*Current Verified Baseline*: **27/27 tests passing** with 0 compilation errors.
+
+---
+
+## 6. Security Guarantees
+
+* **Password Hashing**: Bcrypt with work factor 12.
+* **Legacy Migration**: Transparent SHA-256 detection and re-hashing.
+* **JWT Tokens**: RFC 7519 signed JSON Web Tokens (`HS256`).
+* **RBAC**: Enforced role dependencies (`require_citizen`, `require_lawyer`, `require_admin`).
+* **Middleware Pipeline**: `SecurityHeadersMiddleware`, `RateLimiterMiddleware`, and `CORSMiddleware`.
+* **Audit Logging**: `AuditService` logging auth attempts and security events.
