@@ -82,6 +82,10 @@ def get_db_cursor() -> Generator[RealDictCursor, None, None]:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             yield cur
     finally:
+        try:
+            conn.rollback()
+        except Exception:
+            pass
         release_db_connection(conn)
 
 

@@ -4,7 +4,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vidhik AI — Dedicated Lawyer Workspace</title>
+  <title>Vidhik AI — Indian Legal Intelligence & Case Workspace</title>
+  <script>
+    (function () {
+      try {
+        var theme = localStorage.getItem('vidhik_theme') || localStorage.getItem('vidhik-theme') || 'light';
+        var valid = ['light', 'dark', 'ocean', 'emerald', 'rose', 'purple', 'amber'];
+        if (valid.indexOf(theme) === -1) theme = 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="/static/styles.css">
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
@@ -28,7 +40,7 @@
           ⚖️
         </div>
         <h2 style="font-size: 22px; font-weight: 700; color: #F8FAFC;">Vidhik AI</h2>
-        <p style="font-size: 13px; color: #94A3B8; margin-top: 3px;">Indian Legal Intelligence, Case Portal & Workflow Engine</p>
+        <p style="font-size: 13px; color: #94A3B8; margin-top: 3px;" id="auth-card-subtitle">Indian Legal Intelligence, Case Portal & Workflow Engine</p>
       </div>
 
       <div style="padding: 0 32px 28px;">
@@ -61,7 +73,7 @@
           </div>
 
           <!-- Quick Fill Demo Accounts -->
-          <div style="margin-top: 18px; padding: 10px; background: rgba(15, 23, 42, 0.6); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); font-size: 11.5px; color: var(--text-muted); line-height: 1.5;">
+          <div id="login-demo-container" style="margin-top: 18px; padding: 10px; background: rgba(15, 23, 42, 0.6); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); font-size: 11.5px; color: var(--text-muted); line-height: 1.5;">
             <strong style="color: var(--text-secondary);">Demo Accounts (password: password123):</strong>
             <div style="margin-top: 4px; display: flex; flex-wrap: wrap; gap: 6px;">
               <a href="#" style="color: var(--accent-cyan); text-decoration: underline;" onclick="App.fillDemoLogin('sunita.sharma@example.com', 'citizen')">Sunita (Citizen)</a> •
@@ -86,6 +98,11 @@
           <div class="form-group">
             <label class="form-label">Password * (min 6 characters)</label>
             <input type="password" id="reg-password" class="form-control" required minlength="6" placeholder="••••••••">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Confirm Password *</label>
+            <input type="password" id="reg-confirm-password" class="form-control" required minlength="6" placeholder="••••••••">
           </div>
 
           <div class="form-group">
@@ -114,13 +131,19 @@
     <div id="mobile-backdrop" class="mobile-backdrop" onclick="App.closeMobileSidebar()"></div>
 
     <!-- SIDEBAR NAVIGATION -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="app-sidebar" aria-label="Main Navigation">
       <div class="sidebar-header">
         <div class="brand-logo">V</div>
         <div class="brand-text">
           <h1>Vidhik AI</h1>
           <span class="brand-badge" id="brand-badge-text">Citizen Portal</span>
         </div>
+        <!-- Close button for mobile drawer -->
+        <button type="button" class="sidebar-close-btn" id="btn-sidebar-close" onclick="App.closeMobileSidebar()" aria-label="Close navigation" title="Close Navigation">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
 
       <!-- CITIZEN NAVIGATION (Default for citizens) -->
@@ -150,6 +173,7 @@
               d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
           </svg>
           My Documents
+          <span class="nav-badge" id="sidebar-citizen-doc-count">0</span>
         </a>
 
         <div class="nav-section-title">Legal AI Tools</div>
@@ -323,9 +347,9 @@
 
       <!-- TOP HEADER -->
       <header class="top-header">
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <button id="btn-mobile-menu-toggle" class="mobile-menu-btn" onclick="App.toggleMobileSidebar()" aria-label="Toggle navigation menu" title="Toggle Navigation">
-            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div class="header-left">
+          <button type="button" id="btn-mobile-menu-toggle" class="mobile-menu-btn" onclick="App.toggleMobileSidebar()" aria-label="Open navigation" aria-expanded="false" aria-controls="app-sidebar" title="Open Navigation">
+            <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
@@ -340,28 +364,187 @@
           </div>
         </div>
 
-        <div style="display: flex; align-items: center; gap: 14px;">
-          <!-- Notification Bell -->
-          <div class="notif-bell-container">
-            <button class="notif-bell-btn" id="btn-notifications-bell" title="Notifications & Updates">
+        <div class="header-right">
+          <!-- Theme Picker Popover Container -->
+          <div class="theme-picker-container" id="theme-picker-container">
+            <button class="theme-toggle-btn" id="btn-theme-toggle" onclick="App.toggleThemePicker()" title="Theme: Light (Click to change)" aria-label="Select Color Theme" aria-haspopup="true" aria-expanded="false">
+              <!-- Professional Theme Palette Icon -->
               <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+              </svg>
+            </button>
+
+            <!-- Theme Palette Popover Dialog -->
+            <div class="theme-popover" id="theme-popover" role="dialog" aria-label="Theme Palette" style="display: none;">
+              <div class="theme-popover-header">
+                <span class="theme-popover-title">Theme Palette</span>
+                <span class="theme-popover-subtitle">7 Color Profiles</span>
+              </div>
+              <div class="theme-options-list" role="radiogroup" aria-label="Color themes">
+                <!-- 1. Legal White (Default) -->
+                <button type="button" class="theme-option-btn" data-theme-value="light" onclick="App.setTheme('light', true)" role="radio" aria-checked="false" aria-label="Legal White theme (Default)">
+                  <div class="theme-preview-box preview-light">
+                    <div class="tp-sidebar"></div>
+                    <div class="tp-main">
+                      <div class="tp-header"></div>
+                      <div class="tp-card"><div class="tp-accent"></div></div>
+                    </div>
+                  </div>
+                  <div class="theme-info-wrap">
+                    <span class="theme-name">Legal White</span>
+                    <span class="theme-subname">Clean & Crisp</span>
+                  </div>
+                  <svg class="theme-check-icon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                  </svg>
+                </button>
+
+                <!-- 2. Midnight Legal -->
+                <button type="button" class="theme-option-btn" data-theme-value="dark" onclick="App.setTheme('dark', true)" role="radio" aria-checked="false" aria-label="Midnight Legal theme">
+                  <div class="theme-preview-box preview-dark">
+                    <div class="tp-sidebar"></div>
+                    <div class="tp-main">
+                      <div class="tp-header"></div>
+                      <div class="tp-card"><div class="tp-accent"></div></div>
+                    </div>
+                  </div>
+                  <div class="theme-info-wrap">
+                    <span class="theme-name">Midnight Legal</span>
+                    <span class="theme-subname">Deep Slate & Indigo</span>
+                  </div>
+                  <svg class="theme-check-icon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                  </svg>
+                </button>
+
+                <!-- 3. Ocean Intelligence -->
+                <button type="button" class="theme-option-btn" data-theme-value="ocean" onclick="App.setTheme('ocean', true)" role="radio" aria-checked="false" aria-label="Ocean Intelligence theme">
+                  <div class="theme-preview-box preview-ocean">
+                    <div class="tp-sidebar"></div>
+                    <div class="tp-main">
+                      <div class="tp-header"></div>
+                      <div class="tp-card"><div class="tp-accent"></div></div>
+                    </div>
+                  </div>
+                  <div class="theme-info-wrap">
+                    <span class="theme-name">Ocean Intelligence</span>
+                    <span class="theme-subname">Navy & Sky Blue</span>
+                  </div>
+                  <svg class="theme-check-icon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                  </svg>
+                </button>
+
+                <!-- 4. Judicial Emerald -->
+                <button type="button" class="theme-option-btn" data-theme-value="emerald" onclick="App.setTheme('emerald', true)" role="radio" aria-checked="false" aria-label="Judicial Emerald theme">
+                  <div class="theme-preview-box preview-emerald">
+                    <div class="tp-sidebar"></div>
+                    <div class="tp-main">
+                      <div class="tp-header"></div>
+                      <div class="tp-card"><div class="tp-accent"></div></div>
+                    </div>
+                  </div>
+                  <div class="theme-info-wrap">
+                    <span class="theme-name">Judicial Emerald</span>
+                    <span class="theme-subname">Deep Forest & Mint</span>
+                  </div>
+                  <svg class="theme-check-icon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                  </svg>
+                </button>
+
+                <!-- 5. Executive Rose -->
+                <button type="button" class="theme-option-btn" data-theme-value="rose" onclick="App.setTheme('rose', true)" role="radio" aria-checked="false" aria-label="Executive Rose theme">
+                  <div class="theme-preview-box preview-rose">
+                    <div class="tp-sidebar"></div>
+                    <div class="tp-main">
+                      <div class="tp-header"></div>
+                      <div class="tp-card"><div class="tp-accent"></div></div>
+                    </div>
+                  </div>
+                  <div class="theme-info-wrap">
+                    <span class="theme-name">Executive Rose</span>
+                    <span class="theme-subname">Burgundy & Rose</span>
+                  </div>
+                  <svg class="theme-check-icon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                  </svg>
+                </button>
+
+                <!-- 6. Royal Purple -->
+                <button type="button" class="theme-option-btn" data-theme-value="purple" onclick="App.setTheme('purple', true)" role="radio" aria-checked="false" aria-label="Royal Purple theme">
+                  <div class="theme-preview-box preview-purple">
+                    <div class="tp-sidebar"></div>
+                    <div class="tp-main">
+                      <div class="tp-header"></div>
+                      <div class="tp-card"><div class="tp-accent"></div></div>
+                    </div>
+                  </div>
+                  <div class="theme-info-wrap">
+                    <span class="theme-name">Royal Purple</span>
+                    <span class="theme-subname">Amethyst & Violet</span>
+                  </div>
+                  <svg class="theme-check-icon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                  </svg>
+                </button>
+
+                <!-- 7. Executive Gold -->
+                <button type="button" class="theme-option-btn" data-theme-value="amber" onclick="App.setTheme('amber', true)" role="radio" aria-checked="false" aria-label="Executive Gold theme">
+                  <div class="theme-preview-box preview-amber">
+                    <div class="tp-sidebar"></div>
+                    <div class="tp-main">
+                      <div class="tp-header"></div>
+                      <div class="tp-card"><div class="tp-accent"></div></div>
+                    </div>
+                  </div>
+                  <div class="theme-info-wrap">
+                    <span class="theme-name">Executive Gold</span>
+                    <span class="theme-subname">Warm Onyx & Amber</span>
+                  </div>
+                  <svg class="theme-check-icon" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notification Bell & Accessible Popover -->
+          <div class="notif-bell-container" id="notif-bell-container">
+            <button type="button" class="notif-bell-btn" id="btn-notifications-bell" title="Notifications & Updates" aria-label="Notifications" aria-expanded="false" aria-controls="notifications-popover" aria-haspopup="dialog">
+              <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
-              <span class="notif-badge" id="notif-badge" style="display: none;">0</span>
+              <span class="notif-badge" id="notif-badge" style="display: none;" aria-live="polite">0</span>
             </button>
 
-            <!-- Popover -->
-            <div class="notif-popover" id="notifications-popover">
+            <!-- Notifications Popover Dialog -->
+            <div class="notif-popover" id="notifications-popover" role="dialog" aria-label="Notifications" aria-hidden="true">
               <div class="notif-header">
-                <span style="font-size: 13.5px; font-weight: 600; color: #F8FAFC;">Notifications</span>
-                <button class="btn btn-secondary btn-sm" id="btn-mark-all-read" style="font-size: 11px; padding: 4px 8px;">Mark All Read</button>
+                <div class="notif-header-title-wrap">
+                  <span class="notif-header-title">Notifications</span>
+                  <span class="notif-header-count" id="notif-header-count" style="display: none;">0 unread</span>
+                </div>
+                <div class="notif-header-actions">
+                  <button type="button" class="btn btn-secondary btn-sm notif-mark-all-btn" id="btn-mark-all-read" title="Mark all notifications as read">Mark All Read</button>
+                  <button type="button" class="notif-close-btn" id="btn-notifications-close" aria-label="Close Notifications" onclick="App.closeNotificationsPopover()" title="Close">
+                    <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
               </div>
-              <div class="notif-list" id="notifications-list-container">
-                <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px;">No new notifications</div>
+              <div class="notif-list" id="notifications-list-container" role="feed" aria-live="polite">
+                <div class="notif-empty-state">
+                  <div class="notif-empty-icon">✓</div>
+                  <div class="notif-empty-title">You're all caught up</div>
+                  <div class="notif-empty-desc">No new notifications at this time.</div>
+                </div>
               </div>
-              <div class="notif-footer" style="padding: 10px 16px; border-top: 1px solid var(--border-subtle); text-align: center; background: rgba(15, 23, 42, 0.6);">
-                <a href="#" style="font-size: 12px; color: var(--accent-cyan); text-decoration: none;" onclick="App.navigateToNotifications(event)">View All Notifications →</a>
+              <div class="notif-footer">
+                <a href="#" class="notif-footer-link" onclick="App.navigateToNotifications(event)">View All Notifications &rarr;</a>
               </div>
             </div>
           </div>
@@ -390,7 +573,7 @@
             <button class="btn btn-secondary btn-sm" onclick="App.openCitizenUploadDocModal()">
               + Upload Doc
             </button>
-            <button class="btn btn-primary btn-sm" onclick="App.openCitizenNewCaseModal()">
+            <button class="btn btn-primary btn-sm" id="btn-citizen-quick-new-case" onclick="App.openCitizenNewCaseModal()">
               + File Matter
             </button>
           </div>
@@ -411,8 +594,8 @@
                 of your practice.</p>
             </div>
             <div style="display: flex; gap: 10px;">
-              <button class="btn btn-secondary btn-sm" onclick="App.navigate('research')">
-                🔍 Research Law
+              <button class="btn btn-secondary btn-sm" id="btn-lawyer-header-research" onclick="App.navigate('research')">
+                ✨ Ask VIDHIK / Research
               </button>
               <button class="btn btn-primary btn-sm" onclick="App.openCreateCaseModal()">
                 + File New Case
@@ -460,69 +643,84 @@
           </div>
 
           <!-- Lawyer Quick Statutory Search -->
-          <div class="card" style="margin-bottom: 24px; background: linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95)); border: 1px solid rgba(99, 102, 241, 0.3);">
+          <div class="card" style="margin-bottom: 24px; border: 1px solid var(--border-subtle); background: var(--bg-card);">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
               <div>
-                <h3 style="font-size: 15px; font-weight: 600; color: #F8FAFC; display: flex; align-items: center; gap: 8px;">
-                  <span>🔍</span> Quick Statutory & Provision Search
+                <h3 style="font-size: 15px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+                  <span onclick="App.navigate('research')" style="cursor: pointer;" title="Open Ask VIDHIK Legal AI">✨</span> Ask VIDHIK & Statutory Intelligence
                 </h3>
                 <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
-                  Search Central & State Acts or section numbers to review and link to case briefs
+                  Search Central & State Acts, section numbers, or query the legal corpus
                 </p>
               </div>
               <span class="badge badge-active" style="font-size: 11px;">869 Acts • 41,442 Sections</span>
             </div>
             <form onsubmit="App.handleLawyerQuickSearch(event)" style="display: flex; gap: 10px; flex-wrap: wrap;">
-              <input type="text" id="lawyer-quick-search-input" class="form-control" style="flex: 1; min-width: 260px;" placeholder="Search section number or legal title (e.g. 'Section 138 NI Act', 'Order 39 CPC', 'Article 226')...">
-              <button type="submit" class="btn btn-primary">
-                Search Corpus
+              <input type="text" id="lawyer-quick-search-input" class="form-control" style="flex: 1; min-width: 0;" placeholder="Search section number or legal title (e.g. 'Section 138 NI Act', 'Order 39 CPC', 'Article 226')...">
+              <button type="submit" class="btn btn-primary" id="btn-lawyer-ask-vidhik">
+                Ask VIDHIK &rarr;
               </button>
             </form>
           </div>
 
-          <!-- Dashboard Grid: Hearings & Recent Cases -->
-          <div class="dashboard-grid">
-            <!-- Upcoming Hearings Card -->
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">📅 Upcoming Court Hearings</h3>
-                <button class="btn btn-secondary btn-sm" onclick="App.navigate('hearings')">View All</button>
+          <!-- Urgency Section 1: TODAY (Upcoming Hearings) -->
+          <div class="urgency-section" style="margin-bottom: 24px;">
+            <div class="urgency-header">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="urgency-pill urgency-today">TODAY</span>
+                <h3 class="urgency-title">Scheduled Court Appearances & Hearings</h3>
               </div>
+              <button class="btn btn-secondary btn-sm" onclick="App.navigate('hearings')">View Hearing Calendar →</button>
+            </div>
+            <div class="card" style="border-top: 3px solid var(--accent-amber);">
               <div id="dash-hearings-list">
                 <div class="spinner"></div>
               </div>
             </div>
+          </div>
 
-            <!-- Recent Cases Card -->
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">⚖️ Active Matters</h3>
-                <button class="btn btn-secondary btn-sm" onclick="App.navigate('cases')">View All</button>
+          <!-- Urgency Section 2: THIS WEEK (Active Matters) -->
+          <div class="urgency-section" style="margin-bottom: 24px;">
+            <div class="urgency-header">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="urgency-pill urgency-thisweek">THIS WEEK</span>
+                <h3 class="urgency-title">Active Briefs & Court Matters</h3>
               </div>
+              <button class="btn btn-secondary btn-sm" onclick="App.navigate('cases')">View All Cases →</button>
+            </div>
+            <div class="card" style="border-top: 3px solid var(--accent-primary);">
               <div id="dash-cases-list">
                 <div class="spinner"></div>
               </div>
             </div>
           </div>
 
-          <!-- Bottom Grid: Recent Activity & Documents -->
-          <div class="dashboard-grid">
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">⚡ Recent Case Activity Feed</h3>
-              </div>
-              <div id="dash-activity-list">
-                <div class="spinner"></div>
+          <!-- Urgency Section 3: RECENT (Documents & Activity Feed) -->
+          <div class="urgency-section">
+            <div class="urgency-header" style="margin-bottom: 14px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="urgency-pill urgency-recent">RECENT</span>
+                <h3 class="urgency-title">Filings, Pleadings & Practice Activity</h3>
               </div>
             </div>
-
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">📄 Recent Case Documents</h3>
-                <button class="btn btn-secondary btn-sm" onclick="App.navigate('documents')">Manage</button>
+            <div class="dashboard-grid">
+              <div class="card" style="border-top: 3px solid var(--accent-cyan);">
+                <div class="card-header">
+                  <h3 class="card-title">📄 Recent Case Documents</h3>
+                  <button class="btn btn-secondary btn-sm" onclick="App.navigate('documents')">Manage Docs</button>
+                </div>
+                <div id="dash-documents-list">
+                  <div class="spinner"></div>
+                </div>
               </div>
-              <div id="dash-documents-list">
-                <div class="spinner"></div>
+
+              <div class="card" style="border-top: 3px solid var(--accent-emerald);">
+                <div class="card-header">
+                  <h3 class="card-title">⚡ Case Activity Feed</h3>
+                </div>
+                <div id="dash-activity-list">
+                  <div class="spinner"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -651,7 +849,7 @@
                   <span class="badge" id="cd-status-badge">Active</span>
                   <span style="font-size: 12.5px; color: var(--accent-cyan);" id="cd-type-badge">Writ Petition</span>
                 </div>
-                <h2 id="cd-title" style="font-size: 22px; color: #F8FAFC; margin-bottom: 6px;">Case Title</h2>
+                <h2 id="cd-title" style="font-size: 22px; color: var(--text-primary); margin-bottom: 6px;">Case Title</h2>
                 <div style="font-size: 13px; color: var(--text-secondary); display: flex; gap: 16px; flex-wrap: wrap;">
                   <span><strong>Case No:</strong> <code id="cd-number">-</code></span>
                   <span><strong>Court:</strong> <span id="cd-court">-</span></span>
@@ -899,38 +1097,110 @@
         <section id="view-research" class="view-panel" style="display: none;">
           <div class="page-header">
             <div>
-              <h2 class="page-title">Vidhik Legal Research Engine</h2>
-              <p class="page-subtitle">Multi-field search across 869 Central and State Acts, and 41,442 statutory
-                sections.</p>
+              <h2 class="page-title">Vidhik Legal Research & Statutory Intelligence</h2>
+              <p class="page-subtitle">Deterministic multi-field search across BNS, BNSS, BSA, 24 Key Bare Acts, 869 Central/State Acts, and verified Supreme Court authorities.</p>
             </div>
-            <span class="badge badge-active" style="padding: 6px 12px; font-size: 13px;">
-              ⚡ Connected to LegalSearchService
-            </span>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <span class="badge badge-bns" style="font-size: 11px;">BNS 2023</span>
+              <span class="badge badge-bnss" style="font-size: 11px;">BNSS 2023</span>
+              <span class="badge badge-bsa" style="font-size: 11px;">BSA 2023</span>
+              <span class="badge badge-active" style="padding: 4px 10px; font-size: 12px;">24 Core Acts</span>
+            </div>
           </div>
 
-          <!-- Research Search Bar -->
+          <!-- Research Search Bar & Filters -->
           <div class="card" style="margin-bottom: 24px;">
-            <form id="research-search-form" style="display: flex; gap: 12px; flex-wrap: wrap;">
-              <input type="text" id="research-query-input" class="form-control" style="flex: 1; min-width: 280px;"
-                placeholder="Search legal topics, e.g. 'Co-operative Societies Committee', 'State Boards', 'Bail'...">
-              <select id="research-jurisdiction-select" class="filter-select" style="min-width: 160px;">
+            <form id="research-search-form" style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px;">
+              <input type="text" id="research-query-input" class="form-control" style="flex: 1; min-width: 0;"
+                placeholder="Search legal provisions, e.g. 'Murder', 'Bail', 'Electronic Evidence', 'Cheque Dishonour', 'Cyber Terrorism'...">
+              <select id="research-jurisdiction-select" class="filter-select" style="min-width: 0;">
                 <option value="">All Jurisdictions</option>
                 <option value="India">Central (All India)</option>
                 <option value="Maharashtra">Maharashtra Acts</option>
               </select>
-              <button type="submit" class="btn btn-primary">
+              <select id="research-act-select" class="filter-select" style="min-width: 0;" onchange="App.handleActFilterChange(this.value)">
+                <option value="">All Bare Acts (Default)</option>
+                <option value="BNS">Bharatiya Nyaya Sanhita, 2023 (BNS)</option>
+                <option value="BNSS">Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS)</option>
+                <option value="BSA">Bharatiya Sakshya Adhiniyam, 2023 (BSA)</option>
+                <option value="POCSO">POCSO Act, 2012</option>
+                <option value="IT Act">Information Technology Act, 2000</option>
+                <option value="NI Act">Negotiable Instruments Act, 1881</option>
+                <option value="HMA">Hindu Marriage Act, 1955</option>
+                <option value="TPA">Transfer of Property Act, 1882</option>
+                <option value="Arbitration">Arbitration and Conciliation Act, 1996</option>
+                <option value="Consumer">Consumer Protection Act, 2019</option>
+                <option value="RTI">Right to Information Act, 2005</option>
+                <option value="Specific Relief">Specific Relief Act, 1963</option>
+                <option value="Companies">Companies Act, 2013</option>
+                <option value="IBC">Insolvency and Bankruptcy Code, 2016</option>
+              </select>
+              <button type="submit" class="btn btn-primary" id="btn-research-submit">
                 Search Legal Corpus
               </button>
             </form>
+
+            <!-- Quick Statute Filter Pills -->
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+              <span style="font-size: 12px; color: var(--text-muted); font-weight: 500; margin-right: 2px;">Quick Focus:</span>
+              <button type="button" class="filter-pill active" id="pill-filter-all" onclick="App.applyResearchFilter('all')">All Corpus</button>
+              <button type="button" class="filter-pill" id="pill-filter-bns" onclick="App.applyResearchFilter('BNS')">BNS 2023</button>
+              <button type="button" class="filter-pill" id="pill-filter-bnss" onclick="App.applyResearchFilter('BNSS')">BNSS 2023</button>
+              <button type="button" class="filter-pill" id="pill-filter-bsa" onclick="App.applyResearchFilter('BSA')">BSA 2023</button>
+              <button type="button" class="filter-pill" id="pill-filter-24acts" onclick="App.applyResearchFilter('24acts')">24 Bare Acts</button>
+              <button type="button" class="filter-pill" id="pill-filter-authorities" onclick="App.applyResearchFilter('authorities')">Verified Authorities</button>
+            </div>
           </div>
 
           <!-- Search Results Container -->
           <div id="research-results-container">
+            <!-- Initial Overview / Guidance Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px;">
+              <div class="card" style="border-top: 3px solid var(--accent-primary); cursor: pointer;" onclick="App.applyResearchFilter('BNS')">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span class="badge badge-bns">Substantive Penal Code</span>
+                  <span style="font-size: 11px; color: var(--text-muted);">Replaces IPC 1860</span>
+                </div>
+                <h4 style="font-size: 15px; margin-bottom: 4px; color: var(--text-primary);">Bharatiya Nyaya Sanhita (BNS)</h4>
+                <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 0;">Comprehensive criminal offences, community service punishments, organized crime & cyber classifications.</p>
+              </div>
+
+              <div class="card" style="border-top: 3px solid var(--accent-cyan); cursor: pointer;" onclick="App.applyResearchFilter('BNSS')">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span class="badge badge-bnss">Procedural Criminal Code</span>
+                  <span style="font-size: 11px; color: var(--text-muted);">Replaces CrPC 1973</span>
+                </div>
+                <h4 style="font-size: 15px; margin-bottom: 4px; color: var(--text-primary);">Bharatiya Nagarik Suraksha Sanhita (BNSS)</h4>
+                <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 0;">Investigation timelines, e-FIR, mandatory videography, search & seizure protocols, bail reforms.</p>
+              </div>
+
+              <div class="card" style="border-top: 3px solid var(--accent-emerald); cursor: pointer;" onclick="App.applyResearchFilter('BSA')">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span class="badge badge-bsa">Evidence & Admissibility</span>
+                  <span style="font-size: 11px; color: var(--text-muted);">Replaces IEA 1872</span>
+                </div>
+                <h4 style="font-size: 15px; margin-bottom: 4px; color: var(--text-primary);">Bharatiya Sakshya Adhiniyam (BSA)</h4>
+                <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 0;">Digital and electronic record admissibility, hash integrity, server logs, secondary evidence standards.</p>
+              </div>
+
+              <div class="card" style="border-top: 3px solid var(--accent-amber); cursor: pointer;" onclick="App.applyResearchFilter('authorities')">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span class="badge badge-predecessor">Judicial Precedents</span>
+                  <span style="font-size: 11px; color: var(--text-muted);">Supreme Court of India</span>
+                </div>
+                <h4 style="font-size: 15px; margin-bottom: 4px; color: var(--text-primary);">Verified Judicial Authorities</h4>
+                <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 0;">Authoritative landmark judgments, headnotes, and controlling interpretations with zero hallucination.</p>
+              </div>
+            </div>
+
             <div class="empty-state">
-              <div class="empty-state-icon">⚖️</div>
-              <div class="empty-state-title">Enter a legal research query</div>
-              <div class="empty-state-desc">Search through Indian statutes, section numbers, headings, and legal
-                full-texts with deterministic ranking.</div>
+              <div class="empty-state-icon">
+                <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <div class="empty-state-title">Enter a statutory or legal query</div>
+              <div class="empty-state-desc">Search through sections, keywords, offences, and procedural workflows with deterministic ranking.</div>
             </div>
           </div>
         </section>
@@ -953,7 +1223,7 @@
           <!-- Documentation Search & Category Filter Card -->
           <div class="card" style="margin-bottom: 24px;">
             <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 16px;">
-              <input type="text" id="doc-search-input" class="form-control" style="flex: 1; min-width: 280px;"
+              <input type="text" id="doc-search-input" class="form-control" style="flex: 1; min-width: 0;"
                 placeholder="Search 25+ legal procedures, e.g. 'Marriage', 'Birth Certificate', 'Sale Deed', 'FIR', 'Bail', 'EPFO', 'Ombudsman', 'Legal Notice'...">
               <button class="btn btn-primary" onclick="App.searchDocumentation()">Search Procedures</button>
               <button class="btn btn-secondary" onclick="App.resetDocumentationSearch()">Reset</button>
@@ -961,7 +1231,7 @@
 
             <!-- Dynamic Category Filter Pills -->
             <div id="doc-category-pills" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
-              <span style="font-size: 13px; color: #94A3B8; margin-right: 4px; font-weight: 500;">Filter
+              <span style="font-size: 13px; color: var(--text-secondary); margin-right: 4px; font-weight: 500;">Filter
                 Category:</span>
               <button class="filter-pill active" data-category="all"
                 onclick="App.filterDocumentationCategory('all')">All Procedures</button>
@@ -970,7 +1240,7 @@
 
           <!-- Procedures Grid Container -->
           <div id="procedures-grid-container" class="dashboard-grid"
-            style="grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));">
+            style="grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));">
             <div class="spinner"></div>
           </div>
         </section>
@@ -1026,7 +1296,7 @@
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <span style="font-size: 18px;">📎</span>
                   <div>
-                    <strong id="selected-file-name" style="color: #F8FAFC; font-size: 14px;">filename.pdf</strong>
+                    <strong id="selected-file-name" style="color: var(--text-primary); font-size: 14px;">filename.pdf</strong>
                     <div id="selected-file-size" style="font-size: 12px; color: var(--text-muted);">1.2 MB</div>
                   </div>
                 </div>
@@ -1063,7 +1333,7 @@
           <!-- LOADING PROGRESS INDICATOR -->
           <div id="analysis-loading-card" class="card" style="display: none; text-align: center; padding: 40px 24px;">
             <div class="spinner" style="margin: 0 auto 16px;"></div>
-            <h3 style="font-size: 18px; color: #F8FAFC;" id="analysis-loading-text">Analyzing Document Structure...</h3>
+            <h3 style="font-size: 18px; color: var(--text-primary);" id="analysis-loading-text">Analyzing Document Structure...</h3>
             <p style="font-size: 13.5px; color: var(--text-muted); margin-top: 6px;">Extracting parties, clauses, dates, financial liabilities, and cross-referencing Vidhik's 41,442 statutory sections.</p>
           </div>
 
@@ -1077,7 +1347,7 @@
                   <span class="badge badge-completed" id="res-file-type">PDF</span>
                   <span id="res-case-badge" class="badge" style="display: none; background: rgba(99, 102, 241, 0.2); color: #A5B4FC;">Case #1</span>
                 </div>
-                <h3 id="res-doc-name" style="font-size: 20px; color: #F8FAFC; margin-top: 4px;">Commercial Lease Agreement.pdf</h3>
+                <h3 id="res-doc-name" style="font-size: 20px; color: var(--text-primary); margin-top: 4px;">Commercial Lease Agreement.pdf</h3>
                 <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;" id="res-doc-meta">Size: 245 KB • Checksum: sha256:7f3a...</div>
               </div>
               <div style="display: flex; gap: 10px; flex-wrap: wrap;">
@@ -1246,7 +1516,7 @@
               <div style="display: flex; align-items: center; gap: 18px; margin-bottom: 24px;">
                 <div class="lawyer-avatar" style="width: 64px; height: 64px; font-size: 24px;" id="prof-avatar">RD</div>
                 <div>
-                  <h3 id="prof-name" style="font-size: 22px; color: #F8FAFC;">Adv. Rajesh Deshmukh</h3>
+                  <h3 id="prof-name" style="font-size: 22px; color: var(--text-primary);">Adv. Rajesh Deshmukh</h3>
                   <div style="font-size: 13.5px; color: var(--accent-cyan); font-weight: 500;" id="prof-bar">Bar
                     Council: MAH/4521/2012</div>
                   <div style="font-size: 12.5px; color: var(--text-muted);" id="prof-exp">14 Years Active Court Practice
@@ -1318,12 +1588,17 @@
         <!-- CITIZEN VIEW 1: CITIZEN DASHBOARD                              -->
         <!-- ============================================================== -->
         <section id="view-citizen-dashboard" class="view-panel" style="display: none;">
-          <div class="page-header">
+          <!-- 1. WELCOME HEADER -->
+          <div class="page-header" style="margin-bottom: 20px;">
             <div>
-              <h2 class="page-title">Citizen Dashboard</h2>
-              <p class="page-subtitle">Welcome back, <span id="dash-citizen-greeting-name">Citizen</span>. Track your legal cases, court dates, and documents.</p>
+              <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent-primary); margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent-primary);"></span>
+                Your Legal Workspace
+              </div>
+              <h2 class="page-title" id="dash-citizen-welcome-title">Welcome, <span id="dash-citizen-greeting-name">Citizen</span></h2>
+              <p class="page-subtitle" id="dash-citizen-welcome-sub">Intelligent legal overview, cases, hearings & AI statutory assistance</p>
             </div>
-            <div style="display: flex; gap: 10px;">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
               <button class="btn btn-secondary btn-sm" onclick="App.navigate('documentation')">
                 📋 Procedure Checklists
               </button>
@@ -1333,64 +1608,100 @@
             </div>
           </div>
 
-          <!-- KPI Metrics Cards -->
-          <div class="metrics-grid">
-            <div class="metric-card indigo">
-              <div class="metric-card-header">
-                <span class="metric-label">Active Matters</span>
-                <div class="metric-icon-wrap">⚖️</div>
+          <!-- 2. ASK VIDHIK PROMINENT AI & SEARCH WORKSPACE -->
+          <div class="ask-vidhik-hero" style="margin-bottom: 24px;">
+            <div class="ask-vidhik-header">
+              <div class="ask-vidhik-title-wrap">
+                <div class="ask-vidhik-badge" onclick="App.navigate('research')" style="cursor: pointer;" title="Open Ask VIDHIK AI Workspace">✨ Ask VIDHIK</div>
+                <h3 class="ask-vidhik-title" onclick="App.navigate('research')" style="cursor: pointer;" title="Open Ask VIDHIK AI Workspace">Intelligent Indian Legal Workspace</h3>
+                <p class="ask-vidhik-subtitle">Ask about Indian law, your case, or a legal provision across BNS, BNSS, BSA & 24 Bare Acts.</p>
               </div>
-              <div class="metric-value" id="kpi-citizen-cases">0</div>
-              <div style="font-size: 11.5px; color: var(--accent-cyan); margin-top: 4px;">Registered legal cases</div>
             </div>
-
-            <div class="metric-card cyan">
-              <div class="metric-card-header">
-                <span class="metric-label">Case Documents</span>
-                <div class="metric-icon-wrap">📄</div>
+            <form id="citizen-quick-search-form" onsubmit="App.handleCitizenQuickSearch(event)" class="ask-vidhik-search-form">
+              <div class="ask-vidhik-input-wrap">
+                <svg class="ask-vidhik-search-icon" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="text" id="citizen-quick-search-input" class="ask-vidhik-input" placeholder="Ask about Indian law, your case, or a legal provision...">
+                <button type="submit" id="btn-citizen-ask-vidhik" class="btn btn-primary ask-vidhik-btn">
+                  <span>Ask VIDHIK</span>
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </button>
               </div>
-              <div class="metric-value" id="kpi-citizen-docs">0</div>
-              <div style="font-size: 11.5px; color: var(--accent-cyan); margin-top: 4px;">Uploaded case briefs</div>
-            </div>
-
-            <div class="metric-card amber">
-              <div class="metric-card-header">
-                <span class="metric-label">Upcoming Hearings</span>
-                <div class="metric-icon-wrap">📅</div>
+            </form>
+            <!-- Quick Suggestions -->
+            <div class="ask-vidhik-suggestions">
+              <span class="suggestion-label">Suggested:</span>
+              <div class="suggestion-chips-list">
+                <button type="button" class="suggestion-chip" onclick="App.handleAskVidhikChip('BNS')">⚖️ BNS</button>
+                <button type="button" class="suggestion-chip" onclick="App.handleAskVidhikChip('BNSS')">📜 BNSS</button>
+                <button type="button" class="suggestion-chip" onclick="App.handleAskVidhikChip('BSA')">🔍 BSA</button>
+                <button type="button" class="suggestion-chip" onclick="App.handleAskVidhikChip('24 Bare Acts')">📚 Bare Acts</button>
+                <button type="button" class="suggestion-chip" onclick="App.handleAskVidhikChip('My Cases')">📁 My Cases</button>
+                <button type="button" class="suggestion-chip" onclick="App.handleAskVidhikChip('Legal Rights')">🛡️ Legal Rights</button>
               </div>
-              <div class="metric-value" id="kpi-citizen-hearings">0</div>
-              <div style="font-size: 11.5px; color: var(--accent-amber); margin-top: 4px;">Scheduled court dates</div>
-            </div>
-
-            <div class="metric-card rose">
-              <div class="metric-card-header">
-                <span class="metric-label">Saved Provisions</span>
-                <div class="metric-icon-wrap">🔖</div>
-              </div>
-              <div class="metric-value" id="kpi-citizen-bookmarks">0</div>
-              <div style="font-size: 11.5px; color: var(--accent-rose); margin-top: 4px;">Bookmarked sections</div>
             </div>
           </div>
 
-          <!-- Quick Statutory & Legal Search Card -->
-          <div class="card" style="margin-bottom: 24px; background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95)); border: 1px solid rgba(99, 102, 241, 0.35); box-shadow: var(--shadow-md);">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
-              <div>
-                <h3 style="font-size: 16px; font-weight: 600; color: #F8FAFC; display: flex; align-items: center; gap: 8px;">
-                  <span>🔍</span> Quick Statutory & Legal Search
-                </h3>
-                <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">
-                  Direct search across 869 Central & State Acts and 41,442 statutory provisions with deterministic ranking
-                </p>
-              </div>
-              <span class="badge badge-active" style="font-size: 11px;">Deterministic Ranking</span>
+          <!-- 3. NEXT IMPORTANT DATE HERO (Dynamic Container) -->
+          <div id="citizen-next-date-container" style="margin-bottom: 24px;"></div>
+
+          <!-- 4. LEGAL OVERVIEW: Interactive Metrics Cards -->
+          <div style="margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+              <h3 style="font-size: 13.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted);">Legal Overview</h3>
             </div>
-            <form id="citizen-quick-search-form" onsubmit="App.handleCitizenQuickSearch(event)" style="display: flex; gap: 10px; flex-wrap: wrap;">
-              <input type="text" id="citizen-quick-search-input" class="form-control" style="flex: 1; min-width: 260px;" placeholder="e.g. 'Section 138 cheque dishonour', 'consumer complaint', 'bail', 'anticipatory bail'...">
-              <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">
-                Search Corpus
-              </button>
-            </form>
+            <div class="metrics-grid">
+              <div class="metric-card indigo" onclick="App.navigate('citizen-cases')" style="cursor: pointer;" title="View all active matters">
+                <div class="metric-card-header">
+                  <span class="metric-label">Active Matters</span>
+                  <div class="metric-icon-wrap">⚖️</div>
+                </div>
+                <div class="metric-value" id="kpi-citizen-cases">0</div>
+                <div style="font-size: 11.5px; color: var(--accent-cyan); margin-top: 4px; display: flex; align-items: center; justify-content: space-between;">
+                  <span>Registered matters</span>
+                  <span>View →</span>
+                </div>
+              </div>
+
+              <div class="metric-card cyan" onclick="App.navigate('citizen-documents')" style="cursor: pointer;" title="View all case documents">
+                <div class="metric-card-header">
+                  <span class="metric-label">Case Documents</span>
+                  <div class="metric-icon-wrap">📄</div>
+                </div>
+                <div class="metric-value" id="kpi-citizen-docs">0</div>
+                <div style="font-size: 11.5px; color: var(--accent-cyan); margin-top: 4px; display: flex; align-items: center; justify-content: space-between;">
+                  <span>Uploaded briefs</span>
+                  <span>View →</span>
+                </div>
+              </div>
+
+              <div class="metric-card amber" onclick="App.scrollToHearings()" style="cursor: pointer;" title="View scheduled court appearances">
+                <div class="metric-card-header">
+                  <span class="metric-label">Upcoming Hearings</span>
+                  <div class="metric-icon-wrap">📅</div>
+                </div>
+                <div class="metric-value" id="kpi-citizen-hearings">0</div>
+                <div style="font-size: 11.5px; color: var(--accent-amber); margin-top: 4px; display: flex; align-items: center; justify-content: space-between;">
+                  <span>Court appearances</span>
+                  <span>View →</span>
+                </div>
+              </div>
+
+              <div class="metric-card rose" onclick="App.navigate('citizen-bookmarks')" style="cursor: pointer;" title="View bookmarked statutory sections">
+                <div class="metric-card-header">
+                  <span class="metric-label">Saved Provisions</span>
+                  <div class="metric-icon-wrap">🔖</div>
+                </div>
+                <div class="metric-value" id="kpi-citizen-bookmarks">0</div>
+                <div style="font-size: 11.5px; color: var(--accent-rose); margin-top: 4px; display: flex; align-items: center; justify-content: space-between;">
+                  <span>Saved provisions</span>
+                  <span>View →</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Dashboard Grid -->
@@ -1399,7 +1710,7 @@
             <div>
               <!-- Active Cases Card -->
               <div class="card" style="margin-bottom: 24px;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
                   <h3 class="card-title">My Active Legal Matters</h3>
                   <button class="btn btn-secondary btn-sm" onclick="App.navigate('citizen-cases')" style="font-size: 11.5px; padding: 4px 8px;">View All Cases →</button>
                 </div>
@@ -1410,7 +1721,7 @@
 
               <!-- Scheduled Hearings Card -->
               <div class="card" style="margin-bottom: 24px;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
                   <h3 class="card-title">Upcoming Court Hearings & Dates</h3>
                 </div>
                 <div id="citizen-dash-hearings-list">
@@ -1420,7 +1731,7 @@
 
               <!-- Recent Case Documents Card -->
               <div class="card" style="margin-bottom: 24px;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
                   <h3 class="card-title">📄 Recent Case Documents</h3>
                   <button class="btn btn-secondary btn-sm" onclick="App.navigate('citizen-documents')" style="font-size: 11.5px; padding: 4px 8px;">View All Docs →</button>
                 </div>
@@ -1431,7 +1742,7 @@
 
               <!-- Procedure Checklists Progress Card -->
               <div class="card">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
                   <h3 class="card-title">📋 Tracked Procedure Progress</h3>
                   <button class="btn btn-secondary btn-sm" onclick="App.navigate('documentation')" style="font-size: 11.5px; padding: 4px 8px;">Explore Procedures →</button>
                 </div>
@@ -1446,17 +1757,17 @@
               <!-- Quick Legal Actions -->
               <div class="card" style="margin-bottom: 24px;">
                 <h3 class="card-title" style="margin-bottom: 14px;">Quick Actions</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                  <button class="btn btn-secondary" style="padding: 12px; font-size: 12.5px; justify-content: flex-start; text-align: left;" onclick="App.navigate('document-analysis')">
+                <div class="quick-actions-grid">
+                  <button class="btn btn-secondary quick-action-btn" onclick="App.navigate('document-analysis')">
                     🔍 <strong>Analyze Contract</strong>
                   </button>
-                  <button class="btn btn-secondary" style="padding: 12px; font-size: 12.5px; justify-content: flex-start; text-align: left;" onclick="App.navigate('documentation')">
+                  <button class="btn btn-secondary quick-action-btn" onclick="App.navigate('documentation')">
                     📋 <strong>Document Checklists</strong>
                   </button>
-                  <button class="btn btn-secondary" style="padding: 12px; font-size: 12.5px; justify-content: flex-start; text-align: left;" onclick="App.navigate('research')">
+                  <button class="btn btn-secondary quick-action-btn" onclick="App.navigate('research')">
                     ⚖️ <strong>Research Laws</strong>
                   </button>
-                  <button class="btn btn-secondary" style="padding: 12px; font-size: 12.5px; justify-content: flex-start; text-align: left;" onclick="App.navigate('citizen-bookmarks')">
+                  <button class="btn btn-secondary quick-action-btn" onclick="App.navigate('citizen-bookmarks')">
                     🔖 <strong>Saved Laws</strong>
                   </button>
                 </div>
@@ -1556,10 +1867,10 @@
                   <span style="font-size: 13px; color: var(--accent-cyan); font-weight: 500;" id="c-detail-number">CASE #</span>
                   <span style="font-size: 13px; color: var(--text-muted);" id="c-detail-type">Civil</span>
                 </div>
-                <h2 style="font-size: 22px; font-weight: 700; color: #F8FAFC;" id="c-detail-title">Case Title</h2>
+                <h2 style="font-size: 22px; font-weight: 700; color: var(--text-primary);" id="c-detail-title">Case Title</h2>
                 <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;" id="c-detail-court">Court Details</div>
               </div>
-              <div id="c-detail-lawyer-card" style="background: rgba(15, 23, 42, 0.6); padding: 12px 18px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); min-width: 240px;">
+              <div id="c-detail-lawyer-card" style="background: var(--bg-card); padding: 12px 18px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); min-width: 240px;">
                 <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Assigned Counsel</div>
                 <div style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin-top: 2px;" id="c-detail-lawyer-name">Adv. Rajesh Deshmukh</div>
                 <div style="font-size: 12px; color: var(--accent-cyan);" id="c-detail-lawyer-spec">Constitutional Law</div>
@@ -1760,13 +2071,13 @@
               <div style="display: flex; align-items: center; gap: 18px; margin-bottom: 24px;">
                 <div class="lawyer-avatar" style="width: 64px; height: 64px; font-size: 24px; background: linear-gradient(135deg, #06B6D4, #4F46E5);" id="c-prof-avatar">SS</div>
                 <div>
-                  <h3 id="c-prof-display-name" style="font-size: 22px; color: #F8FAFC;">Sunita Sharma</h3>
+                  <h3 id="c-prof-display-name" style="font-size: 22px; color: var(--text-primary);">Sunita Sharma</h3>
                   <div style="font-size: 13px; color: var(--accent-cyan); font-weight: 500;">Verified Citizen Account</div>
                   <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;" id="c-prof-email-display">sunita.sharma@example.com</div>
                 </div>
               </div>
 
-              <div style="padding: 16px; background: rgba(15, 23, 42, 0.5); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
+              <div style="padding: 16px; background: var(--bg-elevated); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
                 <div><strong>Role:</strong> <span class="badge badge-active" style="margin-left: 6px;">Citizen</span></div>
                 <div><strong>User ID:</strong> <span id="c-prof-userid" style="color: var(--text-muted);">-</span></div>
                 <div><strong>Registered:</strong> <span id="c-prof-created" style="color: var(--text-muted);">-</span></div>
@@ -1859,6 +2170,42 @@
           <span class="footer-note">Confidential & Compliant with Indian Evidence Act & IT Act</span>
         </div>
       </footer>
+
+      <!-- Mobile Bottom Navigation Bar (Fixed bottom for mobile viewports <= 768px) -->
+      <nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="Mobile Navigation">
+        <button type="button" class="bottom-nav-item active" id="bnav-home" data-views="citizen-dashboard,dashboard" onclick="App.handleBottomNav('home')" aria-label="Home Workspace">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+          <span class="bottom-nav-label">Home</span>
+        </button>
+
+        <button type="button" class="bottom-nav-item" id="bnav-cases" data-views="citizen-cases,citizen-case-detail,cases,case-detail" onclick="App.handleBottomNav('cases')" aria-label="Legal Cases">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <span class="bottom-nav-label">Cases</span>
+        </button>
+
+        <button type="button" class="bottom-nav-item bottom-nav-ai" id="bnav-ai" data-views="research,document-analysis,documentation" onclick="App.handleBottomNav('ai')" aria-label="Ask VIDHIK AI">
+          <div class="bnav-ai-bubble">✨</div>
+          <span class="bottom-nav-label">Ask VIDHIK</span>
+        </button>
+
+        <button type="button" class="bottom-nav-item" id="bnav-docs" data-views="citizen-documents,documents" onclick="App.handleBottomNav('docs')" aria-label="Documents">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+          <span class="bottom-nav-label">Docs</span>
+        </button>
+
+        <button type="button" class="bottom-nav-item" id="bnav-menu" onclick="App.toggleMobileSidebar()" aria-label="Open Full Navigation Drawer">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+          <span class="bottom-nav-label">Menu</span>
+        </button>
+      </nav>
     </main>
   </div>
 
@@ -1897,59 +2244,59 @@
   </div>
 
   <!-- MODAL: CREATE CASE -->
-  <div id="modal-create-case" class="modal-overlay">
+  <div id="modal-create-case" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="m-modal-title">
     <div class="modal-dialog" style="max-width: 680px;">
       <div class="modal-header">
-        <h3 class="modal-title">Open New Legal Matter</h3>
-        <button class="modal-close" onclick="App.closeModals()">✕</button>
+        <h3 class="modal-title" id="m-modal-title">Open New Legal Matter</h3>
+        <button type="button" class="modal-close" onclick="App.closeModals()" aria-label="Close dialog">✕</button>
       </div>
-      <form id="form-create-case">
+      <form id="form-create-case" onsubmit="App.submitCreateCase(event)">
         <div class="modal-body">
           <div class="form-group">
-            <label class="form-label">Client *</label>
+            <label class="form-label" for="m-case-client">Client *</label>
             <select id="m-case-client" class="form-control" required>
               <!-- Filled dynamically -->
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Case Title *</label>
+            <label class="form-label" for="m-case-title">Case Title *</label>
             <input type="text" id="m-case-title" class="form-control" required
               placeholder="e.g. Ramesh Chandra vs. Municipal Corporation">
           </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="modal-form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
             <div class="form-group">
-              <label class="form-label">Case / Petition Number</label>
+              <label class="form-label" for="m-case-number">Case / Petition Number</label>
               <input type="text" id="m-case-number" class="form-control" placeholder="e.g. WP/2026/1042">
             </div>
             <div class="form-group">
-              <label class="form-label">Case Type</label>
+              <label class="form-label" for="m-case-type">Case Type</label>
               <input type="text" id="m-case-type" class="form-control" placeholder="e.g. Writ Petition (Civil)">
             </div>
           </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="modal-form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
             <div class="form-group">
-              <label class="form-label">Court / Forum Name</label>
+              <label class="form-label" for="m-case-court">Court / Forum Name</label>
               <input type="text" id="m-case-court" class="form-control" placeholder="e.g. High Court of Bombay">
             </div>
             <div class="form-group">
-              <label class="form-label">Opposite Party</label>
+              <label class="form-label" for="m-case-opposite">Opposite Party</label>
               <input type="text" id="m-case-opposite" class="form-control"
                 placeholder="e.g. Municipal Corporation of Greater Mumbai">
             </div>
           </div>
           <div class="form-group">
-            <label class="form-label">Filing Date</label>
+            <label class="form-label" for="m-case-filing-date">Filing Date</label>
             <input type="date" id="m-case-filing-date" class="form-control">
           </div>
           <div class="form-group">
-            <label class="form-label">Case Description & Pleadings Summary</label>
+            <label class="form-label" for="m-case-description">Case Description & Pleadings Summary</label>
             <textarea id="m-case-description" class="form-control" rows="3"
               placeholder="Brief facts and prayer..."></textarea>
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="App.closeModals()">Cancel</button>
-          <button type="submit" class="btn btn-primary">Create Case Brief</button>
+          <button type="submit" id="btn-submit-lawyer-case" class="btn btn-primary">Create Case Brief</button>
         </div>
       </form>
     </div>
@@ -2105,7 +2452,7 @@
       </div>
       <div class="modal-body">
         <div
-          style="background: rgba(15, 23, 42, 0.4); padding: 14px; border-radius: var(--radius-sm); margin-bottom: 16px; font-size: 12.5px; color: var(--text-muted); display: flex; gap: 16px; flex-wrap: wrap;">
+          style="background: var(--bg-elevated); padding: 14px; border-radius: var(--radius-sm); margin-bottom: 16px; font-size: 12.5px; color: var(--text-secondary); display: flex; gap: 16px; flex-wrap: wrap; border: 1px solid var(--border-subtle);">
           <span><strong>Section No:</strong> <span id="m-prov-sec-no">-</span></span>
           <span><strong>Chapter:</strong> <span id="m-prov-chapter">-</span></span>
           <span><strong>Page Coordinates:</strong> <span id="m-prov-pages">-</span></span>
@@ -2116,15 +2463,28 @@
           Verbatim Statutory Enactment Text:
         </div>
         <div id="m-prov-fulltext"
-          style="font-size: 14px; line-height: 1.8; color: var(--text-primary); background: var(--bg-primary); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); max-height: 400px; overflow-y: auto; white-space: pre-wrap;">
+          style="font-size: 14px; line-height: 1.8; color: var(--text-primary); background: var(--bg-primary); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); max-height: 340px; overflow-y: auto; white-space: pre-wrap;">
           -
+        </div>
+
+        <!-- Section Context Graph (Predecessor law, penalties, evidence rules, landmark judgments) -->
+        <div id="m-prov-context-container" style="display: none; margin-top: 18px;">
+          <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+            <span>Statutory Context & Controlling Precedents</span>
+            <span class="badge badge-active" style="font-size: 10px;">Phase 17 Intelligence Graph</span>
+          </div>
+          <div id="m-prov-context-content" style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 16px; font-size: 13px;">
+          </div>
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" onclick="App.closeModals()">Close</button>
+        <button type="button" class="btn btn-secondary" id="m-prov-btn-context" onclick="App.toggleProvisionContext()" style="display: none;">
+          Inspect Context Graph
+        </button>
         <button type="button" class="btn btn-primary" id="m-prov-btn-link"
           onclick="App.openLinkToCaseModalFromProvision()">
-          🔗 Save & Link to Case
+          Save & Link to Case
         </button>
       </div>
     </div>
@@ -2144,7 +2504,7 @@
           <div
             style="background: var(--bg-primary); padding: 14px; border-radius: var(--radius-sm); margin-bottom: 16px; border: 1px solid var(--border-subtle);">
             <div style="font-size: 12px; color: var(--text-muted);">Selected Statutory Provision:</div>
-            <div id="m-link-sec-label" style="font-size: 14px; font-weight: 600; color: #818CF8; margin-top: 4px;">-
+            <div id="m-link-sec-label" style="font-size: 14px; font-weight: 600; color: var(--accent-primary); margin-top: 4px;">-
             </div>
           </div>
 
@@ -2249,7 +2609,7 @@
         <div>
           <span id="chk-proc-category" class="badge badge-info" style="margin-bottom: 6px;">Category</span>
           <h3 class="modal-title" id="chk-proc-title" style="font-size: 19px;">Procedure Checklist</h3>
-          <p id="chk-proc-authority" style="font-size: 13px; color: #94A3B8; margin-top: 4px;"></p>
+          <p id="chk-proc-authority" style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;"></p>
         </div>
         <button class="modal-close" onclick="App.closeModals()">✕</button>
       </div>
@@ -2257,36 +2617,36 @@
       <div class="modal-body" style="overflow-y: auto; flex: 1; padding: 24px;">
         <!-- Overview & Metadata Strip -->
         <div class="card"
-          style="background: rgba(15, 23, 42, 0.6); border-color: rgba(99, 102, 241, 0.2); margin-bottom: 20px; padding: 16px;">
-          <p id="chk-proc-desc" style="font-size: 13.5px; color: #CBD5E1; line-height: 1.6; margin-bottom: 12px;"></p>
+          style="background: var(--bg-elevated); border: 1px solid var(--border-subtle); margin-bottom: 20px; padding: 16px;">
+          <p id="chk-proc-desc" style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 12px;"></p>
           <div style="display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; align-items: center;">
             <div id="chk-proc-statute"></div>
-            <div id="chk-proc-timeline" style="color: #94A3B8;"></div>
+            <div id="chk-proc-timeline" style="color: var(--text-muted);"></div>
             <div id="chk-proc-portal"></div>
           </div>
         </div>
 
         <!-- Checklist Readiness Progress Tracker -->
         <div
-          style="background: rgba(30, 41, 59, 0.7); border-radius: 8px; padding: 14px 18px; margin-bottom: 22px; border: 1px solid rgba(255, 255, 255, 0.08);">
+          style="background: var(--bg-card); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 22px; border: 1px solid var(--border-subtle);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <span style="font-size: 13.5px; font-weight: 600; color: #F1F5F9;">Document Readiness Progress</span>
-            <span id="chk-progress-text" style="font-size: 12.5px; font-weight: 600; color: #818CF8;">0 of 0 Completed
+            <span style="font-size: 13.5px; font-weight: 600; color: var(--text-primary);">Document Readiness Progress</span>
+            <span id="chk-progress-text" style="font-size: 12.5px; font-weight: 600; color: var(--accent-primary);">0 of 0 Completed
               (0%)</span>
           </div>
           <div
-            style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+            style="width: 100%; height: 8px; background: var(--bg-elevated); border-radius: 4px; overflow: hidden;">
             <div id="chk-progress-bar"
-              style="width: 0%; height: 100%; background: linear-gradient(90deg, #4F46E5, #06B6D4); transition: width 0.3s ease;">
+              style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--accent-primary), var(--accent-cyan)); transition: width 0.3s ease;">
             </div>
           </div>
         </div>
 
         <!-- Lawyer Case Attachment Action (if user is lawyer) -->
         <div id="chk-lawyer-case-attach"
-          style="display: none; background: rgba(79, 70, 229, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px;">
+          style="display: none; background: var(--accent-light); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px;">
           <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-            <span style="font-size: 13px; font-weight: 500; color: #E0E7FF;">💼 Save Checklist into Case File:</span>
+            <span style="font-size: 13px; font-weight: 500; color: var(--text-primary);">💼 Save Checklist into Case File:</span>
             <select id="chk-attach-case-select" class="form-control"
               style="width: auto; min-width: 220px; padding: 6px 12px; font-size: 12.5px;"></select>
             <button type="button" class="btn btn-primary btn-sm" onclick="App.attachChecklistToCase()">Save to Case
@@ -2299,7 +2659,7 @@
           <div
             style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; border-bottom: 1px solid rgba(244, 63, 94, 0.2); padding-bottom: 6px;">
             <span class="badge badge-mandatory">Mandatory Statutory Documents</span>
-            <span style="font-size: 12.5px; color: #94A3B8;">Required by primary enactment or procedural code</span>
+            <span style="font-size: 12.5px; color: var(--text-muted);">Required by primary enactment or procedural code</span>
           </div>
           <div id="chk-mandatory-docs-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
         </div>
@@ -2309,7 +2669,7 @@
           <div
             style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; border-bottom: 1px solid rgba(245, 158, 11, 0.2); padding-bottom: 6px;">
             <span class="badge badge-supporting">Supporting & Evidentiary Records</span>
-            <span style="font-size: 12.5px; color: #94A3B8;">Conditional, corroborative, or jurisdiction-specific
+            <span style="font-size: 12.5px; color: var(--text-muted);">Conditional, corroborative, or jurisdiction-specific
               items</span>
           </div>
           <div id="chk-supporting-docs-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
@@ -2317,7 +2677,7 @@
 
         <!-- Legal Disclaimer -->
         <div
-          style="margin-top: 24px; padding: 12px 16px; background: rgba(15, 23, 42, 0.5); border-left: 3px solid #6366F1; border-radius: 4px; font-size: 12px; color: #94A3B8; line-height: 1.5;">
+          style="margin-top: 24px; padding: 12px 16px; background: var(--bg-card); border-left: 3px solid var(--accent-primary); border-radius: var(--radius-sm); font-size: 12px; color: var(--text-secondary); line-height: 1.5; border-top: 1px solid var(--border-subtle); border-right: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);">
           ⚖️ <strong>Legal Information Notice:</strong> This checklist provides procedural guidance grounded in Indian
           statutory law. Checking items tracks your preparation readiness and does not certify legal admissibility or
           official agency acceptance.
@@ -2381,22 +2741,22 @@
   </div>
 
   <!-- MODAL: CITIZEN NEW CASE -->
-  <div id="modal-citizen-new-case" class="modal-overlay">
+  <div id="modal-citizen-new-case" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="m-c-modal-title">
     <div class="modal-dialog" style="max-width: 680px;">
       <div class="modal-header">
-        <h3 class="modal-title">File New Legal Matter</h3>
-        <button class="modal-close" onclick="App.closeModals()">✕</button>
+        <h3 class="modal-title" id="m-c-modal-title">File New Legal Matter</h3>
+        <button type="button" class="modal-close" onclick="App.closeModals()" aria-label="Close dialog">✕</button>
       </div>
       <form id="form-citizen-new-case" onsubmit="App.submitCitizenNewCase(event)">
         <div class="modal-body">
           <div class="form-group">
-            <label class="form-label">Matter / Case Title *</label>
+            <label class="form-label" for="m-c-case-title">Matter / Case Title *</label>
             <input type="text" id="m-c-case-title" class="form-control" required
               placeholder="e.g. Property Boundary Dispute or Employment Grievance">
           </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="modal-form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
             <div class="form-group">
-              <label class="form-label">Case Type</label>
+              <label class="form-label" for="m-c-case-type">Case Type</label>
               <select id="m-c-case-type" class="form-control">
                 <option value="Civil Litigation">Civil Litigation</option>
                 <option value="Criminal Matter">Criminal Matter</option>
@@ -2408,42 +2768,42 @@
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label">Court / Legal Forum</label>
+              <label class="form-label" for="m-c-case-court">Court / Legal Forum</label>
               <input type="text" id="m-c-case-court" class="form-control" placeholder="e.g. City Civil Court or Consumer Disputes Forum">
             </div>
           </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="modal-form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
             <div class="form-group">
-              <label class="form-label">Opposite Party / Respondent</label>
+              <label class="form-label" for="m-c-case-opposite">Opposite Party / Respondent</label>
               <input type="text" id="m-c-case-opposite" class="form-control"
                 placeholder="e.g. ABC Housing Society or M/s XYZ Ltd">
             </div>
             <div class="form-group">
-              <label class="form-label">Incident Date</label>
+              <label class="form-label" for="m-c-case-incident-date">Incident Date</label>
               <input type="date" id="m-c-case-incident-date" class="form-control">
             </div>
           </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="modal-form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
             <div class="form-group">
-              <label class="form-label">Police Station / Area</label>
+              <label class="form-label" for="m-c-case-police">Police Station / Area</label>
               <input type="text" id="m-c-case-police" class="form-control"
                 placeholder="e.g. Bandra Police Station">
             </div>
             <div class="form-group">
-              <label class="form-label">Location / City</label>
+              <label class="form-label" for="m-c-case-location">Location / City</label>
               <input type="text" id="m-c-case-location" class="form-control"
                 placeholder="e.g. Mumbai, Maharashtra">
             </div>
           </div>
           <div class="form-group">
-            <label class="form-label">Summary of Facts & Relief Sought *</label>
+            <label class="form-label" for="m-c-case-description">Summary of Facts & Relief Sought *</label>
             <textarea id="m-c-case-description" class="form-control" rows="3" required
               placeholder="Describe the factual background, grievance, and relief requested..."></textarea>
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="App.closeModals()">Cancel</button>
-          <button type="submit" class="btn btn-primary">File Matter</button>
+          <button type="submit" id="btn-submit-citizen-case" class="btn btn-primary">File Matter</button>
         </div>
       </form>
     </div>

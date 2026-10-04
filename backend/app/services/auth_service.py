@@ -147,6 +147,11 @@ class AuthService:
                 db.connection.commit()
         except Exception as e:
             logger.warning(f"Could not persist login session to DB: {e}")
+            if hasattr(db, "connection") and db.connection:
+                try:
+                    db.connection.rollback()
+                except Exception:
+                    pass
 
         session_data = {
             "user_id": user["user_id"],
@@ -656,8 +661,14 @@ def get_authenticated_user(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Authentication session has been revoked. Please sign in again."
                 )
+        except HTTPException:
+            raise
         except Exception:
-            pass
+            if hasattr(db, "connection") and db.connection:
+                try:
+                    db.connection.rollback()
+                except Exception:
+                    pass
 
         # Return standardized session payload
         return {

@@ -21,12 +21,16 @@ const App = {
   citizenDocuments: [],
   citizenBookmarks: [],
   citizenNotifications: [],
-  unreadNotifCount: 0,
+  currentTheme: 'dark',
+  researchFilter: 'all',
+  selectedBareAct: '',
+  bareActsList: [],
 
   // -------------------------------------------------------------
   // INITIALIZATION
   // -------------------------------------------------------------
   async init() {
+    this.initTheme();
     this.bindEvents();
     if (this.token) {
       try {
@@ -40,12 +44,126 @@ const App = {
     }
   },
 
+  // -------------------------------------------------------------
+  // THEME MANAGEMENT (PERSISTED IN LOCALSTORAGE)
+  // Supported themes: 'light', 'dark', 'ocean', 'emerald', 'rose', 'purple', 'amber'
+  // -------------------------------------------------------------
+  VALID_THEMES: ['light', 'dark', 'ocean', 'emerald', 'rose', 'purple', 'amber'],
+  DEFAULT_THEME: 'light',
+
+  initTheme() {
+    try {
+      const saved = localStorage.getItem('vidhik_theme') || localStorage.getItem('vidhik-theme') || this.DEFAULT_THEME;
+      const themeToApply = this.VALID_THEMES.includes(saved) ? saved : this.DEFAULT_THEME;
+      this.setTheme(themeToApply, false);
+    } catch (e) {
+      this.setTheme(this.DEFAULT_THEME, false);
+    }
+  },
+
+  setTheme(themeName, notify = false) {
+    if (!this.VALID_THEMES.includes(themeName)) {
+      themeName = this.DEFAULT_THEME;
+    }
+    this.currentTheme = themeName;
+    document.documentElement.setAttribute('data-theme', themeName);
+
+    try {
+      localStorage.setItem('vidhik_theme', themeName);
+      localStorage.setItem('vidhik-theme', themeName);
+    } catch (e) {
+      console.warn('Could not persist theme preference', e);
+    }
+
+    const themeDisplayNames = {
+      light: 'Legal White',
+      dark: 'Midnight Legal',
+      ocean: 'Ocean Intelligence',
+      emerald: 'Judicial Emerald',
+      rose: 'Executive Rose',
+      purple: 'Royal Purple',
+      amber: 'Executive Gold'
+    };
+    const displayName = themeDisplayNames[themeName] || themeName;
+
+    const btn = document.getElementById('btn-theme-toggle');
+    if (btn) {
+      btn.setAttribute('title', `Active Theme: ${displayName} (Click to change)`);
+      btn.setAttribute('aria-label', `Select Color Theme. Current: ${displayName}`);
+    }
+
+    // Update active class and radio state on palette buttons
+    document.querySelectorAll('.theme-option-btn').forEach(opt => {
+      const val = opt.getAttribute('data-theme-value');
+      const isSelected = (val === themeName);
+      opt.classList.toggle('active', isSelected);
+      opt.setAttribute('aria-checked', String(isSelected));
+    });
+
+    if (notify) {
+      this.showToast(`Theme: ${displayName} Mode`, 'info');
+      this.closeThemePicker();
+    }
+  },
+
+  toggleThemePicker() {
+    const popover = document.getElementById('theme-popover');
+    const btn = document.getElementById('btn-theme-toggle');
+    if (!popover) return;
+
+    const isOpen = popover.classList.contains('active');
+    if (isOpen) {
+      this.closeThemePicker();
+    } else {
+      // Close notifications popover if open
+      this.closeNotificationsPopover();
+      popover.style.display = 'flex';
+      popover.classList.add('active');
+      btn?.setAttribute('aria-expanded', 'true');
+
+      // Boundary check to ensure popover stays within viewport on mobile
+      requestAnimationFrame(() => {
+        const rect = popover.getBoundingClientRect();
+        if (rect.left < 8) {
+          popover.style.right = 'auto';
+          popover.style.left = '0';
+        } else if (rect.right > window.innerWidth - 8) {
+          popover.style.left = 'auto';
+          popover.style.right = '0';
+        }
+      });
+    }
+  },
+
+  closeThemePicker() {
+    const popover = document.getElementById('theme-popover');
+    const btn = document.getElementById('btn-theme-toggle');
+    if (popover) {
+      popover.classList.remove('active');
+      popover.style.display = 'none';
+      popover.style.left = '';
+      popover.style.right = '';
+    }
+    if (btn) {
+      btn.setAttribute('aria-expanded', 'false');
+    }
+  },
+
+  toggleTheme() {
+    this.toggleThemePicker();
+  },
+
   bindEvents() {
     // Navigation clicks
     document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => {
       item.addEventListener('click', (e) => {
         const view = item.getAttribute('data-view');
-        if (view) this.navigate(view);
+        if (view) {
+          this.navigate(view);
+          if (window.innerWidth <= 768) {
+            this.closeMobileSidebar();
+          }
+        }
       });
     });
 
@@ -75,9 +193,68 @@ const App = {
       });
     }
 
-    // Mobile Menu & Backdrop
-    document.getElementById('btn-mobile-menu-toggle')?.addEventListener('click', () => this.toggleMobileSidebar());
-    document.getElementById('mobile-backdrop')?.addEventListener('click', () => this.closeMobileSidebar());
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        this.closeThemePicker();
+        this.closeMobileSidebar();
+        this.closeNotificationsPopover();
+        this.closeModals();
+      }
+    });
+
+    // Close popovers when clicking outside
+    document.addEventListener('click', (e) => {
+      const themePicker = document.getElementById('theme-picker-container');
+      if (themePicker && !themePicker.contains(e.target)) {
+        this.closeThemePicker();
+      }
+      const notifContainer = document.querySelector('.notif-bell-container');
+      if (notifContainer && !notifContainer.contains(e.target)) {
+        this.closeNotificationsPopover();
+      }
+    });
+
+    // Close modal on backdrop click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay && overlay.id !== 'login-screen') {
+          this.closeModals();
+        }
+      });
+    });
+
+    // Keep body.modal-open synchronized whenever any modal opens or closes
+    try {
+      const modalObserver = new MutationObserver(() => {
+        const hasActiveModal = Array.from(document.querySelectorAll('.modal-overlay.active')).some(m => m.id !== 'login-screen');
+        if (hasActiveModal) {
+          document.body.classList.add('modal-open');
+        } else {
+          document.body.classList.remove('modal-open');
+        }
+      });
+      document.querySelectorAll('.modal-overlay').forEach(m => {
+        if (m.id !== 'login-screen') {
+          modalObserver.observe(m, { attributes: true, attributeFilter: ['class'] });
+        }
+      });
+    } catch (e) {}
+
+    // Auto-close drawer ONLY when resizing from mobile width to desktop width (> 768px)
+    let prevWidth = window.innerWidth;
+    window.addEventListener('resize', () => {
+      const currentWidth = window.innerWidth;
+      if (currentWidth > 768 && prevWidth <= 768) {
+        this.closeMobileSidebar();
+      }
+      prevWidth = currentWidth;
+
+      // Ensure open notification popover adapts its position dynamically
+      if (document.getElementById('notifications-popover')?.classList.contains('active')) {
+        this.positionNotificationsPopover();
+      }
+    });
 
     // Logout
     const logoutBtn = document.getElementById('logout-btn');
@@ -97,18 +274,14 @@ const App = {
     if (bellBtn) {
       bellBtn.addEventListener('click', (e) => {
         e.stopPropagation();
+        e.preventDefault();
         this.toggleNotificationsPopover();
       });
     }
-    document.getElementById('btn-mark-all-read')?.addEventListener('click', () => this.markAllNotificationsRead());
-
-    // Close notifications popover on click outside
-    document.addEventListener('click', (e) => {
-      const popover = document.getElementById('notifications-popover');
-      const bell = document.getElementById('btn-notifications-bell');
-      if (popover && popover.style.display !== 'none' && !popover.contains(e.target) && (!bell || !bell.contains(e.target))) {
-        popover.style.display = 'none';
-      }
+    document.getElementById('btn-mark-all-read')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      this.markAllNotificationsRead();
     });
 
     // Global Search
@@ -192,47 +365,109 @@ const App = {
   // MOBILE NAVIGATION & HEADER HELPERS
   // -------------------------------------------------------------
   toggleMobileSidebar() {
-    const sb = document.querySelector('.sidebar');
-    const bd = document.getElementById('mobile-backdrop');
-    if (sb) sb.classList.toggle('open');
-    if (bd) bd.classList.toggle('active');
+    const sidebar = document.getElementById('app-sidebar');
+    const button = document.getElementById('btn-mobile-menu-toggle');
+    const backdrop = document.querySelector('.mobile-backdrop');
+
+    if (!sidebar) return;
+
+    const isOpen = sidebar.classList.toggle('open');
+
+    if (isOpen) {
+      this.closeThemePicker();
+      this.closeNotificationsPopover();
+    }
+
+    if (button) {
+      button.setAttribute('aria-expanded', String(isOpen));
+      button.setAttribute('aria-label', isOpen ? 'Close navigation' : 'Open navigation');
+      button.setAttribute('title', isOpen ? 'Close Navigation' : 'Open Navigation');
+    }
+
+    if (backdrop) {
+      backdrop.classList.toggle('visible', isOpen);
+      backdrop.classList.toggle('active', isOpen);
+    }
+
+    document.body.classList.toggle('sidebar-open', isOpen);
   },
 
   closeMobileSidebar() {
-    const sb = document.querySelector('.sidebar');
-    const bd = document.getElementById('mobile-backdrop');
-    if (sb) sb.classList.remove('open');
-    if (bd) bd.classList.remove('active');
+    const sidebar = document.getElementById('app-sidebar');
+    const button = document.getElementById('btn-mobile-menu-toggle');
+    const backdrop = document.querySelector('.mobile-backdrop');
+
+    if (sidebar) {
+      sidebar.classList.remove('open');
+    }
+
+    if (button) {
+      button.setAttribute('aria-expanded', 'false');
+      button.setAttribute('aria-label', 'Open navigation');
+      button.setAttribute('title', 'Open Navigation');
+    }
+
+    if (backdrop) {
+      backdrop.classList.remove('visible');
+      backdrop.classList.remove('active');
+    }
+
+    document.body.classList.remove('sidebar-open');
+  },
+
+  openMobileSidebar() {
+    const sidebar = document.getElementById('app-sidebar');
+    const button = document.getElementById('btn-mobile-menu-toggle');
+    const backdrop = document.querySelector('.mobile-backdrop');
+
+    if (!sidebar) return;
+
+    sidebar.classList.add('open');
+
+    if (button) {
+      button.setAttribute('aria-expanded', 'true');
+      button.setAttribute('aria-label', 'Close navigation');
+      button.setAttribute('title', 'Close Navigation');
+    }
+
+    if (backdrop) {
+      backdrop.classList.add('visible');
+      backdrop.classList.add('active');
+    }
+
+    document.body.classList.add('sidebar-open');
   },
 
   handleCitizenQuickSearch(e) {
     if (e) e.preventDefault();
     const input = document.getElementById('citizen-quick-search-input');
-    if (!input) return;
-    const q = input.value.trim();
-    if (!q) {
-      this.showToast('Please enter a search query.', 'error');
-      return;
-    }
+    const q = input ? input.value.trim() : '';
     this.navigate('research');
     const rInput = document.getElementById('research-query-input');
-    if (rInput) rInput.value = q;
-    this.handleLegalSearch();
+    if (rInput) {
+      if (q) {
+        rInput.value = q;
+        this.handleLegalSearch();
+      } else {
+        rInput.focus();
+      }
+    }
   },
 
   handleLawyerQuickSearch(e) {
     if (e) e.preventDefault();
     const input = document.getElementById('lawyer-quick-search-input');
-    if (!input) return;
-    const q = input.value.trim();
-    if (!q) {
-      this.showToast('Please enter a search query.', 'error');
-      return;
-    }
+    const q = input ? input.value.trim() : '';
     this.navigate('research');
     const rInput = document.getElementById('research-query-input');
-    if (rInput) rInput.value = q;
-    this.handleLegalSearch();
+    if (rInput) {
+      if (q) {
+        rInput.value = q;
+        this.handleLegalSearch();
+      } else {
+        rInput.focus();
+      }
+    }
   },
 
   navigateToCurrentProfile() {
@@ -246,15 +481,11 @@ const App = {
 
   navigateToNotifications(e) {
     if (e) e.preventDefault();
-    const popover = document.getElementById('notifications-popover');
-    if (popover) {
-      popover.classList.remove('active');
-      popover.style.display = 'none';
-    }
+    this.closeNotificationsPopover();
     if (this.user && (this.user.role === 'user' || this.user.role === 'citizen')) {
       this.navigate('citizen-notifications');
     } else {
-      this.showToast('Notifications are displayed in the Lawyer Dashboard activity feed.', 'info');
+      this.navigate('hearings');
     }
   },
 
@@ -328,7 +559,17 @@ const App = {
     const emailInput = document.getElementById('login-email');
     const pwdInput = document.getElementById('login-password');
     if (emailInput) emailInput.value = email;
-    if (pwdInput) pwdInput.value = password;
+    if (pwdInput) {
+      if (password === 'citizen' || password === 'lawyer' || !password) {
+        pwdInput.value = 'password123';
+      } else {
+        pwdInput.value = password;
+      }
+    }
+  },
+
+  async logout() {
+    return this.handleLogout();
   },
 
   async handleRegister(e) {
@@ -389,6 +630,10 @@ const App = {
     } catch (e) {}
     this.token = null;
     this.user = null;
+    this.citizenNotifications = [];
+    this.unreadNotifCount = 0;
+    this.closeNotificationsPopover();
+    this.updateNotificationBadge(0);
     localStorage.removeItem('vidhik_token');
     this.showLogin();
     this.showToast('You have been signed out.', 'success');
@@ -435,7 +680,7 @@ const App = {
     const initials = this.user.full_name ? this.user.full_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'U';
     const avatar = document.getElementById('sidebar-lawyer-avatar');
     const nameEl = document.getElementById('sidebar-lawyer-name');
-    const roleEl = document.getElementById('sidebar-lawyer-role');
+    const roleEl = document.getElementById('sidebar-lawyer-role') || document.getElementById('sidebar-lawyer-bar');
 
     if (avatar) avatar.innerText = initials;
     if (nameEl) nameEl.innerText = this.user.full_name;
@@ -460,6 +705,12 @@ const App = {
   // -------------------------------------------------------------
   navigate(viewName) {
     this.closeMobileSidebar();
+
+    // Canonical alias normalization for VIDHIK / Legal AI
+    if (['legal-ai', 'ask-vidhik', 'vidhik', 'ai', 'legal-research'].includes(viewName)) {
+      viewName = 'research';
+    }
+
     const isCitizen = this.user && (this.user.role === 'user' || this.user.role === 'citizen');
 
     // Strict role redirection for view access
@@ -480,6 +731,18 @@ const App = {
         item.classList.add('active');
       } else {
         item.classList.remove('active');
+      }
+    });
+
+    // Update Mobile Bottom Nav Active Class
+    document.querySelectorAll('.mobile-bottom-nav .bottom-nav-item').forEach(item => {
+      const targetViews = (item.getAttribute('data-views') || '').split(',');
+      if (targetViews.includes(viewName)) {
+        item.classList.add('active');
+        item.setAttribute('aria-current', 'page');
+      } else {
+        item.classList.remove('active');
+        item.removeAttribute('aria-current');
       }
     });
 
@@ -550,7 +813,65 @@ const App = {
     }
   },
 
-  // -------------------------------------------------------------
+  handleBottomNav(dest) {
+    const isCitizen = this.user && (this.user.role === 'user' || this.user.role === 'citizen');
+    switch (dest) {
+      case 'home':
+        this.navigate(isCitizen ? 'citizen-dashboard' : 'dashboard');
+        break;
+      case 'cases':
+        this.navigate(isCitizen ? 'citizen-cases' : 'cases');
+        break;
+      case 'ai':
+      case 'ask-vidhik':
+      case 'legal-ai':
+      case 'vidhik':
+        this.navigate('research');
+        break;
+      case 'docs':
+        this.navigate(isCitizen ? 'citizen-documents' : 'documents');
+        break;
+    }
+  },
+
+  handleAskVidhikChip(topic) {
+    if (topic === 'My Cases') {
+      const isCitizen = this.user && (this.user.role === 'user' || this.user.role === 'citizen');
+      this.navigate(isCitizen ? 'citizen-cases' : 'cases');
+      return;
+    }
+    this.navigate('research');
+    if (topic === '24 Bare Acts') {
+      this.applyResearchFilter('24acts');
+      return;
+    }
+    if (['BNS', 'BNSS', 'BSA'].includes(topic)) {
+      this.applyResearchFilter(topic);
+      return;
+    }
+    if (topic === 'Legal Rights') {
+      const input = document.getElementById('research-query-input');
+      if (input) {
+        input.value = 'Fundamental Rights';
+        this.handleLegalSearch();
+      }
+      return;
+    }
+    if (topic) {
+      const input = document.getElementById('research-query-input');
+      if (input) {
+        input.value = topic;
+        this.handleLegalSearch();
+      }
+    }
+  },
+
+  scrollToHearings() {
+    const el = document.getElementById('citizen-dash-hearings-list');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  },
   // 1. DASHBOARD
   // -------------------------------------------------------------
   async loadDashboard() {
@@ -573,17 +894,14 @@ const App = {
         hList.innerHTML = `<div class="empty-state"><div class="empty-state-desc">No upcoming court hearings scheduled.</div></div>`;
       } else {
         hList.innerHTML = data.upcoming_hearings_list.map(h => `
-          <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-            <div>
-              <div style="font-weight: 600; color: var(--text-primary); font-size: 14px;">${this.escape(h.title)}</div>
-              <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
-                ⚖️ ${this.escape(h.case_title)} (${this.escape(h.case_number || 'Brief')})
-              </div>
-              <div style="font-size: 12px; color: var(--accent-cyan); margin-top: 2px;">
-                🏛️ ${this.escape(h.court_name || 'Designated Court')}
+          <div class="hearing-card-item">
+            <div class="hearing-card-body">
+              <div class="hearing-card-title">${this.escape(h.title)}</div>
+              <div class="hearing-card-meta">
+                ⚖️ ${this.escape(h.case_title)} (${this.escape(h.case_number || 'Brief')}) • 🏛️ ${this.escape(h.court_name || 'Designated Court')}
               </div>
             </div>
-            <div style="text-align: right;">
+            <div class="hearing-card-action">
               <span class="badge badge-active">${h.reminder_date}</span>
               <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">${h.reminder_time || '10:30 AM'}</div>
             </div>
@@ -597,16 +915,19 @@ const App = {
         cList.innerHTML = `<div class="empty-state"><div class="empty-state-desc">No active case briefs found.</div></div>`;
       } else {
         cList.innerHTML = data.recent_cases.map(c => `
-          <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="App.openCaseDetail(${c.case_id})">
-            <div>
-              <div style="font-weight: 600; color: var(--text-primary); font-size: 14px;">${this.escape(c.case_title)}</div>
-              <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
-                👤 ${this.escape(c.client_name || 'Client')} • <code>${this.escape(c.case_number || 'Brief')}</code>
+          <div class="matter-card" onclick="App.openCaseDetail(${c.case_id})">
+            <div class="matter-card-body">
+              <div class="matter-title">${this.escape(c.case_title)}</div>
+              <div class="matter-meta">
+                <span>👤 ${this.escape(c.client_name || 'Client')}</span>
+                <span>•</span>
+                <code class="matter-code">${this.escape(c.case_number || 'Brief')}</code>
+                ${c.court ? `<span>• <span class="matter-court">🏛️ ${this.escape(c.court)}</span></span>` : ''}
               </div>
             </div>
-            <div style="text-align: right;">
+            <div class="matter-card-action">
               <span class="badge badge-${c.status}">${c.status}</span>
-              <div style="font-size: 11px; color: #818CF8; margin-top: 4px;">Open Brief →</div>
+              <div class="matter-action-btn">Open Brief →</div>
             </div>
           </div>
         `).join('');
@@ -619,13 +940,13 @@ const App = {
       } else {
         aList.innerHTML = data.recent_activity.map(a => `
           <div style="display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border-subtle);">
-            <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(99, 102, 241, 0.15); color: #818CF8; display: flex; align-items: center; justify-content: center; font-size: 14px;">
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(99, 102, 241, 0.15); color: var(--accent-primary); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;">
               ⚡
             </div>
-            <div style="flex: 1;">
-              <div style="font-size: 13.5px; font-weight: 600; color: var(--text-primary);">${this.escape(a.update_title)}</div>
-              <div style="font-size: 12.5px; color: var(--text-secondary); margin-top: 2px;">${this.escape(a.update_description)}</div>
-              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-size: 13.5px; font-weight: 600; color: var(--text-primary); overflow-wrap: anywhere; word-break: break-word;">${this.escape(a.update_title)}</div>
+              <div style="font-size: 12.5px; color: var(--text-secondary); margin-top: 2px; overflow-wrap: anywhere; word-break: break-word;">${this.escape(a.update_description)}</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; overflow-wrap: anywhere; word-break: break-word;">
                 Case: ${this.escape(a.case_title)} • ${new Date(a.update_date).toLocaleDateString()}
               </div>
             </div>
@@ -639,12 +960,17 @@ const App = {
         dList.innerHTML = `<div class="empty-state"><div class="empty-state-desc">No documents uploaded.</div></div>`;
       } else {
         dList.innerHTML = data.recent_documents.map(d => `
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border-subtle);">
-            <div>
-              <div style="font-size: 13px; font-weight: 500; color: var(--text-primary);">📄 ${this.escape(d.document_name)}</div>
-              <div style="font-size: 11.5px; color: var(--text-muted);">${this.escape(d.case_title)} • <span class="badge badge-completed">${d.document_type}</span></div>
+          <div class="doc-row-item">
+            <div class="doc-row-body">
+              <div class="doc-row-name">📄 ${this.escape(d.document_name)}</div>
+              <div class="doc-row-meta">
+                <span>${this.escape(d.case_title)}</span>
+                <span class="badge badge-completed">${d.document_type}</span>
+              </div>
             </div>
-            <span style="font-size: 11px; color: var(--text-muted);">${(d.file_size_bytes / 1024 / 1024).toFixed(1)} MB</span>
+            <div class="doc-row-action">
+              <span class="doc-row-size">${(d.file_size_bytes / 1024 / 1024).toFixed(1)} MB</span>
+            </div>
           </div>
         `).join('');
       }
@@ -789,6 +1115,24 @@ const App = {
     }
   },
 
+  async openEditCaseModal() {
+    if (!this.currentCaseId) {
+      this.showToast('Please select a case first.', 'error');
+      return;
+    }
+    await this.openCreateCaseModal();
+    const titleEl = document.getElementById('modal-create-case')?.querySelector('.modal-title');
+    if (titleEl) titleEl.innerText = 'Edit Case Details';
+    const cdTitle = document.getElementById('cd-title')?.innerText;
+    const cdNumber = document.getElementById('cd-number')?.innerText;
+    const cdCourt = document.getElementById('cd-court')?.innerText;
+    const cdOpposite = document.getElementById('cd-opposite')?.innerText;
+    if (cdTitle && cdTitle !== '-') document.getElementById('m-case-title').value = cdTitle;
+    if (cdNumber && cdNumber !== '-') document.getElementById('m-case-number').value = cdNumber;
+    if (cdCourt && cdCourt !== '-') document.getElementById('m-case-court').value = cdCourt;
+    if (cdOpposite && cdOpposite !== '-') document.getElementById('m-case-opposite').value = cdOpposite;
+  },
+
   async submitCreateCase(e) {
     e.preventDefault();
     const payload = {
@@ -895,13 +1239,13 @@ const App = {
         hList.innerHTML = data.hearings.map(h => `
           <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
             <div>
-              <div style="font-size: 15px; font-weight: 600; color: #F8FAFC;">${this.escape(h.title)}</div>
+              <div style="font-size: 15px; font-weight: 600; color: var(--text-primary);">${this.escape(h.title)}</div>
               <div style="font-size: 13px; color: var(--accent-cyan); margin-top: 3px;">🏛️ ${this.escape(h.court_name || data.court_name)} • Bench: ${this.escape(h.judge_name || 'Designated Bench')}</div>
               <div style="font-size: 12.5px; color: var(--text-secondary); margin-top: 4px;">${this.escape(h.notes || '')}</div>
             </div>
             <div style="text-align: right;">
               <span class="badge badge-${h.status}">${h.status}</span>
-              <div style="font-size: 14px; font-weight: 600; color: #818CF8; margin-top: 4px;">${h.reminder_date}</div>
+              <div style="font-size: 14px; font-weight: 600; color: var(--accent-primary); margin-top: 4px;">${h.reminder_date}</div>
               <div style="font-size: 11px; color: var(--text-muted);">${h.reminder_time || '10:30 AM'}</div>
             </div>
           </div>
@@ -944,7 +1288,7 @@ const App = {
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
               <div>
                 <span class="badge badge-active" style="margin-bottom: 6px;">Section ${s.section_number}</span>
-                <h4 style="font-size: 16px; color: #F8FAFC;">${this.escape(s.section_title || 'Section')}</h4>
+                <h4 style="font-size: 16px; color: var(--text-primary);">${this.escape(s.section_title || 'Section')}</h4>
                 <div style="font-size: 13px; color: var(--accent-cyan); font-weight: 500;">📖 ${this.escape(s.law_name)}</div>
               </div>
               <div style="text-align: right;">
@@ -985,7 +1329,7 @@ const App = {
             <strong>📄 ${this.escape(d.document_name)}</strong>
             <div style="font-size: 11px; color: var(--text-muted);">${d.description || ''}</div>
           </td>
-          <td><a href="javascript:void(0)" onclick="App.openCaseDetail(${d.case_id})" style="color: #818CF8; text-decoration: none;">${this.escape(d.case_title)}</a></td>
+          <td><a href="javascript:void(0)" onclick="App.openCaseDetail(${d.case_id})" style="color: var(--accent-primary); text-decoration: none;">${this.escape(d.case_title)}</a></td>
           <td>${this.escape(d.client_name || 'Client')}</td>
           <td><span class="badge badge-completed">${d.document_type}</span></td>
           <td>${(d.file_size_bytes / 1024 / 1024).toFixed(1)} MB</td>
@@ -1088,9 +1432,9 @@ const App = {
               <span class="badge badge-${h.status}">${h.status}</span>
               <span class="badge badge-${h.priority}">${h.priority} Priority</span>
             </div>
-            <h3 style="font-size: 17px; color: #F8FAFC;">${this.escape(h.title)}</h3>
+            <h3 style="font-size: 17px; color: var(--text-primary);">${this.escape(h.title)}</h3>
             <div style="font-size: 13.5px; color: var(--accent-cyan); margin-top: 4px;">
-              ⚖️ Case: <a href="javascript:void(0)" onclick="App.openCaseDetail(${h.case_id})" style="color: #818CF8; text-decoration: none;">${this.escape(h.case_title)}</a> (${this.escape(h.case_number || 'Brief')})
+              ⚖️ Case: <a href="javascript:void(0)" onclick="App.openCaseDetail(${h.case_id})" style="color: var(--accent-primary); text-decoration: none;">${this.escape(h.case_title)}</a> (${this.escape(h.case_number || 'Brief')})
             </div>
             <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">
               🏛️ ${this.escape(h.court_name || 'Court Room')} • Presiding: ${this.escape(h.judge_name || 'Designated Judge')}
@@ -1098,7 +1442,7 @@ const App = {
             ${h.notes ? `<div style="font-size: 12.5px; color: var(--text-muted); margin-top: 8px; background: var(--bg-primary); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">📝 Notes: ${this.escape(h.notes)}</div>` : ''}
           </div>
           <div style="text-align: right;">
-            <div style="font-size: 18px; font-weight: 700; color: #818CF8; font-family: 'Outfit';">${h.reminder_date}</div>
+            <div style="font-size: 18px; font-weight: 700; color: var(--accent-primary); font-family: 'Outfit';">${h.reminder_date}</div>
             <div style="font-size: 13px; color: var(--text-muted);">${h.reminder_time || '10:30 AM'}</div>
           </div>
         </div>
@@ -1193,11 +1537,68 @@ const App = {
   },
 
   // -------------------------------------------------------------
-  // 8. LEGAL RESEARCH (REUSING EXISTING SEARCH ENGINE)
+  // 8. LEGAL RESEARCH & STATUTORY INTELLIGENCE ENGINE (PHASE 17)
   // -------------------------------------------------------------
+  applyResearchFilter(filterKey) {
+    this.researchFilter = filterKey;
+    document.querySelectorAll('.filter-pill[id^="pill-filter-"]').forEach(p => p.classList.remove('active'));
+    const activePill = document.getElementById(`pill-filter-${filterKey.toLowerCase()}`);
+    if (activePill) activePill.classList.add('active');
+
+    const actSelect = document.getElementById('research-act-select');
+    if (actSelect) {
+      if (['BNS', 'BNSS', 'BSA'].includes(filterKey)) {
+        actSelect.value = filterKey;
+        this.selectedBareAct = filterKey;
+      } else if (filterKey === 'all') {
+        actSelect.value = '';
+        this.selectedBareAct = '';
+      }
+    }
+
+    const input = document.getElementById('research-query-input');
+    if (input && input.value.trim()) {
+      this.handleLegalSearch();
+    }
+  },
+
+  handleActFilterChange(actValue) {
+    this.selectedBareAct = actValue;
+    if (['BNS', 'BNSS', 'BSA'].includes(actValue)) {
+      this.applyResearchFilter(actValue);
+    } else if (actValue) {
+      this.researchFilter = '24acts';
+      document.querySelectorAll('.filter-pill[id^="pill-filter-"]').forEach(p => p.classList.remove('active'));
+      document.getElementById('pill-filter-24acts')?.classList.add('active');
+    } else {
+      this.applyResearchFilter('all');
+    }
+    const input = document.getElementById('research-query-input');
+    if (input && input.value.trim()) {
+      this.handleLegalSearch();
+    }
+  },
+
+  getStatuteBadge(lawName) {
+    const ln = (lawName || '').toLowerCase();
+    if (ln.includes('nyaya sanhita') || ln.includes('bns')) {
+      return '<span class="badge badge-bns" style="margin-left: 6px;">BNS 2023</span>';
+    }
+    if (ln.includes('nagarik suraksha') || ln.includes('bnss')) {
+      return '<span class="badge badge-bnss" style="margin-left: 6px;">BNSS 2023</span>';
+    }
+    if (ln.includes('sakshya') || ln.includes('bsa')) {
+      return '<span class="badge badge-bsa" style="margin-left: 6px;">BSA 2023</span>';
+    }
+    if (ln.includes('penal code') || ln.includes('criminal procedure') || ln.includes('evidence act')) {
+      return '<span class="badge badge-predecessor" style="margin-left: 6px;">Predecessor</span>';
+    }
+    return '';
+  },
+
   async handleLegalSearch() {
     const q = document.getElementById('research-query-input').value.trim();
-    const jurisdiction = document.getElementById('research-jurisdiction-select').value;
+    const jurisdiction = document.getElementById('research-jurisdiction-select')?.value || '';
     const container = document.getElementById('research-results-container');
 
     if (!q) {
@@ -1207,11 +1608,70 @@ const App = {
 
     container.innerHTML = `<div class="spinner"></div>`;
 
+    // 1. AUTHORITIES RECOMMENDATION MODE
+    if (this.researchFilter === 'authorities') {
+      try {
+        const authData = await this.api(`/api/authorities/recommend?q=${encodeURIComponent(q)}&limit=15`);
+        if (!authData.recommendations || authData.recommendations.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-title">No verified judicial authorities found</div>
+              <div class="empty-state-desc">No controlling judicial precedents matched "${this.escape(q)}". Try broader search terms.</div>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = `
+          <div style="margin-bottom: 16px; font-size: 13.5px; color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <span>Found <strong>${authData.total || authData.recommendations.length}</strong> verified judicial authorities (${authData.source_status || 'verified'}).</span>
+            <span class="badge badge-active" style="font-size: 11px;">Zero Hallucination Guaranteed</span>
+          </div>
+          ${authData.recommendations.map(a => `
+            <div class="card" style="margin-bottom: 16px; border: 1px solid var(--border-subtle); border-left: 4px solid var(--accent-amber);">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; flex-wrap: wrap; gap: 10px;">
+                <div>
+                  <span class="badge badge-predecessor" style="margin-bottom: 6px;">${this.escape(a.citation || 'Landmark Decision')}</span>
+                  <h3 style="font-size: 16.5px; color: var(--text-primary); margin: 2px 0 4px;">${this.escape(a.case_name)}</h3>
+                  <div style="font-size: 12.5px; color: var(--accent-cyan); font-weight: 500;">🏛️ ${this.escape(a.court)}${a.judgment_date ? ` • ${a.judgment_date}` : ''}</div>
+                </div>
+                <div style="text-align: right;">
+                  <span class="badge badge-active">Relevance: ${Math.round((a.relevance_score || 0) * 100)}%</span>
+                  <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">${this.escape(a.match_type || 'controlling')}</div>
+                </div>
+              </div>
+
+              <div style="font-size: 13.5px; line-height: 1.6; color: var(--text-secondary); background: var(--bg-primary); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin: 12px 0;">
+                <strong>Legal Proposition:</strong> ${this.escape(a.legal_proposition || a.reason || 'Authoritative judicial holding.')}
+              </div>
+
+              ${a.matched_sections && a.matched_sections.length > 0 ? `
+                <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 8px;">
+                  <span style="font-size: 11.5px; color: var(--text-muted);">Associated Sections:</span>
+                  ${a.matched_sections.map(s => `<span class="badge badge-completed" style="font-size: 11px;">${this.escape(s)}</span>`).join('')}
+                </div>
+              ` : ''}
+            </div>
+          `).join('')}
+        `;
+        return;
+      } catch (err) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-state-title">Authority Search Error</div><div class="empty-state-desc">${this.escape(err.message)}</div></div>`;
+        return;
+      }
+    }
+
+    // 2. STATUTORY CORPUS SEARCH MODE
     try {
-      const query = new URLSearchParams({ q, limit: 15 });
+      let searchQuery = q;
+      if (this.selectedBareAct && !['all', '24acts'].includes(this.selectedBareAct)) {
+        searchQuery = `${q} ${this.selectedBareAct}`;
+      }
+
+      const query = new URLSearchParams({ q: searchQuery, limit: 18 });
       if (jurisdiction) query.append('jurisdiction', jurisdiction);
 
-      // Call existing legal search endpoint
+      // Call legal search endpoint
       const data = await this.api(`/api/search?${query.toString()}`);
 
       // Record citizen search history if logged in as citizen
@@ -1231,7 +1691,7 @@ const App = {
         container.innerHTML = `
           <div class="empty-state">
             <div class="empty-state-title">No statutory matches found</div>
-            <div class="empty-state-desc">No provisions matched "${this.escape(q)}". Try broader search terms.</div>
+            <div class="empty-state-desc">No provisions matched "${this.escape(q)}". Try broader legal search terms or clear filters.</div>
           </div>
         `;
         return;
@@ -1240,16 +1700,20 @@ const App = {
       const isCitizen = this.user && (this.user.role === 'user' || this.user.role === 'citizen');
 
       container.innerHTML = `
-        <div style="margin-bottom: 16px; font-size: 13.5px; color: var(--text-secondary);">
-          Found <strong>${data.total}</strong> provisions in legal corpus. Displaying top relevance matches:
+        <div style="margin-bottom: 16px; font-size: 13.5px; color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <span>Found <strong>${data.total}</strong> provisions in legal corpus. Displaying top ranked matches:</span>
+          ${this.selectedBareAct ? `<span class="badge badge-bns">Filter: ${this.escape(this.selectedBareAct)}</span>` : ''}
         </div>
         ${data.results.map(r => `
           <div class="card" style="margin-bottom: 16px; border: 1px solid var(--border-subtle);">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
               <div>
-                <span class="badge badge-active" style="margin-bottom: 6px;">Section ${this.escape(r.section_number)}</span>
-                <h3 style="font-size: 17px; color: #F8FAFC;">${this.escape(r.section_title || 'Section Provision')}</h3>
-                <div style="font-size: 13.5px; color: var(--accent-cyan); font-weight: 500;">📖 ${this.escape(r.law_name)}</div>
+                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 6px;">
+                  <span class="badge badge-active">Section ${this.escape(r.section_number)}</span>
+                  ${this.getStatuteBadge(r.law_name)}
+                </div>
+                <h3 style="font-size: 17px; color: var(--text-primary); margin: 2px 0 4px;">${this.escape(r.section_title || 'Section Provision')}</h3>
+                <div style="font-size: 13px; color: var(--accent-cyan); font-weight: 500;">📖 ${this.escape(r.law_name)}</div>
               </div>
               <div style="text-align: right;">
                 <span class="badge badge-completed">${r.jurisdiction || 'Central'}</span>
@@ -1264,6 +1728,9 @@ const App = {
             <div style="display: flex; gap: 10px; align-items: center; justify-content: flex-end; margin-top: 10px; flex-wrap: wrap;">
               <button class="btn btn-secondary btn-sm" onclick="App.viewFullProvisionDetail(${r.section_id})">
                 📖 View Verbatim Section
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="App.inspectSectionContextGraph('${this.escape(r.section_number)}', '${this.escape(r.law_name)}')">
+                ⚡ Context Graph
               </button>
               ${isCitizen ? `
                 <button class="btn btn-primary btn-sm" onclick="App.quickBookmarkSection(${r.section_id})">
@@ -1295,6 +1762,18 @@ const App = {
 
       this.selectedProvision = sec;
 
+      // Reset context container
+      const contextContainer = document.getElementById('m-prov-context-container');
+      const contextContent = document.getElementById('m-prov-context-content');
+      const contextBtn = document.getElementById('m-prov-btn-context');
+      if (contextContainer) contextContainer.style.display = 'none';
+      if (contextContent) contextContent.innerHTML = '';
+      if (contextBtn) {
+        contextBtn.style.display = 'inline-flex';
+        contextBtn.innerText = '⚡ Inspect Context Graph';
+        contextBtn.onclick = () => this.toggleProvisionContext(sec.section_number, sec.law_name);
+      }
+
       const linkBtn = document.getElementById('m-prov-btn-link');
       if (linkBtn) {
         const isCitizen = this.user && (this.user.role === 'user' || this.user.role === 'citizen');
@@ -1313,6 +1792,187 @@ const App = {
       document.getElementById('modal-provision-detail').classList.add('active');
     } catch (err) {
       this.showToast('Failed to load section: ' + err.message, 'error');
+    }
+  },
+
+  async toggleProvisionContext(sectionNumber, lawName) {
+    const container = document.getElementById('m-prov-context-container');
+    const content = document.getElementById('m-prov-context-content');
+    const btn = document.getElementById('m-prov-btn-context');
+    if (!container || !content) return;
+
+    if (container.style.display === 'block') {
+      container.style.display = 'none';
+      if (btn) btn.innerText = '⚡ Inspect Context Graph';
+      return;
+    }
+
+    container.style.display = 'block';
+    content.innerHTML = '<div class="spinner" style="margin: 20px auto;"></div>';
+    if (btn) btn.innerText = '✕ Hide Context Graph';
+
+    let lawCode = 'BNS';
+    const ln = (lawName || '').toLowerCase();
+    if (ln.includes('nagarik') || ln.includes('bnss')) lawCode = 'BNSS';
+    else if (ln.includes('sakshya') || ln.includes('bsa')) lawCode = 'BSA';
+
+    try {
+      const graph = await this.api(`/api/knowledge/sections/${encodeURIComponent(sectionNumber)}/context?law=${encodeURIComponent(lawCode)}`);
+      
+      let html = '';
+      
+      // Predecessor mapping
+      if (graph.predecessors && graph.predecessors.length > 0) {
+        html += `
+          <div style="margin-bottom: 14px; padding: 12px; background: rgba(245, 158, 11, 0.08); border-radius: var(--radius-sm); border: 1px solid rgba(245, 158, 11, 0.25);">
+            <div style="font-size: 12px; font-weight: 700; color: var(--accent-amber); text-transform: uppercase; margin-bottom: 6px;">Predecessor Correlation:</div>
+            ${graph.predecessors.map(p => `
+              <div style="font-size: 13px; color: var(--text-primary);">
+                Replaces <strong>${this.escape(p.old_law_name)} Section ${this.escape(p.old_section_number)}</strong>: ${this.escape(p.summary || '')}
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      // Offence & Punishments
+      if (graph.offence) {
+        html += `
+          <div style="margin-bottom: 14px; padding: 12px; background: var(--bg-primary); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+            <div style="font-size: 12px; font-weight: 700; color: var(--accent-cyan); text-transform: uppercase; margin-bottom: 6px;">Offence Classification:</div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
+              <span class="badge ${graph.offence.cognizable_status === 'Cognizable' ? 'badge-high' : 'badge-completed'}">${this.escape(graph.offence.cognizable_status || 'Cognizable')}</span>
+              <span class="badge ${graph.offence.bailable_status === 'Bailable' ? 'badge-active' : 'badge-pending'}">${this.escape(graph.offence.bailable_status || 'Non-Bailable')}</span>
+              <span class="badge badge-completed">Triable: ${this.escape(graph.offence.triable_by || 'Court of Session')}</span>
+            </div>
+            <div style="font-size: 13px; color: var(--text-secondary);">${this.escape(graph.offence.description || graph.offence.offence_name || '')}</div>
+          </div>
+        `;
+      }
+
+      // Punishments
+      if (graph.punishments && graph.punishments.length > 0) {
+        html += `
+          <div style="margin-bottom: 14px;">
+            <div style="font-size: 12px; font-weight: 700; color: var(--accent-rose); text-transform: uppercase; margin-bottom: 6px;">Statutory Punishments:</div>
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              ${graph.punishments.map(pu => `
+                <div style="font-size: 12.5px; color: var(--text-secondary); background: var(--bg-primary); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+                  ⚖️ ${this.escape(pu.punishment_type || '')}: ${this.escape(pu.description || '')}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      // Controlling Judgments
+      if (graph.controlling_judgments && graph.controlling_judgments.length > 0) {
+        html += `
+          <div>
+            <div style="font-size: 12px; font-weight: 700; color: var(--accent-emerald); text-transform: uppercase; margin-bottom: 6px;">Controlling Judicial Authorities:</div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              ${graph.controlling_judgments.map(j => `
+                <div style="font-size: 12.5px; background: var(--bg-primary); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+                  <strong style="color: var(--text-primary);">${this.escape(j.case_title)}</strong> (${this.escape(j.citation || '')})
+                  <div style="color: var(--text-muted); font-size: 11.5px; margin-top: 2px;">${this.escape(j.headnotes || j.ratio_decidendi || '')}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      if (!html) {
+        html = '<div style="color: var(--text-muted); font-size: 12.5px; font-style: italic;">No specific Phase 17 correlation entries for this provision. General statutory text applies.</div>';
+      }
+
+      content.innerHTML = html;
+    } catch (err) {
+      content.innerHTML = `<div style="color: var(--accent-rose); font-size: 12.5px;">Could not retrieve context graph: ${this.escape(err.message)}</div>`;
+    }
+  },
+
+  async inspectSectionContextGraph(sectionNumber, lawName) {
+    try {
+      // Find section details
+      document.getElementById('m-prov-title').innerText = `Section ${sectionNumber} Intelligence Graph`;
+      document.getElementById('m-prov-law-name').innerText = lawName || 'Indian Statute';
+      document.getElementById('m-prov-sec-no').innerText = sectionNumber;
+      document.getElementById('m-prov-chapter').innerText = 'Phase 17 Knowledge';
+      document.getElementById('m-prov-pages').innerText = 'Authoritative';
+      document.getElementById('m-prov-fulltext').innerText = `Loading full context and controlling interpretations for Section ${sectionNumber}...`;
+
+      document.getElementById('modal-provision-detail').classList.add('active');
+
+      const contextBtn = document.getElementById('m-prov-btn-context');
+      if (contextBtn) contextBtn.style.display = 'none';
+
+      const contextContainer = document.getElementById('m-prov-context-container');
+      const contextContent = document.getElementById('m-prov-context-content');
+      if (contextContainer && contextContent) {
+        contextContainer.style.display = 'block';
+        contextContent.innerHTML = '<div class="spinner" style="margin: 20px auto;"></div>';
+      }
+
+      let lawCode = 'BNS';
+      const ln = (lawName || '').toLowerCase();
+      if (ln.includes('nagarik') || ln.includes('bnss')) lawCode = 'BNSS';
+      else if (ln.includes('sakshya') || ln.includes('bsa')) lawCode = 'BSA';
+
+      const graph = await this.api(`/api/knowledge/sections/${encodeURIComponent(sectionNumber)}/context?law=${encodeURIComponent(lawCode)}`);
+      
+      document.getElementById('m-prov-fulltext').innerText = graph.full_text || graph.section_title || 'Statutory enactment active under Gazette of India notification.';
+
+      let html = '';
+      if (graph.predecessors && graph.predecessors.length > 0) {
+        html += `
+          <div style="margin-bottom: 14px; padding: 12px; background: rgba(245, 158, 11, 0.08); border-radius: var(--radius-sm); border: 1px solid rgba(245, 158, 11, 0.25);">
+            <div style="font-size: 12px; font-weight: 700; color: var(--accent-amber); text-transform: uppercase; margin-bottom: 6px;">Predecessor Correlation:</div>
+            ${graph.predecessors.map(p => `
+              <div style="font-size: 13px; color: var(--text-primary);">
+                Replaces <strong>${this.escape(p.old_law_name)} Section ${this.escape(p.old_section_number)}</strong>: ${this.escape(p.summary || '')}
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      if (graph.offence) {
+        html += `
+          <div style="margin-bottom: 14px; padding: 12px; background: var(--bg-primary); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+            <div style="font-size: 12px; font-weight: 700; color: var(--accent-cyan); text-transform: uppercase; margin-bottom: 6px;">Offence Classification:</div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
+              <span class="badge ${graph.offence.cognizable_status === 'Cognizable' ? 'badge-high' : 'badge-completed'}">${this.escape(graph.offence.cognizable_status || 'Cognizable')}</span>
+              <span class="badge ${graph.offence.bailable_status === 'Bailable' ? 'badge-active' : 'badge-pending'}">${this.escape(graph.offence.bailable_status || 'Non-Bailable')}</span>
+              <span class="badge badge-completed">Triable: ${this.escape(graph.offence.triable_by || 'Court of Session')}</span>
+            </div>
+            <div style="font-size: 13px; color: var(--text-secondary);">${this.escape(graph.offence.description || graph.offence.offence_name || '')}</div>
+          </div>
+        `;
+      }
+
+      if (graph.controlling_judgments && graph.controlling_judgments.length > 0) {
+        html += `
+          <div>
+            <div style="font-size: 12px; font-weight: 700; color: var(--accent-emerald); text-transform: uppercase; margin-bottom: 6px;">Controlling Judicial Authorities:</div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              ${graph.controlling_judgments.map(j => `
+                <div style="font-size: 12.5px; background: var(--bg-primary); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+                  <strong style="color: var(--text-primary);">${this.escape(j.case_title)}</strong> (${this.escape(j.citation || '')})
+                  <div style="color: var(--text-muted); font-size: 11.5px; margin-top: 2px;">${this.escape(j.headnotes || j.ratio_decidendi || '')}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      if (contextContent) {
+        contextContent.innerHTML = html || '<div style="color: var(--text-muted); font-size: 12.5px; font-style: italic;">No specific predecessor mapping registered. Primary statute text is authoritative.</div>';
+      }
+    } catch (err) {
+      this.showToast('Could not load context graph: ' + err.message, 'error');
     }
   },
 
@@ -1471,7 +2131,7 @@ const App = {
     try {
       const categories = await this.api('/api/documentation/categories');
       container.innerHTML = `
-        <span style="font-size: 13px; color: #94A3B8; margin-right: 4px; font-weight: 500;">Filter Category:</span>
+        <span style="font-size: 13px; color: var(--text-secondary); margin-right: 4px; font-weight: 500;">Filter Category:</span>
         <button class="filter-pill ${this.currentDocCategory === 'all' ? 'active' : ''}" data-category="all" onclick="App.filterDocumentationCategory('all')">
           All Procedures
         </button>
@@ -1563,21 +2223,21 @@ const App = {
         <div>
           <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
             <span class="badge badge-info" style="font-size: 11px;">${this.escape(proc.category)}</span>
-            ${proc.estimated_processing_days ? `<span style="font-size: 11.5px; color: #94A3B8;">⏱️ ~${proc.estimated_processing_days} Days</span>` : ''}
+            ${proc.estimated_processing_days ? `<span style="font-size: 11.5px; color: var(--text-secondary);">⏱️ ~${proc.estimated_processing_days} Days</span>` : ''}
           </div>
           <h4 class="procedure-card-title">${this.escape(proc.procedure_name)}</h4>
           <p class="procedure-card-desc">${this.escape(proc.description)}</p>
         </div>
 
         <div class="procedure-card-meta">
-          <div style="color: #CBD5E1;">
+          <div style="color: var(--text-secondary);">
             🏛️ <strong>Authority:</strong> ${this.escape(proc.authority_type)}
           </div>
-          <div style="color: #94A3B8;">
+          <div style="color: var(--text-secondary);">
             📍 <strong>Jurisdiction:</strong> ${this.escape(proc.jurisdiction)}
           </div>
           ${proc.governing_law_name ? `
-            <div style="color: #818CF8; font-size: 11.5px;">
+            <div style="color: var(--accent-primary); font-size: 11.5px;">
               ⚖️ ${this.escape(proc.governing_law_name)} ${proc.governing_section_number ? `(Sec ${this.escape(proc.governing_section_number)})` : ''}
             </div>
           ` : ''}
@@ -1682,14 +2342,14 @@ const App = {
       if (data.mandatory_documents && data.mandatory_documents.length > 0) {
         mandContainer.innerHTML = data.mandatory_documents.map(d => this.renderChecklistItem(data.procedure_id, d, true)).join('');
       } else {
-        mandContainer.innerHTML = '<div style="font-size: 13px; color: #94A3B8; font-style: italic;">No mandatory documents specified.</div>';
+        mandContainer.innerHTML = '<div style="font-size: 13px; color: var(--text-secondary); font-style: italic;">No mandatory documents specified.</div>';
       }
 
       const supContainer = document.getElementById('chk-supporting-docs-list');
       if (data.supporting_documents && data.supporting_documents.length > 0) {
         supContainer.innerHTML = data.supporting_documents.map(d => this.renderChecklistItem(data.procedure_id, d, false)).join('');
       } else {
-        supContainer.innerHTML = '<div style="font-size: 13px; color: #94A3B8; font-style: italic;">No optional or supporting documents.</div>';
+        supContainer.innerHTML = '<div style="font-size: 13px; color: var(--text-secondary); font-style: italic;">No optional or supporting documents.</div>';
       }
 
       this.updateChecklistProgress(procedureId);
@@ -1708,7 +2368,7 @@ const App = {
           <input type="checkbox" class="checklist-checkbox" id="chk-doc-${doc.doc_req_id}" ${isChecked ? 'checked' : ''} onchange="App.toggleChecklistDoc(${procId}, ${doc.doc_req_id}, this.checked)">
           <div style="flex: 1;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;">
-              <label for="chk-doc-${doc.doc_req_id}" style="font-size: 14.5px; font-weight: 600; color: #F8FAFC; cursor: pointer;">
+              <label for="chk-doc-${doc.doc_req_id}" style="font-size: 14.5px; font-weight: 600; color: var(--text-primary); cursor: pointer;">
                 ${this.escape(doc.document_name)}
               </label>
               <div style="display: flex; gap: 6px; align-items: center;">
@@ -1718,17 +2378,17 @@ const App = {
                 </span>
               </div>
             </div>
-            <p style="font-size: 13px; color: #CBD5E1; line-height: 1.5; margin-bottom: 6px;">
+            <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 6px;">
               <strong>Purpose:</strong> ${this.escape(doc.purpose)}
             </p>
             ${doc.preparation_guidance ? `
-              <div style="font-size: 12.5px; color: #94A3B8; background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 6px; margin-bottom: 6px;">
+              <div style="font-size: 12.5px; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 6px; margin-bottom: 6px;">
                 💡 <strong>Preparation Guidance:</strong> ${this.escape(doc.preparation_guidance)}
               </div>
             ` : ''}
             ${doc.statutory_reference_id ? `
               <div style="margin-top: 6px;">
-                <span style="font-size: 11.5px; color: #94A3B8; margin-right: 6px;">Statutory Basis:</span>
+                <span style="font-size: 11.5px; color: var(--text-secondary); margin-right: 6px;">Statutory Basis:</span>
                 <button type="button" class="legal-ref-badge" onclick="event.stopPropagation(); App.viewFullProvisionDetail(${doc.statutory_reference_id})">
                   ⚖️ Sec ${this.escape(doc.section_number)}: ${this.escape(doc.law_name)} ↗
                 </button>
@@ -2072,7 +2732,7 @@ const App = {
     const takeawaysBox = document.getElementById('res-takeaways-container');
     takeawaysBox.innerHTML = (data.executive_takeaways || []).map(t => `
       <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-subtle); padding: 10px 14px; border-radius: var(--radius-sm); font-size: 13px; color: #E2E8F0; display: flex; align-items: center; gap: 8px;">
-        <span style="color: #818CF8; font-weight: bold;">•</span> ${this.escape(t)}
+        <span style="color: var(--accent-primary); font-weight: bold;">•</span> ${this.escape(t)}
       </div>
     `).join('');
 
@@ -2107,7 +2767,7 @@ const App = {
       dList.innerHTML = data.dates.map(d => `
         <div style="padding: 10px 0; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
           <div>
-            <strong style="color: #F8FAFC; font-size: 14px;">${this.escape(d.label)}</strong>
+            <strong style="color: var(--text-primary); font-size: 14px;">${this.escape(d.label)}</strong>
             <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">${this.escape(d.context || '')}</div>
           </div>
           <span class="badge badge-completed" style="font-size: 12px;">${this.escape(d.date_str)}</span>
@@ -2122,7 +2782,7 @@ const App = {
       vList.innerHTML = data.monetary_values.map(v => `
         <div style="padding: 10px 0; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
           <div>
-            <strong style="color: #F8FAFC; font-size: 14px;">${this.escape(v.label)}</strong>
+            <strong style="color: var(--text-primary); font-size: 14px;">${this.escape(v.label)}</strong>
             <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">${this.escape(v.context || '')}</div>
           </div>
           <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #34D399; font-size: 14px;">${this.escape(v.amount_text)}</span>
@@ -2138,11 +2798,11 @@ const App = {
       cList.innerHTML = data.clauses.map(c => `
         <div class="clause-card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <strong style="font-size: 15px; color: #F8FAFC;">${this.escape(c.title)}</strong>
+            <strong style="font-size: 15px; color: var(--text-primary);">${this.escape(c.title)}</strong>
             <span class="badge badge-active">${this.escape(c.category)}</span>
           </div>
-          <p style="font-size: 13px; color: #94A3B8; margin-bottom: 10px; line-height: 1.5;">${this.escape(c.explanation || '')}</p>
-          <div style="background: rgba(15, 23, 42, 0.7); border-left: 3px solid var(--accent-primary); padding: 10px 14px; border-radius: var(--radius-sm); font-size: 12.5px; color: #CBD5E1; font-style: italic; line-height: 1.6;">
+          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; line-height: 1.5;">${this.escape(c.explanation || '')}</p>
+          <div style="background: rgba(15, 23, 42, 0.7); border-left: 3px solid var(--accent-primary); padding: 10px 14px; border-radius: var(--radius-sm); font-size: 12.5px; color: var(--text-secondary); font-style: italic; line-height: 1.6;">
             "${this.escape(c.text_excerpt)}"
           </div>
         </div>
@@ -2157,7 +2817,7 @@ const App = {
         <div style="padding: 10px 0; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: flex-start; gap: 12px;">
           <span class="badge ${o.type === 'obligation' ? 'badge-mandatory' : 'badge-supporting'}">${o.type.toUpperCase()}</span>
           <div>
-            <strong style="font-size: 13px; color: #F8FAFC;">${this.escape(o.party)}:</strong>
+            <strong style="font-size: 13px; color: var(--text-primary);">${this.escape(o.party)}:</strong>
             <span style="font-size: 13px; color: var(--text-secondary); margin-left: 4px;">${this.escape(o.description)}</span>
           </div>
         </div>
@@ -2172,7 +2832,7 @@ const App = {
       rList.innerHTML = data.identified_risks.map(r => `
         <div class="risk-card severity-${r.severity.toLowerCase()}">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <strong style="font-size: 15px; color: #F8FAFC;">${this.escape(r.title)}</strong>
+            <strong style="font-size: 15px; color: var(--text-primary);">${this.escape(r.title)}</strong>
             <span class="badge ${r.severity === 'High' ? 'badge-mandatory' : (r.severity === 'Medium' ? 'badge-supporting' : 'badge-completed')}">
               ${r.severity} Priority Issue
             </span>
@@ -2215,7 +2875,7 @@ const App = {
       aList.innerHTML = data.action_items.map(a => `
         <div style="padding: 10px 0; border-bottom: 1px solid var(--border-subtle);">
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <strong style="font-size: 14px; color: #F8FAFC;">${this.escape(a.task)}</strong>
+            <strong style="font-size: 14px; color: var(--text-primary);">${this.escape(a.task)}</strong>
             <span class="badge ${a.priority === 'High' ? 'badge-mandatory' : 'badge-completed'}">${a.priority}</span>
           </div>
           <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
@@ -2235,7 +2895,7 @@ const App = {
           <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
             <div>
               <div style="display: flex; align-items: center; gap: 8px;">
-                <strong style="font-size: 16px; color: #F8FAFC;">${this.escape(s.citation_text)}</strong>
+                <strong style="font-size: 16px; color: var(--text-primary);">${this.escape(s.citation_text)}</strong>
                 ${s.is_verified_in_db ? `
                   <span class="verified-badge">✓ Verified in Vidhik DB</span>
                 ` : `
@@ -2255,7 +2915,7 @@ const App = {
             ` : ''}
           </div>
           ${s.section_title ? `
-            <div style="font-size: 13px; font-weight: 500; color: #CBD5E1; margin-bottom: 6px;">
+            <div style="font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px;">
               Title: ${this.escape(s.section_title)}
             </div>
           ` : ''}
@@ -2380,14 +3040,14 @@ const App = {
         <div style="background: rgba(15, 23, 42, 0.5); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
           <div>
             <div style="display: flex; align-items: center; gap: 8px;">
-              <strong style="color: #F8FAFC; font-size: 15px;">${this.escape(h.document_name)}</strong>
+              <strong style="color: var(--text-primary); font-size: 15px;">${this.escape(h.document_name)}</strong>
               <span class="badge badge-active">${this.escape(h.document_type)}</span>
               ${h.case_title ? `<span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #A5B4FC;">Case: ${this.escape(h.case_title)}</span>` : ''}
             </div>
             <div style="font-size: 12.5px; color: var(--text-muted); margin-top: 4px;">
               ${this.escape(h.summary_preview)}
             </div>
-            <div style="font-size: 11.5px; color: #64748B; margin-top: 4px;">
+            <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">
               ${new Date(h.created_at).toLocaleDateString()} • Issues: ${h.risks_count} • Verified Provisions: ${h.verified_references_count}
             </div>
           </div>
@@ -2435,6 +3095,85 @@ const App = {
     try {
       const data = await this.api('/api/citizen/dashboard');
 
+      // Dynamic Personalized Greeting
+      const hour = new Date().getHours();
+      let timeOfDay = 'evening';
+      if (hour < 12) timeOfDay = 'morning';
+      else if (hour < 17) timeOfDay = 'afternoon';
+      const fullName = this.user?.full_name || 'Citizen';
+      const titleEl = document.getElementById('dash-citizen-welcome-title');
+      if (titleEl) {
+        titleEl.innerHTML = `Good ${timeOfDay}, <span id="dash-citizen-greeting-name">${this.escape(fullName)}</span>`;
+      }
+
+      // Render NEXT IMPORTANT DATE Hero
+      const nextDateContainer = document.getElementById('citizen-next-date-container');
+      if (nextDateContainer) {
+        const hearings = data.upcoming_hearings || [];
+        if (hearings.length > 0) {
+          const nextH = hearings[0];
+          let monthPart = 'DATE';
+          let dayPart = '';
+          const dStr = String(nextH.reminder_date || '');
+          try {
+            const parsed = new Date(dStr);
+            if (!isNaN(parsed.getTime())) {
+              monthPart = parsed.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+              dayPart = parsed.getDate();
+            } else {
+              const parts = dStr.split(/[-\s/]/);
+              if (parts.length >= 2) {
+                dayPart = parts[0];
+                monthPart = parts[1].toUpperCase();
+              } else {
+                dayPart = dStr;
+              }
+            }
+          } catch (e) {
+            dayPart = dStr;
+          }
+
+          nextDateContainer.innerHTML = `
+            <div class="next-date-hero">
+              <div class="next-date-header">
+                <span class="next-date-badge-label">⚡ NEXT IMPORTANT DATE</span>
+                <span class="badge badge-active">${this.escape(nextH.reminder_time || '10:30 AM')}</span>
+              </div>
+              <div class="next-date-content">
+                <div class="next-date-badge-box">
+                  <span class="next-date-day">${this.escape(dayPart)}</span>
+                  <span class="next-date-month">${this.escape(monthPart)}</span>
+                </div>
+                <div class="next-date-details">
+                  <h4 class="next-date-title">${this.escape(nextH.title || nextH.case_title || 'Scheduled Court Appearance')}</h4>
+                  <div class="next-date-meta">
+                    <span>⚖️ ${this.escape(nextH.case_title || 'Legal Matter')}</span>
+                    <span>•</span>
+                    <span>🏛️ ${this.escape(nextH.court_name || 'Designated Court / Forum')}</span>
+                  </div>
+                </div>
+                <div class="next-date-action">
+                  <button class="btn btn-primary btn-sm" onclick="${nextH.case_id ? `App.openCitizenCaseDetail(${nextH.case_id})` : `App.navigate('citizen-cases')`}">
+                    View Case →
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        } else {
+          nextDateContainer.innerHTML = `
+            <div class="next-date-empty-hero">
+              <div class="next-date-empty-icon">📅</div>
+              <div class="next-date-empty-body">
+                <div class="next-date-empty-title">You're all clear for now</div>
+                <div class="next-date-empty-desc">No upcoming court hearings or procedural deadlines are currently scheduled for your matters.</div>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="App.openCitizenNewCaseModal()">+ File Matter</button>
+            </div>
+          `;
+        }
+      }
+
       // Update KPIs
       const kCases = document.getElementById('kpi-citizen-cases');
       const kDocs = document.getElementById('kpi-citizen-docs');
@@ -2447,9 +3186,9 @@ const App = {
       if (kBookmarks) kBookmarks.innerText = data.metrics.saved_sections;
 
       // Update sidebar counts
-      const sbCases = document.getElementById('sidebar-c-case-count');
-      const sbDocs = document.getElementById('sidebar-c-doc-count');
-      const sbBm = document.getElementById('sidebar-c-bm-count');
+      const sbCases = document.getElementById('sidebar-citizen-case-count') || document.getElementById('sidebar-c-case-count');
+      const sbDocs = document.getElementById('sidebar-citizen-doc-count') || document.getElementById('sidebar-c-doc-count');
+      const sbBm = document.getElementById('sidebar-citizen-bm-count') || document.getElementById('sidebar-c-bm-count');
       if (sbCases) sbCases.innerText = data.metrics.active_cases;
       if (sbDocs) sbDocs.innerText = data.metrics.total_documents;
       if (sbBm) sbBm.innerText = data.metrics.saved_sections;
@@ -2458,20 +3197,27 @@ const App = {
       const cList = document.getElementById('citizen-dash-cases-list');
       if (cList) {
         if (!data.recent_cases || data.recent_cases.length === 0) {
-          cList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">You do not have any registered legal matters yet. Use "+ File New Matter" to register a case.</div></div>';
+          cList.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-title">No active legal matters</div>
+              <div class="empty-state-desc">No legal matters are currently active. Register a matter to begin tracking court appearances and briefs.</div>
+              <button class="btn btn-primary btn-sm" onclick="App.openCitizenNewCaseModal()" style="margin-top: 10px;">+ File New Matter</button>
+            </div>
+          `;
         } else {
           cList.innerHTML = data.recent_cases.map(c => `
-            <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="App.openCitizenCaseDetail(${c.case_id})">
-              <div>
-                <div style="font-weight: 600; color: var(--text-primary); font-size: 14px;">${this.escape(c.title)}</div>
-                <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
-                  🏛️ ${this.escape(c.court || 'Court / Forum')} • <code>${this.escape(c.case_number || 'Matter Brief')}</code>
+            <div class="matter-card" onclick="App.openCitizenCaseDetail(${c.case_id})">
+              <div class="matter-card-body">
+                <div class="matter-title">${this.escape(c.title)}</div>
+                <div class="matter-meta">
+                  <span class="matter-court">🏛️ ${this.escape(c.court || 'Court / Forum')}</span>
+                  ${c.case_number ? `<span>• <code class="matter-code">${this.escape(c.case_number)}</code></span>` : ''}
                 </div>
-                ${c.lawyer_name ? `<div style="font-size: 11.5px; color: var(--accent-cyan); margin-top: 2px;">Assigned Counsel: ${this.escape(c.lawyer_name)}</div>` : ''}
+                ${c.lawyer_name ? `<div class="matter-counsel">Assigned Counsel: ${this.escape(c.lawyer_name)}</div>` : ''}
               </div>
-              <div style="text-align: right;">
+              <div class="matter-card-action">
                 <span class="badge badge-${c.status}">${c.status}</span>
-                <div style="font-size: 11px; color: #818CF8; margin-top: 4px;">View Matter →</div>
+                <div class="matter-action-btn">View Matter →</div>
               </div>
             </div>
           `).join('');
@@ -2482,17 +3228,22 @@ const App = {
       const hList = document.getElementById('citizen-dash-hearings-list');
       if (hList) {
         if (!data.upcoming_hearings || data.upcoming_hearings.length === 0) {
-          hList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No upcoming court hearings scheduled.</div></div>';
+          hList.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-title">No upcoming court hearings</div>
+              <div class="empty-state-desc">You're all clear for now. When court appearances or dates are scheduled, they will appear here.</div>
+            </div>
+          `;
         } else {
           hList.innerHTML = data.upcoming_hearings.map(h => `
-            <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <div style="font-weight: 600; color: var(--text-primary); font-size: 14px;">${this.escape(h.title)}</div>
-                <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
-                  ⚖️ ${this.escape(h.case_title || 'Legal Matter')} (${this.escape(h.court_name || 'Designated Court')})
+            <div class="hearing-card-item">
+              <div class="hearing-card-body">
+                <div class="hearing-card-title">${this.escape(h.title)}</div>
+                <div class="hearing-card-meta">
+                  ⚖️ ${this.escape(h.case_title || 'Legal Matter')} • 🏛️ ${this.escape(h.court_name || 'Designated Court')}
                 </div>
               </div>
-              <div style="text-align: right;">
+              <div class="hearing-card-action">
                 <span class="badge badge-active">${h.reminder_date}</span>
                 <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">${h.reminder_time || '10:30 AM'}</div>
               </div>
@@ -2508,14 +3259,17 @@ const App = {
           aList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No analyzed legal documents yet. Analyze an agreement or notice to check risk flags.</div></div>';
         } else {
           aList.innerHTML = data.recent_analyses.map(a => `
-            <div style="padding: 10px 0; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="App.navigate('document-analysis'); App.loadAnalysisById(${a.analysis_id});">
-              <div>
-                <div style="font-size: 13.5px; font-weight: 500; color: var(--text-primary);">📄 ${this.escape(a.document_name)}</div>
-                <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">
-                  ${this.escape(a.document_type)} • ${new Date(a.created_at).toLocaleDateString()}
+            <div class="doc-row-item" style="cursor: pointer;" onclick="App.navigate('document-analysis'); App.loadAnalysisById(${a.analysis_id});">
+              <div class="doc-row-body">
+                <div class="doc-row-name">📄 ${this.escape(a.document_name)}</div>
+                <div class="doc-row-meta">
+                  <span class="badge badge-completed">${this.escape(a.document_type)}</span>
+                  <span>${new Date(a.created_at).toLocaleDateString()}</span>
                 </div>
               </div>
-              <div style="font-size: 12px; color: var(--accent-cyan);">View Report →</div>
+              <div class="doc-row-action">
+                <span style="font-size: 12px; color: var(--accent-cyan); white-space: nowrap;">View Report →</span>
+              </div>
             </div>
           `).join('');
         }
@@ -2525,17 +3279,23 @@ const App = {
       const dList = document.getElementById('citizen-dash-documents-list');
       if (dList) {
         if (!data.recent_documents || data.recent_documents.length === 0) {
-          dList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No case documents uploaded yet. Use "+ Upload Doc" to attach case records.</div></div>';
+          dList.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-title">No documents uploaded</div>
+              <div class="empty-state-desc">Your legal documents, contracts, and case briefs will appear here.</div>
+              <button class="btn btn-secondary btn-sm" onclick="App.openCitizenUploadDocModal()" style="margin-top: 10px;">+ Upload Document</button>
+            </div>
+          `;
         } else {
           dList.innerHTML = data.recent_documents.map(d => `
-            <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <div style="font-weight: 500; font-size: 13.5px; color: var(--text-primary);">📄 ${this.escape(d.document_name)}</div>
-                <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">
-                  ${this.escape(d.document_type || 'Case File')} • ${this.escape(d.case_title || 'Legal Matter')}
+            <div class="doc-row-item">
+              <div class="doc-row-body">
+                <div class="doc-row-name">📄 ${this.escape(d.document_name)}</div>
+                <div class="doc-row-meta">
+                  <span class="badge badge-completed">${d.document_type || 'Attached'}</span>
+                  <span>${this.escape(d.case_title || 'Legal Matter')}</span>
                 </div>
               </div>
-              <span class="badge badge-completed">${d.document_type || 'Attached'}</span>
             </div>
           `).join('');
         }
@@ -2558,14 +3318,14 @@ const App = {
               const pct = tot > 0 ? Math.round((comp / tot) * 100) : 0;
               return `
                 <div class="procedure-progress-card" style="cursor: pointer;" onclick="App.openProcedureChecklist(${p.procedure_id})">
-                  <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <strong style="font-size: 13.5px; color: #F8FAFC;">${this.escape(p.procedure_name)}</strong>
+                  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+                    <strong style="font-size: 13.5px; color: var(--text-primary); overflow-wrap: anywhere; word-break: break-word;">${this.escape(p.procedure_name)}</strong>
                     <span style="font-size: 12px; color: var(--accent-cyan); font-weight: 600;">${pct}% Complete</span>
                   </div>
                   <div class="progress-track">
                     <div class="progress-fill" style="width: ${pct}%;"></div>
                   </div>
-                  <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 6px;">
+                  <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 6px; flex-wrap: wrap; gap: 4px;">
                     <span>${comp} of ${tot} documents ready</span>
                     <span>${this.escape(p.category_name || 'Legal Process')}</span>
                   </div>
@@ -2588,12 +3348,16 @@ const App = {
             bList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No saved provisions yet. Bookmark statutory sections from Legal Research.</div></div>';
           } else {
             bList.innerHTML = bms.slice(0, 4).map(b => `
-              <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="App.viewFullProvisionDetail(${b.section_id})">
-                <div>
-                  <div style="font-weight: 600; font-size: 13.5px; color: #F8FAFC;">Section ${this.escape(b.section_number)}: ${this.escape(b.section_title || '')}</div>
-                  <div style="font-size: 11.5px; color: var(--accent-cyan); margin-top: 2px;">📖 ${this.escape(b.law_name || 'Statute')}</div>
+              <div class="doc-row-item" style="cursor: pointer;" onclick="App.viewFullProvisionDetail(${b.section_id})">
+                <div class="doc-row-body">
+                  <div class="doc-row-name">Section ${this.escape(b.section_number)}: ${this.escape(b.section_title || '')}</div>
+                  <div class="doc-row-meta">
+                    <span style="color: var(--accent-cyan);">📖 ${this.escape(b.law_name || 'Statute')}</span>
+                  </div>
                 </div>
-                <div style="font-size: 11.5px; color: #818CF8;">View →</div>
+                <div class="doc-row-action">
+                  <span style="font-size: 11.5px; color: var(--accent-primary); white-space: nowrap;">View →</span>
+                </div>
               </div>
             `).join('');
           }
@@ -2614,14 +3378,18 @@ const App = {
             sList.innerHTML = `
               <div style="display: flex; flex-direction: column; gap: 8px;">
                 ${searches.map(s => `
-                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(15, 23, 42, 0.4); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
-                    <div>
-                      <span style="font-size: 13px; font-weight: 500; color: #F8FAFC;">🔍 "${this.escape(s.query_text)}"</span>
-                      <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 2px;">
-                        ${s.results_count || 0} provisions matched • ${new Date(s.searched_at).toLocaleDateString()}
+                  <div class="search-history-item">
+                    <div style="flex: 1; min-width: 0;">
+                      <div class="search-history-query">🔍 "${this.escape(s.query_text)}"</div>
+                      <div class="search-history-meta">
+                        <span>${s.results_count || 0} provisions matched</span>
+                        <span>•</span>
+                        <span>${new Date(s.searched_at).toLocaleDateString()}</span>
                       </div>
                     </div>
-                    <button class="search-again-btn" onclick="App.reSearchFromHistory('${this.escape(s.query_text)}', '${this.escape(s.filters && s.filters.jurisdiction ? s.filters.jurisdiction : '')}')">Search Again</button>
+                    <div class="search-history-action">
+                      <button class="search-again-btn" onclick="App.reSearchFromHistory('${this.escape(s.query_text)}', '${this.escape(s.filters && s.filters.jurisdiction ? s.filters.jurisdiction : '')}')">Search Again</button>
+                    </div>
                   </div>
                 `).join('')}
               </div>
@@ -2641,7 +3409,7 @@ const App = {
           nList.innerHTML = data.recent_notifications.map(n => `
             <div style="padding: 10px 0; border-bottom: 1px solid var(--border-subtle);">
               <div style="display: flex; justify-content: space-between; align-items: center;">
-                <strong style="font-size: 13.5px; color: ${n.is_read ? 'var(--text-secondary)' : '#F8FAFC'};">${this.escape(n.title)}</strong>
+                <strong style="font-size: 13.5px; color: ${n.is_read ? 'var(--text-secondary)' : 'var(--text-primary)'};">${this.escape(n.title)}</strong>
                 <span style="font-size: 11px; color: var(--text-muted);">${new Date(n.created_at).toLocaleDateString()}</span>
               </div>
               <div style="font-size: 12.5px; color: var(--text-secondary); margin-top: 3px;">${this.escape(n.message)}</div>
@@ -2688,25 +3456,25 @@ const App = {
     container.innerHTML = cases.map(c => `
       <div class="card" style="margin-bottom: 16px; border: 1px solid var(--border-subtle); transition: border-color 0.2s ease; cursor: pointer;" onclick="App.openCitizenCaseDetail(${c.case_id})">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
-          <div>
-            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
+          <div style="flex: 1 1 260px; min-width: 0;">
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
               <span class="badge badge-${c.status}">${c.status}</span>
               <span class="badge badge-completed">${this.escape(c.case_type || 'Civil Matter')}</span>
-              ${c.case_number ? `<span style="font-size: 12px; color: var(--accent-cyan); font-family: monospace;">${this.escape(c.case_number)}</span>` : ''}
+              ${c.case_number ? `<span style="font-size: 12px; color: var(--accent-cyan); font-family: monospace; word-break: break-all;">${this.escape(c.case_number)}</span>` : ''}
             </div>
-            <h3 style="font-size: 18px; color: #F8FAFC; margin-bottom: 4px;">${this.escape(c.title)}</h3>
-            <div style="font-size: 13px; color: var(--text-muted);">
+            <h3 style="font-size: 18px; color: var(--text-primary); margin-bottom: 4px; overflow-wrap: anywhere; word-break: break-word;">${this.escape(c.title)}</h3>
+            <div style="font-size: 13px; color: var(--text-muted); overflow-wrap: anywhere; word-break: break-word;">
               🏛️ ${this.escape(c.court || 'Court / Judicial Forum')} • Opposite Party: <strong style="color: var(--text-secondary);">${this.escape(c.opposite_party || 'Unspecified')}</strong>
             </div>
           </div>
-          <div style="text-align: right;">
+          <div style="text-align: right; flex-shrink: 0;">
             ${c.lawyer_name ? `
               <div style="background: rgba(15, 23, 42, 0.6); padding: 6px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); display: inline-block;">
                 <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Assigned Counsel</div>
-                <div style="font-size: 12.5px; font-weight: 600; color: #818CF8;">${this.escape(c.lawyer_name)}</div>
+                <div style="font-size: 12.5px; font-weight: 600; color: var(--accent-primary);">${this.escape(c.lawyer_name)}</div>
               </div>
             ` : `
-              <span class="badge" style="background: rgba(100, 116, 139, 0.2); color: #94A3B8;">Self Represented</span>
+              <span class="badge" style="background: rgba(100, 116, 139, 0.2); color: var(--text-secondary);">Self Represented</span>
             `}
           </div>
         </div>
@@ -2717,11 +3485,11 @@ const App = {
           </div>
         ` : ''}
 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-subtle); font-size: 12px; color: var(--text-muted);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-subtle); font-size: 12px; color: var(--text-muted); flex-wrap: wrap; gap: 8px;">
           <div>
             ${c.filing_date ? `Filing Date: ${c.filing_date}` : (c.created_at ? `Created: ${new Date(c.created_at).toLocaleDateString()}` : '')}
           </div>
-          <div style="display: flex; gap: 14px; align-items: center;">
+          <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
             <span>📄 ${c.documents_count || 0} Docs</span>
             <span>📅 ${c.hearings_count || 0} Hearings</span>
             <span style="color: var(--accent-cyan); font-weight: 500;">Open Matter Brief →</span>
@@ -2797,7 +3565,7 @@ const App = {
         dList.innerHTML = c.documents.map(d => `
           <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
             <div>
-              <div style="font-weight: 500; color: #F8FAFC; font-size: 14px;">📄 ${this.escape(d.document_name)}</div>
+              <div style="font-weight: 500; color: var(--text-primary); font-size: 14px;">📄 ${this.escape(d.document_name)}</div>
               <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
                 <span class="badge badge-completed">${this.escape(d.document_type)}</span>
                 ${d.description ? ` • ${this.escape(d.description)}` : ''}
@@ -2818,7 +3586,7 @@ const App = {
         hList.innerHTML = c.hearings.map(h => `
           <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
             <div>
-              <div style="font-weight: 600; color: #F8FAFC; font-size: 14px;">${this.escape(h.title)}</div>
+              <div style="font-weight: 600; color: var(--text-primary); font-size: 14px;">${this.escape(h.title)}</div>
               <div style="font-size: 12.5px; color: var(--text-secondary); margin-top: 3px;">
                 🏛️ ${this.escape(h.court_name || 'Designated Court')} • Presiding: ${this.escape(h.judge_name || 'Hon\'ble Judge')}
               </div>
@@ -2839,7 +3607,7 @@ const App = {
       } else {
         uList.innerHTML = c.updates.map(u => `
           <div style="display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border-subtle);">
-            <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(99, 102, 241, 0.15); color: #818CF8; display: flex; align-items: center; justify-content: center; font-size: 14px;">
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(99, 102, 241, 0.15); color: var(--accent-primary); display: flex; align-items: center; justify-content: center; font-size: 14px;">
               ⚡
             </div>
             <div style="flex: 1;">
@@ -2863,7 +3631,7 @@ const App = {
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
               <div>
                 <span class="badge badge-active" style="margin-bottom: 4px;">Section ${this.escape(s.section_number)}</span>
-                <h4 style="font-size: 15px; color: #F8FAFC;">${this.escape(s.section_title || 'Section Provision')}</h4>
+                <h4 style="font-size: 15px; color: var(--text-primary);">${this.escape(s.section_title || 'Section Provision')}</h4>
                 <div style="font-size: 13px; color: var(--accent-cyan);">${this.escape(s.law_name)}</div>
               </div>
               <button class="btn btn-secondary btn-sm" onclick="App.viewFullProvisionDetail(${s.section_id})">Inspect Section</button>
@@ -2941,12 +3709,12 @@ const App = {
         <div class="card" style="margin-bottom: 12px; border: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
           <div>
             <div style="display: flex; gap: 8px; align-items: center;">
-              <strong style="color: #F8FAFC; font-size: 15px;">📄 ${this.escape(d.document_name)}</strong>
+              <strong style="color: var(--text-primary); font-size: 15px;">📄 ${this.escape(d.document_name)}</strong>
               <span class="badge badge-completed">${this.escape(d.document_type)}</span>
               ${d.case_title ? `<span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #A5B4FC;">Matter: ${this.escape(d.case_title)}</span>` : ''}
             </div>
             ${d.description ? `<div style="font-size: 12.5px; color: var(--text-muted); margin-top: 4px;">${this.escape(d.description)}</div>` : ''}
-            <div style="font-size: 11.5px; color: #64748B; margin-top: 4px;">
+            <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">
               Uploaded: ${new Date(d.uploaded_at).toLocaleDateString()}
             </div>
           </div>
@@ -3058,7 +3826,7 @@ const App = {
               <span class="badge badge-active">Section ${this.escape(b.section_number)}</span>
               <span class="badge badge-completed">${this.escape(b.tag || 'General')}</span>
             </div>
-            <h3 style="font-size: 17px; color: #F8FAFC; margin-bottom: 2px;">${this.escape(b.section_title || 'Section Provision')}</h3>
+            <h3 style="font-size: 17px; color: var(--text-primary); margin-bottom: 2px;">${this.escape(b.section_title || 'Section Provision')}</h3>
             <div style="font-size: 13.5px; color: var(--accent-cyan); font-weight: 500;">📖 ${this.escape(b.law_name)}</div>
           </div>
           <div style="display: flex; gap: 8px;">
@@ -3068,7 +3836,7 @@ const App = {
         </div>
 
         ${b.notes ? `
-          <div style="font-size: 13px; color: #CBD5E1; background: rgba(15, 23, 42, 0.5); padding: 10px 14px; border-radius: var(--radius-sm); margin: 10px 0; border: 1px solid var(--border-subtle);">
+          <div style="font-size: 13px; color: var(--text-secondary); background: rgba(15, 23, 42, 0.5); padding: 10px 14px; border-radius: var(--radius-sm); margin: 10px 0; border: 1px solid var(--border-subtle);">
             📝 <strong>My Reference Note:</strong> ${this.escape(b.notes)}
           </div>
         ` : ''}
@@ -3180,27 +3948,204 @@ const App = {
     }
   },
 
-  // 6. Notifications
+  // 6. NOTIFICATIONS & ALERTS MANAGER
+  updateNotificationBadge(unreadCount) {
+    const badge = document.getElementById('notif-badge');
+    const headerCount = document.getElementById('notif-header-count');
+    const count = parseInt(unreadCount, 10) || 0;
+    this.unreadNotifCount = count;
+
+    if (badge) {
+      if (count > 0) {
+        badge.innerText = count > 99 ? '99+' : count;
+        badge.style.display = 'inline-flex';
+        badge.setAttribute('aria-label', `${count} unread notifications`);
+      } else {
+        badge.innerText = '0';
+        badge.style.display = 'none';
+        badge.removeAttribute('aria-label');
+      }
+    }
+
+    if (headerCount) {
+      if (count > 0) {
+        headerCount.innerText = `${count} unread`;
+        headerCount.style.display = 'inline-block';
+      } else {
+        headerCount.innerText = '';
+        headerCount.style.display = 'none';
+      }
+    }
+
+    // Synchronize sidebar badge
+    const sbBadge = document.getElementById('sidebar-citizen-notif-count');
+    if (sbBadge) {
+      sbBadge.innerText = count > 0 ? count : '0';
+    }
+  },
+
+  formatRelativeTime(dateStr) {
+    if (!dateStr) return 'Recently';
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return dateStr;
+      const now = new Date();
+      const diffSec = Math.floor((now - date) / 1000);
+      if (diffSec < 60) return 'Just now';
+      const diffMin = Math.floor(diffSec / 60);
+      if (diffMin < 60) return `${diffMin}m ago`;
+      const diffHr = Math.floor(diffMin / 60);
+      if (diffHr < 24) return `${diffHr}h ago`;
+      const diffDays = Math.floor(diffHr / 24);
+      if (diffDays === 1) return 'Yesterday';
+      if (diffDays < 7) return `${diffDays}d ago`;
+      return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    } catch (e) {
+      return dateStr;
+    }
+  },
+
+  getNotificationMeta(type, title) {
+    const raw = (type || title || '').toLowerCase();
+    if (raw.includes('hear') || raw.includes('court') || raw.includes('bench') || raw.includes('trial')) {
+      return { icon: '⚖️', label: 'Hearing', className: 'hearing' };
+    }
+    if (raw.includes('case') || raw.includes('matter') || raw.includes('registered') || raw.includes('brief') || raw.includes('status')) {
+      return { icon: '📁', label: 'Case Update', className: 'case_update' };
+    }
+    if (raw.includes('doc') || raw.includes('file') || raw.includes('pdf') || raw.includes('affidavit') || raw.includes('petition')) {
+      return { icon: '📄', label: 'Document', className: 'document' };
+    }
+    return { icon: 'ℹ️', label: 'System', className: 'system' };
+  },
+
+  toggleNotificationsPopover() {
+    const popover = document.getElementById('notifications-popover');
+    if (!popover) return;
+    if (popover.classList.contains('active')) {
+      this.closeNotificationsPopover();
+    } else {
+      this.openNotificationsPopover();
+    }
+  },
+
+  openNotificationsPopover() {
+    const popover = document.getElementById('notifications-popover');
+    const btn = document.getElementById('btn-notifications-bell');
+    if (!popover) return;
+
+    // Close any competing overlays
+    this.closeThemePicker();
+    this.closeMobileSidebar();
+
+    popover.classList.add('active');
+    popover.setAttribute('aria-hidden', 'false');
+    btn?.setAttribute('aria-expanded', 'true');
+
+    // Fetch and render latest notifications
+    this.loadNotifications();
+
+    // Position securely within the viewport
+    requestAnimationFrame(() => {
+      this.positionNotificationsPopover();
+    });
+  },
+
+  closeNotificationsPopover() {
+    const popover = document.getElementById('notifications-popover');
+    const btn = document.getElementById('btn-notifications-bell');
+    if (popover) {
+      popover.classList.remove('active');
+      popover.setAttribute('aria-hidden', 'true');
+    }
+    if (btn) {
+      btn.setAttribute('aria-expanded', 'false');
+    }
+  },
+
+  positionNotificationsPopover() {
+    const popover = document.getElementById('notifications-popover');
+    if (!popover || !popover.classList.contains('active')) return;
+
+    // Reset offsets to measure unconstrained dimensions
+    popover.style.left = 'auto';
+    popover.style.right = '0';
+
+    const popoverRect = popover.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const padding = 10;
+
+    // Check left viewport overflow
+    if (popoverRect.left < padding) {
+      const shift = padding - popoverRect.left;
+      popover.style.right = `${-shift}px`;
+    }
+
+    // Check right viewport overflow
+    const updatedRect = popover.getBoundingClientRect();
+    if (updatedRect.right > viewportWidth - padding) {
+      const overflowRight = updatedRect.right - (viewportWidth - padding);
+      const currentRight = parseFloat(popover.style.right) || 0;
+      popover.style.right = `${currentRight + overflowRight}px`;
+    }
+  },
+
   async loadNotifications() {
     if (!this.token) return;
-    try {
-      const data = await this.api('/api/citizen/notifications');
-      this.citizenNotifications = data.notifications || [];
-      this.unreadNotifCount = data.unread_count || 0;
 
-      const badge = document.getElementById('notif-badge');
-      if (badge) {
-        if (this.unreadNotifCount > 0) {
-          badge.innerText = this.unreadNotifCount;
-          badge.style.display = 'inline-block';
-        } else {
-          badge.style.display = 'none';
-        }
+    const isCitizen = !this.user || this.user.role === 'citizen' || this.user.role === 'user';
+    if (isCitizen) {
+      try {
+        const data = await this.api('/api/citizen/notifications');
+        this.citizenNotifications = data.notifications || [];
+        this.updateNotificationBadge(data.unread_count || 0);
+        this.renderNotificationsList(this.citizenNotifications);
+      } catch (err) {
+        console.warn('Could not load citizen notifications:', err);
       }
+    } else {
+      // Lawyer mode
+      this.loadLawyerNotifications();
+    }
+  },
 
-      this.renderNotificationsList(this.citizenNotifications);
+  async loadLawyerNotifications() {
+    try {
+      const data = await this.api('/api/lawyer/dashboard');
+      const notifs = [];
+      const hearings = data.upcoming_hearings_list || [];
+      hearings.forEach((h, idx) => {
+        notifs.push({
+          notification_id: `lawyer_h_${idx}`,
+          title: h.title || 'Upcoming Court Hearing',
+          message: `${h.case_title || 'Case Brief'} at ${h.court_name || 'Designated Court'} • ${h.reminder_date} ${h.reminder_time || '10:30 AM'}`,
+          notification_type: 'hearing',
+          is_read: false,
+          created_at: h.reminder_date || new Date().toISOString(),
+          target_view: 'hearings'
+        });
+      });
+
+      const cases = (data.recent_cases || []).slice(0, 3);
+      cases.forEach((c, idx) => {
+        notifs.push({
+          notification_id: `lawyer_c_${idx}`,
+          title: `Case Matter: ${c.case_title}`,
+          message: `Client: ${c.client_name || 'Client'} (${c.case_number || 'Brief'}) • Status: ${c.status}`,
+          notification_type: 'case_update',
+          is_read: true,
+          created_at: new Date().toISOString(),
+          target_view: 'cases',
+          case_id: c.case_id
+        });
+      });
+
+      this.citizenNotifications = notifs;
+      const unreadCount = notifs.filter(n => !n.is_read).length;
+      this.updateNotificationBadge(unreadCount);
+      this.renderNotificationsList(notifs);
     } catch (err) {
-      console.warn('Could not load notifications:', err);
+      console.warn('Could not load lawyer notifications:', err);
     }
   },
 
@@ -3209,32 +4154,99 @@ const App = {
     if (!container) return;
 
     if (!notifs || notifs.length === 0) {
-      container.innerHTML = '<div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px;">No notifications.</div>';
+      container.innerHTML = `
+        <div class="notif-empty-state">
+          <div class="notif-empty-icon">✓</div>
+          <div class="notif-empty-title">You're all caught up</div>
+          <div class="notif-empty-desc">No new notifications at this time.</div>
+        </div>
+      `;
       return;
     }
 
-    container.innerHTML = notifs.map(n => `
-      <div style="padding: 12px 16px; border-bottom: 1px solid var(--border-subtle); background: ${n.is_read ? 'transparent' : 'rgba(99, 102, 241, 0.08)'}; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
-        <div style="flex: 1;">
-          <div style="font-size: 13.5px; font-weight: 600; color: ${n.is_read ? 'var(--text-secondary)' : '#F8FAFC'};">${this.escape(n.title)}</div>
-          <div style="font-size: 12.5px; color: var(--text-muted); margin-top: 3px; line-height: 1.4;">${this.escape(n.message)}</div>
-          <div style="font-size: 11px; color: #64748B; margin-top: 4px;">${new Date(n.created_at).toLocaleDateString()}</div>
+    container.innerHTML = notifs.map(n => {
+      const meta = this.getNotificationMeta(n.notification_type, n.title);
+      const isUnread = !n.is_read;
+      const timeStr = this.formatRelativeTime(n.created_at || n.sent_at);
+      const safeId = typeof n.notification_id === 'string' ? `'${n.notification_id}'` : n.notification_id;
+
+      return `
+        <div class="notif-item ${isUnread ? 'unread' : ''}"
+             onclick="App.handleNotificationClick(${safeId}, '${meta.className}', event)"
+             role="article"
+             tabindex="0"
+             aria-label="${this.escape(n.title)}">
+          <div class="notif-icon-box ${meta.className}" aria-hidden="true">
+            ${meta.icon}
+          </div>
+          <div class="notif-body">
+            <div class="notif-item-top">
+              <span class="notif-item-title">${this.escape(n.title)}</span>
+              <span class="notif-item-badge">${meta.label}</span>
+            </div>
+            <div class="notif-item-msg">${this.escape(n.message)}</div>
+            <div class="notif-item-bottom">
+              <span class="notif-item-time">
+                ${isUnread ? '<span class="notif-item-unread-dot" title="Unread"></span>' : ''}
+                ${timeStr}
+              </span>
+              <span class="notif-item-action">Open →</span>
+            </div>
+          </div>
         </div>
-        ${!n.is_read ? `
-          <button class="btn btn-secondary btn-sm" style="font-size: 11px; padding: 3px 6px;" onclick="App.markNotificationRead(${n.notification_id})">Mark Read</button>
-        ` : ''}
-      </div>
-    `).join('');
+      `;
+    }).join('');
   },
 
-  toggleNotificationsPopover() {
-    const popover = document.getElementById('notifications-popover');
-    if (!popover) return;
-    if (popover.style.display === 'none' || !popover.style.display) {
-      popover.style.display = 'block';
-      this.loadNotifications();
+  async handleNotificationClick(id, type, event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    // Mark as read if it is a citizen notification with numeric ID
+    if (typeof id === 'number') {
+      try {
+        await this.api(`/api/citizen/notifications/${id}/read`, 'PATCH');
+        const notif = this.citizenNotifications.find(n => n.notification_id === id);
+        if (notif && !notif.is_read) {
+          notif.is_read = true;
+          this.unreadNotifCount = Math.max(0, this.unreadNotifCount - 1);
+          this.updateNotificationBadge(this.unreadNotifCount);
+        }
+      } catch (err) {
+        console.warn('Could not mark notification read:', err);
+      }
+    } else if (typeof id === 'string') {
+      const notif = this.citizenNotifications.find(n => n.notification_id === id);
+      if (notif && !notif.is_read) {
+        notif.is_read = true;
+        this.unreadNotifCount = Math.max(0, this.unreadNotifCount - 1);
+        this.updateNotificationBadge(this.unreadNotifCount);
+      }
+    }
+
+    // Close the popover
+    this.closeNotificationsPopover();
+
+    // Navigate to appropriate section based on type and user role
+    const isCitizen = !this.user || this.user.role === 'citizen' || this.user.role === 'user';
+    if (isCitizen) {
+      if (type === 'hearing' || type === 'case_update' || type === 'case') {
+        this.navigate('citizen-cases');
+      } else if (type === 'document') {
+        this.navigate('citizen-docs');
+      } else {
+        this.navigate('citizen-notifications');
+      }
     } else {
-      popover.style.display = 'none';
+      if (type === 'hearing') {
+        this.navigate('hearings');
+      } else if (type === 'case_update' || type === 'case') {
+        this.navigate('cases');
+      } else if (type === 'document') {
+        this.navigate('documents');
+      }
     }
   },
 
@@ -3251,15 +4263,23 @@ const App = {
   },
 
   async markAllNotificationsRead() {
-    try {
-      await this.api('/api/citizen/notifications/read-all', 'POST');
-      this.showToast('All notifications marked as read.', 'info');
-      this.loadNotifications();
-      if (this.currentView === 'citizen-notifications') {
-        this.loadNotificationsView();
+    const isCitizen = !this.user || this.user.role === 'citizen' || this.user.role === 'user';
+    if (isCitizen) {
+      try {
+        await this.api('/api/citizen/notifications/read-all', 'POST');
+        this.showToast('All notifications marked as read.', 'info');
+      } catch (err) {
+        this.showToast(err.message, 'error');
       }
-    } catch (err) {
-      this.showToast(err.message, 'error');
+    } else {
+      this.showToast('All notifications marked as read.', 'info');
+    }
+
+    this.citizenNotifications.forEach(n => { n.is_read = true; });
+    this.updateNotificationBadge(0);
+    this.renderNotificationsList(this.citizenNotifications);
+    if (this.currentView === 'citizen-notifications') {
+      this.loadNotificationsView();
     }
   },
 
@@ -3304,7 +4324,7 @@ const App = {
     container.innerHTML = items.map(s => `
       <div class="search-history-card">
         <div>
-          <div style="font-size: 15px; font-weight: 600; color: #F8FAFC; display: flex; align-items: center; gap: 8px;">
+          <div style="font-size: 15px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
             <span>🔍</span> "${this.escape(s.query_text)}"
             ${s.filters && s.filters.jurisdiction ? `<span class="badge badge-active">${this.escape(s.filters.jurisdiction)}</span>` : ''}
           </div>
@@ -3417,7 +4437,7 @@ const App = {
         <div style="flex: 1;">
           <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
             ${n.is_read ? '' : '<span class="notif-dot"></span>'}
-            <strong style="font-size: 14.5px; color: ${n.is_read ? 'var(--text-secondary)' : '#F8FAFC'};">${this.escape(n.title)}</strong>
+            <strong style="font-size: 14.5px; color: ${n.is_read ? 'var(--text-secondary)' : 'var(--text-primary)'};">${this.escape(n.title)}</strong>
             <span class="badge ${n.is_read ? 'badge-completed' : 'badge-active'}" style="font-size: 10px;">${n.is_read ? 'Read' : 'New'}</span>
           </div>
           <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin: 6px 0;">${this.escape(n.message)}</p>
@@ -3465,6 +4485,7 @@ const App = {
         m.classList.remove('active');
       }
     });
+    document.body.classList.remove('modal-open');
   },
 
   showToast(message, type = 'info') {
