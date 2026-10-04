@@ -9,7 +9,10 @@ All database operations are read-only and strictly parameterized.
 """
 
 from typing import Optional, List, Dict, Any
-from psycopg2.extras import RealDictCursor
+try:
+    from psycopg2.extras import RealDictCursor
+except ImportError:
+    RealDictCursor = Any
 
 from app.schemas.documentation import (
     DocumentRequirement,

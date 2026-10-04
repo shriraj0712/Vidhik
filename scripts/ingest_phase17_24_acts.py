@@ -256,7 +256,7 @@ def run_pipeline(args):
                         if s.get("procedure"):
                             proc = s["procedure"]
                             cur.execute("""
-                                INSERT INTO statutory_procedures (law_id, section_id, procedure_category, title, description, statutory_steps, safeguards, timeline_days)
+                                INSERT INTO legal_procedures (law_id, section_id, procedure_category, title, description, statutory_steps, safeguards, timeline_days)
                                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                                 ON CONFLICT DO NOTHING;
                             """, (resolved_law_id, sec_id, proc["procedure_category"], proc["title"], proc["description"], json.dumps(proc["statutory_steps"]), json.dumps(proc["safeguards"]), proc.get("timeline_days")))

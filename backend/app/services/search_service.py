@@ -6,8 +6,11 @@ legal text searches across statutory laws and provisions with deterministic
 relevance ranking and query understanding integration.
 """
 
-from typing import Optional, List, Any
-from psycopg2.extras import RealDictCursor
+from typing import Optional, List, Any, Tuple, Dict
+try:
+    from psycopg2.extras import RealDictCursor
+except ImportError:
+    RealDictCursor = Any
 
 from app.schemas.search import SearchResponse, SearchResultItem
 from app.services.query_service import LegalQueryService, STOPWORDS
@@ -230,7 +233,61 @@ class LegalSearchService:
         """
         data_params = tuple(params + [candidate_pool_limit])
         db.execute(candidate_sql, data_params)
-        candidates = db.fetchall()
+        candidates = [dict(r) for r in db.fetchall()]
+
+        # Knowledge Base Integration (BNS, BNSS, BSA)
+        from app.services.knowledge_service import LegalKnowledgeService
+        LegalKnowledgeService._load_data()
+        existing_keys = {(c.get("law_id"), str(c.get("section_number"))) for c in candidates}
+        
+        all_kb = []
+        for s in (LegalKnowledgeService._bns_cache or []):
+            sec_num = str(s.get("section_number", ""))
+            s_id = 90000 + int(sec_num) if sec_num.isdigit() else 90000
+            all_kb.append((9001, "Bharatiya Nyaya Sanhita, 2023", "BNS", s_id, s))
+        for s in (LegalKnowledgeService._bnss_cache or []):
+            sec_num = str(s.get("section_number", ""))
+            s_id = 91000 + int(sec_num) if sec_num.isdigit() else 91000
+            all_kb.append((9002, "Bharatiya Nagarik Suraksha Sanhita, 2023", "BNSS", s_id, s))
+        for s in (LegalKnowledgeService._bsa_cache or []):
+            sec_num = str(s.get("section_number", ""))
+            s_id = 92000 + int(sec_num) if sec_num.isdigit() else 92000
+            all_kb.append((9003, "Bharatiya Sakshya Adhiniyam, 2023", "BSA", s_id, s))
+
+        for law_id_val, law_name_val, short_val, sec_id_val, item in all_kb:
+            if (law_id_val, str(item.get("section_number", ""))) in existing_keys:
+                continue
+            sec_num = str(item.get("section_number", ""))
+            sec_title = item.get("section_title", "")
+            ft = item.get("full_text", "")
+            kw = " ".join(item.get("keywords", []))
+            
+            matched = False
+            q_lower = clean_q.lower()
+            if q_lower == sec_num or (f"section {sec_num}" in q_lower) or (f"{short_val.lower()} {sec_num}" in q_lower) or (f"{short_val.lower()} section {sec_num}" in q_lower):
+                matched = True
+            elif q_lower in sec_title.lower() or q_lower in ft.lower() or q_lower in kw.lower():
+                matched = True
+            elif short_val.lower() in q_lower and (sec_num in q_lower or len(q_lower.split()) == 1):
+                matched = True
+
+            if matched:
+                candidates.append({
+                    "law_id": law_id_val,
+                    "law_name": law_name_val,
+                    "short_name": short_val,
+                    "section_id": sec_id_val,
+                    "section_number": sec_num,
+                    "section_title": sec_title,
+                    "description": item.get("chapter"),
+                    "full_text": ft,
+                    "jurisdiction": "Central",
+                    "source_pdf": f"{law_name_val}.pdf",
+                    "source_page_start": 1,
+                    "source_page_end": 1,
+                    "manual_review_required": False
+                })
+                total_count += 1
 
         # 5. Deterministic Relevance Ranking
         ranked_candidates = LegalRankingService.rank_candidates(

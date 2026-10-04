@@ -186,7 +186,7 @@ def run_ingestion():
 
             proc = s.get("procedure", {})
             cur.execute("""
-                INSERT INTO statutory_procedures (law_id, section_id, procedure_category, title, description, statutory_steps, safeguards, timeline_days)
+                INSERT INTO legal_procedures (law_id, section_id, procedure_category, title, description, statutory_steps, safeguards, timeline_days)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT DO NOTHING;
             """, (

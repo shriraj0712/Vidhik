@@ -5,7 +5,6 @@ Provides RESTful APIs for querying Indian statutory laws, legal sections,
 terminology, constitutional provisions, legal AI assistant, grounded RAG,
 and the advanced legal knowledge base from the Vidhik legal platform.
 """
-
 import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
@@ -28,7 +27,8 @@ from app.routers import (
     citizen_router,
     assistant_router,
     rag_router,
-    knowledge_base_router
+    knowledge_base_router,
+    authorities_router
 )
 
 
@@ -99,6 +99,7 @@ app.include_router(citizen_router)
 app.include_router(assistant_router)
 app.include_router(rag_router)
 app.include_router(knowledge_base_router)
+app.include_router(authorities_router)
 
 # Mount Static UI directory
 STATIC_DIR = Path(__file__).resolve().parent / "static"
