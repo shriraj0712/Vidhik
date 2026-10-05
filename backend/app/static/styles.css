@@ -25,12 +25,12 @@
   --sidebar-nav-active-text: #4338CA;
   --sidebar-nav-active-border: #4338CA;
 
-  --border-subtle: #E2E8F0;
-  --border-focus: rgba(67, 56, 202, 0.55);
+  --border-subtle: #CBD5E1;
+  --border-focus: rgba(67, 56, 202, 0.65);
 
   --text-primary: #0F172A;
   --text-secondary: #334155;
-  --text-muted: #64748B;
+  --text-muted: #475569;
 
   --accent-primary: #4338CA;
   --accent-hover: #3730A3;
@@ -70,36 +70,40 @@
   /* Color Palette - Midnight Legal */
   --bg-primary: #0B1120;
   --bg-secondary: #111827;
-  --bg-card: rgba(17, 24, 39, 0.90);
-  --bg-card-hover: rgba(30, 41, 59, 0.95);
+  --bg-card: rgba(17, 24, 39, 0.94);
+  --bg-card-hover: rgba(30, 41, 59, 0.98);
   --bg-elevated: #1E293B;
-  --bg-glass: rgba(11, 17, 32, 0.88);
+  --bg-glass: rgba(11, 17, 32, 0.92);
 
   --bg-sidebar: #0F172A;
-  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-border: rgba(255, 255, 255, 0.12);
   --sidebar-text: #F8FAFC;
-  --sidebar-text-muted: #94A3B8;
-  --sidebar-nav-hover: rgba(255, 255, 255, 0.05);
-  --sidebar-nav-active: rgba(99, 102, 241, 0.18);
-  --sidebar-nav-active-text: #818CF8;
-  --sidebar-nav-active-border: #6366F1;
+  --sidebar-text-muted: #CBD5E1;
+  --sidebar-nav-hover: rgba(255, 255, 255, 0.08);
+  --sidebar-nav-active: rgba(99, 102, 241, 0.22);
+  --sidebar-nav-active-text: #A5B4FC;
+  --sidebar-nav-active-border: #818CF8;
 
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-focus: rgba(99, 102, 241, 0.6);
+  --border-subtle: rgba(255, 255, 255, 0.16);
+  --border-focus: rgba(129, 140, 248, 0.75);
 
-  --text-primary: #F8FAFC;
-  --text-secondary: #94A3B8;
-  --text-muted: #64748B;
+  --text-primary: #FFFFFF;
+  --text-secondary: #E2E8F0;
+  --text-muted: #94A3B8;
 
-  --accent-primary: #6366F1;
-  --accent-hover: #4F46E5;
-  --accent-light: rgba(99, 102, 241, 0.15);
+  --accent-primary: #818CF8;
+  --accent-hover: #6366F1;
+  --accent-light: rgba(129, 140, 248, 0.18);
+  --accent-cyan: #38BDF8;
+  --accent-amber: #FBBF24;
+  --accent-emerald: #10B981;
+  --accent-rose: #FB7185;
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 24px rgba(99, 102, 241, 0.25);
-  --theme-gradient: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(56, 189, 248, 0.04));
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.65);
+  --shadow-glow: 0 0 24px rgba(99, 102, 241, 0.35);
+  --theme-gradient: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(56, 189, 248, 0.06));
 }
 
 [data-theme="ocean"] {
@@ -584,11 +588,11 @@ body.sidebar-open {
   border-bottom: 1px solid var(--border-subtle);
   position: sticky;
   top: 0;
-  z-index: 40;
+  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 32px;
+  padding: 0 24px;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
@@ -3463,7 +3467,7 @@ textarea.form-control {
     padding: 0 12px;
     position: sticky;
     top: 0;
-    z-index: 40;
+    z-index: 100;
     background: var(--bg-glass);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
@@ -4200,34 +4204,31 @@ textarea.form-control {
    CASE INTELLIGENCE & CURRENT CASE CONTEXT STYLES
    =================================================================== */
 
-/* Top Current Case Persistent Banner */
+/* Top Current Case Persistent Banner (Slim, non-intrusive context ribbon) */
 .current-case-bar {
-  background: linear-gradient(90deg, rgba(30, 41, 59, 0.96) 0%, rgba(15, 23, 42, 0.98) 100%);
-  border-bottom: 1px solid rgba(99, 102, 241, 0.3);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-  padding: 10px 24px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-subtle);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  padding: 6px 20px;
   position: sticky;
   top: 60px;
-  z-index: 90;
+  z-index: 35;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   transition: var(--transition);
-}
-
-.current-case-bar-inner {
-  max-width: 1400px;
-  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
+  gap: 12px;
+  box-sizing: border-box;
 }
 
-.current-case-main {
+.current-case-bar-content {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
   flex-wrap: wrap;
 }
 
@@ -4235,61 +4236,63 @@ textarea.form-control {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(99, 102, 241, 0.15);
-  border: 1px solid rgba(99, 102, 241, 0.4);
-  color: #A5B4FC;
-  padding: 4px 10px;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  color: var(--accent-primary);
+  padding: 2px 8px;
   border-radius: var(--radius-full);
-  font-size: 11.5px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  flex-shrink: 0;
 }
 
-.pulse-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #10B981;
-  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-  animation: pulse-dot-anim 1.8s infinite;
-}
-
-@keyframes pulse-dot-anim {
-  0% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-  }
-  70% {
-    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-  }
+.current-case-details-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex-wrap: wrap;
 }
 
 .current-case-title {
-  font-size: 14.5px;
+  font-size: 13.5px;
   font-weight: 600;
   color: var(--text-primary);
-  max-width: 360px;
+  max-width: 280px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.current-case-meta {
-  display: flex;
+.current-case-meta-tag {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 12px;
+  font-size: 11.5px;
+  padding: 1px 7px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
 }
 
 .current-case-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: pulse-dot-anim 1.8s infinite;
+  display: inline-block;
+  flex-shrink: 0;
 }
 
 /* Case Intelligence Workspace Tabs */
@@ -4521,3 +4524,1527 @@ textarea.form-control {
   }
 }
 
+
+
+/* ===================================================================
+   VIDHIK MASTER UI - NEW MODULE ENHANCEMENTS
+   Styles for AI Assistant, Complaint/FIR Draft, Resolution Triage,
+   Traffic Law, Constitutional Rights, Authority Finder, Lawyer Roster,
+   eCourts Case Tracking, Voice Assistant, and Language Localization.
+   =================================================================== */
+
+/* --- Language Selector Popover --- */
+.lang-selector-container {
+  position: relative;
+  display: inline-block;
+}
+
+.lang-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 250px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 12px;
+  z-index: 1050;
+  backdrop-filter: blur(12px);
+}
+
+.lang-option-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-primary);
+  transition: var(--transition);
+  margin-bottom: 4px;
+}
+
+.lang-option-btn:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border-subtle);
+}
+
+.lang-option-btn.active {
+  background: var(--accent-light);
+  border-color: var(--accent-primary);
+}
+
+/* --- Voice Wave Visualizer Animation --- */
+@keyframes soundWave {
+  0%, 100% {
+    height: 8px;
+    opacity: 0.5;
+  }
+  50% {
+    height: 28px;
+    opacity: 1;
+  }
+}
+
+.voice-wave-bar {
+  display: inline-block;
+  width: 4px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(to top, var(--accent-primary), var(--accent-cyan));
+  animation: soundWave 0.9s infinite ease-in-out;
+}
+
+.voice-wave-bar:nth-child(2) { animation-delay: 0.15s; }
+.voice-wave-bar:nth-child(3) { animation-delay: 0.3s; }
+.voice-wave-bar:nth-child(4) { animation-delay: 0.45s; }
+.voice-wave-bar:nth-child(5) { animation-delay: 0.6s; }
+.voice-wave-bar:nth-child(6) { animation-delay: 0.75s; }
+
+/* Pulsing mic active state */
+.mic-recording-active {
+  animation: micPulseGlow 1.5s infinite alternate !important;
+  background: linear-gradient(135deg, #EF4444, #F59E0B) !important;
+}
+
+@keyframes micPulseGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 24px rgba(239, 68, 68, 0);
+  }
+}
+
+/* --- Professional Legal Document Paper Styling --- */
+.legal-document-paper {
+  background: #FFFFFF;
+  color: #1E293B;
+  border-radius: var(--radius-sm);
+  padding: 48px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  border: 1px solid #CBD5E1;
+  position: relative;
+  font-family: 'Times New Roman', Times, Georgia, serif;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+[data-theme="dark"] .legal-document-paper {
+  background: #1E293B;
+  color: #F8FAFC;
+  border-color: #334155;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.legal-document-paper h2,
+.legal-document-paper h3,
+.legal-document-paper h4 {
+  font-family: 'Times New Roman', Times, Georgia, serif;
+  color: inherit;
+  font-weight: 700;
+}
+
+/* Print Styles for Complaints, Checklists & Documents */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .legal-document-paper,
+  .legal-document-paper * {
+    visibility: visible;
+  }
+  .legal-document-paper {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 20mm;
+    box-shadow: none;
+    border: none;
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* --- AI Chat Bubbles & Legal Citations --- */
+.chat-msg-user {
+  align-self: flex-end;
+  background: var(--accent-primary);
+  color: #FFFFFF;
+  padding: 12px 18px;
+  border-radius: 18px 18px 4px 18px;
+  max-width: 80%;
+  font-size: 14.5px;
+  line-height: 1.5;
+  box-shadow: var(--shadow-sm);
+  word-break: break-word;
+}
+
+.chat-msg-assistant {
+  align-self: flex-start;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  padding: 20px 24px;
+  border-radius: 18px 18px 18px 4px;
+  max-width: 90%;
+  font-size: 14.5px;
+  line-height: 1.6;
+  box-shadow: var(--shadow-md);
+  border-left: 4px solid var(--accent-primary);
+}
+
+.citation-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--accent-light);
+  color: var(--accent-primary);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(67, 56, 202, 0.25);
+  cursor: pointer;
+  transition: var(--transition);
+  text-decoration: none;
+  margin: 2px 4px 2px 0;
+}
+
+.citation-badge:hover {
+  background: var(--accent-primary);
+  color: #FFFFFF;
+  border-color: var(--accent-primary);
+}
+
+/* --- Traffic Offence Cards --- */
+.traffic-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: var(--transition);
+}
+
+.traffic-card:hover {
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.fine-pill {
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.fine-pill.danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #EF4444;
+}
+
+.fine-pill.warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: #F59E0B;
+}
+
+.fine-pill.success {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
+}
+
+/* --- Constitutional Rights Cards --- */
+.const-right-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  transition: var(--transition);
+  border-top: 4px solid var(--accent-primary);
+}
+
+.const-right-card:hover {
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* --- Case Tracking Progress Stages --- */
+.case-progress-track {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  margin: 24px 0 16px;
+}
+
+.case-progress-track::before {
+  content: "";
+  position: absolute;
+  top: 14px;
+  left: 10px;
+  right: 10px;
+  height: 3px;
+  background: var(--border-subtle);
+  z-index: 1;
+}
+
+.case-stage-node {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.stage-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 2px solid var(--border-subtle);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: var(--transition);
+}
+
+.case-stage-node.completed .stage-dot {
+  background: var(--accent-emerald);
+  border-color: var(--accent-emerald);
+  color: #FFFFFF;
+}
+
+.case-stage-node.current .stage-dot {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: #FFFFFF;
+  box-shadow: 0 0 12px rgba(67, 56, 202, 0.4);
+}
+
+.case-stage-node.completed,
+.case-stage-node.current {
+  color: var(--text-primary);
+}
+
+/* --- Lawyer Directory Cards --- */
+.advocate-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: var(--transition);
+}
+
+.advocate-card:hover {
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.advocate-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-cyan));
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ===================================================================
+   MOBILE-FIRST STABILIZATION & READABILITY PASS
+   Complete responsive rules for 320px, 360px, 375px, 390px, 412px, 430px,
+   tablets (768px), and desktop. Zero horizontal overflow, high contrast.
+   =================================================================== */
+
+/* --- 1. Global Overflow Prevention & Text Wrapping --- */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+  position: relative;
+  -webkit-text-size-adjust: 100%;
+}
+
+.app-container,
+.main-content,
+.page-container,
+.view-panel {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Ensure no text, citation, code, or URL ever breaks viewport bounds */
+p, span, h1, h2, h3, h4, h5, h6,
+td, th, li, a, label,
+.badge, .citation-badge,
+.chat-msg-user, .chat-msg-assistant,
+.legal-document-paper, pre, code {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* --- 2. High-Contrast Theme Enhancements --- */
+/* Placeholders across themes */
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.85;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: #94A3B8 !important;
+  opacity: 1 !important;
+}
+
+/* Legal disclaimers & alert banners contrast */
+[data-theme="dark"] .disclaimer-banner {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border: 1px solid rgba(245, 158, 11, 0.45) !important;
+  color: #FBBF24 !important;
+}
+
+[data-theme="dark"] .disclaimer-banner strong {
+  color: #FDE68A !important;
+}
+
+[data-theme="light"] .disclaimer-banner {
+  background: rgba(245, 158, 11, 0.1) !important;
+  border: 1px solid rgba(245, 158, 11, 0.35) !important;
+  color: #92400E !important;
+}
+
+[data-theme="light"] .disclaimer-banner strong {
+  color: #78350F !important;
+}
+
+/* Modal overlays & contrast */
+[data-theme="dark"] .modal-dialog {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.7);
+}
+
+[data-theme="dark"] .card {
+  background: var(--bg-card);
+  border-color: var(--border-subtle);
+}
+
+/* --- 3. Responsive Tables & Containers --- */
+.table-responsive {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  margin: 12px 0 !important;
+  display: block;
+}
+
+table {
+  max-width: 100%;
+}
+
+/* --- 4. Touch Targets & Form Controls --- */
+.btn,
+.nav-item,
+.bottom-nav-item,
+.auth-tab-btn,
+.ci-tab-btn,
+.tab-btn {
+  touch-action: manipulation;
+}
+
+.btn {
+  min-height: 38px;
+}
+
+.btn-sm {
+  min-height: 34px;
+}
+
+input, select, textarea, .form-control {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* --- 5. Breakpoint: Tablet & Below (max-width: 768px) --- */
+@media (max-width: 768px) {
+  /* Main layout padding */
+  .main-content {
+    padding: 16px 12px 84px !important;
+    max-width: 100% !important;
+  }
+
+  /* Universal collapse for multi-column form grids and card rows */
+  form div[style*="grid-template-columns"],
+  .modal-form-grid,
+  .dashboard-grid,
+  .card div[style*="grid-template-columns"],
+  .modal-dialog div[style*="grid-template-columns"],
+  div[style*="grid-template-columns: 1fr 1fr"],
+  div[style*="grid-template-columns: 1fr 1fr 1fr"],
+  div[style*="grid-template-columns: 2fr 1fr 1fr 1fr"],
+  div[style*="grid-template-columns: 1fr 1.3fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* Force inline width inputs to be 100% responsive */
+  .form-control[style*="width:"],
+  input[style*="width:"] {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Grid containers for all card modules */
+  #traffic-violations-container,
+  #const-rights-grid,
+  #lawyers-roster-container,
+  #lk-acts-container,
+  #lk-bns-offences-container,
+  #lk-judgments-container,
+  #lk-evidence-container,
+  #ci-lawyers-list,
+  #res-takeaways-container,
+  #acts-grid-container {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  /* Legal Paper Sheet responsive padding */
+  .legal-document-paper,
+  #cg-document-sheet,
+  #modal-doc-preview-paper {
+    padding: 20px 14px !important;
+    font-size: 13.5px !important;
+    line-height: 1.65 !important;
+    border-radius: var(--radius-sm);
+    margin: 0 auto 20px !important;
+  }
+
+  /* AI Chat UI Mobile Optimization */
+  #form-ai-chat {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+
+  #ai-chat-input {
+    width: 100% !important;
+    min-height: 52px !important;
+    box-sizing: border-box !important;
+  }
+
+  #form-ai-chat > div:last-child {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    gap: 8px !important;
+  }
+
+  .chat-msg-user {
+    max-width: 90% !important;
+    font-size: 13.5px !important;
+    padding: 10px 14px !important;
+  }
+
+  .chat-msg-assistant {
+    max-width: 96% !important;
+    font-size: 13.5px !important;
+    padding: 14px 14px !important;
+  }
+
+  /* Modals Mobile Sizing */
+  .modal-dialog {
+    max-width: min(94vw, 680px) !important;
+    width: 100% !important;
+    max-height: calc(100dvh - 24px) !important;
+    margin: 12px auto !important;
+    overflow-y: auto !important;
+  }
+
+  .modal-body {
+    padding: 16px 14px !important;
+    max-height: calc(100dvh - 140px) !important;
+    overflow-y: auto !important;
+  }
+
+  .modal-footer {
+    padding: 12px 14px !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  /* Case Progress Stage Nodes */
+  .case-progress-track {
+    overflow-x: auto !important;
+    padding-bottom: 8px !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
+/* --- 6. Breakpoint: Small Mobile (max-width: 480px) --- */
+@media (max-width: 480px) {
+  /* Fluid typography */
+  .page-title {
+    font-size: 1.35rem !important;
+  }
+
+  .page-subtitle {
+    font-size: 0.85rem !important;
+    line-height: 1.45 !important;
+  }
+
+  /* Card padding reduction */
+  .card {
+    padding: 16px 14px !important;
+  }
+
+  /* Auth overlay sheet on small mobile */
+  #login-screen .modal-dialog {
+    max-width: 95vw !important;
+    margin: 8px auto !important;
+  }
+
+  #login-screen .modal-dialog > div:first-child {
+    padding: 24px 16px 14px !important;
+  }
+
+  #login-screen .modal-dialog > div:last-child {
+    padding: 0 16px 20px !important;
+  }
+
+  .auth-tab-btn {
+    font-size: 12px !important;
+    padding: 8px 6px !important;
+  }
+
+  /* Button flex wrap & size */
+  .btn {
+    font-size: 13px !important;
+  }
+
+  .btn-sm {
+    font-size: 12px !important;
+    padding: 6px 10px !important;
+  }
+}
+
+/* --- 7. Breakpoint: Ultra-Narrow Mobile (max-width: 375px) --- */
+@media (max-width: 375px) {
+  .main-content {
+    padding: 12px 8px 84px !important;
+  }
+
+  .card {
+    padding: 12px 10px !important;
+  }
+
+  .page-title {
+    font-size: 1.2rem !important;
+  }
+
+  .page-subtitle {
+    font-size: 0.8rem !important;
+  }
+
+  .legal-document-paper,
+  #cg-document-sheet,
+  #modal-doc-preview-paper {
+    padding: 14px 10px !important;
+    font-size: 13px !important;
+  }
+
+  .chat-msg-user,
+  .chat-msg-assistant {
+    max-width: 98% !important;
+    padding: 10px 10px !important;
+    font-size: 13px !important;
+  }
+
+  /* Bottom nav icons/labels on 320px-360px */
+  .bottom-nav-item {
+    font-size: 10px !important;
+    padding: 4px 2px !important;
+  }
+
+  .bottom-nav-icon {
+    font-size: 16px !important;
+  }
+}
+
+/* ===================================================================
+   FINAL VISUAL READABILITY & CONTRAST POLISH (ALL PLATFORMS & THEMES)
+   Guarantees clean, ultra-readable typography, crisp element hierarchy,
+   accessible contrast in light & dark modes, and effortless scanning.
+   =================================================================== */
+
+/* 1. Global Typography & Hierarchy */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-size: 15px !important;
+  line-height: 1.6 !important;
+  color: var(--text-primary) !important;
+}
+
+h1, .h1 {
+  font-size: clamp(22px, 3.8vw, 28px) !important;
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+  line-height: 1.3 !important;
+  letter-spacing: -0.02em !important;
+}
+
+h2, .h2, .page-title {
+  font-size: clamp(19px, 3.2vw, 24px) !important;
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+  line-height: 1.35 !important;
+  letter-spacing: -0.015em !important;
+}
+
+h3, .h3, .card-title, .modal-title {
+  font-size: clamp(16.5px, 2.8vw, 19px) !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+  line-height: 1.4 !important;
+}
+
+h4, .h4 {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+  line-height: 1.45 !important;
+}
+
+.page-subtitle {
+  font-size: 14.5px !important;
+  color: var(--text-secondary) !important;
+  line-height: 1.55 !important;
+}
+
+p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* 2. Form Controls, Labels & Placeholders */
+.form-label, label {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+  margin-bottom: 6px !important;
+  line-height: 1.4 !important;
+}
+
+.form-control,
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+  font-size: 14.5px !important;
+  line-height: 1.5 !important;
+  min-height: 42px;
+  border-radius: var(--radius-sm);
+  box-sizing: border-box;
+}
+
+/* Light Theme Inputs */
+[data-theme="light"] .form-control,
+[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="light"] select,
+[data-theme="light"] textarea {
+  background: #FFFFFF !important;
+  border: 1.5px solid #CBD5E1 !important;
+  color: #0F172A !important;
+}
+
+[data-theme="light"] .form-control:focus,
+[data-theme="light"] input:focus,
+[data-theme="light"] select:focus,
+[data-theme="light"] textarea:focus {
+  border-color: #4338CA !important;
+  box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.15) !important;
+}
+
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: #64748B !important;
+  opacity: 1 !important;
+}
+
+/* Dark Theme Inputs */
+[data-theme="dark"] .form-control,
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background: #111827 !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.18) !important;
+  color: #FFFFFF !important;
+}
+
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] input:focus,
+[data-theme="dark"] select:focus,
+[data-theme="dark"] textarea:focus {
+  border-color: #818CF8 !important;
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25) !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: #94A3B8 !important;
+  opacity: 1 !important;
+}
+
+/* 3. Buttons & Interactive Controls */
+.btn {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  min-height: 40px !important;
+}
+
+.btn-sm {
+  font-size: 13px !important;
+  min-height: 36px !important;
+  padding: 6px 14px !important;
+}
+
+[data-theme="light"] .btn-secondary {
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+  border: 1.5px solid #CBD5E1 !important;
+}
+
+[data-theme="light"] .btn-secondary:hover {
+  background: #F1F5F9 !important;
+  border-color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .btn-secondary {
+  background: #1E293B !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+  background: #334155 !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+}
+
+/* 4. Badges & Status Labels */
+.badge {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  padding: 4px 10px !important;
+  line-height: 1.35;
+}
+
+/* Light Theme Badges */
+[data-theme="light"] .badge-active,
+[data-theme="light"] .badge-scheduled {
+  background: rgba(5, 150, 105, 0.12) !important;
+  color: #047857 !important;
+  border: 1px solid rgba(5, 150, 105, 0.3) !important;
+}
+
+[data-theme="light"] .badge-pending {
+  background: rgba(217, 119, 6, 0.12) !important;
+  color: #B45309 !important;
+  border: 1px solid rgba(217, 119, 6, 0.3) !important;
+}
+
+[data-theme="light"] .badge-completed,
+[data-theme="light"] .badge-resolved {
+  background: rgba(67, 56, 202, 0.1) !important;
+  color: #4338CA !important;
+  border: 1px solid rgba(67, 56, 202, 0.3) !important;
+}
+
+[data-theme="light"] .badge-high {
+  background: rgba(225, 29, 72, 0.12) !important;
+  color: #BE123C !important;
+  border: 1px solid rgba(225, 29, 72, 0.3) !important;
+}
+
+/* Dark Theme Badges */
+[data-theme="dark"] .badge-active,
+[data-theme="dark"] .badge-scheduled {
+  background: rgba(16, 185, 129, 0.2) !important;
+  color: #34D399 !important;
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+}
+
+[data-theme="dark"] .badge-pending {
+  background: rgba(245, 158, 11, 0.2) !important;
+  color: #FCD34D !important;
+  border: 1px solid rgba(245, 158, 11, 0.4) !important;
+}
+
+[data-theme="dark"] .badge-completed,
+[data-theme="dark"] .badge-resolved {
+  background: rgba(129, 140, 248, 0.2) !important;
+  color: #C7D2FE !important;
+  border: 1px solid rgba(129, 140, 248, 0.4) !important;
+}
+
+[data-theme="dark"] .badge-high {
+  background: rgba(244, 63, 94, 0.2) !important;
+  color: #FDA4AF !important;
+  border: 1px solid rgba(244, 63, 94, 0.4) !important;
+}
+
+/* 5. Navigation Items */
+.nav-item {
+  font-size: 14.5px !important;
+  font-weight: 500 !important;
+}
+
+.nav-section-title {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+.nav-item .badge,
+.nav-badge {
+  font-size: 11.5px !important;
+  padding: 3px 8px !important;
+  font-weight: 600 !important;
+}
+
+/* 6. Tables */
+.table th,
+table th {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+  padding: 12px 14px !important;
+  background: var(--bg-elevated) !important;
+}
+
+.table td,
+table td {
+  font-size: 14px !important;
+  color: var(--text-secondary) !important;
+  padding: 12px 14px !important;
+}
+
+/* 7. AI Legal Assistant & Citations */
+.chat-msg-user {
+  font-size: 15px !important;
+  line-height: 1.6 !important;
+  color: #FFFFFF !important;
+}
+
+.chat-msg-assistant {
+  font-size: 15px !important;
+  line-height: 1.75 !important;
+  color: var(--text-primary) !important;
+}
+
+.citation-badge {
+  font-size: 12.5px !important;
+  padding: 4px 10px !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="dark"] .citation-badge {
+  background: rgba(129, 140, 248, 0.16) !important;
+  color: #A5B4FC !important;
+  border: 1px solid rgba(129, 140, 248, 0.35) !important;
+}
+
+/* 8. Cards & Structural Elements */
+.card,
+.traffic-card,
+.const-right-card,
+.advocate-card {
+  border: 1px solid var(--border-subtle) !important;
+}
+
+[data-theme="dark"] .card,
+[data-theme="dark"] .modal-dialog,
+[data-theme="dark"] .traffic-card,
+[data-theme="dark"] .const-right-card,
+[data-theme="dark"] .advocate-card {
+  background: #111827 !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+/* 9. Disclaimers & Alert Banners */
+.disclaimer-banner {
+  font-size: 13.5px !important;
+  line-height: 1.55 !important;
+}
+
+/* 10. Secondary & Helper Text */
+.text-muted,
+.form-text,
+.helper-text,
+.matter-meta,
+.doc-row-meta,
+.hearing-card-meta {
+  color: var(--text-muted) !important;
+  font-size: 12.5px !important;
+  line-height: 1.5 !important;
+}
+
+/* ===================================================================
+   DESKTOP TOPBAR NAVIGATION & CITIZEN NAVIGATION
+   =================================================================== */
+.desktop-navbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 auto;
+  padding: 0 8px;
+}
+
+.desktop-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: var(--radius-md);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--transition);
+  border: 1px solid transparent;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.desktop-nav-link:hover {
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+  border-color: var(--border-subtle);
+}
+
+.desktop-nav-link.active {
+  color: var(--accent-primary);
+  background: var(--accent-light);
+  border-color: rgba(99, 102, 241, 0.25);
+}
+
+.desktop-nav-link .dnav-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.desktop-nav-link .dnav-label {
+  font-size: 13.5px;
+}
+
+/* Compact Current Case Top Nav Pill */
+.desktop-nav-case-wrap {
+  display: inline-flex;
+  align-items: center;
+}
+
+.desktop-nav-case-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  max-width: 170px;
+  white-space: nowrap;
+}
+
+.desktop-nav-case-pill:hover {
+  border-color: var(--accent-primary);
+  background: var(--accent-light);
+  color: var(--accent-primary);
+}
+
+.dnav-case-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* More Dropdown */
+.desktop-nav-dropdown-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.desktop-nav-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 240px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+  padding: 8px;
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.dnav-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.dnav-dropdown-item:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.admin-nav-link {
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  color: #EF4444 !important;
+  background: rgba(239, 68, 68, 0.08) !important;
+}
+
+.admin-nav-link:hover {
+  background: rgba(239, 68, 68, 0.16) !important;
+  border-color: #EF4444 !important;
+}
+
+/* Drawer Language Switcher Pills */
+.sidebar-lang-pill {
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+
+.sidebar-lang-pill.active {
+  background: var(--accent-primary) !important;
+  color: #FFFFFF !important;
+  border-color: var(--accent-primary) !important;
+}
+
+/* Language Popover Fix */
+.lang-selector-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.lang-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 260px;
+  max-width: calc(100vw - 20px);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+  padding: 12px;
+  z-index: 1050;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Responsive Topbar Navigation */
+@media (max-width: 1024px) {
+  .desktop-navbar {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1025px) {
+  .mobile-menu-btn {
+    display: none !important;
+  }
+}
+
+/* ============================================================== */
+/* PROFESSIONAL LEGAL DOCUMENT INTERFACE & ARRANGEMENT             */
+/* ============================================================== */
+.doc-viewer-container {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Document Header Component */
+.doc-viewer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
+}
+
+.doc-viewer-title-wrap {
+  flex: 1;
+  min-width: 200px;
+}
+
+.doc-viewer-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.3;
+  margin: 0 0 6px 0;
+  word-break: break-word;
+}
+
+.doc-viewer-badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Document Information Grid */
+.doc-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 16px;
+}
+
+.doc-info-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.doc-info-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.doc-info-value {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.doc-info-subtext {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+}
+
+/* AI Origin Notice Card */
+.doc-ai-notice {
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-left: 4px solid var(--accent-primary);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+/* Document Action Toolbar */
+.doc-action-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+}
+
+.doc-action-toolbar .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+/* Login Screen Language Bar */
+.login-lang-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 12px 24px 0;
+}
+
+.login-lang-btn {
+  padding: 3px 8px !important;
+  font-size: 11.5px !important;
+  border-radius: var(--radius-sm) !important;
+  transition: var(--transition);
+}
+
+.login-lang-btn.active {
+  background: var(--accent-primary) !important;
+  color: #FFFFFF !important;
+  border-color: var(--accent-primary) !important;
+}
+
+/* Dashboard Quick Language Switch */
+.dash-lang-btn.active {
+  background: var(--accent-primary) !important;
+  color: #FFFFFF !important;
+}
+
+/* ============================================================== */
+/* LEGAL DOCUMENT PAPER SHEET & PROFESSIONAL TYPOGRAPHY           */
+/* ============================================================== */
+.legal-document-paper {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 32px 36px;
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  position: relative;
+  min-height: 240px;
+}
+
+#modal-doc-preview-content {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14.5px;
+  line-height: 1.8;
+  color: var(--text-primary);
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+#modal-doc-preview-content h1,
+#modal-doc-preview-content h2,
+#modal-doc-preview-content h3,
+#modal-doc-preview-content h4 {
+  color: var(--text-primary);
+  font-weight: 700;
+  margin-top: 20px;
+  margin-bottom: 8px;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+#modal-doc-preview-content p {
+  margin: 0 0 14px 0;
+  text-align: justify;
+  text-justify: inter-word;
+  line-height: 1.8;
+  color: var(--text-primary);
+}
+
+#modal-doc-preview-content .legal-section {
+  margin-bottom: 18px;
+  padding-left: 14px;
+  border-left: 3px solid var(--accent-primary);
+}
+
+#modal-doc-preview-content strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Document Item Card in Lists */
+.doc-item-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.doc-item-card:hover {
+  border-color: rgba(99, 102, 241, 0.4) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* ============================================================== */
+/* MOBILE DOCUMENT LAYOUT & VIEWPORT OPTIMIZATIONS (320px-600px)   */
+/* ============================================================== */
+@media (max-width: 600px) {
+  /* Language Popover on Mobile Viewports */
+  .lang-popover {
+    position: fixed !important;
+    top: 56px !important;
+    left: 10px !important;
+    right: 10px !important;
+    width: auto !important;
+    max-width: calc(100vw - 20px) !important;
+    z-index: 1050 !important;
+  }
+
+  /* Document Viewer Container & Headers */
+  .doc-viewer-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    gap: 12px !important;
+  }
+
+  .doc-viewer-header {
+    padding: 12px 14px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .doc-viewer-title-wrap {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .doc-viewer-title {
+    font-size: 16px !important;
+  }
+
+  /* Document Action Toolbar on Mobile - Clean Natural Stacking */
+  .doc-action-toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    gap: 8px !important;
+  }
+
+  .doc-action-toolbar .btn {
+    width: 100% !important;
+    justify-content: center !important;
+    min-height: 42px !important;
+    box-sizing: border-box !important;
+    font-size: 13px !important;
+    margin-left: 0 !important;
+  }
+
+  /* Document Info Grid Single Column */
+  .doc-info-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .doc-info-card {
+    padding: 10px 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Legal Document Paper Sheet on Mobile */
+  .legal-document-paper {
+    padding: 16px 14px !important;
+    border-radius: var(--radius-sm) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  #modal-doc-preview-content {
+    font-size: 13.5px !important;
+    line-height: 1.65 !important;
+  }
+
+  #modal-doc-preview-content p {
+    text-align: left !important;
+    margin-bottom: 12px !important;
+  }
+
+  /* Document Item Cards in Lists */
+  .doc-item-card {
+    padding: 14px 12px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* Ultra-compact screens (320px - 375px) */
+@media (max-width: 375px) {
+  .doc-viewer-title {
+    font-size: 15px !important;
+  }
+
+  .doc-viewer-badges {
+    gap: 4px !important;
+  }
+
+  .doc-action-toolbar .btn {
+    font-size: 12px !important;
+    padding: 8px 10px !important;
+  }
+
+  .legal-document-paper {
+    padding: 12px 10px !important;
+  }
+
+  #modal-doc-preview-content {
+    font-size: 13px !important;
+    line-height: 1.6 !important;
+  }
+}

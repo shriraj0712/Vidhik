@@ -31,7 +31,8 @@ from app.routers import (
     authorities_router,
     case_intelligence_router,
     resolution_router,
-    complaint_generator_router
+    complaint_generator_router,
+    admin_router
 )
 
 
@@ -106,6 +107,7 @@ app.include_router(authorities_router)
 app.include_router(case_intelligence_router)
 app.include_router(resolution_router)
 app.include_router(complaint_generator_router)
+app.include_router(admin_router)
 
 # Mount Static UI directory
 STATIC_DIR = Path(__file__).resolve().parent / "static"
