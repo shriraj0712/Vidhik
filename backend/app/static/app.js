@@ -25,6 +25,9 @@ const App = {
   researchFilter: 'all',
   selectedBareAct: '',
   bareActsList: [],
+  activeCaseId: localStorage.getItem('vidhik_active_case_id') ? parseInt(localStorage.getItem('vidhik_active_case_id'), 10) : null,
+  activeCaseContext: null,
+  activeCiTab: 'overview',
 
   // -------------------------------------------------------------
   // INITIALIZATION
@@ -630,6 +633,10 @@ const App = {
     } catch (e) {}
     this.token = null;
     this.user = null;
+    this.activeCaseId = null;
+    this.activeCaseContext = null;
+    localStorage.removeItem('vidhik_active_case_id');
+    this.renderCurrentCaseBanner(null);
     this.citizenNotifications = [];
     this.unreadNotifCount = 0;
     this.closeNotificationsPopover();
@@ -673,6 +680,7 @@ const App = {
     }
 
     this.loadNotifications();
+    this.loadActiveCase();
   },
 
   updateUserUI() {
@@ -809,6 +817,9 @@ const App = {
         break;
       case 'citizen-profile':
         this.loadCitizenProfile();
+        break;
+      case 'case-intelligence':
+        this.loadCaseIntelligence();
         break;
     }
   },
@@ -3486,13 +3497,17 @@ const App = {
         ` : ''}
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-subtle); font-size: 12px; color: var(--text-muted); flex-wrap: wrap; gap: 8px;">
-          <div>
-            ${c.filing_date ? `Filing Date: ${c.filing_date}` : (c.created_at ? `Created: ${new Date(c.created_at).toLocaleDateString()}` : '')}
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <span>${c.filing_date ? `Filing Date: ${c.filing_date}` : (c.created_at ? `Created: ${new Date(c.created_at).toLocaleDateString()}` : '')}</span>
+            ${c.case_id === this.activeCaseId ? `<span class="badge badge-active" style="font-size: 10px;">★ ACTIVE CASE</span>` : ''}
           </div>
-          <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
             <span>📄 ${c.documents_count || 0} Docs</span>
             <span>📅 ${c.hearings_count || 0} Hearings</span>
-            <span style="color: var(--accent-cyan); font-weight: 500;">Open Matter Brief →</span>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); App.setActiveCase(${c.case_id}); App.navigate('case-intelligence');">
+              ⚖️ Case Intelligence
+            </button>
+            <span style="color: var(--accent-cyan); font-weight: 500;">Brief →</span>
           </div>
         </div>
       </div>
@@ -3671,13 +3686,10 @@ const App = {
 
     try {
       const created = await this.api('/api/citizen/cases', 'POST', payload);
-      this.showToast('Legal matter registered successfully!', 'success');
+      this.showToast('Legal matter registered! Generating Case Intelligence...', 'success');
       this.closeModals();
-      if (this.currentView === 'citizen-cases') {
-        this.loadCitizenCases();
-      } else {
-        this.openCitizenCaseDetail(created.case_id);
-      }
+      await this.setActiveCase(created.case_id, false);
+      this.navigate('case-intelligence');
     } catch (err) {
       this.showToast('Could not file case: ' + err.message, 'error');
     }
@@ -4473,6 +4485,655 @@ const App = {
       this.renderNotificationsFullList();
     } catch (err) {
       this.showToast('Failed to mark read: ' + err.message, 'error');
+    }
+  },
+
+  // =============================================================
+  // CASE INTELLIGENCE & CURRENT CASE CONTEXT (FEATURES 1-18)
+  // =============================================================
+
+  async loadActiveCase() {
+    try {
+      const data = await this.api('/api/cases/active');
+      const activeCase = data ? (data.active_case || data.case) : null;
+      if (activeCase) {
+        this.activeCaseId = activeCase.case_id;
+        localStorage.setItem('vidhik_active_case_id', this.activeCaseId);
+        this.renderCurrentCaseBanner(activeCase);
+        return activeCase;
+      } else {
+        // If no active case in DB, try fetching user cases to set default
+        const isCitizen = this.user && (this.user.role === 'user' || this.user.role === 'citizen');
+        const endpoint = isCitizen ? '/api/citizen/cases' : '/api/cases';
+        const cases = await this.api(endpoint).catch(() => []);
+        if (cases && cases.length > 0) {
+          return await this.setActiveCase(cases[0].case_id, false);
+        } else {
+          this.renderCurrentCaseBanner(null);
+          return null;
+        }
+      }
+    } catch (err) {
+      console.warn('Could not load active case:', err);
+      this.renderCurrentCaseBanner(null);
+      return null;
+    }
+  },
+
+  renderCurrentCaseBanner(activeCase) {
+    const banner = document.getElementById('current-case-banner');
+    if (!banner) return;
+    if (!activeCase) {
+      banner.style.display = 'none';
+      return;
+    }
+    banner.style.display = 'block';
+
+    const titleEl = document.getElementById('current-case-bar-title');
+    const badgeEl = document.getElementById('current-case-bar-status-badge');
+    const idEl = document.getElementById('current-case-bar-id');
+    const catEl = document.getElementById('current-case-bar-category');
+    const domEl = document.getElementById('current-case-bar-domain');
+    const urgEl = document.getElementById('current-case-bar-urgency');
+
+    if (titleEl) titleEl.innerText = activeCase.case_title || activeCase.title || 'Untitled Case';
+    if (badgeEl) badgeEl.innerText = activeCase.status ? activeCase.status.toUpperCase() : 'ACTIVE';
+    if (idEl) idEl.innerText = activeCase.case_number ? `CASE #${activeCase.case_number}` : `CASE-${String(activeCase.case_id).padStart(3, '0')}`;
+    if (catEl) catEl.innerText = activeCase.case_type || 'General Matter';
+    if (domEl) domEl.innerText = activeCase.court_name || activeCase.court || 'Indian Legal Jurisdiction';
+    if (urgEl) urgEl.innerText = 'Case Anchored';
+  },
+
+  async setActiveCase(caseId, notify = true) {
+    try {
+      const res = await this.api(`/api/cases/${caseId}/set-active`, 'POST');
+      this.activeCaseId = caseId;
+      this.currentCaseId = caseId;
+      localStorage.setItem('vidhik_active_case_id', caseId);
+
+      if (res && res.active_case) {
+        this.renderCurrentCaseBanner(res.active_case);
+      }
+
+      if (notify) {
+        this.showToast(`Current Case switched to: ${res.active_case ? res.active_case.title : 'Selected Matter'}`, 'success');
+      }
+
+      // If already on case-intelligence, reload context immediately
+      if (this.currentView === 'case-intelligence') {
+        await this.loadCaseIntelligence(caseId);
+      }
+
+      return res.active_case;
+    } catch (err) {
+      this.showToast('Could not set active case: ' + err.message, 'error');
+      throw err;
+    }
+  },
+
+  async loadCaseIntelligence(caseId = null) {
+    const targetId = caseId || this.activeCaseId;
+    const container = document.getElementById('view-case-intelligence');
+    if (!container) return;
+
+    if (!targetId) {
+      // Show empty state asking user to select or create a case
+      document.getElementById('ci-header-title').innerText = 'No Active Case Selected';
+      document.getElementById('ci-header-case-num').innerText = 'Please select or file a case to activate Case Intelligence.';
+      document.getElementById('ci-situation-summary-text').innerHTML = `
+        <div class="empty-state" style="padding: 24px 0;">
+          <div class="empty-state-icon" style="font-size: 36px; margin-bottom: 8px;">⚖️</div>
+          <div class="empty-state-title" style="font-size: 16px;">No Active Case Selected</div>
+          <div class="empty-state-desc" style="max-width: 440px; margin: 0 auto 16px;">
+            Vidhik Case Intelligence requires an active legal case to ground statutory provisions, recommend authorities, and match verified lawyers.
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="App.openCaseSwitchModal()">⇄ Select Existing Case</button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="App.openCitizenNewCaseModal()">+ File New Matter</button>
+          </div>
+        </div>
+      `;
+      document.getElementById('ci-explicit-facts-list').innerHTML = '<div style="color: var(--text-muted); font-size: 13px;">No active case</div>';
+      document.getElementById('ci-extracted-facts-list').innerHTML = '<div style="color: var(--text-muted); font-size: 13px;">No active case</div>';
+      document.getElementById('ci-identified-issues-list').innerHTML = '<div style="color: var(--text-muted); font-size: 13px;">No active case</div>';
+      document.getElementById('ci-uncertain-facts-list').innerHTML = '<div style="color: var(--text-muted); font-size: 13px;">No active case</div>';
+      return;
+    }
+
+    // Set spinners in tabs
+    document.getElementById('ci-situation-summary-text').innerHTML = '<div class="spinner" style="margin: 20px auto;"></div>';
+    document.getElementById('ci-provisions-list').innerHTML = '<div class="spinner"></div>';
+    document.getElementById('ci-immediate-actions-list').innerHTML = '<div class="spinner"></div>';
+    document.getElementById('ci-required-docs-list').innerHTML = '<div class="spinner"></div>';
+    document.getElementById('ci-authorities-list').innerHTML = '<div class="spinner"></div>';
+    document.getElementById('ci-lawyers-list').innerHTML = '<div class="spinner"></div>';
+    document.getElementById('ci-procedure-timeline').innerHTML = '<div class="spinner"></div>';
+
+    try {
+      const ctx = await this.api(`/api/cases/${targetId}/context`);
+      this.activeCaseContext = ctx;
+      this.renderCaseIntelligence(ctx);
+    } catch (err) {
+      this.showToast('Could not load Case Intelligence: ' + err.message, 'error');
+    }
+  },
+
+  renderCaseIntelligence(ctx) {
+    if (!ctx) return;
+
+    // 1. Header Information
+    document.getElementById('ci-header-title').innerText = ctx.title || 'Legal Matter';
+    document.getElementById('ci-header-case-num').innerText = `Case ID: ${ctx.case_id} • Category: ${ctx.category || 'General'} • Jurisdiction: ${ctx.jurisdiction || 'India'}`;
+    document.getElementById('ci-header-category').innerText = ctx.category || 'General';
+    document.getElementById('ci-header-domain').innerText = ctx.legal_domain || 'Indian Law';
+
+    const urgEl = document.getElementById('ci-header-urgency');
+    if (urgEl) {
+      urgEl.innerText = `${ctx.urgency || 'Medium'} Urgency`;
+      urgEl.style.background = ctx.urgency === 'High' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(245, 158, 11, 0.15)';
+      urgEl.style.color = ctx.urgency === 'High' ? '#EF4444' : '#F59E0B';
+    }
+
+    const stEl = document.getElementById('ci-header-status');
+    if (stEl) stEl.innerText = ctx.status ? ctx.status.toUpperCase() : 'ACTIVE';
+
+    const verEl = document.getElementById('ci-header-version');
+    if (verEl) verEl.innerText = `Version ${ctx.version || '1.0'}`;
+
+    // 2. Emotional Adaptation & Safety Banners (Feature 7)
+    const emoBanner = document.getElementById('ci-emotion-banner');
+    const safeBanner = document.getElementById('ci-safety-banner');
+
+    if (ctx.emotional_analysis && ctx.emotional_analysis.adaptive_communication_guidance) {
+      emoBanner.style.display = 'flex';
+      document.getElementById('ci-emotion-desc').innerText = ctx.emotional_analysis.adaptive_communication_guidance;
+    } else {
+      emoBanner.style.display = 'none';
+    }
+
+    if (ctx.emotional_analysis && ctx.emotional_analysis.immediate_safety_notice) {
+      safeBanner.style.display = 'flex';
+      document.getElementById('ci-safety-text').innerText = ctx.emotional_analysis.immediate_safety_notice;
+    } else {
+      safeBanner.style.display = 'none';
+    }
+
+    // 3. Tab Counter Badges
+    const secCount = (ctx.ranked_provisions || []).length;
+    const lawCount = (ctx.recommended_lawyers || []).length;
+    const secTabCount = document.getElementById('ci-sections-tab-count');
+    const lawTabCount = document.getElementById('ci-lawyers-tab-count');
+    const provBadge = document.getElementById('ci-provisions-badge');
+
+    if (secTabCount) secTabCount.innerText = secCount;
+    if (lawTabCount) lawTabCount.innerText = lawCount;
+    if (provBadge) provBadge.innerText = `${secCount} Grounded Provisions`;
+
+    // 4. Pane 1: Situation Overview (Feature 1)
+    const sit = ctx.situation_overview || {};
+    document.getElementById('ci-situation-summary-text').innerText = sit.situation_summary || sit.what_is_this_situation || 'Analysis in progress...';
+
+    // Explicitly stated facts
+    const explicitList = document.getElementById('ci-explicit-facts-list');
+    if (explicitList) {
+      const facts = sit.explicit_facts || sit.what_user_stated || [];
+      explicitList.innerHTML = facts.length ? facts.map(f => `
+        <div style="font-size: 13.5px; color: var(--text-primary); padding: 8px 12px; background: var(--bg-primary); border-radius: var(--radius-sm); border-left: 3px solid var(--accent-primary);">
+          ${this.escape(f)}
+        </div>
+      `).join('') : '<div style="color: var(--text-muted); font-size: 13px;">No facts explicitly isolated.</div>';
+    }
+
+    // Important extracted facts
+    const extractedList = document.getElementById('ci-extracted-facts-list');
+    if (extractedList) {
+      const ext = sit.extracted_facts || [];
+      extractedList.innerHTML = ext.length ? ext.map(f => `
+        <div style="font-size: 13.5px; color: var(--text-primary); padding: 8px 12px; background: var(--bg-primary); border-radius: var(--radius-sm); border-left: 3px solid var(--accent-cyan);">
+          ${this.escape(f)}
+        </div>
+      `).join('') : '<div style="color: var(--text-muted); font-size: 13px;">No extracted facts.</div>';
+    }
+
+    // Possible legal issues
+    const issuesList = document.getElementById('ci-identified-issues-list');
+    if (issuesList) {
+      const issues = sit.identified_issues || [];
+      issuesList.innerHTML = issues.length ? issues.map(i => `
+        <div style="font-size: 13.5px; color: var(--text-primary); padding: 8px 12px; background: var(--bg-primary); border-radius: var(--radius-sm); border-left: 3px solid var(--accent-amber);">
+          ${this.escape(i)}
+        </div>
+      `).join('') : '<div style="color: var(--text-muted); font-size: 13px;">No legal issues flagged.</div>';
+    }
+
+    // Uncertain facts
+    const uncertainList = document.getElementById('ci-uncertain-facts-list');
+    if (uncertainList) {
+      const unc = sit.uncertain_facts || [];
+      uncertainList.innerHTML = unc.length ? unc.map(u => `
+        <div style="font-size: 13.5px; color: var(--text-secondary); padding: 8px 12px; background: var(--bg-primary); border-radius: var(--radius-sm); border-left: 3px solid rgba(148, 163, 184, 0.4);">
+          ${this.escape(u)}
+        </div>
+      `).join('') : '<div style="color: var(--text-muted); font-size: 13px;">No uncertain facts noted.</div>';
+    }
+
+    // 5. Pane 2: Legal Analysis & Ranked Provisions (Features 2, 3)
+    const provList = document.getElementById('ci-provisions-list');
+    if (provList) {
+      const provs = ctx.ranked_provisions || [];
+      if (!provs.length) {
+        provList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No specific statutory sections matched for this factual description.</div></div>';
+      } else {
+        provList.innerHTML = provs.map(p => `
+          <div class="card" style="border-left: 4px solid var(--accent-primary); padding: 18px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 8px;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;">
+                  <span class="badge badge-bns" style="font-size: 11px;">${this.escape(p.act_name)}</span>
+                  <span class="badge badge-active" style="font-size: 11px; font-family: 'JetBrains Mono', monospace;">Section ${this.escape(p.section_number)}</span>
+                  <span class="cautious-pill">Potentially Relevant Provision</span>
+                </div>
+                <h4 style="font-size: 16px; color: var(--text-primary); margin: 4px 0 2px 0;">${this.escape(p.section_title)}</h4>
+              </div>
+              <div style="text-align: right;">
+                <span class="badge badge-completed" style="font-size: 11px;">Relevance Score: ${Math.round((p.relevance_score || 0.85) * 100)}%</span>
+              </div>
+            </div>
+
+            <!-- Why Relevant -->
+            <div style="background: rgba(99, 102, 241, 0.08); border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 10px; border: 1px solid rgba(99, 102, 241, 0.2);">
+              <div style="font-size: 11.5px; font-weight: 700; color: var(--accent-primary); text-transform: uppercase; margin-bottom: 3px;">Why this may relate to your case:</div>
+              <div style="font-size: 13px; color: var(--text-primary); line-height: 1.5;">${this.escape(p.why_relevant)}</div>
+            </div>
+
+            <!-- Simple Explanation -->
+            <div>
+              <div style="font-size: 11.5px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 3px;">Simple Legal Explanation:</div>
+              <div style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">${this.escape(p.simple_explanation)}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // 6. Pane 3: Action Plan (Feature 4)
+    const act = ctx.action_plan || ctx.recommended_actions || {};
+    const immList = document.getElementById('ci-immediate-actions-list');
+    const nextList = document.getElementById('ci-next-steps-list');
+    const optList = document.getElementById('ci-optional-actions-list');
+
+    if (immList) {
+      const imm = act.immediate_actions || [];
+      immList.innerHTML = imm.length ? imm.map((item, idx) => `
+        <div class="action-step-card" style="border-left: 3px solid #EF4444;">
+          <div class="action-step-num" style="background: rgba(239, 68, 68, 0.15); color: #EF4444; border-color: rgba(239, 68, 68, 0.4);">${idx + 1}</div>
+          <div style="flex: 1;">
+            <strong style="color: var(--text-primary); font-size: 14px;">${this.escape(item.action_title || item.title || item.step_title)}</strong>
+            <p style="font-size: 13px; color: var(--text-secondary); margin: 3px 0 0 0; line-height: 1.5;">${this.escape(item.description)}</p>
+          </div>
+        </div>
+      `).join('') : '<div style="color: var(--text-muted); font-size: 13px;">No immediate actions required.</div>';
+    }
+
+    if (nextList) {
+      const nxt = act.recommended_next_steps || [];
+      nextList.innerHTML = nxt.length ? nxt.map((item, idx) => `
+        <div class="action-step-card" style="border-left: 3px solid var(--accent-primary);">
+          <div class="action-step-num">${idx + 1}</div>
+          <div style="flex: 1;">
+            <strong style="color: var(--text-primary); font-size: 14px;">${this.escape(item.action_title || item.title || item.step_title)}</strong>
+            <p style="font-size: 13px; color: var(--text-secondary); margin: 3px 0 0 0; line-height: 1.5;">${this.escape(item.description)}</p>
+          </div>
+        </div>
+      `).join('') : '<div style="color: var(--text-muted); font-size: 13px;">No follow-up steps.</div>';
+    }
+
+    if (optList) {
+      const opt = act.optional_supporting_actions || [];
+      optList.innerHTML = opt.length ? opt.map((item, idx) => `
+        <div class="action-step-card">
+          <div class="action-step-num" style="background: var(--bg-elevated); color: var(--text-muted); border-color: var(--border-subtle);">${idx + 1}</div>
+          <div style="flex: 1;">
+            <strong style="color: var(--text-primary); font-size: 14px;">${this.escape(item.action_title || item.title || item.step_title)}</strong>
+            <p style="font-size: 13px; color: var(--text-secondary); margin: 3px 0 0 0; line-height: 1.5;">${this.escape(item.description)}</p>
+          </div>
+        </div>
+      `).join('') : '<div style="color: var(--text-muted); font-size: 13px;">No optional actions.</div>';
+    }
+
+    // 7. Pane 4: Documents & Evidence Checklist (Feature 5)
+    const docs = ctx.document_checklist || ctx.required_documents || {};
+    const reqList = document.getElementById('ci-required-docs-list');
+    const impList = document.getElementById('ci-important-docs-list');
+    const supList = document.getElementById('ci-supporting-docs-list');
+
+    const renderDocCard = (d, badgeClass, label) => `
+      <div class="card" style="padding: 14px 18px; margin-bottom: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+              <strong style="color: var(--text-primary); font-size: 14.5px;">📄 ${this.escape(d.title || d.document_name)}</strong>
+              <span class="badge ${badgeClass}" style="font-size: 10.5px;">${label}</span>
+              ${d.is_digital_evidence || d.evidence_safeguard || d.electronic_record_rule ? `<span class="badge badge-bsa" style="font-size: 10.5px;">BSA Sec 63 Digital Proof</span>` : ''}
+            </div>
+            <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">${this.escape(d.purpose || d.description || d.purpose_or_reason)}</div>
+            ${d.evidence_safeguard || d.electronic_record_rule ? `
+              <div style="font-size: 11.5px; color: var(--accent-cyan); margin-top: 4px;">
+                💡 <em>${this.escape(d.evidence_safeguard || d.electronic_record_rule)}</em>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+
+    if (reqList) {
+      const req = docs.required_documents || [];
+      reqList.innerHTML = req.length ? req.map(d => renderDocCard(d, 'badge-mandatory', 'Required')).join('') : '<div style="color: var(--text-muted); font-size: 13px;">No required documents.</div>';
+    }
+
+    if (impList) {
+      const imp = docs.important_documents || [];
+      impList.innerHTML = imp.length ? imp.map(d => renderDocCard(d, 'badge-supporting', 'Important')).join('') : '<div style="color: var(--text-muted); font-size: 13px;">No important documents.</div>';
+    }
+
+    if (supList) {
+      const sup = docs.supporting_documents || [];
+      supList.innerHTML = sup.length ? sup.map(d => renderDocCard(d, 'badge-completed', 'Supporting')).join('') : '<div style="color: var(--text-muted); font-size: 13px;">No supporting documents.</div>';
+    }
+
+    // 8. Pane 5: Who Can Help / Authorities
+    const authList = document.getElementById('ci-authorities-list');
+    if (authList) {
+      const auths = ctx.recommended_authorities || [];
+      if (!auths.length) {
+        authList.innerHTML = '<div class="empty-state"><div class="empty-state-desc">No specific authorities registered for this jurisdiction.</div></div>';
+      } else {
+        authList.innerHTML = auths.map(a => `
+          <div class="card" style="border-left: 4px solid var(--accent-cyan); padding: 18px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; margin-bottom: 6px;">
+              <div>
+                <span class="badge badge-bnss" style="font-size: 11px; margin-bottom: 4px;">${this.escape(a.authority_type || 'Statutory Authority')}</span>
+                <h4 style="font-size: 16px; color: var(--text-primary); margin: 2px 0;">${this.escape(a.authority_name)}</h4>
+                <div style="font-size: 12px; color: var(--text-muted);">Jurisdiction: ${this.escape(a.jurisdiction_level || a.jurisdiction || 'Local / District')}</div>
+              </div>
+            </div>
+            <p style="font-size: 13px; color: var(--text-secondary); margin: 6px 0 10px 0; line-height: 1.5;">${this.escape(a.description || '')}</p>
+            ${a.procedure_to_approach ? `
+              <div style="background: var(--bg-primary); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); font-size: 12.5px; color: var(--text-secondary);">
+                <strong style="color: var(--accent-cyan);">Procedure to Approach:</strong> ${this.escape(a.procedure_to_approach)}
+              </div>
+            ` : ''}
+          </div>
+        `).join('');
+      }
+    }
+
+    // Precedents if present
+    const precCard = document.getElementById('ci-precedents-card');
+    const precList = document.getElementById('ci-precedents-list');
+    if (precCard && precList) {
+      const precs = ctx.precedents || [];
+      if (precs.length) {
+        precCard.style.display = 'block';
+        precList.innerHTML = precs.map(p => `
+          <div style="padding: 10px 14px; background: var(--bg-primary); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); font-size: 13px;">
+            <strong style="color: var(--text-primary);">${this.escape(p.case_title || p.title)}</strong>
+            ${p.citation ? `<span style="color: var(--accent-amber); font-size: 11.5px; margin-left: 6px;">(${this.escape(p.citation)})</span>` : ''}
+            <div style="color: var(--text-muted); font-size: 12px; margin-top: 3px;">${this.escape(p.headnote || p.summary || '')}</div>
+          </div>
+        `).join('');
+      } else {
+        precCard.style.display = 'none';
+      }
+    }
+
+    // 9. Pane 6: Lawyer Recommendations (Feature 14)
+    const lawList = document.getElementById('ci-lawyers-list');
+    if (lawList) {
+      const lawyers = ctx.recommended_lawyers || [];
+      if (!lawyers.length) {
+        lawList.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <div class="empty-state-icon">🧑‍⚖️</div>
+            <div class="empty-state-title">No Direct Match Found in Database</div>
+            <div class="empty-state-desc">No registered advocate in the Vidhik database exactly matched the required legal domain and jurisdiction. Vidhik does not invent fictitious lawyer profiles.</div>
+          </div>
+        `;
+      } else {
+        lawList.innerHTML = lawyers.map(l => `
+          <div class="lawyer-match-card">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
+                <div>
+                  <h4 style="font-size: 16px; color: var(--text-primary); margin-bottom: 2px;">${this.escape(l.full_name || l.name)}</h4>
+                  <div style="font-size: 11.5px; color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace;">${this.escape(l.bar_council_number || 'Enrolled Advocate')}</div>
+                </div>
+                <span class="badge ${l.is_verified || l.verification_status === 'Verified' ? 'badge-active' : 'badge-completed'}" style="font-size: 10.5px;">
+                  ${this.escape(l.verification_status || (l.is_verified ? 'Verified' : 'Enrolled'))}
+                </span>
+              </div>
+
+              <!-- Match Reason -->
+              <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: var(--radius-sm); padding: 8px 10px; margin-bottom: 12px; font-size: 12px; color: var(--text-primary); line-height: 1.45;">
+                <strong style="color: var(--accent-primary);">Match Rationale:</strong> ${this.escape(l.match_reason)}
+              </div>
+
+              <div style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 6px;">
+                <strong>Specialization:</strong> <span class="badge badge-bns" style="font-size: 10px; padding: 2px 6px;">${this.escape(l.specialization || 'Advocate')}</span>
+              </div>
+
+              <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">
+                🏛️ <strong>Courts:</strong> ${this.escape(l.court_practice || (l.courts || []).join(', ') || 'District & High Courts')}
+              </div>
+
+              <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">
+                📍 <strong>Location:</strong> ${this.escape(l.city || (l.jurisdictions || []).join(', ') || 'Maharashtra')} • <strong>Experience:</strong> ${l.experience_years || l.years_of_experience || 10}+ Years
+              </div>
+            </div>
+
+            <div style="margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 11.5px; color: var(--text-muted);">Match Score: <strong>${Math.round((l.match_score || 0.8) * 100)}%</strong></span>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="App.showToast('Chambers contact: ' + App.escape('${l.email || l.phone || 'Available via Vidhik Desk'}'), 'info')">
+                View Contact
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // 10. Pane 7: Further Procedure (Feature 6)
+    const procTimeline = document.getElementById('ci-procedure-timeline');
+    if (procTimeline) {
+      const proc = ctx.further_procedure || {};
+      const stages = proc.procedural_stages || proc.procedural_pathway || [];
+      if (!stages.length) {
+        procTimeline.innerHTML = '<div class="empty-state"><div class="empty-state-desc">Procedural pathway information is currently being structured.</div></div>';
+      } else {
+        procTimeline.innerHTML = stages.map(s => `
+          <div class="procedure-timeline-step">
+            <div class="procedure-timeline-marker">${s.step_number || s.stage_number}</div>
+            <div class="card" style="padding: 14px 18px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 6px;">
+                <strong style="color: var(--text-primary); font-size: 15px;">Stage ${s.step_number || s.stage_number}: ${this.escape(s.stage_name)}</strong>
+                ${s.expected_timeline || s.estimated_timeframe ? `<span class="badge badge-completed" style="font-size: 11px;">⏱️ ${this.escape(s.expected_timeline || s.estimated_timeframe)}</span>` : ''}
+              </div>
+              <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 8px 0; line-height: 1.5;">${this.escape(s.description || s.likely_action)}</p>
+              ${s.cautious_note || s.authority_involved ? `
+                <div style="font-size: 11.5px; color: var(--text-muted); background: var(--bg-primary); padding: 6px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+                  ℹ️ <em>${this.escape(s.cautious_note || `Concerned authority: ${s.authority_involved}`)}</em>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // 11. Pane 8: Emotional Analysis & Adaptive Guidance (Feature 7)
+    const emoChips = document.getElementById('ci-emotion-chips');
+    const emoText = document.getElementById('ci-emotion-adaptation-text');
+    if (emoChips) {
+      const emo = ctx.emotional_analysis || ctx.emotional_indicators || {};
+      const indicators = emo.detected_indicators || emo.emotional_indicators || [];
+      emoChips.innerHTML = indicators.length ? indicators.map(ind => {
+        const cls = ind.toLowerCase().replace(/[^a-z]/g, '');
+        return `<span class="emotion-chip ${cls}">${this.escape(ind)}</span>`;
+      }).join('') : '<span class="emotion-chip neutral">Neutral / Calm</span>';
+    }
+    if (emoText) {
+      const emo = ctx.emotional_analysis || ctx.emotional_indicators || {};
+      emoText.innerText = emo.communication_adaptation || emo.adaptive_communication_guidance || 'Guidance is provided in objective, factual terms.';
+    }
+
+    // 12. Pane 9: Missing Information (Feature 18)
+    const missList = document.getElementById('ci-missing-info-list');
+    if (missList) {
+      const missing = ctx.missing_information || [];
+      missList.innerHTML = missing.length ? missing.map(m => `
+        <div class="card" style="padding: 12px 16px; border-left: 3px solid var(--accent-amber); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+          <div>
+            <div style="font-size: 13.5px; color: var(--text-primary); font-weight: 500;">${this.escape(m)}</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Supplying this detail will increase legal ranking precision and eliminate procedural ambiguities.</div>
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.openCaseReanalyzeModal()">Provide Fact</button>
+        </div>
+      `).join('') : '<div class="card"><div class="empty-state"><div class="empty-state-desc">All essential foundational facts for initial legal analysis have been supplied.</div></div></div>';
+    }
+  },
+
+  switchCiTab(tabKey) {
+    this.activeCiTab = tabKey;
+
+    document.querySelectorAll('.tab-btn[data-ci-tab]').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('data-ci-tab') === tabKey);
+    });
+
+    document.querySelectorAll('.ci-tab-pane').forEach(p => {
+      p.classList.remove('active');
+      p.style.display = 'none';
+    });
+
+    const targetPane = document.getElementById(`ci-pane-${tabKey}`);
+    if (targetPane) {
+      targetPane.classList.add('active');
+      targetPane.style.display = 'block';
+    }
+  },
+
+  async openCaseSwitchModal() {
+    const list = document.getElementById('switch-case-list');
+    if (!list) return;
+    list.innerHTML = '<div class="spinner"></div>';
+    document.getElementById('modal-switch-case')?.classList.add('active');
+
+    try {
+      const isCitizen = this.user && (this.user.role === 'user' || this.user.role === 'citizen');
+      const endpoint = isCitizen ? '/api/citizen/cases' : '/api/cases';
+      const cases = await this.api(endpoint);
+
+      if (!cases || !cases.length) {
+        list.innerHTML = `
+          <div class="empty-state" style="padding: 20px 0;">
+            <div class="empty-state-title">No Cases Found</div>
+            <div class="empty-state-desc">You do not have any registered legal cases yet. Create your first case to use Case Intelligence.</div>
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = cases.map(c => {
+        const isActive = c.case_id === this.activeCaseId;
+        return `
+          <div class="card" style="padding: 14px 18px; border: ${isActive ? '2px solid var(--accent-primary)' : '1px solid var(--border-subtle)'}; background: ${isActive ? 'rgba(99, 102, 241, 0.08)' : 'var(--bg-card)'}; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                <strong style="color: var(--text-primary); font-size: 15px;">${this.escape(c.title)}</strong>
+                ${isActive ? `<span class="badge badge-active">★ CURRENT ACTIVE</span>` : ''}
+                <span class="badge badge-completed">${this.escape(c.case_type || 'Civil Matter')}</span>
+              </div>
+              <div style="font-size: 12.5px; color: var(--text-muted);">
+                ${c.case_number ? `Case #${c.case_number} • ` : ''}🏛️ ${this.escape(c.court || 'Court')} • Status: <strong>${this.escape(c.status || 'Active')}</strong>
+              </div>
+            </div>
+            <div>
+              ${isActive ? `
+                <button type="button" class="btn btn-secondary btn-sm" disabled style="opacity: 0.7;">Active</button>
+              ` : `
+                <button type="button" class="btn btn-primary btn-sm" onclick="App.submitCaseSwitch(${c.case_id})">Switch to This Case →</button>
+              `}
+            </div>
+          </div>
+        `;
+      }).join('');
+    } catch (err) {
+      list.innerHTML = `<div style="color: #EF4444; padding: 10px;">Error loading cases: ${this.escape(err.message)}</div>`;
+    }
+  },
+
+  async submitCaseSwitch(caseId) {
+    try {
+      await this.setActiveCase(caseId, true);
+      this.closeModals();
+      this.navigate('case-intelligence');
+    } catch (err) {
+      this.showToast('Could not switch case: ' + err.message, 'error');
+    }
+  },
+
+  openCaseReanalyzeModal() {
+    if (!this.activeCaseId) {
+      this.showToast('Please select a case first before re-analyzing.', 'error');
+      return;
+    }
+    const titleInput = document.getElementById('reanalyze-current-title');
+    const factsTextarea = document.getElementById('reanalyze-additional-facts');
+
+    if (titleInput && this.activeCaseContext) {
+      titleInput.value = this.activeCaseContext.title;
+    }
+    if (factsTextarea) {
+      factsTextarea.value = '';
+    }
+
+    document.getElementById('modal-reanalyze-case')?.classList.add('active');
+  },
+
+  async submitCaseReanalyze(e) {
+    e.preventDefault();
+    if (!this.activeCaseId) return;
+
+    const facts = document.getElementById('reanalyze-additional-facts')?.value.trim();
+    if (!facts) {
+      this.showToast('Please provide additional facts or events to re-analyze.', 'error');
+      return;
+    }
+
+    const btn = document.getElementById('btn-submit-reanalyze');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerText = 'Analyzing with Grounded Database...';
+    }
+
+    try {
+      const updated = await this.api(`/api/cases/${this.activeCaseId}/update-and-reanalyze`, 'POST', {
+        additional_facts: facts,
+        recalculate_urgency: true
+      });
+
+      this.activeCaseContext = updated;
+      this.renderCaseIntelligence(updated);
+      this.closeModals();
+      this.showToast('Case updated and successfully re-analyzed!', 'success');
+      this.navigate('case-intelligence');
+    } catch (err) {
+      this.showToast('Failed to re-analyze case: ' + err.message, 'error');
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerText = '⚡ Update & Re-Analyze';
+      }
     }
   },
 

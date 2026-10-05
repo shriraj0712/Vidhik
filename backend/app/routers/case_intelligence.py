@@ -96,11 +96,22 @@ def set_active_case(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Case not found or access denied."
         )
+
+    db.execute("""
+        SELECT case_id, user_id, case_title, case_number, case_type,
+               court_name, status, filing_date, incident_date, location,
+               police_station, case_description, created_at, updated_at
+        FROM cases WHERE case_id = %s AND user_id = %s;
+    """, (case_id, user_id))
+    case_row = db.fetchone()
+
     return {
         "success": True,
         "message": f"Case {case_id} set as active current case.",
-        "active_case_id": case_id
+        "active_case_id": case_id,
+        "active_case": dict(case_row) if case_row else None
     }
+
 
 
 # -------------------------------------------------------------
