@@ -10,13 +10,17 @@ from .query_service import LegalQueryService
 from .ranking_service import LegalRankingService
 from .documentation_service import DocumentationService
 from .knowledge_service import LegalKnowledgeService
+from .case_intelligence_service import CaseIntelligenceService, CaseStore
 
 __all__ = [
     "LegalSearchService",
     "LegalQueryService",
     "LegalRankingService",
     "DocumentationService",
-    "LegalKnowledgeService"
+    "LegalKnowledgeService",
+    "CaseIntelligenceService",
+    "CaseStore"
 ]
+
 
 

@@ -14,6 +14,23 @@ from .documentation import (
     CategoryResponse,
     ProcedureListResponse
 )
+from .case_intelligence import (
+    FactItem,
+    LegalIssue,
+    RankedLegalProvision,
+    AuthorityRecommendation,
+    LawyerRequirement,
+    LawyerMatch,
+    CaseAction,
+    DocumentRequirementItem,
+    FurtherProcedureStage,
+    EmotionalIndicator,
+    MissingInformation,
+    CaseContext,
+    CaseAnalyzeRequest,
+    CaseClarificationRequest,
+    CaseSwitchResponse
+)
 
 __all__ = [
     "LawResponse",
@@ -33,7 +50,23 @@ __all__ = [
     "ProcedureDetail",
     "ChecklistResponse",
     "CategoryResponse",
-    "ProcedureListResponse"
+    "ProcedureListResponse",
+    "FactItem",
+    "LegalIssue",
+    "RankedLegalProvision",
+    "AuthorityRecommendation",
+    "LawyerRequirement",
+    "LawyerMatch",
+    "CaseAction",
+    "DocumentRequirementItem",
+    "FurtherProcedureStage",
+    "EmotionalIndicator",
+    "MissingInformation",
+    "CaseContext",
+    "CaseAnalyzeRequest",
+    "CaseClarificationRequest",
+    "CaseSwitchResponse"
 ]
+
 
 

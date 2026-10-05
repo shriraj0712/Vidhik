@@ -24,7 +24,8 @@ from app.routers import (
     lawyer_router,
     documentation_router,
     knowledge_base_router,
-    authorities_router
+    authorities_router,
+    case_intelligence_router
 )
 
 
@@ -80,6 +81,7 @@ app.include_router(lawyer_router)
 app.include_router(documentation_router)
 app.include_router(knowledge_base_router)
 app.include_router(authorities_router)
+app.include_router(case_intelligence_router)
 
 # Mount Static UI directory
 STATIC_DIR = Path(__file__).resolve().parent / "static"
@@ -130,7 +132,13 @@ def root():
             "documentation_categories": "GET /api/documentation/categories",
             "documentation_procedures": "GET /api/documentation/procedures",
             "documentation_procedure_detail": "GET /api/documentation/procedures/{id}",
-            "documentation_checklist": "GET /api/documentation/procedures/{id}/checklist"
+            "documentation_checklist": "GET /api/documentation/procedures/{id}/checklist",
+            "case_analyze": "POST /api/case/analyze",
+            "case_current": "GET /api/case/current",
+            "case_detail": "GET /api/case/{case_id}",
+            "case_switch": "POST /api/case/{case_id}/switch",
+            "case_clarify": "POST /api/case/{case_id}/clarify",
+            "case_list": "GET /api/case"
         }
     }
 

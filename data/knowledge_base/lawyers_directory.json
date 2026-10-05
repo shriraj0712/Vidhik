@@ -1,0 +1,218 @@
+{
+  "legal_aid_organizations": [
+    {
+      "organization_id": 1,
+      "organization_name": "National Legal Services Authority (NALSA)",
+      "organization_type": "Statutory Central Authority",
+      "description": "Apex statutory body constituted under the Legal Services Authorities Act, 1987 to provide free legal services to the weaker sections of the society and organize Lok Adalats.",
+      "phone": "011-23386176",
+      "email": "nalsa-dla@nic.in",
+      "website": "https://nalsa.gov.in",
+      "address": "B-Block, Ground Floor, Additional Office Complex, Supreme Court of India",
+      "city": "New Delhi",
+      "state": "Delhi",
+      "pincode": "110001",
+      "provides_free_legal_aid": true,
+      "domains_covered": [
+        "Criminal Law",
+        "Civil & Property Law",
+        "Family & Matrimonial Law",
+        "Labour & Employment Law",
+        "Consumer Law",
+        "Human Rights & Legal Aid"
+      ]
+    },
+    {
+      "organization_id": 2,
+      "organization_name": "Delhi State Legal Services Authority (DSLSA)",
+      "organization_type": "State Legal Services Authority",
+      "description": "State authority providing free and competent legal services to eligible persons in NCT of Delhi under Legal Services Authorities Act.",
+      "phone": "1516",
+      "email": "dslsa-phc@nic.in",
+      "website": "https://dslsa.org",
+      "address": "Central Office, Pre-Fab Building, Patiala House Courts",
+      "city": "New Delhi",
+      "state": "Delhi",
+      "pincode": "110001",
+      "provides_free_legal_aid": true,
+      "domains_covered": [
+        "Criminal Law",
+        "Civil & Property Law",
+        "Domestic Violence & Family Law",
+        "Accident Claims",
+        "Labour Disputes"
+      ]
+    },
+    {
+      "organization_id": 3,
+      "organization_name": "Maharashtra State Legal Services Authority (MSLSA)",
+      "organization_type": "State Legal Services Authority",
+      "description": "State authority extending legal representation, legal literacy, and mediation to underprivileged citizens across Maharashtra.",
+      "phone": "022-22623348",
+      "email": "mslsa-bhc@nic.in",
+      "website": "https://legalservices.maharashtra.gov.in",
+      "address": "High Court P.W.D. Building, Fort",
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "pincode": "400032",
+      "provides_free_legal_aid": true,
+      "domains_covered": [
+        "Criminal Law",
+        "Tenancy & Property Disputes",
+        "Family Law",
+        "Labour Law",
+        "Consumer Grievances"
+      ]
+    },
+    {
+      "organization_id": 4,
+      "organization_name": "District Legal Services Authority (DLSA) - Bengaluru Urban",
+      "organization_type": "District Legal Services Authority",
+      "description": "District body organizing Lok Adalats and rendering free legal representation to eligible litigants in Bengaluru Urban.",
+      "phone": "080-22111018",
+      "email": "dlsa.bengaluru@gmail.com",
+      "website": "https://bangaloreurban.dcourts.gov.in",
+      "address": "City Civil Court Complex, K.G. Road",
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "pincode": "560009",
+      "provides_free_legal_aid": true,
+      "domains_covered": [
+        "Criminal Law",
+        "Civil Disputes",
+        "Motor Accident Claims",
+        "Cyber Complaints",
+        "Family Disputes"
+      ]
+    }
+  ],
+  "lawyers": [
+    {
+      "lawyer_id": 101,
+      "full_name": "Adv. Rajesh Sharma",
+      "bar_council_id": "D/1420/2008",
+      "city": "New Delhi",
+      "state": "Delhi",
+      "courts": ["Delhi High Court", "Patiala House District Courts", "Saket Courts"],
+      "experience_years": 16,
+      "specializations": [
+        "Criminal Defence",
+        "Bail & Anticipatory Bail",
+        "Cyber Law & Digital Fraud",
+        "Economic Offences & Cheating"
+      ],
+      "practice_domains": ["Criminal Law", "Cyber Law"],
+      "languages": ["English", "Hindi"],
+      "contact_email": "rajesh.advocate@vidhik.ai",
+      "phone": "+91-9811000101",
+      "is_verified": true,
+      "hourly_rate_inr": 2500
+    },
+    {
+      "lawyer_id": 102,
+      "full_name": "Adv. Priya Deshmukh",
+      "bar_council_id": "MAH/2311/2012",
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "courts": ["Bombay High Court", "City Civil and Sessions Court Mumbai", "Bandra Family Court"],
+      "experience_years": 12,
+      "specializations": [
+        "Property & Real Estate Litigation",
+        "Tenancy & Eviction Disputes",
+        "Civil Injunctions & Specific Relief",
+        "Contract & Commercial Disputes"
+      ],
+      "practice_domains": ["Civil & Property Law", "Contract Law"],
+      "languages": ["English", "Hindi", "Marathi"],
+      "contact_email": "priya.deshmukh@vidhik.ai",
+      "phone": "+91-9820000102",
+      "is_verified": true,
+      "hourly_rate_inr": 3000
+    },
+    {
+      "lawyer_id": 103,
+      "full_name": "Adv. Vikramjit Singh",
+      "bar_council_id": "D/3044/2015",
+      "city": "New Delhi",
+      "state": "Delhi",
+      "courts": ["NCDRC", "State Consumer Commission Delhi", "Delhi High Court"],
+      "experience_years": 9,
+      "specializations": [
+        "Consumer Protection & Product Liability",
+        "Banking & Insurance Disputes",
+        "Deficiency in Service & Unfair Trade Practices",
+        "Medical Negligence"
+      ],
+      "practice_domains": ["Consumer Law", "Banking & Insurance"],
+      "languages": ["English", "Hindi", "Punjabi"],
+      "contact_email": "vikramjit.singh@vidhik.ai",
+      "phone": "+91-9871000103",
+      "is_verified": true,
+      "hourly_rate_inr": 2000
+    },
+    {
+      "lawyer_id": 104,
+      "full_name": "Adv. Ananya Iyer",
+      "bar_council_id": "KAR/1890/2014",
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "courts": ["Karnataka High Court", "City Civil Court Bengaluru", "Labour Courts"],
+      "experience_years": 10,
+      "specializations": [
+        "Employment & Labour Law",
+        "Salary & Severance Disputes",
+        "POSH Workplace Inquiries",
+        "Corporate Contracts & Commercial Law"
+      ],
+      "practice_domains": ["Labour & Employment Law", "Corporate & Commercial Law"],
+      "languages": ["English", "Kannada", "Hindi"],
+      "contact_email": "ananya.iyer@vidhik.ai",
+      "phone": "+91-9845000104",
+      "is_verified": true,
+      "hourly_rate_inr": 2800
+    },
+    {
+      "lawyer_id": 105,
+      "full_name": "Adv. Meera Sen",
+      "bar_council_id": "WB/1209/2010",
+      "city": "Kolkata",
+      "state": "West Bengal",
+      "courts": ["Calcutta High Court", "Family Courts Kolkata", "Alipore District Court"],
+      "experience_years": 14,
+      "specializations": [
+        "Family & Matrimonial Law",
+        "Divorce & Maintenance",
+        "Domestic Violence (PWDVA)",
+        "Child Custody & Guardianship",
+        "Inheritance & Succession"
+      ],
+      "practice_domains": ["Family & Matrimonial Law"],
+      "languages": ["English", "Bengali", "Hindi"],
+      "contact_email": "meera.sen@vidhik.ai",
+      "phone": "+91-9830000105",
+      "is_verified": true,
+      "hourly_rate_inr": 2200
+    },
+    {
+      "lawyer_id": 106,
+      "full_name": "Adv. Amit Verma",
+      "bar_council_id": "D/5120/2016",
+      "city": "New Delhi",
+      "state": "Delhi",
+      "courts": ["Tis Hazari District Courts", "Rouse Avenue Court", "Delhi High Court"],
+      "experience_years": 8,
+      "specializations": [
+        "Negotiable Instruments & Cheque Bounce (Sec 138)",
+        "Motor Accident Claims (MACT)",
+        "Traffic & Transport Violations",
+        "Arbitration & Recovery Suits"
+      ],
+      "practice_domains": ["Banking & Negotiable Instruments", "Motor Vehicle & Transport Law"],
+      "languages": ["English", "Hindi"],
+      "contact_email": "amit.verma@vidhik.ai",
+      "phone": "+91-9810000106",
+      "is_verified": true,
+      "hourly_rate_inr": 1800
+    }
+  ]
+}
