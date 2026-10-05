@@ -167,6 +167,15 @@
           <span class="nav-badge" id="sidebar-citizen-case-count">0</span>
         </a>
 
+        <a class="nav-item" data-view="case-intelligence">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          Case Intelligence
+          <span class="badge badge-active" style="margin-left: auto; font-size: 10px;">Context</span>
+        </a>
+
         <a class="nav-item" data-view="citizen-documents">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -269,6 +278,15 @@
           </svg>
           Cases
           <span class="nav-badge" id="sidebar-case-count">3</span>
+        </a>
+
+        <a class="nav-item" data-view="case-intelligence">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          Case Intelligence
+          <span class="badge badge-active" style="margin-left: auto; font-size: 10px;">Context</span>
         </a>
 
         <a class="nav-item" data-view="hearings">
@@ -580,8 +598,401 @@
         </div>
       </header>
 
+      <!-- ============================================================== -->
+      <!-- CURRENT ACTIVE CASE STATUS & CONTEXT BAR (FEATURE 15)          -->
+      <!-- ============================================================== -->
+      <div class="current-case-bar" id="current-case-banner" style="display: none;">
+        <div class="current-case-info">
+          <div class="current-case-badge">
+            <span class="pulse-indicator"></span>
+            <span>CURRENT CASE</span>
+          </div>
+          <div class="current-case-details">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <h3 class="current-case-title" id="current-case-bar-title">Loading Active Case...</h3>
+              <span class="badge" id="current-case-bar-status-badge" style="background: rgba(16, 185, 129, 0.15); color: #10B981; font-size: 11px;">Active</span>
+            </div>
+            <div class="current-case-meta">
+              <span class="current-case-id-tag" id="current-case-bar-id">CASE-001</span>
+              <span class="current-case-tag" id="current-case-bar-category">General</span>
+              <span class="current-case-tag" id="current-case-bar-domain" style="color: var(--accent-primary);">Indian Law</span>
+              <span class="current-case-urgency-tag" id="current-case-bar-urgency">Medium Urgency</span>
+            </div>
+          </div>
+        </div>
+        <div class="current-case-actions">
+          <button type="button" class="btn btn-sm btn-primary" onclick="App.navigate('case-intelligence')">
+            ⚖️ Case Intelligence
+          </button>
+          <button type="button" class="btn btn-sm btn-secondary" onclick="App.openCaseSwitchModal()">
+            ⇄ Switch Case
+          </button>
+          <button type="button" class="btn btn-sm btn-outline" onclick="App.openCitizenNewCaseModal()">
+            + New Case
+          </button>
+        </div>
+      </div>
+
       <!-- VIEW CONTAINER -->
       <div class="page-container">
+
+        <!-- ============================================================== -->
+        <!-- VIEW 0: CASE INTELLIGENCE & CONTEXT DASHBOARD (FEATURE 16)     -->
+        <!-- ============================================================== -->
+        <section id="view-case-intelligence" class="view-panel" style="display: none;">
+          <!-- Case Intelligence Main Header -->
+          <div class="page-header" style="flex-wrap: wrap; gap: 14px; align-items: flex-start; margin-bottom: 20px;">
+            <div style="flex: 1; min-width: 280px;">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+                <span class="badge badge-active" id="ci-header-category">Traffic Enforcement</span>
+                <span class="badge" style="background: rgba(99, 102, 241, 0.15); color: var(--accent-primary);" id="ci-header-domain">Motor Vehicle Law</span>
+                <span class="badge" id="ci-header-urgency" style="background: rgba(245, 158, 11, 0.15); color: #F59E0B;">Medium Urgency</span>
+                <span class="badge" id="ci-header-status" style="background: rgba(16, 185, 129, 0.15); color: #10B981;">Active Matter</span>
+                <span class="badge" id="ci-header-version" style="background: var(--bg-elevated); color: var(--text-muted); font-size: 11px;">Version 1.0</span>
+              </div>
+              <h2 class="page-title" id="ci-header-title">Traffic Police Licence Incident</h2>
+              <p class="page-subtitle" id="ci-header-case-num" style="margin-top: 4px;">Case ID: CASE-2026-0001 • Jurisdiction: Pune, Maharashtra</p>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="App.openCaseReanalyzeModal()">
+                📝 Add Facts / Re-analyze
+              </button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="App.openCaseSwitchModal()">
+                ⇄ Switch Case
+              </button>
+              <button type="button" class="btn btn-primary btn-sm" onclick="App.openCitizenNewCaseModal()">
+                + New Matter
+              </button>
+            </div>
+          </div>
+
+          <!-- Emotional Adaptation & Communication Guidance Notice (Feature 7) -->
+          <div id="ci-emotion-banner" class="disclaimer-banner" style="margin-bottom: 20px; display: none;">
+            <span style="font-size: 20px;" id="ci-emotion-icon">💬</span>
+            <div style="flex: 1;">
+              <strong id="ci-emotion-title">Communication Guidance:</strong>
+              <div id="ci-emotion-desc" style="font-size: 13px; margin-top: 3px; line-height: 1.5;">Language adapted to structured step-by-step guidance.</div>
+            </div>
+          </div>
+
+          <!-- Immediate Safety Alert Notice (if safety indicators present) -->
+          <div id="ci-safety-banner" class="disclaimer-banner" style="margin-bottom: 20px; display: none; background: rgba(239, 68, 68, 0.12); border-color: rgba(239, 68, 68, 0.4); color: #F87171;">
+            <span style="font-size: 22px;">🚨</span>
+            <div style="flex: 1;">
+              <strong>IMMEDIATE SAFETY NOTICE:</strong>
+              <div id="ci-safety-text" style="font-size: 13px; margin-top: 3px;">If you face imminent physical harm, dial 112 (National Emergency Helpline).</div>
+            </div>
+          </div>
+
+          <!-- Tab Navigation for Case Intelligence Sections -->
+          <div class="tab-nav case-intel-tabs" style="margin-bottom: 20px; overflow-x: auto; flex-wrap: nowrap;">
+            <button type="button" class="tab-btn active" data-ci-tab="overview" onclick="App.switchCiTab('overview')">
+              📋 Case Overview
+            </button>
+            <button type="button" class="tab-btn" data-ci-tab="legal" onclick="App.switchCiTab('legal')">
+              ⚖️ Legal Analysis & Sections (<span id="ci-sections-tab-count">0</span>)
+            </button>
+            <button type="button" class="tab-btn" data-ci-tab="actions" onclick="App.switchCiTab('actions')">
+              🎯 Action Plan
+            </button>
+            <button type="button" class="tab-btn" data-ci-tab="documents" onclick="App.switchCiTab('documents')">
+              📁 Documents & Evidence
+            </button>
+            <button type="button" class="tab-btn" data-ci-tab="authorities" onclick="App.switchCiTab('authorities')">
+              🏛️ Who Can Help?
+            </button>
+            <button type="button" class="tab-btn" data-ci-tab="lawyers" onclick="App.switchCiTab('lawyers')">
+              🧑‍⚖️ Lawyer Recommendations (<span id="ci-lawyers-tab-count">0</span>)
+            </button>
+            <button type="button" class="tab-btn" data-ci-tab="procedure" onclick="App.switchCiTab('procedure')">
+              ⏳ What Happens Next?
+            </button>
+            <button type="button" class="tab-btn" data-ci-tab="emotions" onclick="App.switchCiTab('emotions')">
+              🧠 Emotional Analysis
+            </button>
+            <button type="button" class="tab-btn" data-ci-tab="missing" onclick="App.switchCiTab('missing')">
+              ❓ Missing Information
+            </button>
+          </div>
+
+          <!-- PANE 1: CASE OVERVIEW & SITUATION (FEATURE 1) -->
+          <div id="ci-pane-overview" class="ci-tab-pane active">
+            <!-- Situation Summary Card -->
+            <div class="card" style="margin-bottom: 20px; border-left: 4px solid var(--accent-primary);">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <h3 class="card-title" style="font-size: 16px;">What is this situation?</h3>
+                <span class="badge badge-active">Cautious Assessment</span>
+              </div>
+              <p id="ci-situation-summary-text" style="font-size: 15px; color: var(--text-primary); line-height: 1.7; margin-bottom: 14px;">
+                Loading case understanding...
+              </p>
+              <div style="font-size: 12px; color: var(--text-muted); line-height: 1.5; background: var(--bg-elevated); padding: 8px 12px; border-radius: var(--radius-sm);">
+                ⚖️ <strong>Legal Principle:</strong> Analysis uses strictly cautious, non-judgmental language based only on stated facts without presuming officer or party liability.
+              </div>
+            </div>
+
+            <!-- Extracted Facts & Explicit Statement Grid -->
+            <div class="dashboard-grid" style="margin-bottom: 20px;">
+              <div class="card">
+                <h3 class="card-title" style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                  <span>💬</span> What You Explicitly Stated
+                </h3>
+                <div id="ci-explicit-facts-list" style="display: flex; flex-direction: column; gap: 8px;">
+                  <div class="spinner"></div>
+                </div>
+              </div>
+
+              <div class="card">
+                <h3 class="card-title" style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                  <span>🔍</span> Important Facts Extracted
+                </h3>
+                <div id="ci-extracted-facts-list" style="display: flex; flex-direction: column; gap: 8px;">
+                  <div class="spinner"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Issues & Uncertain Facts Grid -->
+            <div class="dashboard-grid">
+              <div class="card">
+                <h3 class="card-title" style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                  <span>⚖️</span> Possible Legal Issues Identified
+                </h3>
+                <div id="ci-identified-issues-list" style="display: flex; flex-direction: column; gap: 8px;">
+                  <div class="spinner"></div>
+                </div>
+              </div>
+
+              <div class="card">
+                <h3 class="card-title" style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                  <span>❓</span> Facts That Are Uncertain
+                </h3>
+                <div id="ci-uncertain-facts-list" style="display: flex; flex-direction: column; gap: 8px;">
+                  <div class="spinner"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANE 2: LEGAL ANALYSIS & RANKED PROVISIONS (FEATURES 2, 3) -->
+          <div id="ci-pane-legal" class="ci-tab-pane" style="display: none;">
+            <div class="card" style="margin-bottom: 20px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div>
+                  <h3 class="card-title" style="font-size: 16px;">Database-Grounded Statutory Provisions</h3>
+                  <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
+                    Matched deterministically against BNS, BNSS, BSA, and 24 Indian Bare Acts. Zero hallucination.
+                  </p>
+                </div>
+                <span class="badge badge-active" id="ci-provisions-badge">6 Grounded Sections</span>
+              </div>
+            </div>
+
+            <div id="ci-provisions-list" style="display: flex; flex-direction: column; gap: 16px;">
+              <div class="spinner"></div>
+            </div>
+          </div>
+
+          <!-- PANE 3: ACTION PLAN (FEATURE 4) -->
+          <div id="ci-pane-actions" class="ci-tab-pane" style="display: none;">
+            <div class="card" style="margin-bottom: 20px;">
+              <h3 class="card-title" style="font-size: 16px;">Recommended Actions & Next Steps</h3>
+              <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
+                Tailored strictly to your case facts. Separated into immediate, next, and optional actions.
+              </p>
+            </div>
+
+            <!-- Immediate Actions Section -->
+            <div style="margin-bottom: 24px;">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #EF4444; font-weight: 700;">IMMEDIATE ACTIONS</span>
+                <span style="font-size: 13px; color: var(--text-muted);">Urgent preservation and recording steps</span>
+              </div>
+              <div id="ci-immediate-actions-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
+            </div>
+
+            <!-- Recommended Next Steps Section -->
+            <div style="margin-bottom: 24px;">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                <span class="badge" style="background: rgba(99, 102, 241, 0.15); color: var(--accent-primary); font-weight: 700;">RECOMMENDED NEXT STEPS</span>
+                <span style="font-size: 13px; color: var(--text-muted);">Procedural, grievance, and formal steps</span>
+              </div>
+              <div id="ci-next-steps-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
+            </div>
+
+            <!-- Optional Supporting Actions Section -->
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                <span class="badge" style="background: var(--bg-elevated); color: var(--text-secondary); font-weight: 700;">OPTIONAL / SUPPORTING</span>
+                <span style="font-size: 13px; color: var(--text-muted);">Supplementary avenues and counsel</span>
+              </div>
+              <div id="ci-optional-actions-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
+            </div>
+          </div>
+
+          <!-- PANE 4: DOCUMENTS & EVIDENCE CHECKLIST (FEATURE 5) -->
+          <div id="ci-pane-documents" class="ci-tab-pane" style="display: none;">
+            <div class="card" style="margin-bottom: 20px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div>
+                  <h3 class="card-title" style="font-size: 16px;">Documents & Evidence Requirements Checklist</h3>
+                  <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
+                    Case-specific documentation checklist with Bharatiya Sakshya Adhiniyam (BSA) digital evidence rules.
+                  </p>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="App.openCitizenUploadDocModal()">
+                  + Upload Document Now
+                </button>
+              </div>
+            </div>
+
+            <!-- BSA Section 63 Digital Evidence Banner -->
+            <div class="disclaimer-banner" style="margin-bottom: 20px;">
+              <span style="font-size: 18px;">💾</span>
+              <div>
+                <strong>Electronic Evidence Admissibility (BSA 2023):</strong> Under Section 63 of the Bharatiya Sakshya Adhiniyam, 2023, electronic evidence (photos, video footage, SMS, WhatsApp messages) must be accompanied by an electronic certificate when submitted in formal judicial proceedings.
+              </div>
+            </div>
+
+            <!-- Required Documents List -->
+            <div style="margin-bottom: 24px;">
+              <h4 style="font-size: 14px; font-weight: 700; color: #EF4444; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                <span>🔴</span> Required Documents
+              </h4>
+              <div id="ci-required-docs-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+            </div>
+
+            <!-- Important Documents List -->
+            <div style="margin-bottom: 24px;">
+              <h4 style="font-size: 14px; font-weight: 700; color: #F59E0B; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                <span>🟡</span> Important Documents
+              </h4>
+              <div id="ci-important-docs-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+            </div>
+
+            <!-- Supporting Documents List -->
+            <div>
+              <h4 style="font-size: 14px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                <span>🔵</span> Supporting Documents
+              </h4>
+              <div id="ci-supporting-docs-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+            </div>
+          </div>
+
+          <!-- PANE 5: WHO CAN HELP / AUTHORITIES -->
+          <div id="ci-pane-authorities" class="ci-tab-pane" style="display: none;">
+            <div class="card" style="margin-bottom: 20px;">
+              <h3 class="card-title" style="font-size: 16px;">Who Can Help? Recommended Authorities</h3>
+              <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
+                Competent tribunals, administrative grievance cells, and judicial forums for your matter.
+              </p>
+            </div>
+
+            <div id="ci-authorities-list" style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px;">
+              <div class="spinner"></div>
+            </div>
+
+            <!-- Precedent Decisions Card -->
+            <div class="card" id="ci-precedents-card" style="display: none;">
+              <h3 class="card-title" style="margin-bottom: 12px; font-size: 15px;">Verified Judicial Precedents</h3>
+              <div id="ci-precedents-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+            </div>
+          </div>
+
+          <!-- PANE 6: LAWYER RECOMMENDATIONS (FEATURE 14) -->
+          <div id="ci-pane-lawyers" class="ci-tab-pane" style="display: none;">
+            <div class="card" style="margin-bottom: 20px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div>
+                  <h3 class="card-title" style="font-size: 16px;">Case-Aware Lawyer Recommendations</h3>
+                  <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
+                    Matched deterministically against registered advocates in the Vidhik database based on practice area, jurisdiction, and verified courtroom experience. Zero hallucination.
+                  </p>
+                </div>
+                <span class="badge badge-active" id="ci-lawyers-badge">Database Matched</span>
+              </div>
+            </div>
+
+            <div id="ci-lawyers-list" class="dashboard-grid" style="grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));">
+              <div class="spinner"></div>
+            </div>
+          </div>
+
+          <!-- PANE 7: WHAT HAPPENS NEXT? / FURTHER PROCEDURE (FEATURE 6) -->
+          <div id="ci-pane-procedure" class="ci-tab-pane" style="display: none;">
+            <div class="card" style="margin-bottom: 20px;">
+              <h3 class="card-title" style="font-size: 16px;">What Happens Next? Procedural Pathway</h3>
+              <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
+                Expected procedural steps, stages, and timeline grounded in applicable Indian statutes.
+              </p>
+            </div>
+
+            <!-- Procedural Disclaimer -->
+            <div class="disclaimer-banner" style="margin-bottom: 20px;">
+              <span style="font-size: 18px;">⏳</span>
+              <div>
+                <strong>Procedural Notice:</strong> Depending on the applicable procedure, the concerned authority may verify the complaint, examine relevant records, and seek an explanation from the concerned officers or parties. No outcome is guaranteed.
+              </div>
+            </div>
+
+            <div id="ci-procedure-timeline" style="display: flex; flex-direction: column; gap: 16px;">
+              <div class="spinner"></div>
+            </div>
+          </div>
+
+          <!-- PANE 8: EMOTIONAL ANALYSIS & ADAPTIVE GUIDANCE (FEATURE 7) -->
+          <div id="ci-pane-emotions" class="ci-tab-pane" style="display: none;">
+            <div class="card" style="margin-bottom: 20px; border-left: 4px solid var(--accent-cyan);">
+              <h3 class="card-title" style="font-size: 16px;">Emotional State Analysis & Communication Adaptation</h3>
+              <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
+                Analyzes language patterns to deliver clear, supportive, and de-escalating legal guidance.
+              </p>
+            </div>
+
+            <div class="dashboard-grid" style="margin-bottom: 20px;">
+              <div class="card">
+                <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px;">Detected Tone & Indicators</h4>
+                <div id="ci-emotion-chips" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;"></div>
+                <div style="font-size: 12.5px; color: var(--text-muted);">
+                  Identified from the linguistic phrasing and punctuation of your submitted statement.
+                </div>
+              </div>
+
+              <div class="card">
+                <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px;">Vidhik Adaptive Communication</h4>
+                <p id="ci-emotion-adaptation-text" style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">
+                  Guidance is presented in structured, accessible language.
+                </p>
+              </div>
+            </div>
+
+            <!-- Medical Non-Diagnosis Disclaimer -->
+            <div class="disclaimer-banner">
+              <span style="font-size: 18px;">ℹ️</span>
+              <div>
+                <strong>Non-Diagnostic Disclaimer:</strong> This analysis evaluates language characteristics in the submitted text to adapt communication style. It does NOT constitute medical, psychiatric, or psychological evaluation. Emotional state does not alter applicable substantive statutes or procedural legal rights.
+              </div>
+            </div>
+          </div>
+
+          <!-- PANE 9: MISSING INFORMATION (FEATURE 18) -->
+          <div id="ci-pane-missing" class="ci-tab-pane" style="display: none;">
+            <div class="card" style="margin-bottom: 20px;">
+              <h3 class="card-title" style="font-size: 16px;">Missing Information Needed for Refined Analysis</h3>
+              <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
+                Specific facts that would significantly improve legal accuracy and procedural readiness.
+              </p>
+            </div>
+
+            <div id="ci-missing-info-list" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;"></div>
+
+            <div style="text-align: right;">
+              <button type="button" class="btn btn-primary" onclick="App.openCaseReanalyzeModal()">
+                📝 Provide Missing Information Now
+              </button>
+            </div>
+          </div>
+        </section>
 
         <!-- ============================================================== -->
         <!-- VIEW 1: LAWYER DASHBOARD                                       -->
@@ -2849,6 +3260,65 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="App.closeModals()">Cancel</button>
           <button type="submit" class="btn btn-primary">Upload Document</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: SWITCH ACTIVE CASE -->
+  <div id="modal-switch-case" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-switch-case-title">
+    <div class="modal-dialog" style="max-width: 650px;">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="modal-switch-case-title">Select Active Current Case</h3>
+          <p style="font-size: 12.5px; color: var(--text-secondary); margin: 4px 0 0 0;">
+            All Vidhik intelligence modules (Legal Analysis, Ranking, Authorities, Lawyers, Actions & Documents) will automatically anchor to your selected case.
+          </p>
+        </div>
+        <button type="button" class="modal-close" onclick="App.closeModals()" aria-label="Close dialog">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="switch-case-list" style="display: flex; flex-direction: column; gap: 12px; max-height: 400px; overflow-y: auto; padding-right: 4px;">
+          <div class="spinner"></div>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeModals(); App.openCitizenNewCaseModal();">+ File New Case</button>
+        <button type="button" class="btn btn-secondary" onclick="App.closeModals()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: RE-ANALYZE CASE -->
+  <div id="modal-reanalyze-case" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-reanalyze-case-title">
+    <div class="modal-dialog" style="max-width: 600px;">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="modal-reanalyze-case-title">Update & Re-Analyze Case</h3>
+          <p style="font-size: 12.5px; color: var(--text-secondary); margin: 4px 0 0 0;">
+            Add new facts, timeline events, or officer conduct details. Vidhik will update the central context and re-evaluate affected legal provisions, authorities, and actions.
+          </p>
+        </div>
+        <button type="button" class="modal-close" onclick="App.closeModals()" aria-label="Close dialog">✕</button>
+      </div>
+      <form id="form-reanalyze-case" onsubmit="App.submitCaseReanalyze(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="reanalyze-current-title">Current Case Title</label>
+            <input type="text" id="reanalyze-current-title" class="form-control" readonly style="opacity: 0.8; background: var(--bg-surface-elevated);">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reanalyze-additional-facts">Additional Information / New Facts *</label>
+            <textarea id="reanalyze-additional-facts" class="form-control" rows="4" required
+              placeholder="e.g. 'The officer also kept my driving licence for two days without giving any receipt.' or 'I requested the security deposit refund via registered post but the landlord replied denying receipt.'"></textarea>
+          </div>
+          <div style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+            ℹ️ Your previous facts will be preserved in case history. Provisions, authorities, and documents will be deterministically refreshed based on the combined facts.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="App.closeModals()">Cancel</button>
+          <button type="submit" id="btn-submit-reanalyze" class="btn btn-primary">⚡ Update & Re-Analyze</button>
         </div>
       </form>
     </div>
