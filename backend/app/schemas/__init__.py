@@ -36,6 +36,15 @@ from .citizen import (
     ProcedureTrackerToggle
 )
 
+from .resolution import (
+    RecommendationType,
+    RiskLevel,
+    TriggeredRuleInfo,
+    RelevantProcedureRef,
+    ResolutionEvaluationRequest,
+    ResolutionEvaluationResponse
+)
+
 __all__ = [
     "LawResponse",
     "LawSummaryResponse",
@@ -72,5 +81,11 @@ __all__ = [
     "NotificationResponse",
     "NotificationListResponse",
     "ProcedureTrackerResponse",
-    "ProcedureTrackerToggle"
+    "ProcedureTrackerToggle",
+    "RecommendationType",
+    "RiskLevel",
+    "TriggeredRuleInfo",
+    "RelevantProcedureRef",
+    "ResolutionEvaluationRequest",
+    "ResolutionEvaluationResponse"
 ]

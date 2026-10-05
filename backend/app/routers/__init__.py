@@ -14,6 +14,7 @@ from .citizen import router as citizen_router
 from .assistant import router as assistant_router
 from .rag import router as rag_router
 from .knowledge_base import router as knowledge_base_router
+from .resolution import router as resolution_router
 
 __all__ = [
     "health_router",
@@ -28,4 +29,5 @@ __all__ = [
     "assistant_router",
     "rag_router",
     "knowledge_base_router",
+    "resolution_router",
 ]

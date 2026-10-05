@@ -28,7 +28,8 @@ from app.routers import (
     citizen_router,
     assistant_router,
     rag_router,
-    knowledge_base_router
+    knowledge_base_router,
+    resolution_router
 )
 
 
@@ -99,6 +100,7 @@ app.include_router(citizen_router)
 app.include_router(assistant_router)
 app.include_router(rag_router)
 app.include_router(knowledge_base_router)
+app.include_router(resolution_router)
 
 # Mount Static UI directory
 STATIC_DIR = Path(__file__).resolve().parent / "static"
