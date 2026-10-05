@@ -29,7 +29,8 @@ from app.routers import (
     assistant_router,
     rag_router,
     knowledge_base_router,
-    resolution_router
+    resolution_router,
+    complaint_generator_router
 )
 
 
@@ -62,6 +63,7 @@ app = FastAPI(
     - **AI Legal Assistant (Phase 15)**: Multi-turn conversational legal assistant grounded in Indian statutes.
     - **Legal RAG Engine (Phase 15)**: Multi-field grounded retrieval and citation synthesis.
     - **Advanced Legal Knowledge Base (Phase 17)**: BNS, BNSS, BSA, 24 Bare Acts, offences, punishments, statutory procedures, evidence provisions, predecessor mappings, and verified Supreme Court judgments.
+    - **Complaint / FIR Generator**: Factual citizen written complaints, FIR registration requests under BNSS Section 173, non-cognizable complaints, and DOCX export.
     """,
     version="1.0.0",
     docs_url="/docs",
@@ -101,6 +103,7 @@ app.include_router(assistant_router)
 app.include_router(rag_router)
 app.include_router(knowledge_base_router)
 app.include_router(resolution_router)
+app.include_router(complaint_generator_router)
 
 # Mount Static UI directory
 STATIC_DIR = Path(__file__).resolve().parent / "static"
@@ -192,7 +195,10 @@ def root():
             "knowledge_section_context": "GET /api/knowledge/sections/{section_number}/context",
             "knowledge_acts": "GET /api/knowledge/acts",
             "knowledge_act_detail": "GET /api/knowledge/acts/{act_id}",
-            "knowledge_search": "GET /api/knowledge/search"
+            "knowledge_search": "GET /api/knowledge/search",
+            "complaint_generator_generate": "POST /api/v1/complaint-generator/generate",
+            "complaint_generator_export_docx": "POST /api/v1/complaint-generator/export-docx",
+            "complaint_generator_health": "GET /api/v1/complaint-generator/health"
         }
     }
 

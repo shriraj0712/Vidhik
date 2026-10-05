@@ -45,6 +45,18 @@ from .resolution import (
     ResolutionEvaluationResponse
 )
 
+from .complaint_generator import (
+    ComplaintType,
+    SafetyStatus,
+    AccusedPersonInfo,
+    WitnessInfo,
+    PotentiallyRelevantProvision,
+    PartiesBlock,
+    ComplaintGenerateRequest,
+    ComplaintGenerateResponse,
+    ComplaintExportDocxRequest
+)
+
 __all__ = [
     "LawResponse",
     "LawSummaryResponse",
@@ -87,5 +99,14 @@ __all__ = [
     "TriggeredRuleInfo",
     "RelevantProcedureRef",
     "ResolutionEvaluationRequest",
-    "ResolutionEvaluationResponse"
+    "ResolutionEvaluationResponse",
+    "ComplaintType",
+    "SafetyStatus",
+    "AccusedPersonInfo",
+    "WitnessInfo",
+    "PotentiallyRelevantProvision",
+    "PartiesBlock",
+    "ComplaintGenerateRequest",
+    "ComplaintGenerateResponse",
+    "ComplaintExportDocxRequest"
 ]
