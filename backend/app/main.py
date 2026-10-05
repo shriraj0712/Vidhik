@@ -28,7 +28,8 @@ from app.routers import (
     assistant_router,
     rag_router,
     knowledge_base_router,
-    authorities_router
+    authorities_router,
+    case_intelligence_router
 )
 
 
@@ -100,6 +101,7 @@ app.include_router(assistant_router)
 app.include_router(rag_router)
 app.include_router(knowledge_base_router)
 app.include_router(authorities_router)
+app.include_router(case_intelligence_router)
 
 # Mount Static UI directory
 STATIC_DIR = Path(__file__).resolve().parent / "static"
@@ -191,7 +193,21 @@ def root():
             "knowledge_section_context": "GET /api/knowledge/sections/{section_number}/context",
             "knowledge_acts": "GET /api/knowledge/acts",
             "knowledge_act_detail": "GET /api/knowledge/acts/{act_id}",
-            "knowledge_search": "GET /api/knowledge/search"
+            "knowledge_search": "GET /api/knowledge/search",
+            "case_active": "GET /api/cases/active",
+            "case_set_active": "POST /api/cases/{case_id}/set-active",
+            "case_create_and_analyze": "POST /api/cases/create-and-analyze",
+            "case_context": "GET /api/cases/{case_id}/context",
+            "case_situation_overview": "GET /api/cases/{case_id}/situation-overview",
+            "case_legal_analysis": "GET /api/cases/{case_id}/legal-analysis",
+            "case_legal_ranking": "GET /api/cases/{case_id}/legal-ranking",
+            "case_action_plan": "GET /api/cases/{case_id}/action-plan",
+            "case_documents": "GET /api/cases/{case_id}/documents",
+            "case_procedure": "GET /api/cases/{case_id}/procedure",
+            "case_emotional_analysis": "GET /api/cases/{case_id}/emotional-analysis",
+            "case_lawyer_recommendation": "GET /api/cases/{case_id}/lawyer-recommendation",
+            "case_authority_recommendation": "GET /api/cases/{case_id}/authority-recommendation",
+            "case_update_and_reanalyze": "POST /api/cases/{case_id}/update-and-reanalyze"
         }
     }
 
