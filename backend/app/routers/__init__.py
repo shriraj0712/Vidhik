@@ -16,6 +16,16 @@ from .rag import router as rag_router
 from .knowledge_base import router as knowledge_base_router
 from .resolution import router as resolution_router
 from .complaint_generator import router as complaint_generator_router
+from .ai_safety import router as ai_safety_router
+from .legal_classifier import router as legal_classifier_router
+from .intent_router import router as intent_router
+from .emergency import router as emergency_router
+from .element_verification import router as element_verification_router
+from .constitutional import router as constitutional_router
+from .traffic import router as traffic_router
+from .authority import router as authority_router
+from .voice import router as voice_router
+from .ai_evaluation import router as ai_evaluation_router
 
 __all__ = [
     "health_router",
@@ -32,4 +42,14 @@ __all__ = [
     "knowledge_base_router",
     "resolution_router",
     "complaint_generator_router",
+    "ai_safety_router",
+    "legal_classifier_router",
+    "intent_router",
+    "emergency_router",
+    "element_verification_router",
+    "constitutional_router",
+    "traffic_router",
+    "authority_router",
+    "voice_router",
+    "ai_evaluation_router",
 ]

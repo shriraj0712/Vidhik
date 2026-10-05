@@ -1,12 +1,13 @@
 """
 Vidhik Platform - AI Legal Assistant API Router
 ================================================
-FastAPI router providing conversational AI legal assistance on top of
+FastAPI router providing conversational AI legal assistance and streaming chat on top of
 the Phase 9 Legal RAG engine.
 """
 
 import logging
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import StreamingResponse
 from psycopg2.extras import RealDictCursor
 
 from app.database import get_db
@@ -27,10 +28,10 @@ router = APIRouter(prefix="/api/assistant", tags=["Assistant"])
     Conversational AI Legal Assistant for Indian Statutory Law.
     
     1. Validates user prompt and session continuity (via `conversation_id` or `history`).
-    2. Resolves contextual follow-up questions referencing prior turns.
-    3. Delegates statutory retrieval and grounded synthesis to the Phase 9 Legal RAG engine.
-    4. Enforces strict zero-hallucination standards with traceable database citations.
-    5. Preserves statutory sources, disclaimers, and retrieval telemetry.
+    2. Runs AI Safety Guardrails and Emergency Interception.
+    3. Resolves contextual follow-up questions referencing prior turns.
+    4. Delegates statutory retrieval and grounded synthesis to the Phase 9 Legal RAG engine.
+    5. Enforces strict zero-hallucination standards with traceable database citations.
     """
 )
 def chat_with_assistant(
@@ -75,6 +76,39 @@ def chat_with_assistant(
         )
 
 
+@router.post(
+    "/chat/stream",
+    summary="Stream Chat with AI Legal Assistant",
+    description="Streams conversational response tokens using Server-Sent Events (SSE)."
+)
+def stream_chat_with_assistant(
+    request: AssistantChatRequest,
+    db: RealDictCursor = Depends(get_db)
+):
+    """
+    Streaming chat endpoint for the AI Legal Assistant.
+    """
+    clean_msg = request.message.strip()
+    if not clean_msg:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Message cannot be empty or whitespace only."
+        )
+
+    try:
+        stream_generator = LegalAssistantService.chat_stream(
+            db=db,
+            request=request
+        )
+        return StreamingResponse(stream_generator, media_type="text/event-stream")
+    except Exception as e:
+        logger.error(f"Error streaming assistant response: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An internal error occurred while streaming assistant response."
+        )
+
+
 @router.get(
     "/health",
     summary="Assistant Subsystem Health & Status",
@@ -92,5 +126,6 @@ def assistant_health():
         "llm_provider": provider.provider_name,
         "conversation_store": "InMemoryConversationStore (Bounded)",
         "multilingual_support": ["en", "mr", "hi"],
+        "streaming_supported": True,
         "grounding_enforced": True
     }

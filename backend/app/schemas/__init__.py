@@ -57,6 +57,58 @@ from .complaint_generator import (
     ComplaintExportDocxRequest
 )
 
+from .ai_safety import (
+    SafetyCheckRequest,
+    SafetyViolation,
+    SafetyCheckResponse
+)
+
+from .legal_classifier import (
+    LegalClassificationRequest,
+    AreaScore,
+    LegalClassificationResponse
+)
+
+from .intent_router import (
+    IntentRoutingRequest,
+    IntentRoutingResponse
+)
+
+from .emergency import (
+    EmergencyEvaluationRequest,
+    HelplineInfo,
+    EmergencyEvaluationResponse
+)
+
+from .element_verification import (
+    ElementVerificationRequest,
+    ElementMatch,
+    ElementVerificationResponse
+)
+
+from .constitutional import (
+    ConstitutionalAnalysisRequest,
+    ConstitutionalRightMatch,
+    ConstitutionalAnalysisResponse
+)
+
+from .traffic import (
+    TrafficAnalysisRequest,
+    TrafficOffenceDetail,
+    TrafficAnalysisResponse
+)
+
+from .authority import (
+    AuthorityRecommendationRequest,
+    AuthorityDetail,
+    AuthorityRecommendationResponse
+)
+
+from .voice import (
+    VoiceTranscriptionRequest,
+    VoiceTranscriptionResponse
+)
+
 __all__ = [
     "LawResponse",
     "LawSummaryResponse",
@@ -108,5 +160,30 @@ __all__ = [
     "PartiesBlock",
     "ComplaintGenerateRequest",
     "ComplaintGenerateResponse",
-    "ComplaintExportDocxRequest"
+    "ComplaintExportDocxRequest",
+    "SafetyCheckRequest",
+    "SafetyViolation",
+    "SafetyCheckResponse",
+    "LegalClassificationRequest",
+    "AreaScore",
+    "LegalClassificationResponse",
+    "IntentRoutingRequest",
+    "IntentRoutingResponse",
+    "EmergencyEvaluationRequest",
+    "HelplineInfo",
+    "EmergencyEvaluationResponse",
+    "ElementVerificationRequest",
+    "ElementMatch",
+    "ElementVerificationResponse",
+    "ConstitutionalAnalysisRequest",
+    "ConstitutionalRightMatch",
+    "ConstitutionalAnalysisResponse",
+    "TrafficAnalysisRequest",
+    "TrafficOffenceDetail",
+    "TrafficAnalysisResponse",
+    "AuthorityRecommendationRequest",
+    "AuthorityDetail",
+    "AuthorityRecommendationResponse",
+    "VoiceTranscriptionRequest",
+    "VoiceTranscriptionResponse"
 ]

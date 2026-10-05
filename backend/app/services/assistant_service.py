@@ -1,21 +1,24 @@
 """
 Vidhik Platform - AI Legal Assistant Service
 =============================================
-Orchestrates natural-language legal interactions for Phase 10:
+Orchestrates natural-language legal interactions:
 - Sits on top of the Phase 9 Legal RAG engine (`LegalRAGService`)
 - Manages conversational history and session continuity
 - Resolves contextual follow-up inquiries deterministically
+- Applies AI Safety Guardrails (`AISafetyService`) and Emergency Interception (`EmergencyInterceptorService`)
 - Preserves statutory grounding, sources, citations, and telemetry
 - Strictly avoids hallucination and enforces zero leakage of internal errors
+- Supports full streaming chat synthesis
 """
 
 import os
 import re
+import json
 import uuid
 import logging
 import threading
 from abc import ABC, abstractmethod
-from typing import Optional, List, Dict, Any, Tuple
+from typing import Optional, List, Dict, Any, Tuple, Iterator
 from psycopg2.extras import RealDictCursor
 
 from app.schemas.rag import (
@@ -30,6 +33,10 @@ from app.schemas.assistant import (
     AssistantChatRequest,
     AssistantChatResponse
 )
+from app.schemas.ai_safety import SafetyCheckRequest
+from app.schemas.emergency import EmergencyEvaluationRequest
+from app.services.ai_safety_service import AISafetyService
+from app.services.emergency_service import EmergencyInterceptorService
 from app.services.rag_service import LegalRAGService
 from app.services.llm_provider import BaseLLMProvider, get_llm_provider
 
@@ -46,7 +53,6 @@ DEVANAGARI_DIGIT_MAP = str.maketrans("०१२३४५६७८९", "01234567
 class BaseConversationStore(ABC):
     """
     Abstract contract for storing and retrieving conversation histories.
-    Allows pluggable persistence (In-Memory, Redis, PostgreSQL, DynamoDB).
     """
 
     @abstractmethod
@@ -122,7 +128,6 @@ class ConversationContextHandler:
     from previous turns to enrich subsequent retrieval queries.
     """
 
-    # Patterns matching statutory section references in English, Marathi, and Hindi
     SECTION_REGEX = re.compile(
         r'(?:section|sec\.?|कलम|धारा)\s*([0-9०-९]+[A-Za-z\-]*)',
         re.IGNORECASE
@@ -136,7 +141,6 @@ class ConversationContextHandler:
         re.IGNORECASE
     )
 
-    # Common Act mentions frequently queried
     COMMON_ACTS = [
         "Indian Penal Code",
         "Code of Criminal Procedure",
@@ -148,13 +152,15 @@ class ConversationContextHandler:
         "Arbitration and Conciliation Act",
         "Transfer of Property Act",
         "Evidence Act",
+        "Bharatiya Nyaya Sanhita",
+        "Bharatiya Nagarik Suraksha Sanhita",
+        "Bharatiya Sakshya Adhiniyam",
         "भारतीय दंड संहिता",
         "भारतीय करार कायदा",
         "भारताचे संविधान",
         "फौजदारी प्रक्रिया संहिता"
     ]
 
-    # Referential tokens suggesting a follow-up question
     FOLLOW_UP_INDICATORS = {
         "it", "this", "that", "these", "those", "such", "the same",
         "he", "she", "they", "does it", "is it", "can it", "will it",
@@ -168,32 +174,24 @@ class ConversationContextHandler:
 
     @classmethod
     def is_follow_up(cls, message: str, history: List[ChatMessage]) -> bool:
-        """
-        Determines whether the given message is a follow-up referencing prior context.
-        """
         if not history:
             return False
 
         clean_msg = message.strip().lower()
         words = set(re.findall(r'\b\w+\b', clean_msg))
 
-        # Check if user message explicitly specifies a statutory provision (Section, Article, Act)
         has_section = bool(cls.SECTION_REGEX.search(message) or cls.ARTICLE_REGEX.search(message))
         has_act = any(act.lower() in clean_msg for act in cls.COMMON_ACTS)
 
-        # If user explicitly specifies both Act/Section and a complete query, it is self-contained
         if has_section and len(words) >= 5:
             return False
 
-        # If user has no section/act and contains follow-up indicator keywords
         if not has_section and not has_act:
             if words.intersection(cls.FOLLOW_UP_INDICATORS):
                 return True
-            # Short question fragment (< 8 words) following an earlier turn
             if len(words) <= 7:
                 return True
 
-        # Check for phrase-level follow-up cues
         for indicator in cls.FOLLOW_UP_INDICATORS:
             if indicator in clean_msg:
                 return True
@@ -202,32 +200,24 @@ class ConversationContextHandler:
 
     @classmethod
     def extract_legal_anchors(cls, history: List[ChatMessage]) -> Dict[str, List[str]]:
-        """
-        Extracts statutory anchors (sections, articles, acts) from recent conversation history.
-        Scans from newest to oldest message.
-        """
         sections: List[str] = []
         articles: List[str] = []
         acts: List[str] = []
 
-        # Look back up to last 6 messages
         recent_history = history[-6:]
         for turn in reversed(recent_history):
             content = turn.content.translate(DEVANAGARI_DIGIT_MAP)
 
-            # Extract sections
             for match in cls.SECTION_REGEX.finditer(content):
                 sec_num = match.group(1).strip()
                 if sec_num and sec_num not in sections:
                     sections.append(sec_num)
 
-            # Extract articles
             for match in cls.ARTICLE_REGEX.finditer(content):
                 art_num = match.group(1).strip()
                 if art_num and art_num not in articles:
                     articles.append(art_num)
 
-            # Extract acts
             for act in cls.COMMON_ACTS:
                 if act.lower() in content.lower() and act not in acts:
                     acts.append(act)
@@ -240,10 +230,6 @@ class ConversationContextHandler:
 
     @classmethod
     def resolve_query(cls, message: str, history: Optional[List[ChatMessage]]) -> str:
-        """
-        Enriches a follow-up query with statutory anchors from conversation history.
-        If the message is self-contained or no history exists, returns the original query.
-        """
         clean_msg = message.strip()
         if not history:
             return clean_msg
@@ -266,14 +252,12 @@ class ConversationContextHandler:
             anchor_parts.append(acts[0])
 
         if not anchor_parts:
-            # Fallback: extract primary subject from last user question
             last_user_turn = next((t for t in reversed(history) if t.role == "user"), None)
             if last_user_turn:
                 anchor_parts.append(last_user_turn.content.strip())
 
         if anchor_parts:
             context_prefix = " ".join(anchor_parts)
-            # Avoid repeating the anchor if already in clean_msg
             if context_prefix.lower() not in clean_msg.lower():
                 enriched_query = f"{context_prefix} {clean_msg}"
                 logger.info(f"Contextualized follow-up query: '{clean_msg}' -> '{enriched_query}'")
@@ -289,7 +273,7 @@ class ConversationContextHandler:
 class LegalAssistantService:
     """
     Core AI Legal Assistant service orchestrating conversational legal questions
-    on top of the existing Phase 9 Legal RAG system.
+    on top of the existing Phase 9 Legal RAG system with safety and emergency guards.
     """
 
     DEFAULT_DISCLAIMER = (
@@ -308,50 +292,71 @@ class LegalAssistantService:
     ) -> AssistantChatResponse:
         """
         Processes a conversational legal question from the user.
-
-        1. Validates and manages conversation ID and session history.
-        2. Contextualizes follow-up questions using prior conversation turns.
-        3. Delegates legal retrieval and grounded synthesis to Phase 9 `LegalRAGService`.
-        4. Preserves statutory grounding, sources, citations, and telemetry.
-        5. Records the turn in the conversation store.
-
-        :param db: RealDictCursor PostgreSQL connection dependency
-        :param request: Validated AssistantChatRequest
-        :param provider: Optional LLM provider instance (defaults to environment provider)
-        :param store: Optional conversation store instance (defaults to in-memory store)
-        :return: Grounded AssistantChatResponse
         """
         clean_message = request.message.strip()
         if not clean_message:
             raise ValueError("Message cannot be empty or whitespace only.")
 
-        # -------------------------------------------------------------
-        # STEP 1: Conversation & Session Resolution
-        # -------------------------------------------------------------
         conversation_id = request.conversation_id or str(uuid.uuid4())
         active_store = store or get_conversation_store()
 
-        # Determine effective history:
-        # Client-supplied history takes precedence (stateless mode).
-        # Otherwise, load history from session store.
+        # -------------------------------------------------------------
+        # STEP 1: AI Safety Guardrails Interception
+        # -------------------------------------------------------------
+        safety_audit = AISafetyService.audit_text(SafetyCheckRequest(text=clean_message))
+        if not safety_audit.is_safe and safety_audit.risk_level in ["critical", "high"]:
+            refusal_text = (
+                f"I cannot fulfill this request. {safety_audit.blocked_reason or 'The inquiry violates legal safety and ethics policies.'} "
+                "VIDHIK AI assists strictly with lawful legal research, rights education, and procedural guidance."
+            )
+            return AssistantChatResponse(
+                conversation_id=conversation_id,
+                message=clean_message,
+                answer=refusal_text,
+                language=request.language or "en",
+                grounding_status="safety_refusal",
+                confidence="low",
+                is_grounded=False,
+                sources=[],
+                retrieved_sections=[],
+                retrieval_metadata=RetrievalMetadata(
+                    total_candidates_found=0,
+                    sections_used=0,
+                    query_terms_matched=[],
+                    concept_categories=[],
+                    multilingual_synonyms_applied=[],
+                    retrieval_strategy="safety_refusal"
+                ),
+                disclaimer=cls.DEFAULT_DISCLAIMER
+            )
+
+        # -------------------------------------------------------------
+        # STEP 2: Emergency Interception
+        # -------------------------------------------------------------
+        emergency_eval = EmergencyInterceptorService.evaluate(
+            EmergencyEvaluationRequest(text=clean_message, language=request.language or "en")
+        )
+        emergency_prefix = ""
+        if emergency_eval.is_emergency and emergency_eval.escalation_message:
+            emergency_prefix = f"⚠️ **URGENT EMERGENCY NOTICE:**\n{emergency_eval.escalation_message}\n\n---\n\n"
+
+        # -------------------------------------------------------------
+        # STEP 3: History & Context Resolution
+        # -------------------------------------------------------------
         if request.history is not None:
-            # Bound context size: take at most the last 10 messages
             effective_history = request.history[-10:] if len(request.history) > 10 else list(request.history)
         else:
             effective_history = active_store.get_history(conversation_id)
             if len(effective_history) > 10:
                 effective_history = effective_history[-10:]
 
-        # -------------------------------------------------------------
-        # STEP 2: Contextual Follow-Up Query Resolution
-        # -------------------------------------------------------------
         contextualized_query = ConversationContextHandler.resolve_query(
             message=clean_message,
             history=effective_history
         )
 
         # -------------------------------------------------------------
-        # STEP 3: Delegate to Existing Phase 9 Legal RAG Service
+        # STEP 4: Delegate to Phase 9 Legal RAG Service
         # -------------------------------------------------------------
         rag_request = RAGQueryRequest(
             query=contextualized_query,
@@ -372,24 +377,26 @@ class LegalAssistantService:
             provider=provider
         )
 
+        final_answer = emergency_prefix + rag_response.answer
+
         # -------------------------------------------------------------
-        # STEP 4: Record Turn in Conversation History
+        # STEP 5: Record Turn in Conversation History
         # -------------------------------------------------------------
         try:
             user_msg = ChatMessage(role="user", content=clean_message)
-            assistant_msg = ChatMessage(role="assistant", content=rag_response.answer)
+            assistant_msg = ChatMessage(role="assistant", content=final_answer)
             active_store.add_message(conversation_id, user_msg)
             active_store.add_message(conversation_id, assistant_msg)
         except Exception as e:
             logger.warning(f"Could not persist conversation turn for session {conversation_id}: {e}")
 
         # -------------------------------------------------------------
-        # STEP 5: Format and Return Grounded Assistant Response
+        # STEP 6: Return Grounded Response
         # -------------------------------------------------------------
         return AssistantChatResponse(
             conversation_id=conversation_id,
             message=clean_message,
-            answer=rag_response.answer,
+            answer=final_answer,
             language=rag_response.language,
             grounding_status=rag_response.confidence,
             confidence=rag_response.confidence,
@@ -399,3 +406,28 @@ class LegalAssistantService:
             retrieval_metadata=rag_response.retrieval_metadata,
             disclaimer=cls.DEFAULT_DISCLAIMER
         )
+
+    @classmethod
+    def chat_stream(
+        cls,
+        db: RealDictCursor,
+        request: AssistantChatRequest,
+        provider: Optional[BaseLLMProvider] = None,
+        store: Optional[BaseConversationStore] = None
+    ) -> Iterator[str]:
+        """
+        Streams assistant response tokens as SSE formatted events.
+        """
+        response = cls.chat(db=db, request=request, provider=provider, store=store)
+        
+        # Stream metadata header event
+        yield f"event: metadata\ndata: {json.dumps({'conversation_id': response.conversation_id, 'is_grounded': response.is_grounded, 'sources_count': len(response.sources)})}\n\n"
+
+        # Stream answer chunks
+        words = response.answer.split(" ")
+        for i, word in enumerate(words):
+            chunk = word + (" " if i < len(words) - 1 else "")
+            yield f"event: message\ndata: {json.dumps({'delta': chunk})}\n\n"
+
+        # Stream done event
+        yield f"event: done\ndata: [DONE]\n\n"
