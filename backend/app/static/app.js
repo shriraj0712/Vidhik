@@ -35,6 +35,8 @@ const App = {
   async init() {
     this.initTheme();
     this.initLocalization();
+    this.applyLocalization();
+    this.switchAuthMode('citizen', true);
     this.bindEvents();
     if (this.token) {
       try {
@@ -545,47 +547,221 @@ const App = {
   // -------------------------------------------------------------
   // AUTHENTICATION
   // -------------------------------------------------------------
-  switchAuthMode(mode) {
+  switchAuthMode(mode, fillCredentials = true) {
     this.authMode = mode;
-    document.querySelectorAll('.auth-tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelector(`.auth-tab-btn[data-auth-tab="${mode}"]`)?.classList.add('active');
+    const loginScreen = document.getElementById('login-screen');
+    if (loginScreen) {
+      loginScreen.classList.toggle('mode-admin', mode === 'admin');
+    }
+
+    // Update active tab in segmented control
+    document.querySelectorAll('.auth-tab-btn').forEach(b => {
+      const isAct = b.getAttribute('data-auth-tab') === mode;
+      b.classList.toggle('active', isAct);
+      b.setAttribute('aria-selected', isAct ? 'true' : 'false');
+    });
+
+    // Clear previous error
+    const errAlert = document.getElementById('login-error-alert');
+    if (errAlert) errAlert.style.display = 'none';
 
     const loginForm = document.getElementById('login-form');
     const regForm = document.getElementById('register-form');
     const demoContainer = document.getElementById('login-demo-container');
+    const regPrompt = document.getElementById('auth-register-prompt');
+    const adminBadge = document.getElementById('admin-restricted-badge');
+    const heading = document.getElementById('auth-role-heading');
     const subtitle = document.getElementById('auth-card-subtitle');
+    const emailLabel = document.getElementById('login-email-label');
+    const emailInput = document.getElementById('login-email');
+    const submitBtn = document.getElementById('btn-login-submit');
+    const submitBtnText = document.getElementById('btn-login-submit-text');
+    const submitBtnIcon = document.getElementById('btn-login-submit-icon');
+
+    const lang = this.currentLanguage || 'en';
+    const dict = this.getAuthLocalizationDict(lang);
 
     if (mode === 'register') {
       if (loginForm) loginForm.style.display = 'none';
       if (regForm) regForm.style.display = 'block';
       if (demoContainer) demoContainer.style.display = 'none';
-      if (subtitle) subtitle.innerText = 'Create your citizen account to track cases and legal documents.';
-    } else {
-      if (loginForm) loginForm.style.display = 'block';
-      if (regForm) regForm.style.display = 'none';
-      if (demoContainer) demoContainer.style.display = 'block';
+      if (adminBadge) adminBadge.style.display = 'none';
+      if (heading) heading.textContent = dict.registerHeading;
+      if (subtitle) subtitle.textContent = dict.registerSub;
+      return;
+    }
 
-      if (mode === 'citizen') {
-        if (subtitle) subtitle.innerText = 'Access your personal case tracker, documents, and legal updates.';
-        this.fillDemoLogin('sunita.sharma@example.com', 'password123');
-      } else {
-        if (subtitle) subtitle.innerText = 'Advocate and legal counsel professional practice suite.';
-        this.fillDemoLogin('rajesh.advocate@vidhik.ai', 'password123');
+    // Login modes: citizen, lawyer, admin
+    if (loginForm) loginForm.style.display = 'block';
+    if (regForm) regForm.style.display = 'none';
+    if (demoContainer) demoContainer.style.display = 'block';
+
+    if (mode === 'citizen') {
+      if (heading) heading.textContent = dict.citizenHeading;
+      if (subtitle) subtitle.textContent = dict.citizenSub;
+      if (emailLabel) emailLabel.textContent = dict.citizenEmailLabel;
+      if (emailInput) emailInput.placeholder = 'sunita.sharma@example.com';
+      if (submitBtnText) submitBtnText.textContent = dict.signInBtn;
+      if (submitBtn) submitBtn.classList.remove('btn-admin');
+      if (adminBadge) adminBadge.style.display = 'none';
+      if (regPrompt) regPrompt.style.display = 'flex';
+      if (submitBtnIcon) {
+        submitBtnIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>';
+      }
+      if (fillCredentials) {
+        this.fillDemoLogin('sunita.sharma@example.com', 'citizen');
+      }
+    } else if (mode === 'lawyer') {
+      if (heading) heading.textContent = dict.lawyerHeading;
+      if (subtitle) subtitle.textContent = dict.lawyerSub;
+      if (emailLabel) emailLabel.textContent = dict.lawyerEmailLabel;
+      if (emailInput) emailInput.placeholder = 'rajesh.advocate@vidhik.ai';
+      if (submitBtnText) submitBtnText.textContent = dict.signInBtn;
+      if (submitBtn) submitBtn.classList.remove('btn-admin');
+      if (adminBadge) adminBadge.style.display = 'none';
+      if (regPrompt) regPrompt.style.display = 'none';
+      if (submitBtnIcon) {
+        submitBtnIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>';
+      }
+      if (fillCredentials) {
+        this.fillDemoLogin('rajesh.advocate@vidhik.ai', 'lawyer');
+      }
+    } else if (mode === 'admin') {
+      if (heading) heading.textContent = dict.adminHeading;
+      if (subtitle) subtitle.textContent = dict.adminSub;
+      if (emailLabel) emailLabel.textContent = dict.adminEmailLabel;
+      if (emailInput) emailInput.placeholder = 'admin@vidhik.ai';
+      if (submitBtnText) submitBtnText.textContent = dict.secureSignInBtn;
+      if (submitBtn) submitBtn.classList.add('btn-admin');
+      if (adminBadge) adminBadge.style.display = 'inline-flex';
+      if (regPrompt) regPrompt.style.display = 'none';
+      if (submitBtnIcon) {
+        submitBtnIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>';
+      }
+      if (fillCredentials) {
+        this.fillDemoLogin('admin@vidhik.ai', 'admin');
       }
     }
   },
 
-  fillDemoLogin(email, password = 'password123') {
+  getAuthLocalizationDict(lang = 'en') {
+    const dicts = {
+      en: {
+        citizenTab: 'Citizen',
+        lawyerTab: 'Lawyer',
+        adminTab: 'Admin',
+        citizenHeading: 'Citizen Login',
+        citizenSub: 'Access legal assistance, complaints, case tracking and your legal workspace.',
+        citizenEmailLabel: 'Citizen Email Address',
+        lawyerHeading: 'Lawyer Login',
+        lawyerSub: 'Access your clients, cases, documents and professional legal workspace.',
+        lawyerEmailLabel: 'Lawyer / Bar Email Address',
+        adminHeading: 'Administrator Login',
+        adminSub: 'Secure administrative access to VIDHIK AI.',
+        adminEmailLabel: 'Administrator Email Address',
+        adminRestricted: 'Restricted Access • Authorized Personnel Only',
+        registerHeading: 'Create Citizen Account',
+        registerSub: 'Join VIDHIK AI to track legal matters, draft complaints, and access case intelligence.',
+        signInBtn: 'Sign In',
+        secureSignInBtn: 'Secure Sign In',
+        passwordLabel: 'Password',
+        noAccount: 'New citizen user?',
+        createAccountLink: 'Create an account →',
+        haveAccount: 'Already have an account?',
+        signInLink: 'Sign In →'
+      },
+      hi: {
+        citizenTab: 'नागरिक',
+        lawyerTab: 'अधिवक्ता',
+        adminTab: 'प्रशासक',
+        citizenHeading: 'नागरिक लॉगिन',
+        citizenSub: 'विधिक सहायता, शिकायत, केस ट्रैकिंग और अपने विधिक कार्यक्षेत्र तक पहुँचें।',
+        citizenEmailLabel: 'नागरिक ईमेल पता',
+        lawyerHeading: 'अधिवक्ता लॉगिन',
+        lawyerSub: 'अपने मुवक्किलों, मामलों, दस्तावेजों और व्यावसायिक विधिक कार्यक्षेत्र तक पहुँचें।',
+        lawyerEmailLabel: 'अधिवक्ता / बार ईमेल पता',
+        adminHeading: 'प्रशासक लॉगिन',
+        adminSub: 'विधिक एआई के लिए सुरक्षित प्रशासनिक पहुंच।',
+        adminEmailLabel: 'प्रशासक ईमेल पता',
+        adminRestricted: 'प्रतिबंधित पहुंच • केवल अधिकृत कर्मी',
+        registerHeading: 'नागरिक खाता बनाएं',
+        registerSub: 'विधिक मामलों की ट्रैकिंग, शिकायत प्रारूप और केस इंटेलिजेंस के लिए विधिक एआई से जुड़ें।',
+        signInBtn: 'साइन इन करें',
+        secureSignInBtn: 'सुरक्षित साइन इन करें',
+        passwordLabel: 'पासवर्ड',
+        noAccount: 'नए नागरिक उपयोगकर्ता?',
+        createAccountLink: 'खाता बनाएं →',
+        haveAccount: 'पहले से खाता है?',
+        signInLink: 'साइन इन करें →'
+      },
+      mr: {
+        citizenTab: 'नागरिक',
+        lawyerTab: 'वकील',
+        adminTab: 'प्रशासक',
+        citizenHeading: 'नागरिक लॉगिन',
+        citizenSub: 'कायदेशीर मदत, तक्रारी, खटला ट्रॅकिंग आणि आपल्या कार्यक्षेत्रात प्रवेश करा.',
+        citizenEmailLabel: 'नागरिक ईमेल पत्ता',
+        lawyerHeading: 'वकील लॉगिन',
+        lawyerSub: 'आपले पक्षकार, खटले, कागदपत्रे आणि व्यावसायिक विधी कार्यक्षेत्रात प्रवेश करा.',
+        lawyerEmailLabel: 'वकील / बार ईमेल पत्ता',
+        adminHeading: 'प्रशासक लॉगिन',
+        adminSub: 'विधिक एआयसाठी सुरक्षित प्रशासकीय प्रवेश.',
+        adminEmailLabel: 'प्रशासक ईमेल पत्ता',
+        adminRestricted: 'प्रतिबंधित प्रवेश • केवळ अधिकृत व्यक्तींसाठी',
+        registerHeading: 'नागरिक खाते तयार करा',
+        registerSub: 'विधी प्रकरणे ट्रॅक करण्यासाठी आणि कायदेशीर बुद्धिमत्ता मिळवण्यासाठी विधिक एआयमध्ये सामील व्हा.',
+        signInBtn: 'साइन इन करा',
+        secureSignInBtn: 'सुरक्षित साइन इन करा',
+        passwordLabel: 'पासवर्ड',
+        noAccount: 'नवीन नागरिक वापरकर्ता?',
+        createAccountLink: 'खाते तयार करा →',
+        haveAccount: 'आधीच खाते आहे?',
+        signInLink: 'साइन इन करा →'
+      }
+    };
+    return dicts[lang] || dicts['en'];
+  },
+
+  togglePasswordVisibility(inputId, toggleBtnId) {
+    const input = document.getElementById(inputId);
+    const btn = document.getElementById(toggleBtnId);
+    if (!input) return;
+    const isPassword = input.type === 'password';
+    input.type = isPassword ? 'text' : 'password';
+    if (btn) {
+      btn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+      btn.title = isPassword ? 'Hide password' : 'Show password';
+      const showIcon = btn.querySelector('.eye-icon-show');
+      const hideIcon = btn.querySelector('.eye-icon-hide');
+      if (showIcon && hideIcon) {
+        showIcon.style.display = isPassword ? 'none' : 'block';
+        hideIcon.style.display = isPassword ? 'block' : 'none';
+      }
+    }
+  },
+
+  fillDemoLogin(email, roleOrPassword = 'password123') {
+    let targetMode = 'citizen';
+    if (email.includes('rajesh') || roleOrPassword === 'lawyer') {
+      targetMode = 'lawyer';
+    } else if (email.includes('admin') || roleOrPassword === 'admin') {
+      targetMode = 'admin';
+    }
+    if (this.authMode !== targetMode) {
+      this.switchAuthMode(targetMode, false);
+    }
     const emailInput = document.getElementById('login-email');
     const pwdInput = document.getElementById('login-password');
     if (emailInput) emailInput.value = email;
     if (pwdInput) {
-      if (password === 'citizen' || password === 'lawyer' || password === 'admin' || !password) {
+      if (['citizen', 'lawyer', 'admin'].includes(roleOrPassword) || !roleOrPassword) {
         pwdInput.value = 'password123';
       } else {
-        pwdInput.value = password;
+        pwdInput.value = roleOrPassword;
       }
     }
+    const errAlert = document.getElementById('login-error-alert');
+    if (errAlert) errAlert.style.display = 'none';
   },
 
   async logout() {
@@ -623,8 +799,30 @@ const App = {
   },
 
   async handleLogin() {
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
+    const emailInput = document.getElementById('login-email');
+    const pwdInput = document.getElementById('login-password');
+    const email = emailInput ? emailInput.value.trim() : '';
+    const password = pwdInput ? pwdInput.value : '';
+    const submitBtn = document.getElementById('btn-login-submit');
+    const errAlert = document.getElementById('login-error-alert');
+    const errMsg = document.getElementById('login-error-message');
+
+    if (errAlert) errAlert.style.display = 'none';
+
+    if (!email || !password) {
+      const msg = 'Please enter both email and password.';
+      if (errAlert && errMsg) {
+        errMsg.textContent = msg;
+        errAlert.style.display = 'flex';
+      }
+      this.showToast(msg, 'error');
+      return;
+    }
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.classList.add('loading');
+    }
 
     try {
       const data = await this.api('/api/auth/login', 'POST', { email, password });
@@ -634,7 +832,17 @@ const App = {
       this.showToast(`Welcome back, ${data.full_name}`, 'success');
       this.showApp();
     } catch (e) {
-      this.showToast(e.message, 'error');
+      const msg = e.message || 'Invalid email or password. Please verify credentials.';
+      if (errAlert && errMsg) {
+        errMsg.textContent = msg;
+        errAlert.style.display = 'flex';
+      }
+      this.showToast(msg, 'error');
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('loading');
+      }
     }
   },
 
@@ -666,6 +874,7 @@ const App = {
   showLogin() {
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('app-shell').style.display = 'none';
+    this.switchAuthMode(this.authMode || 'citizen', false);
   },
 
   showApp() {
@@ -1081,7 +1290,7 @@ const App = {
             <div class="hearing-card-body">
               <div class="hearing-card-title">${this.escape(h.title)}</div>
               <div class="hearing-card-meta">
-                âš–ï¸ ${this.escape(h.case_title)} (${this.escape(h.case_number || 'Brief')}) â€¢ ðŸ›ï¸ ${this.escape(h.court_name || 'Designated Court')}
+                ⚖️ ${this.escape(h.case_title)} (${this.escape(h.case_number || 'Brief')}) • 🏛️ ${this.escape(h.court_name || 'Designated Court')}
               </div>
             </div>
             <div class="hearing-card-action">
@@ -1102,15 +1311,15 @@ const App = {
             <div class="matter-card-body">
               <div class="matter-title">${this.escape(c.case_title)}</div>
               <div class="matter-meta">
-                <span>ðŸ‘¤ ${this.escape(c.client_name || 'Client')}</span>
-                <span>â€¢</span>
+                <span>👤 ${this.escape(c.client_name || 'Client')}</span>
+                <span>•</span>
                 <code class="matter-code">${this.escape(c.case_number || 'Brief')}</code>
-                ${c.court ? `<span>â€¢ <span class="matter-court">ðŸ›ï¸ ${this.escape(c.court)}</span></span>` : ''}
+                ${c.court ? `<span>• <span class="matter-court">🏛️ ${this.escape(c.court)}</span></span>` : ''}
               </div>
             </div>
             <div class="matter-card-action">
               <span class="badge badge-${c.status}">${c.status}</span>
-              <div class="matter-action-btn">Open Brief â†’</div>
+              <div class="matter-action-btn">Open Brief →</div>
             </div>
           </div>
         `).join('');
@@ -1124,13 +1333,13 @@ const App = {
         aList.innerHTML = data.recent_activity.map(a => `
           <div style="display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border-subtle);">
             <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(99, 102, 241, 0.15); color: var(--accent-primary); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;">
-              âš¡
+              ⚡
             </div>
             <div style="flex: 1; min-width: 0;">
               <div style="font-size: 13.5px; font-weight: 600; color: var(--text-primary); overflow-wrap: anywhere; word-break: break-word;">${this.escape(a.update_title)}</div>
               <div style="font-size: 12.5px; color: var(--text-secondary); margin-top: 2px; overflow-wrap: anywhere; word-break: break-word;">${this.escape(a.update_description)}</div>
               <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; overflow-wrap: anywhere; word-break: break-word;">
-                Case: ${this.escape(a.case_title)} â€¢ ${new Date(a.update_date).toLocaleDateString()}
+                Case: ${this.escape(a.case_title)} • ${new Date(a.update_date).toLocaleDateString()}
               </div>
             </div>
           </div>
@@ -1145,7 +1354,7 @@ const App = {
         dList.innerHTML = data.recent_documents.map(d => `
           <div class="doc-row-item">
             <div class="doc-row-body">
-              <div class="doc-row-name">ðŸ“„ ${this.escape(d.document_name)}</div>
+              <div class="doc-row-name">📄 ${this.escape(d.document_name)}</div>
               <div class="doc-row-meta">
                 <span>${this.escape(d.case_title)}</span>
                 <span class="badge badge-completed">${d.document_type}</span>
@@ -1228,7 +1437,7 @@ const App = {
       const client = await this.api(`/api/lawyer/clients/${clientId}`);
       let msg = `Client: ${client.full_name}\nActive Matters: ${client.active_cases_count}\n`;
       if (client.cases && client.cases.length > 0) {
-        msg += client.cases.map(c => `â€¢ ${c.case_number || 'Matter'}: ${c.case_title} (${c.court_name})`).join('\n');
+        msg += client.cases.map(c => `• ${c.case_number || 'Matter'}: ${c.case_title} (${c.court_name})`).join('\n');
       } else {
         msg += 'No cases currently associated with this client.';
       }
@@ -1263,7 +1472,7 @@ const App = {
         <tr>
           <td>
             <strong>${this.escape(c.case_title)}</strong>
-            <div style="font-size: 11.5px; color: var(--accent-cyan); font-family: 'JetBrains Mono';">${this.escape(c.case_number || 'Brief')} â€¢ ${this.escape(c.case_type || 'General')}</div>
+            <div style="font-size: 11.5px; color: var(--accent-cyan); font-family: 'JetBrains Mono';">${this.escape(c.case_number || 'Brief')} • ${this.escape(c.case_type || 'General')}</div>
           </td>
           <td>
             <div>${this.escape(c.client_name || 'Client')}</div>
@@ -1274,7 +1483,7 @@ const App = {
           <td>${c.filing_date || 'N/A'}</td>
           <td><span class="badge badge-${c.status}">${c.status}</span></td>
           <td style="text-align: right;">
-            <button class="btn btn-primary btn-sm" onclick="App.openCaseDetail(${c.case_id})">Open Workspace â†’</button>
+            <button class="btn btn-primary btn-sm" onclick="App.openCaseDetail(${c.case_id})">Open Workspace →</button>
           </td>
         </tr>
       `).join('');
@@ -1386,7 +1595,7 @@ const App = {
               <span class="badge badge-completed">${u.update_type || 'Update'}</span>
             </div>
             <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">${this.escape(u.update_description)}</div>
-            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">${new Date(u.update_date).toLocaleDateString()} â€¢ Logged by ${u.updated_by}</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">${new Date(u.update_date).toLocaleDateString()} • Logged by ${u.updated_by}</div>
           </div>
         `).join('');
       }
@@ -1403,7 +1612,7 @@ const App = {
       } else {
         docBody.innerHTML = data.documents.map(d => `
           <tr>
-            <td><strong>ðŸ“„ ${this.escape(d.document_name)}</strong><div style="font-size: 11px; color: var(--text-muted);">${d.description || ''}</div></td>
+            <td><strong>📄 ${this.escape(d.document_name)}</strong><div style="font-size: 11px; color: var(--text-muted);">${d.description || ''}</div></td>
             <td><span class="badge badge-completed">${d.document_type}</span></td>
             <td>${(d.file_size_bytes / 1024 / 1024).toFixed(1)} MB</td>
             <td>${new Date(d.created_at).toLocaleDateString()}</td>
@@ -1423,7 +1632,7 @@ const App = {
           <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm);">
             <div>
               <div style="font-size: 15px; font-weight: 600; color: var(--text-primary);">${this.escape(h.title)}</div>
-              <div style="font-size: 13.5px; color: var(--accent-cyan); font-weight: 500; margin-top: 3px;">ðŸ›ï¸ ${this.escape(h.court_name || data.court_name)} â€¢ Bench: ${this.escape(h.judge_name || 'Designated Bench')}</div>
+              <div style="font-size: 13.5px; color: var(--accent-cyan); font-weight: 500; margin-top: 3px;">🏛️ ${this.escape(h.court_name || data.court_name)} • Bench: ${this.escape(h.judge_name || 'Designated Bench')}</div>
               <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">${this.escape(h.notes || '')}</div>
             </div>
             <div style="text-align: right;">
@@ -1443,10 +1652,10 @@ const App = {
         nList.innerHTML = data.notes.map(n => `
           <div class="note-card ${n.is_pinned ? 'pinned' : ''}">
             <div class="note-header">
-              <span class="note-title">${n.is_pinned ? 'ðŸ“Œ ' : ''}${this.escape(n.title || 'Untitled Note')}</span>
+              <span class="note-title">${n.is_pinned ? '📌 ' : ''}${this.escape(n.title || 'Untitled Note')}</span>
               <div style="display: flex; gap: 8px; align-items: center;">
                 <span class="note-date">${new Date(n.updated_at).toLocaleDateString()}</span>
-                <button class="btn btn-danger btn-sm" style="padding: 2px 6px;" onclick="App.deleteNote(${n.note_id})">âœ•</button>
+                <button class="btn btn-danger btn-sm" style="padding: 2px 6px;" onclick="App.deleteNote(${n.note_id})">✕</button>
               </div>
             </div>
             <div class="note-content">${this.escape(n.content)}</div>
@@ -1459,7 +1668,7 @@ const App = {
       if (data.legal_sections.length === 0) {
         sList.innerHTML = `
           <div class="empty-state">
-            <div class="empty-state-icon">âš–ï¸</div>
+            <div class="empty-state-icon">⚖️</div>
             <div class="empty-state-title">No statutory sections associated</div>
             <div class="empty-state-desc">Search the Indian legal corpus and link relevant sections directly to this case brief.</div>
             <button class="btn btn-primary btn-sm" style="margin-top: 14px;" onclick="App.openSearchAndLinkModal()">Search Legal Database</button>
@@ -1472,7 +1681,7 @@ const App = {
               <div>
                 <span class="badge badge-active" style="margin-bottom: 6px;">Section ${s.section_number}</span>
                 <h4 style="font-size: 16px; color: var(--text-primary);">${this.escape(s.section_title || 'Section')}</h4>
-                <div style="font-size: 13.5px; color: var(--accent-cyan); font-weight: 500;">ðŸ“– ${this.escape(s.law_name)}</div>
+                <div style="font-size: 13.5px; color: var(--accent-cyan); font-weight: 500;">📖 ${this.escape(s.law_name)}</div>
               </div>
               <div style="text-align: right;">
                 <span class="badge badge-completed">Relevance: ${s.relevance_score}%</span>
@@ -1481,7 +1690,7 @@ const App = {
             </div>
             ${s.explanation ? `<div style="font-size: 13.5px; color: var(--text-secondary); background: var(--bg-elevated); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-top: 8px;"><strong>Rationale:</strong> ${this.escape(s.explanation)}</div>` : ''}
             <div style="margin-top: 10px;">
-              <button class="btn btn-secondary btn-sm" onclick="App.viewFullProvisionDetail(${s.section_id})">Read Full Provision Text â†’</button>
+              <button class="btn btn-secondary btn-sm" onclick="App.viewFullProvisionDetail(${s.section_id})">Read Full Provision Text →</button>
             </div>
           </div>
         `).join('');
@@ -1509,7 +1718,7 @@ const App = {
       tbody.innerHTML = data.documents.map(d => `
         <tr>
           <td>
-            <strong>ðŸ“„ ${this.escape(d.document_name)}</strong>
+            <strong>📄 ${this.escape(d.document_name)}</strong>
             <div style="font-size: 11px; color: var(--text-muted);">${d.description || ''}</div>
           </td>
           <td><a href="javascript:void(0)" onclick="App.openCaseDetail(${d.case_id})" style="color: var(--accent-primary); text-decoration: none;">${this.escape(d.case_title)}</a></td>
@@ -1617,12 +1826,12 @@ const App = {
             </div>
             <h3 style="font-size: 17px; color: var(--text-primary);">${this.escape(h.title)}</h3>
             <div style="font-size: 13.5px; color: var(--accent-cyan); margin-top: 4px;">
-              âš–ï¸ Case: <a href="javascript:void(0)" onclick="App.openCaseDetail(${h.case_id})" style="color: var(--accent-primary); text-decoration: none;">${this.escape(h.case_title)}</a> (${this.escape(h.case_number || 'Brief')})
+              ⚖️ Case: <a href="javascript:void(0)" onclick="App.openCaseDetail(${h.case_id})" style="color: var(--accent-primary); text-decoration: none;">${this.escape(h.case_title)}</a> (${this.escape(h.case_number || 'Brief')})
             </div>
             <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">
-              ðŸ›ï¸ ${this.escape(h.court_name || 'Court Room')} â€¢ Presiding: ${this.escape(h.judge_name || 'Designated Judge')}
+              🏛️ ${this.escape(h.court_name || 'Court Room')} • Presiding: ${this.escape(h.judge_name || 'Designated Judge')}
             </div>
-            ${h.notes ? `<div style="font-size: 12.5px; color: var(--text-muted); margin-top: 8px; background: var(--bg-primary); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">ðŸ“ Notes: ${this.escape(h.notes)}</div>` : ''}
+            ${h.notes ? `<div style="font-size: 12.5px; color: var(--text-muted); margin-top: 8px; background: var(--bg-primary); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">📝 Notes: ${this.escape(h.notes)}</div>` : ''}
           </div>
           <div style="text-align: right;">
             <div style="font-size: 18px; font-weight: 700; color: var(--accent-primary); font-family: 'Outfit';">${h.reminder_date}</div>
@@ -1816,7 +2025,7 @@ const App = {
                 <div>
                   <span class="badge badge-predecessor" style="margin-bottom: 6px;">${this.escape(a.citation || 'Landmark Decision')}</span>
                   <h3 style="font-size: 16.5px; color: var(--text-primary); margin: 2px 0 4px;">${this.escape(a.case_name)}</h3>
-                  <div style="font-size: 12.5px; color: var(--accent-cyan); font-weight: 500;">ðŸ›ï¸ ${this.escape(a.court)}${a.judgment_date ? ` â€¢ ${a.judgment_date}` : ''}</div>
+                  <div style="font-size: 12.5px; color: var(--accent-cyan); font-weight: 500;">🏛️ ${this.escape(a.court)}${a.judgment_date ? ` • ${a.judgment_date}` : ''}</div>
                 </div>
                 <div style="text-align: right;">
                   <span class="badge badge-active">Relevance: ${Math.round((a.relevance_score || 0) * 100)}%</span>
@@ -1896,7 +2105,7 @@ const App = {
                   ${this.getStatuteBadge(r.law_name)}
                 </div>
                 <h3 style="font-size: 17px; color: var(--text-primary); margin: 2px 0 4px;">${this.escape(r.section_title || 'Section Provision')}</h3>
-                <div style="font-size: 13px; color: var(--accent-cyan); font-weight: 500;">ðŸ“– ${this.escape(r.law_name)}</div>
+                <div style="font-size: 13px; color: var(--accent-cyan); font-weight: 500;">📖 ${this.escape(r.law_name)}</div>
               </div>
               <div style="text-align: right;">
                 <span class="badge badge-completed">${r.jurisdiction || 'Central'}</span>
@@ -1910,18 +2119,18 @@ const App = {
 
             <div style="display: flex; gap: 10px; align-items: center; justify-content: flex-end; margin-top: 10px; flex-wrap: wrap;">
               <button class="btn btn-secondary btn-sm" onclick="App.viewFullProvisionDetail(${r.section_id})">
-                ðŸ“– View Verbatim Section
+                📖 View Verbatim Section
               </button>
               <button class="btn btn-secondary btn-sm" onclick="App.inspectSectionContextGraph('${this.escape(r.section_number)}', '${this.escape(r.law_name)}')">
-                âš¡ Context Graph
+                ⚡ Context Graph
               </button>
               ${isCitizen ? `
                 <button class="btn btn-primary btn-sm" onclick="App.quickBookmarkSection(${r.section_id})">
-                  ðŸ”– Bookmark Section
+                  🔖 Bookmark Section
                 </button>
               ` : `
                 <button class="btn btn-primary btn-sm" onclick="App.openLinkToCaseModal(${r.section_id}, '${this.escape(r.section_number)}', '${this.escape(r.law_name)}')">
-                  ðŸ”— Link to Case Brief
+                  🔗 Link to Case Brief
                 </button>
               `}
             </div>
@@ -1953,7 +2162,7 @@ const App = {
       if (contextContent) contextContent.innerHTML = '';
       if (contextBtn) {
         contextBtn.style.display = 'inline-flex';
-        contextBtn.innerText = 'âš¡ Inspect Context Graph';
+        contextBtn.innerText = '⚡ Inspect Context Graph';
         contextBtn.onclick = () => this.toggleProvisionContext(sec.section_number, sec.law_name);
       }
 
@@ -1961,13 +2170,13 @@ const App = {
       if (linkBtn) {
         const isCitizen = this.user && (this.user.role === 'user' || this.user.role === 'citizen');
         if (isCitizen) {
-          linkBtn.innerText = 'ðŸ”– Bookmark Provision';
+          linkBtn.innerText = '🔖 Bookmark Provision';
           linkBtn.onclick = () => {
             App.quickBookmarkSection(sec.section_id);
             App.closeModals();
           };
         } else {
-          linkBtn.innerText = 'ðŸ”— Save & Link to Case';
+          linkBtn.innerText = '🔗 Save & Link to Case';
           linkBtn.onclick = () => App.openLinkToCaseModalFromProvision();
         }
       }
@@ -1986,13 +2195,13 @@ const App = {
 
     if (container.style.display === 'block') {
       container.style.display = 'none';
-      if (btn) btn.innerText = 'âš¡ Inspect Context Graph';
+      if (btn) btn.innerText = '⚡ Inspect Context Graph';
       return;
     }
 
     container.style.display = 'block';
     content.innerHTML = '<div class="spinner" style="margin: 20px auto;"></div>';
-    if (btn) btn.innerText = 'âœ• Hide Context Graph';
+    if (btn) btn.innerText = '✕ Hide Context Graph';
 
     let lawCode = 'BNS';
     const ln = (lawName || '').toLowerCase();
@@ -2041,7 +2250,7 @@ const App = {
             <div style="display: flex; flex-direction: column; gap: 6px;">
               ${graph.punishments.map(pu => `
                 <div style="font-size: 12.5px; color: var(--text-secondary); background: var(--bg-primary); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
-                  âš–ï¸ ${this.escape(pu.punishment_type || '')}: ${this.escape(pu.description || '')}
+                  ⚖️ ${this.escape(pu.punishment_type || '')}: ${this.escape(pu.description || '')}
                 </div>
               `).join('')}
             </div>
@@ -2167,7 +2376,7 @@ const App = {
 
   async openLinkToCaseModal(sectionId, sectionNumber, lawName) {
     document.getElementById('m-link-section-id').value = sectionId;
-    document.getElementById('m-link-sec-label').innerText = `Section ${sectionNumber} â€¢ ${lawName}`;
+    document.getElementById('m-link-sec-label').innerText = `Section ${sectionNumber} • ${lawName}`;
 
     const select = document.getElementById('m-link-case-select');
     select.innerHTML = '<option value="">Loading cases...</option>';
@@ -2350,7 +2559,7 @@ const App = {
     } catch (err) {
       container.innerHTML = `
         <div class="empty-state" style="grid-column: 1 / -1;">
-          <div class="empty-state-icon">âš ï¸</div>
+          <div class="empty-state-icon">⚠️</div>
           <div class="empty-state-title">Error Loading Procedures</div>
           <div class="empty-state-desc">${this.escape(err.message)}</div>
         </div>
@@ -2392,7 +2601,7 @@ const App = {
     if (!procedures || procedures.length === 0) {
       container.innerHTML = `
         <div class="empty-state" style="grid-column: 1 / -1;">
-          <div class="empty-state-icon">ðŸ”</div>
+          <div class="empty-state-icon">🔍</div>
           <div class="empty-state-title">No Legal Procedures Found</div>
           <div class="empty-state-desc">Try clearing your search term or selecting another category filter.</div>
           <button class="btn btn-secondary btn-sm" style="margin-top: 12px;" onclick="App.resetDocumentationSearch()">Reset Filters</button>
@@ -2406,7 +2615,7 @@ const App = {
         <div>
           <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
             <span class="badge badge-info" style="font-size: 11px;">${this.escape(proc.category)}</span>
-            ${proc.estimated_processing_days ? `<span style="font-size: 11.5px; color: var(--text-secondary);">â±ï¸ ~${proc.estimated_processing_days} Days</span>` : ''}
+            ${proc.estimated_processing_days ? `<span style="font-size: 11.5px; color: var(--text-secondary);">⏱️ ~${proc.estimated_processing_days} Days</span>` : ''}
           </div>
           <h4 class="procedure-card-title">${this.escape(proc.procedure_name)}</h4>
           <p class="procedure-card-desc">${this.escape(proc.description)}</p>
@@ -2414,14 +2623,14 @@ const App = {
 
         <div class="procedure-card-meta">
           <div style="color: var(--text-secondary);">
-            ðŸ›ï¸ <strong>Authority:</strong> ${this.escape(proc.authority_type)}
+            🏛️ <strong>Authority:</strong> ${this.escape(proc.authority_type)}
           </div>
           <div style="color: var(--text-secondary);">
-            ðŸ“ <strong>Jurisdiction:</strong> ${this.escape(proc.jurisdiction)}
+            📍 <strong>Jurisdiction:</strong> ${this.escape(proc.jurisdiction)}
           </div>
           ${proc.governing_law_name ? `
             <div style="color: var(--accent-primary); font-size: 11.5px;">
-              âš–ï¸ ${this.escape(proc.governing_law_name)} ${proc.governing_section_number ? `(Sec ${this.escape(proc.governing_section_number)})` : ''}
+              ⚖️ ${this.escape(proc.governing_law_name)} ${proc.governing_section_number ? `(Sec ${this.escape(proc.governing_section_number)})` : ''}
             </div>
           ` : ''}
           <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
@@ -2434,7 +2643,7 @@ const App = {
               </span>
             </div>
             <button class="btn btn-primary btn-sm" style="padding: 5px 12px; font-size: 12px;" onclick="event.stopPropagation(); App.openProcedureChecklist(${proc.procedure_id})">
-              View Checklist â†’
+              View Checklist →
             </button>
           </div>
         </div>
@@ -2450,16 +2659,16 @@ const App = {
       // Populate Modal Metadata
       document.getElementById('chk-proc-category').innerText = data.category;
       document.getElementById('chk-proc-title').innerText = data.procedure_name;
-      document.getElementById('chk-proc-authority').innerText = `ðŸ›ï¸ Authority: ${data.authority_type} â€¢ ðŸ“ Jurisdiction: ${data.jurisdiction}`;
+      document.getElementById('chk-proc-authority').innerText = `🏛️ Authority: ${data.authority_type} • 📍 Jurisdiction: ${data.jurisdiction}`;
       document.getElementById('chk-proc-desc').innerText = data.description;
 
       const statuteBox = document.getElementById('chk-proc-statute');
       if (data.governing_law_name) {
         statuteBox.innerHTML = `
-          âš–ï¸ Governing Statute: <strong>${this.escape(data.governing_law_name)}</strong>
+          ⚖️ Governing Statute: <strong>${this.escape(data.governing_law_name)}</strong>
           ${data.governing_section_id ? `
             <button type="button" class="legal-ref-badge" style="margin-left: 6px;" onclick="App.viewFullProvisionDetail(${data.governing_section_id})">
-              Sec ${this.escape(data.governing_section_number)} â†—
+              Sec ${this.escape(data.governing_section_number)} ↗
             </button>
           ` : ''}
         `;
@@ -2468,11 +2677,11 @@ const App = {
       }
 
       const timelineBox = document.getElementById('chk-proc-timeline');
-      timelineBox.innerText = data.estimated_processing_days ? `â±ï¸ Est. Processing: ~${data.estimated_processing_days} Days` : '';
+      timelineBox.innerText = data.estimated_processing_days ? `⏱️ Est. Processing: ~${data.estimated_processing_days} Days` : '';
 
       const portalBox = document.getElementById('chk-proc-portal');
       if (data.official_portal_url) {
-        portalBox.innerHTML = `ðŸŒ <a href="${this.escape(data.official_portal_url)}" target="_blank" rel="noopener noreferrer" style="color: #38BDF8; text-decoration: underline;">Official Filing Portal â†—</a>`;
+        portalBox.innerHTML = `🌐 <a href="${this.escape(data.official_portal_url)}" target="_blank" rel="noopener noreferrer" style="color: #38BDF8; text-decoration: underline;">Official Filing Portal ↗</a>`;
       } else {
         portalBox.innerHTML = '';
       }
@@ -2566,14 +2775,14 @@ const App = {
             </p>
             ${doc.preparation_guidance ? `
               <div style="font-size: 12.5px; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 6px; margin-bottom: 6px;">
-                ðŸ’¡ <strong>Preparation Guidance:</strong> ${this.escape(doc.preparation_guidance)}
+                💡 <strong>Preparation Guidance:</strong> ${this.escape(doc.preparation_guidance)}
               </div>
             ` : ''}
             ${doc.statutory_reference_id ? `
               <div style="margin-top: 6px;">
                 <span style="font-size: 11.5px; color: var(--text-secondary); margin-right: 6px;">Statutory Basis:</span>
                 <button type="button" class="legal-ref-badge" onclick="event.stopPropagation(); App.viewFullProvisionDetail(${doc.statutory_reference_id})">
-                  âš–ï¸ Sec ${this.escape(doc.section_number)}: ${this.escape(doc.law_name)} â†—
+                  ⚖️ Sec ${this.escape(doc.section_number)}: ${this.escape(doc.law_name)} ↗
                 </button>
               </div>
             ` : ''}
@@ -2676,14 +2885,14 @@ const App = {
     }
     noteContent += `\n--- MANDATORY STATUTORY DOCUMENTS ---\n`;
     (proc.mandatory_documents || []).forEach(d => {
-      const mark = state[d.doc_req_id] ? '[âœ“ READY]' : '[ ] PENDING';
+      const mark = state[d.doc_req_id] ? '[✓ READY]' : '[ ] PENDING';
       noteContent += `${mark} ${d.document_name} (${d.document_type})\n   Purpose: ${d.purpose}\n`;
       if (d.preparation_guidance) noteContent += `   Guidance: ${d.preparation_guidance}\n`;
     });
 
     noteContent += `\n--- SUPPORTING & CORROBORATIVE DOCUMENTS ---\n`;
     (proc.supporting_documents || []).forEach(d => {
-      const mark = state[d.doc_req_id] ? '[âœ“ READY]' : '[ ] OPTIONAL';
+      const mark = state[d.doc_req_id] ? '[✓ READY]' : '[ ] OPTIONAL';
       noteContent += `${mark} ${d.document_name} (${d.document_type})\n   Purpose: ${d.purpose}\n`;
       if (d.preparation_guidance) noteContent += `   Guidance: ${d.preparation_guidance}\n`;
     });
@@ -2890,7 +3099,7 @@ const App = {
     document.getElementById('res-doc-name').innerText = data.document_name;
     const sizeKB = (data.file_size_bytes / 1024).toFixed(1);
     const hash = data.file_hash_sha256 ? data.file_hash_sha256.substring(0, 16) + '...' : 'N/A';
-    document.getElementById('res-doc-meta').innerText = `Size: ${sizeKB} KB â€¢ Checksum: sha256:${hash}`;
+    document.getElementById('res-doc-meta').innerText = `Size: ${sizeKB} KB • Checksum: sha256:${hash}`;
 
     const caseBadge = document.getElementById('res-case-badge');
     if (data.case_id) {
@@ -2915,7 +3124,7 @@ const App = {
     const takeawaysBox = document.getElementById('res-takeaways-container');
     takeawaysBox.innerHTML = (data.executive_takeaways || []).map(t => `
       <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); padding: 12px 16px; border-radius: var(--radius-sm); font-size: 13.5px; color: var(--text-primary); display: flex; align-items: center; gap: 10px; box-shadow: var(--shadow-sm);">
-        <span style="color: var(--accent-primary); font-weight: bold; font-size: 16px;">â€¢</span> ${this.escape(t)}
+        <span style="color: var(--accent-primary); font-weight: bold; font-size: 16px;">•</span> ${this.escape(t)}
       </div>
     `).join('');
 
@@ -3025,12 +3234,12 @@ const App = {
           </p>
           ${r.evidence_excerpt ? `
             <div style="font-size: 13px; color: var(--text-secondary); background: var(--bg-elevated); border: 1px solid var(--border-subtle); padding: 8px 12px; border-radius: var(--radius-sm); margin-bottom: 8px;">
-              ðŸ” Evidence: ${this.escape(r.evidence_excerpt)}
+              🔍 Evidence: ${this.escape(r.evidence_excerpt)}
             </div>
           ` : ''}
           ${r.recommendation ? `
             <div style="font-size: 13.5px; color: var(--accent-cyan); font-weight: 600;">
-              ðŸ’¡ Recommendation: ${this.escape(r.recommendation)}
+              💡 Recommendation: ${this.escape(r.recommendation)}
             </div>
           ` : ''}
         </div>
@@ -3044,7 +3253,7 @@ const App = {
     } else {
       mList.innerHTML = data.missing_information.map(m => `
         <div style="padding: 10px 0; border-bottom: 1px solid var(--border-subtle);">
-          <strong style="font-size: 14px; color: #FDA4AF;">âš ï¸ ${this.escape(m.item)}</strong>
+          <strong style="font-size: 14px; color: #FDA4AF;">⚠️ ${this.escape(m.item)}</strong>
           <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">${this.escape(m.description)}</div>
           <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">Grounds: ${this.escape(m.why_expected)}</div>
         </div>
@@ -3062,7 +3271,7 @@ const App = {
             <span class="badge ${a.priority === 'High' ? 'badge-mandatory' : 'badge-completed'}">${a.priority}</span>
           </div>
           <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
-            ðŸ‘¤ Assigned: ${this.escape(a.responsible_party || 'Advocate')} â€¢ Trigger: ${this.escape(a.deadline_or_trigger || 'Prior to filing')}
+            👤 Assigned: ${this.escape(a.responsible_party || 'Advocate')} • Trigger: ${this.escape(a.deadline_or_trigger || 'Prior to filing')}
           </div>
         </div>
       `).join('');
@@ -3080,20 +3289,20 @@ const App = {
               <div style="display: flex; align-items: center; gap: 8px;">
                 <strong style="font-size: 16px; color: var(--text-primary);">${this.escape(s.citation_text)}</strong>
                 ${s.is_verified_in_db ? `
-                  <span class="verified-badge">âœ“ Verified in Vidhik DB</span>
+                  <span class="verified-badge">✓ Verified in Vidhik DB</span>
                 ` : `
-                  <span class="unverified-badge">âœ• Unverified / Outside Vidhik DB</span>
+                  <span class="unverified-badge">✕ Unverified / Outside Vidhik DB</span>
                 `}
               </div>
               ${s.law_name ? `
                 <div style="font-size: 13.5px; color: var(--accent-cyan); margin-top: 3px;">
-                  ðŸ“œ ${this.escape(s.law_name)} ${s.section_number ? `â€¢ Section ${this.escape(s.section_number)}` : ''}
+                  📜 ${this.escape(s.law_name)} ${s.section_number ? `• Section ${this.escape(s.section_number)}` : ''}
                 </div>
               ` : ''}
             </div>
             ${s.section_id ? `
               <button class="btn btn-secondary btn-sm" onclick="App.openSectionDetail(${s.section_id})">
-                Inspect Section â†—
+                Inspect Section ↗
               </button>
             ` : ''}
           </div>
@@ -3231,7 +3440,7 @@ const App = {
               ${this.escape(h.summary_preview)}
             </div>
             <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
-              ${new Date(h.created_at).toLocaleDateString()} â€¢ Issues: ${h.risks_count} â€¢ Verified Provisions: ${h.verified_references_count}
+              ${new Date(h.created_at).toLocaleDateString()} • Issues: ${h.risks_count} • Verified Provisions: ${h.verified_references_count}
             </div>
           </div>
           <div style="display: flex; gap: 8px;">
@@ -3319,7 +3528,7 @@ const App = {
           nextDateContainer.innerHTML = `
             <div class="next-date-hero">
               <div class="next-date-header">
-                <span class="next-date-badge-label">âš¡ NEXT IMPORTANT DATE</span>
+                <span class="next-date-badge-label">⚡ NEXT IMPORTANT DATE</span>
                 <span class="badge badge-active">${this.escape(nextH.reminder_time || '10:30 AM')}</span>
               </div>
               <div class="next-date-content">
@@ -3330,14 +3539,14 @@ const App = {
                 <div class="next-date-details">
                   <h4 class="next-date-title">${this.escape(nextH.title || nextH.case_title || 'Scheduled Court Appearance')}</h4>
                   <div class="next-date-meta">
-                    <span>âš–ï¸ ${this.escape(nextH.case_title || 'Legal Matter')}</span>
-                    <span>â€¢</span>
-                    <span>ðŸ›ï¸ ${this.escape(nextH.court_name || 'Designated Court / Forum')}</span>
+                    <span>⚖️ ${this.escape(nextH.case_title || 'Legal Matter')}</span>
+                    <span>•</span>
+                    <span>🏛️ ${this.escape(nextH.court_name || 'Designated Court / Forum')}</span>
                   </div>
                 </div>
                 <div class="next-date-action">
                   <button class="btn btn-primary btn-sm" onclick="${nextH.case_id ? `App.openCitizenCaseDetail(${nextH.case_id})` : `App.navigate('citizen-cases')`}">
-                    View Case â†’
+                    View Case →
                   </button>
                 </div>
               </div>
@@ -3346,7 +3555,7 @@ const App = {
         } else {
           nextDateContainer.innerHTML = `
             <div class="next-date-empty-hero">
-              <div class="next-date-empty-icon">ðŸ“…</div>
+              <div class="next-date-empty-icon">📅</div>
               <div class="next-date-empty-body">
                 <div class="next-date-empty-title">You're all clear for now</div>
                 <div class="next-date-empty-desc">No upcoming court hearings or procedural deadlines are currently scheduled for your matters.</div>
@@ -3393,14 +3602,14 @@ const App = {
               <div class="matter-card-body">
                 <div class="matter-title">${this.escape(c.title)}</div>
                 <div class="matter-meta">
-                  <span class="matter-court">ðŸ›ï¸ ${this.escape(c.court || 'Court / Forum')}</span>
-                  ${c.case_number ? `<span>â€¢ <code class="matter-code">${this.escape(c.case_number)}</code></span>` : ''}
+                  <span class="matter-court">🏛️ ${this.escape(c.court || 'Court / Forum')}</span>
+                  ${c.case_number ? `<span>• <code class="matter-code">${this.escape(c.case_number)}</code></span>` : ''}
                 </div>
                 ${c.lawyer_name ? `<div class="matter-counsel">Assigned Counsel: ${this.escape(c.lawyer_name)}</div>` : ''}
               </div>
               <div class="matter-card-action">
                 <span class="badge badge-${c.status}">${c.status}</span>
-                <div class="matter-action-btn">View Matter â†’</div>
+                <div class="matter-action-btn">View Matter →</div>
               </div>
             </div>
           `).join('');
@@ -3423,7 +3632,7 @@ const App = {
               <div class="hearing-card-body">
                 <div class="hearing-card-title">${this.escape(h.title)}</div>
                 <div class="hearing-card-meta">
-                  âš–ï¸ ${this.escape(h.case_title || 'Legal Matter')} â€¢ ðŸ›ï¸ ${this.escape(h.court_name || 'Designated Court')}
+                  ⚖️ ${this.escape(h.case_title || 'Legal Matter')} • 🏛️ ${this.escape(h.court_name || 'Designated Court')}
                 </div>
               </div>
               <div class="hearing-card-action">
@@ -3444,14 +3653,14 @@ const App = {
           aList.innerHTML = data.recent_analyses.map(a => `
             <div class="doc-row-item" style="cursor: pointer;" onclick="App.navigate('document-analysis'); App.loadAnalysisById(${a.analysis_id});">
               <div class="doc-row-body">
-                <div class="doc-row-name">ðŸ“„ ${this.escape(a.document_name)}</div>
+                <div class="doc-row-name">📄 ${this.escape(a.document_name)}</div>
                 <div class="doc-row-meta">
                   <span class="badge badge-completed">${this.escape(a.document_type)}</span>
                   <span>${new Date(a.created_at).toLocaleDateString()}</span>
                 </div>
               </div>
               <div class="doc-row-action">
-                <span style="font-size: 12px; color: var(--accent-cyan); white-space: nowrap;">View Report â†’</span>
+                <span style="font-size: 12px; color: var(--accent-cyan); white-space: nowrap;">View Report →</span>
               </div>
             </div>
           `).join('');
@@ -3473,7 +3682,7 @@ const App = {
           dList.innerHTML = data.recent_documents.map(d => `
             <div class="doc-row-item">
               <div class="doc-row-body">
-                <div class="doc-row-name">ðŸ“„ ${this.escape(d.document_name)}</div>
+                <div class="doc-row-name">📄 ${this.escape(d.document_name)}</div>
                 <div class="doc-row-meta">
                   <span class="badge badge-completed">${d.document_type || 'Attached'}</span>
                   <span>${this.escape(d.case_title || 'Legal Matter')}</span>
@@ -3535,11 +3744,11 @@ const App = {
                 <div class="doc-row-body">
                   <div class="doc-row-name">Section ${this.escape(b.section_number)}: ${this.escape(b.section_title || '')}</div>
                   <div class="doc-row-meta">
-                    <span style="color: var(--accent-cyan);">ðŸ“– ${this.escape(b.law_name || 'Statute')}</span>
+                    <span style="color: var(--accent-cyan);">📖 ${this.escape(b.law_name || 'Statute')}</span>
                   </div>
                 </div>
                 <div class="doc-row-action">
-                  <span style="font-size: 11.5px; color: var(--accent-primary); white-space: nowrap;">View â†’</span>
+                  <span style="font-size: 11.5px; color: var(--accent-primary); white-space: nowrap;">View →</span>
                 </div>
               </div>
             `).join('');
@@ -3563,10 +3772,10 @@ const App = {
                 ${searches.map(s => `
                   <div class="search-history-item">
                     <div style="flex: 1; min-width: 0;">
-                      <div class="search-history-query">ðŸ” "${this.escape(s.query_text)}"</div>
+                      <div class="search-history-query">🔍 "${this.escape(s.query_text)}"</div>
                       <div class="search-history-meta">
                         <span>${s.results_count || 0} provisions matched</span>
-                        <span>â€¢</span>
+                        <span>•</span>
                         <span>${new Date(s.searched_at).toLocaleDateString()}</span>
                       </div>
                     </div>
@@ -3627,7 +3836,7 @@ const App = {
     if (!cases || cases.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="empty-state-icon">âš–ï¸</div>
+          <div class="empty-state-icon">⚖️</div>
           <div class="empty-state-title">No Legal Matters Registered</div>
           <div class="empty-state-desc">You do not have any civil or statutory matters registered. Click "+ File New Matter" to open a case file.</div>
           <button class="btn btn-primary" style="margin-top: 14px;" onclick="App.openCitizenNewCaseModal()">+ File New Matter</button>
@@ -3647,7 +3856,7 @@ const App = {
             </div>
             <h3 style="font-size: 18px; color: var(--text-primary); margin-bottom: 4px; overflow-wrap: anywhere; word-break: break-word;">${this.escape(c.title)}</h3>
             <div style="font-size: 13px; color: var(--text-muted); overflow-wrap: anywhere; word-break: break-word;">
-              ðŸ›ï¸ ${this.escape(c.court || 'Court / Judicial Forum')} â€¢ Opposite Party: <strong style="color: var(--text-secondary);">${this.escape(c.opposite_party || 'Unspecified')}</strong>
+              🏛️ ${this.escape(c.court || 'Court / Judicial Forum')} • Opposite Party: <strong style="color: var(--text-secondary);">${this.escape(c.opposite_party || 'Unspecified')}</strong>
             </div>
           </div>
           <div style="text-align: right; flex-shrink: 0;">
@@ -3671,15 +3880,15 @@ const App = {
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-subtle); font-size: 12px; color: var(--text-muted); flex-wrap: wrap; gap: 8px;">
           <div style="display: flex; gap: 8px; align-items: center;">
             <span>${c.filing_date ? `Filing Date: ${c.filing_date}` : (c.created_at ? `Created: ${new Date(c.created_at).toLocaleDateString()}` : '')}</span>
-            ${c.case_id === this.activeCaseId ? `<span class="badge badge-active" style="font-size: 10px;">â˜… ACTIVE CASE</span>` : ''}
+            ${c.case_id === this.activeCaseId ? `<span class="badge badge-active" style="font-size: 10px;">★ ACTIVE CASE</span>` : ''}
           </div>
           <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-            <span>ðŸ“„ ${c.documents_count || 0} Docs</span>
-            <span>ðŸ“… ${c.hearings_count || 0} Hearings</span>
+            <span>📄 ${c.documents_count || 0} Docs</span>
+            <span>📅 ${c.hearings_count || 0} Hearings</span>
             <button type="button" class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); App.setActiveCase(${c.case_id}); App.navigate('case-intelligence');">
-              âš–ï¸ Case Intelligence
+              ⚖️ Case Intelligence
             </button>
-            <span style="color: var(--accent-cyan); font-weight: 500;">Brief â†’</span>
+            <span style="color: var(--accent-cyan); font-weight: 500;">Brief →</span>
           </div>
         </div>
       </div>
@@ -3714,7 +3923,7 @@ const App = {
       document.getElementById('c-detail-title').innerText = c.title;
       document.getElementById('c-detail-number').innerText = c.case_number ? `CASE #${c.case_number}` : 'MATTER BRIEF';
       document.getElementById('c-detail-type').innerText = c.case_type || 'Civil Matter';
-      document.getElementById('c-detail-court').innerText = `ðŸ›ï¸ ${c.court || 'Court / Forum Name'}`;
+      document.getElementById('c-detail-court').innerText = `🏛️ ${c.court || 'Court / Forum Name'}`;
 
       const stBadge = document.getElementById('c-detail-status');
       stBadge.innerText = c.status;
@@ -3726,7 +3935,7 @@ const App = {
         counselBox.style.display = 'block';
         document.getElementById('c-detail-lawyer-name').innerText = c.lawyer.full_name;
         document.getElementById('c-detail-lawyer-spec').innerText = c.lawyer.specializations || 'Advocate High Court';
-        document.getElementById('c-detail-lawyer-contact').innerText = `ðŸ“ž ${c.lawyer.phone || 'Contact via Chambers'} â€¢ ðŸ“§ ${c.lawyer.email}`;
+        document.getElementById('c-detail-lawyer-contact').innerText = `📞 ${c.lawyer.phone || 'Contact via Chambers'} • 📧 ${c.lawyer.email}`;
       } else {
         counselBox.style.display = 'none';
       }
@@ -3757,7 +3966,7 @@ const App = {
             <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; width: 100%; box-sizing: border-box;">
               <div>
                 <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                  <strong style="color: var(--text-primary); font-size: 14.5px;">ðŸ“„ ${this.escape(d.document_name)}</strong>
+                  <strong style="color: var(--text-primary); font-size: 14.5px;">📄 ${this.escape(d.document_name)}</strong>
                   <span class="badge badge-completed">${this.escape(d.document_type || 'Case Instrument')}</span>
                   <span class="badge badge-success">Verified</span>
                 </div>
@@ -3768,10 +3977,10 @@ const App = {
               </div>
             </div>
             <div class="doc-action-toolbar">
-              <button type="button" class="btn btn-primary btn-sm" onclick="App.previewCitizenDocument(${d.document_id})">ðŸ‘ï¸ Preview</button>
-              <button type="button" class="btn btn-secondary btn-sm" onclick="App.downloadCitizenDocument(${d.document_id})">ðŸ“¥ Download</button>
-              <button type="button" class="btn btn-secondary btn-sm" onclick="App.printCitizenDocument(${d.document_id})">ðŸ–¨ï¸ Print</button>
-              <button type="button" class="btn btn-secondary btn-sm" onclick="App.copyCitizenDocument(${d.document_id})">ðŸ“‹ Copy</button>
+              <button type="button" class="btn btn-primary btn-sm" onclick="App.previewCitizenDocument(${d.document_id})">👁️ Preview</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="App.downloadCitizenDocument(${d.document_id})">📥 Download</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="App.printCitizenDocument(${d.document_id})">🖨️ Print</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="App.copyCitizenDocument(${d.document_id})">📋 Copy</button>
             </div>
           </div>
         `).join('');
@@ -3787,9 +3996,9 @@ const App = {
             <div>
               <div style="font-weight: 700; color: var(--text-primary); font-size: 15px;">${this.escape(h.title)}</div>
               <div style="font-size: 13.5px; color: var(--accent-cyan); font-weight: 500; margin-top: 3px;">
-                ðŸ›ï¸ ${this.escape(h.court_name || 'Designated Court')} â€¢ Presiding: ${this.escape(h.judge_name || 'Hon\'ble Judge')}
+                🏛️ ${this.escape(h.court_name || 'Designated Court')} • Presiding: ${this.escape(h.judge_name || 'Hon\'ble Judge')}
               </div>
-              ${h.notes ? `<div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">ðŸ“ ${this.escape(h.notes)}</div>` : ''}
+              ${h.notes ? `<div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">📝 ${this.escape(h.notes)}</div>` : ''}
             </div>
             <div style="text-align: right;">
               <span class="badge badge-active">${h.reminder_date}</span>
@@ -3807,13 +4016,13 @@ const App = {
         uList.innerHTML = c.updates.map(u => `
           <div style="display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border-subtle);">
             <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(99, 102, 241, 0.15); color: var(--accent-primary); display: flex; align-items: center; justify-content: center; font-size: 14px;">
-              âš¡
+              ⚡
             </div>
             <div style="flex: 1;">
               <div style="font-size: 14px; font-weight: 600; color: var(--text-primary);">${this.escape(u.update_title)}</div>
               <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">${this.escape(u.update_description)}</div>
               <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
-                Logged by: ${this.escape(u.updated_by_name || 'Legal Counsel')} â€¢ ${new Date(u.update_date).toLocaleDateString()}
+                Logged by: ${this.escape(u.updated_by_name || 'Legal Counsel')} • ${new Date(u.update_date).toLocaleDateString()}
               </div>
             </div>
           </div>
@@ -3892,7 +4101,7 @@ const App = {
       if (this.citizenDocuments.length === 0) {
         container.innerHTML = `
           <div class="empty-state">
-            <div class="empty-state-icon">ðŸ“„</div>
+            <div class="empty-state-icon">📄</div>
             <div class="empty-state-title">No Documents Uploaded</div>
             <div class="empty-state-desc">You have not uploaded any case documents or legal filings yet. Click "+ Upload Document" to save legal files.</div>
             <button class="btn btn-primary" style="margin-top: 14px;" onclick="App.openCitizenUploadDocModal()">+ Upload Document</button>
@@ -3907,7 +4116,7 @@ const App = {
           <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; width: 100%; box-sizing: border-box;">
             <div style="flex: 1 1 240px; min-width: 0;">
               <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;">
-                <h3 style="font-size: 16px; font-weight: 700; color: var(--text-primary); margin: 0; word-break: break-word;">ðŸ“„ ${this.escape(d.document_name)}</h3>
+                <h3 style="font-size: 16px; font-weight: 700; color: var(--text-primary); margin: 0; word-break: break-word;">📄 ${this.escape(d.document_name)}</h3>
                 <span class="badge badge-completed">${this.escape(d.document_type || 'Legal Document')}</span>
                 ${d.case_title ? `<span class="badge" style="background: rgba(99, 102, 241, 0.15); color: var(--accent-primary);">Matter: ${this.escape(d.case_title)}</span>` : ''}
                 <span class="badge badge-success">${this.escape(d.upload_status || 'Verified')}</span>
@@ -3943,20 +4152,20 @@ const App = {
           <!-- 3. Actions Toolbar (Stacking/wrapping cleanly on mobile) -->
           <div class="doc-action-toolbar">
             <button type="button" class="btn btn-primary btn-sm" onclick="App.previewCitizenDocument(${d.document_id})">
-              ðŸ‘ï¸ Preview Document
+              👁️ Preview Document
             </button>
             <button type="button" class="btn btn-secondary btn-sm" onclick="App.downloadCitizenDocument(${d.document_id})">
-              ðŸ“¥ Download
+              📥 Download
             </button>
             <button type="button" class="btn btn-secondary btn-sm" onclick="App.printCitizenDocument(${d.document_id})">
-              ðŸ–¨ï¸ Print
+              🖨️ Print
             </button>
             <button type="button" class="btn btn-secondary btn-sm" onclick="App.copyCitizenDocument(${d.document_id})">
-              ðŸ“‹ Copy
+              📋 Copy
             </button>
             ${d.case_id ? `
               <button type="button" class="btn btn-secondary btn-sm" onclick="App.openCitizenCaseDetail(${d.case_id})" style="margin-left: auto;">
-                View Matter â†’
+                View Matter →
               </button>
             ` : ''}
           </div>
@@ -3987,7 +4196,7 @@ const App = {
     }
 
     const title = doc.document_name || 'Legal Document';
-    const subtitle = `${doc.document_type || 'Document'} â€¢ ${doc.case_title || 'Case Record'}`;
+    const subtitle = `${doc.document_type || 'Document'} • ${doc.case_title || 'Case Record'}`;
     const meta = {
       document_type: doc.document_type || 'Case Instrument',
       case_title: doc.case_title || (doc.case_id ? `Case #${doc.case_id}` : 'General Matter'),
@@ -4032,7 +4241,7 @@ const App = {
         </div>
         <div style="text-align: right;">
           <div style="font-size: 12px; color: var(--text-muted);">AUTHENTICATED RECORD</div>
-          <div style="font-size: 12.5px; font-weight: 600; color: var(--accent-primary);">âš–ï¸ VIDHIK AI LEGAL REPOSITORY</div>
+          <div style="font-size: 12.5px; font-weight: 600; color: var(--accent-primary);">⚖️ VIDHIK AI LEGAL REPOSITORY</div>
         </div>
       </div>
     `;
@@ -4157,10 +4366,10 @@ const App = {
     if (!bookmarks || bookmarks.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="empty-state-icon">ðŸ”–</div>
+          <div class="empty-state-icon">🔖</div>
           <div class="empty-state-title">No Saved Provisions</div>
           <div class="empty-state-desc">You have not bookmarked any statutory sections. Search Central & State laws and bookmark key sections for quick reference.</div>
-          <button class="btn btn-secondary btn-sm" style="margin-top: 14px;" onclick="App.navigate('research')">ðŸ” Go to Legal Research</button>
+          <button class="btn btn-secondary btn-sm" style="margin-top: 14px;" onclick="App.navigate('research')">🔍 Go to Legal Research</button>
         </div>
       `;
       return;
@@ -4175,17 +4384,17 @@ const App = {
               <span class="badge badge-completed">${this.escape(b.tag || 'General')}</span>
             </div>
             <h3 style="font-size: 17px; color: var(--text-primary); margin-bottom: 2px;">${this.escape(b.section_title || 'Section Provision')}</h3>
-            <div style="font-size: 13.5px; color: var(--accent-cyan); font-weight: 500;">ðŸ“– ${this.escape(b.law_name)}</div>
+            <div style="font-size: 13.5px; color: var(--accent-cyan); font-weight: 500;">📖 ${this.escape(b.law_name)}</div>
           </div>
           <div style="display: flex; gap: 8px;">
-            <button class="btn btn-secondary btn-sm" onclick="App.viewFullProvisionDetail(${b.section_id})">ðŸ“– View Text</button>
-            <button class="btn btn-danger btn-sm" onclick="App.deleteBookmark(${b.section_id})">âœ• Remove</button>
+            <button class="btn btn-secondary btn-sm" onclick="App.viewFullProvisionDetail(${b.section_id})">📖 View Text</button>
+            <button class="btn btn-danger btn-sm" onclick="App.deleteBookmark(${b.section_id})">✕ Remove</button>
           </div>
         </div>
 
         ${b.notes ? `
           <div style="font-size: 13.5px; color: var(--text-secondary); background: var(--bg-elevated); padding: 12px 16px; border-radius: var(--radius-sm); margin: 10px 0; border: 1px solid var(--border-subtle); line-height: 1.5;">
-            ðŸ“ <strong>My Reference Note:</strong> ${this.escape(b.notes)}
+            📝 <strong>My Reference Note:</strong> ${this.escape(b.notes)}
           </div>
         ` : ''}
 
@@ -4356,15 +4565,15 @@ const App = {
   getNotificationMeta(type, title) {
     const raw = (type || title || '').toLowerCase();
     if (raw.includes('hear') || raw.includes('court') || raw.includes('bench') || raw.includes('trial')) {
-      return { icon: 'âš–ï¸', label: 'Hearing', className: 'hearing' };
+      return { icon: '⚖️', label: 'Hearing', className: 'hearing' };
     }
     if (raw.includes('case') || raw.includes('matter') || raw.includes('registered') || raw.includes('brief') || raw.includes('status')) {
-      return { icon: 'ðŸ“', label: 'Case Update', className: 'case_update' };
+      return { icon: '📁', label: 'Case Update', className: 'case_update' };
     }
     if (raw.includes('doc') || raw.includes('file') || raw.includes('pdf') || raw.includes('affidavit') || raw.includes('petition')) {
-      return { icon: 'ðŸ“„', label: 'Document', className: 'document' };
+      return { icon: '📄', label: 'Document', className: 'document' };
     }
-    return { icon: 'â„¹ï¸', label: 'System', className: 'system' };
+    return { icon: 'ℹ️', label: 'System', className: 'system' };
   },
 
   toggleNotificationsPopover() {
@@ -4468,7 +4677,7 @@ const App = {
         notifs.push({
           notification_id: `lawyer_h_${idx}`,
           title: h.title || 'Upcoming Court Hearing',
-          message: `${h.case_title || 'Case Brief'} at ${h.court_name || 'Designated Court'} â€¢ ${h.reminder_date} ${h.reminder_time || '10:30 AM'}`,
+          message: `${h.case_title || 'Case Brief'} at ${h.court_name || 'Designated Court'} • ${h.reminder_date} ${h.reminder_time || '10:30 AM'}`,
           notification_type: 'hearing',
           is_read: false,
           created_at: h.reminder_date || new Date().toISOString(),
@@ -4481,7 +4690,7 @@ const App = {
         notifs.push({
           notification_id: `lawyer_c_${idx}`,
           title: `Case Matter: ${c.case_title}`,
-          message: `Client: ${c.client_name || 'Client'} (${c.case_number || 'Brief'}) â€¢ Status: ${c.status}`,
+          message: `Client: ${c.client_name || 'Client'} (${c.case_number || 'Brief'}) • Status: ${c.status}`,
           notification_type: 'case_update',
           is_read: true,
           created_at: new Date().toISOString(),
@@ -4506,7 +4715,7 @@ const App = {
     if (!notifs || notifs.length === 0) {
       container.innerHTML = `
         <div class="notif-empty-state">
-          <div class="notif-empty-icon">âœ“</div>
+          <div class="notif-empty-icon">✓</div>
           <div class="notif-empty-title">You're all caught up</div>
           <div class="notif-empty-desc">No new notifications at this time.</div>
         </div>
@@ -4540,7 +4749,7 @@ const App = {
                 ${isUnread ? '<span class="notif-item-unread-dot" title="Unread"></span>' : ''}
                 ${timeStr}
               </span>
-              <span class="notif-item-action">Open â†’</span>
+              <span class="notif-item-action">Open →</span>
             </div>
           </div>
         </div>
@@ -4663,7 +4872,7 @@ const App = {
     if (!items || items.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="empty-state-icon">ðŸ”</div>
+          <div class="empty-state-icon">🔍</div>
           <div class="empty-state-title">No Search History Found</div>
           <div class="empty-state-desc">You haven't searched for any statutory provisions yet. Try queries like "anticipatory bail", "cheque bounce", or "consumer grievance".</div>
         </div>
@@ -4675,16 +4884,16 @@ const App = {
       <div class="search-history-card">
         <div>
           <div style="font-size: 15px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
-            <span>ðŸ”</span> "${this.escape(s.query_text)}"
+            <span>🔍</span> "${this.escape(s.query_text)}"
             ${s.filters && s.filters.jurisdiction ? `<span class="badge badge-active">${this.escape(s.filters.jurisdiction)}</span>` : ''}
           </div>
           <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
-            Matched <strong>${s.results_count || 0}</strong> statutory provisions â€¢ Searched on ${new Date(s.searched_at).toLocaleString()}
+            Matched <strong>${s.results_count || 0}</strong> statutory provisions • Searched on ${new Date(s.searched_at).toLocaleString()}
           </div>
         </div>
         <div>
           <button class="search-again-btn" onclick="App.reSearchFromHistory('${this.escape(s.query_text)}', '${this.escape(s.filters && s.filters.jurisdiction ? s.filters.jurisdiction : '')}')">
-            ðŸ”„ Search Again
+            🔄 Search Again
           </button>
         </div>
       </div>
@@ -4774,7 +4983,7 @@ const App = {
     if (items.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="empty-state-icon">ðŸ””</div>
+          <div class="empty-state-icon">🔔</div>
           <div class="empty-state-title">No ${this.notifFilterType === 'unread' ? 'Unread ' : ''}Notifications</div>
           <div class="empty-state-desc">You are all caught up on case alerts and court date reminders.</div>
         </div>
@@ -4791,11 +5000,11 @@ const App = {
             <span class="badge ${n.is_read ? 'badge-completed' : 'badge-active'}" style="font-size: 10px;">${n.is_read ? 'Read' : 'New'}</span>
           </div>
           <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin: 6px 0;">${this.escape(n.message)}</p>
-          <div style="font-size: 11px; color: var(--text-muted);">${new Date(n.created_at).toLocaleString()} â€¢ ${this.escape(n.notification_type || 'Case Alert')}</div>
+          <div style="font-size: 11px; color: var(--text-muted);">${new Date(n.created_at).toLocaleString()} • ${this.escape(n.notification_type || 'Case Alert')}</div>
         </div>
         ${!n.is_read ? `
           <button class="btn btn-secondary btn-sm" onclick="App.markSingleNotificationRead(${n.notification_id})">
-            âœ“ Mark Read
+            ✓ Mark Read
           </button>
         ` : ''}
       </div>
@@ -4863,10 +5072,10 @@ const App = {
     const navCaseLabel = document.getElementById('top-nav-case-label');
     if (navCaseLabel) {
       if (activeCase) {
-        const shortNum = activeCase.case_number ? `âš– #${activeCase.case_number}` : (activeCase.case_title || activeCase.title || 'âš– Current Case');
-        navCaseLabel.innerText = shortNum.length > 18 ? shortNum.slice(0, 16) + 'â€¦' : shortNum;
+        const shortNum = activeCase.case_number ? `⚖ #${activeCase.case_number}` : (activeCase.case_title || activeCase.title || '⚖ Current Case');
+        navCaseLabel.innerText = shortNum.length > 18 ? shortNum.slice(0, 16) + '…' : shortNum;
       } else {
-        navCaseLabel.innerText = 'âš– Current Case';
+        navCaseLabel.innerText = '⚖ Current Case';
       }
     }
 
@@ -4930,13 +5139,13 @@ const App = {
       document.getElementById('ci-header-case-num').innerText = 'Please select or file a case to activate Case Intelligence.';
       document.getElementById('ci-situation-summary-text').innerHTML = `
         <div class="empty-state" style="padding: 24px 0;">
-          <div class="empty-state-icon" style="font-size: 36px; margin-bottom: 8px;">âš–ï¸</div>
+          <div class="empty-state-icon" style="font-size: 36px; margin-bottom: 8px;">⚖️</div>
           <div class="empty-state-title" style="font-size: 16px;">No Active Case Selected</div>
           <div class="empty-state-desc" style="max-width: 440px; margin: 0 auto 16px;">
             Vidhik Case Intelligence requires an active legal case to ground statutory provisions, recommend authorities, and match verified lawyers.
           </div>
           <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-            <button type="button" class="btn btn-secondary btn-sm" onclick="App.openCaseSwitchModal()">â‡„ Select Existing Case</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="App.openCaseSwitchModal()">⇄ Select Existing Case</button>
             <button type="button" class="btn btn-primary btn-sm" onclick="App.openCitizenNewCaseModal()">+ File New Matter</button>
           </div>
         </div>
@@ -4971,7 +5180,7 @@ const App = {
 
     // 1. Header Information
     document.getElementById('ci-header-title').innerText = ctx.title || 'Legal Matter';
-    document.getElementById('ci-header-case-num').innerText = `Case ID: ${ctx.case_id} â€¢ Category: ${ctx.category || 'General'} â€¢ Jurisdiction: ${ctx.jurisdiction || 'India'}`;
+    document.getElementById('ci-header-case-num').innerText = `Case ID: ${ctx.case_id} • Category: ${ctx.category || 'General'} • Jurisdiction: ${ctx.jurisdiction || 'India'}`;
     document.getElementById('ci-header-category').innerText = ctx.category || 'General';
     document.getElementById('ci-header-domain').innerText = ctx.legal_domain || 'Indian Law';
 
@@ -5160,14 +5369,14 @@ const App = {
         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap;">
           <div>
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-              <strong style="color: var(--text-primary); font-size: 14.5px;">ðŸ“„ ${this.escape(d.title || d.document_name)}</strong>
+              <strong style="color: var(--text-primary); font-size: 14.5px;">📄 ${this.escape(d.title || d.document_name)}</strong>
               <span class="badge ${badgeClass}" style="font-size: 10.5px;">${label}</span>
               ${d.is_digital_evidence || d.evidence_safeguard || d.electronic_record_rule ? `<span class="badge badge-bsa" style="font-size: 10.5px;">BSA Sec 63 Digital Proof</span>` : ''}
             </div>
             <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">${this.escape(d.purpose || d.description || d.purpose_or_reason)}</div>
             ${d.evidence_safeguard || d.electronic_record_rule ? `
               <div style="font-size: 11.5px; color: var(--accent-cyan); margin-top: 4px;">
-                ðŸ’¡ <em>${this.escape(d.evidence_safeguard || d.electronic_record_rule)}</em>
+                💡 <em>${this.escape(d.evidence_safeguard || d.electronic_record_rule)}</em>
               </div>
             ` : ''}
           </div>
@@ -5243,7 +5452,7 @@ const App = {
       if (!lawyers.length) {
         lawList.innerHTML = `
           <div class="empty-state" style="grid-column: 1 / -1;">
-            <div class="empty-state-icon">ðŸ§‘â€âš–ï¸</div>
+            <div class="empty-state-icon">🧑‍⚖️</div>
             <div class="empty-state-title">No Direct Match Found in Database</div>
             <div class="empty-state-desc">No registered advocate in the Vidhik database exactly matched the required legal domain and jurisdiction. Vidhik does not invent fictitious lawyer profiles.</div>
           </div>
@@ -5272,11 +5481,11 @@ const App = {
               </div>
 
               <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">
-                ðŸ›ï¸ <strong>Courts:</strong> ${this.escape(l.court_practice || (l.courts || []).join(', ') || 'District & High Courts')}
+                🏛️ <strong>Courts:</strong> ${this.escape(l.court_practice || (l.courts || []).join(', ') || 'District & High Courts')}
               </div>
 
               <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">
-                ðŸ“ <strong>Location:</strong> ${this.escape(l.city || (l.jurisdictions || []).join(', ') || 'Maharashtra')} â€¢ <strong>Experience:</strong> ${l.experience_years || l.years_of_experience || 10}+ Years
+                📍 <strong>Location:</strong> ${this.escape(l.city || (l.jurisdictions || []).join(', ') || 'Maharashtra')} • <strong>Experience:</strong> ${l.experience_years || l.years_of_experience || 10}+ Years
               </div>
             </div>
 
@@ -5305,12 +5514,12 @@ const App = {
             <div class="card" style="padding: 14px 18px;">
               <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 6px;">
                 <strong style="color: var(--text-primary); font-size: 15px;">Stage ${s.step_number || s.stage_number}: ${this.escape(s.stage_name)}</strong>
-                ${s.expected_timeline || s.estimated_timeframe ? `<span class="badge badge-completed" style="font-size: 11px;">â±ï¸ ${this.escape(s.expected_timeline || s.estimated_timeframe)}</span>` : ''}
+                ${s.expected_timeline || s.estimated_timeframe ? `<span class="badge badge-completed" style="font-size: 11px;">⏱️ ${this.escape(s.expected_timeline || s.estimated_timeframe)}</span>` : ''}
               </div>
               <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 8px 0; line-height: 1.5;">${this.escape(s.description || s.likely_action)}</p>
               ${s.cautious_note || s.authority_involved ? `
                 <div style="font-size: 11.5px; color: var(--text-muted); background: var(--bg-primary); padding: 6px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
-                  â„¹ï¸ <em>${this.escape(s.cautious_note || `Concerned authority: ${s.authority_involved}`)}</em>
+                  ℹ️ <em>${this.escape(s.cautious_note || `Concerned authority: ${s.authority_involved}`)}</em>
                 </div>
               ` : ''}
             </div>
@@ -5398,18 +5607,18 @@ const App = {
             <div>
               <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
                 <strong style="color: var(--text-primary); font-size: 15px;">${this.escape(c.title)}</strong>
-                ${isActive ? `<span class="badge badge-active">â˜… CURRENT ACTIVE</span>` : ''}
+                ${isActive ? `<span class="badge badge-active">★ CURRENT ACTIVE</span>` : ''}
                 <span class="badge badge-completed">${this.escape(c.case_type || 'Civil Matter')}</span>
               </div>
               <div style="font-size: 12.5px; color: var(--text-muted);">
-                ${c.case_number ? `Case #${c.case_number} â€¢ ` : ''}ðŸ›ï¸ ${this.escape(c.court || 'Court')} â€¢ Status: <strong>${this.escape(c.status || 'Active')}</strong>
+                ${c.case_number ? `Case #${c.case_number} • ` : ''}🏛️ ${this.escape(c.court || 'Court')} • Status: <strong>${this.escape(c.status || 'Active')}</strong>
               </div>
             </div>
             <div>
               ${isActive ? `
                 <button type="button" class="btn btn-secondary btn-sm" disabled style="opacity: 0.7;">Active</button>
               ` : `
-                <button type="button" class="btn btn-primary btn-sm" onclick="App.submitCaseSwitch(${c.case_id})">Switch to This Case â†’</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="App.submitCaseSwitch(${c.case_id})">Switch to This Case →</button>
               `}
             </div>
           </div>
@@ -5480,7 +5689,7 @@ const App = {
     } finally {
       if (btn) {
         btn.disabled = false;
-        btn.innerText = 'âš¡ Update & Re-Analyze';
+        btn.innerText = '⚡ Update & Re-Analyze';
       }
     }
   },
@@ -5600,7 +5809,7 @@ const App = {
 
     this.closeLanguagePicker();
     this.applyLocalization();
-    const names = { en: 'English', hi: 'à¤¹à¤¿à¤¨à¥à¤¦à¥€ (Hindi)', mr: 'à¤®à¤°à¤¾à¤ à¥€ (Marathi)' };
+    const names = { en: 'English', hi: 'हिंदी', mr: 'मराठी' };
     this.showToast(`Language switched to ${names[lang] || lang}`, 'info');
   },
 
@@ -5609,6 +5818,7 @@ const App = {
     const dict = {
       en: {
         welcome: 'Welcome',
+        selectLanguage: 'Select Language',
         legalWorkspace: 'Your Legal Workspace',
         activeMatters: 'Active Matters',
         savedProvisions: 'Saved Provisions',
@@ -5623,34 +5833,36 @@ const App = {
         legalKnowledge: 'Legal Knowledge'
       },
       hi: {
-        welcome: 'à¤¸à¥à¤µà¤¾à¤—à¤¤ à¤¹à¥ˆ',
-        legalWorkspace: 'à¤†à¤ªà¤•à¤¾ à¤µà¤¿à¤§à¤¿à¤• à¤•à¤¾à¤°à¥à¤¯à¤•à¥à¤·à¥‡à¤¤à¥à¤°',
-        activeMatters: 'à¤¸à¤•à¥à¤°à¤¿à¤¯ à¤®à¤¾à¤®à¤²à¥‡',
-        savedProvisions: 'à¤¸à¥à¤°à¤•à¥à¤·à¤¿à¤¤ à¤§à¤¾à¤°à¤¾à¤à¤‚',
-        aiAssistant: 'à¤à¤†à¤ˆ à¤µà¤¿à¤§à¤¿à¤• à¤¸à¤¹à¤¾à¤¯à¤•',
-        complaintFir: 'à¤¶à¤¿à¤•à¤¾à¤¯à¤¤ / à¤à¤«à¤†à¤ˆà¤†à¤° à¤ªà¥à¤°à¤¾à¤°à¥‚à¤ª',
-        disputeResolution: 'à¤µà¤¿à¤µà¤¾à¤¦ à¤¸à¤®à¤¾à¤§à¤¾à¤¨ à¤à¤µà¤‚ à¤Ÿà¥à¤°à¤¾à¤‡à¤à¤œ',
-        trafficLaw: 'à¤¯à¤¾à¤¤à¤¾à¤¯à¤¾à¤¤ à¤¨à¤¿à¤¯à¤® à¤µ à¤œà¥à¤°à¥à¤®à¤¾à¤¨à¤¾',
-        constRights: 'à¤¸à¤‚à¤µà¥ˆà¤§à¤¾à¤¨à¤¿à¤• à¤…à¤§à¤¿à¤•à¤¾à¤°',
-        findLawyer: 'à¤…à¤§à¤¿à¤µà¤•à¥à¤¤à¤¾ à¤–à¥‹à¤œà¥‡à¤‚',
-        caseTracking: 'à¤ˆ-à¤•à¥‹à¤°à¥à¤Ÿ à¤•à¥‡à¤¸ à¤Ÿà¥à¤°à¥ˆà¤•à¤¿à¤‚à¤—',
-        voiceAssistant: 'à¤§à¥à¤µà¤¨à¤¿ à¤µà¤¿à¤§à¤¿à¤• à¤¸à¤¹à¤¾à¤¯à¤•',
-        legalKnowledge: 'à¤µà¤¿à¤§à¤¿à¤• à¤œà¥à¤žà¤¾à¤¨à¤•à¥‹à¤·'
+        welcome: 'स्वागत है',
+        selectLanguage: 'अपनी भाषा चुनें',
+        legalWorkspace: 'आपका विधिक कार्यक्षेत्र',
+        activeMatters: 'सक्रिय मामले',
+        savedProvisions: 'सुरक्षित धाराएं',
+        aiAssistant: 'एआई विधिक सहायक',
+        complaintFir: 'शिकायत / एफआईआर प्रारूप',
+        disputeResolution: 'विवाद समाधान एवं ट्राइएज',
+        trafficLaw: 'यातायात नियम व जुर्माना',
+        constRights: 'संवैधानिक अधिकार',
+        findLawyer: 'अधिवक्ता खोजें',
+        caseTracking: 'ई-कोर्ट केस ट्रैकिंग',
+        voiceAssistant: 'ध्वनि विधिक सहायक',
+        legalKnowledge: 'विधिक ज्ञानकोष'
       },
       mr: {
-        welcome: 'à¤¸à¥à¤µà¤¾à¤—à¤¤ à¤†à¤¹à¥‡',
-        legalWorkspace: 'à¤†à¤ªà¤²à¥‡ à¤µà¤¿à¤§à¥€ à¤•à¤¾à¤°à¥à¤¯à¤•à¥à¤·à¥‡à¤¤à¥à¤°',
-        activeMatters: 'à¤¸à¤•à¥à¤°à¤¿à¤¯ à¤–à¤Ÿà¤²à¥‡',
-        savedProvisions: 'à¤œà¤¤à¤¨ à¤•à¥‡à¤²à¥‡à¤²à¥€ à¤•à¤²à¤®à¥‡',
-        aiAssistant: 'à¤à¤†à¤¯ à¤µà¤¿à¤§à¥€ à¤¸à¤¹à¤¾à¤¯à¥à¤¯à¤•',
-        complaintFir: 'à¤¤à¤•à¥à¤°à¤¾à¤° / à¤à¤«à¤†à¤¯à¤†à¤° à¤®à¤¸à¥à¤¦à¤¾',
-        disputeResolution: 'à¤¤à¤•à¥à¤°à¤¾à¤° à¤¨à¤¿à¤µà¤¾à¤°à¤£ à¤µ à¤¸à¤²à¥à¤²à¤¾',
-        trafficLaw: 'à¤µà¤¾à¤¹à¤¤à¥‚à¤• à¤¨à¤¿à¤¯à¤® à¤µ à¤¦à¤‚à¤¡',
-        constRights: 'à¤®à¥‚à¤²à¤­à¥‚à¤¤ à¤¹à¤•à¥à¤• à¤µ à¤…à¤§à¤¿à¤•à¤¾à¤°',
-        findLawyer: 'à¤µà¤•à¥€à¤² à¤¶à¥‹à¤§à¤¾',
-        caseTracking: 'à¤ˆ-à¤•à¥‹à¤°à¥à¤Ÿ à¤•à¥‡à¤¸ à¤Ÿà¥à¤°à¥…à¤•à¤¿à¤‚à¤—',
-        voiceAssistant: 'à¤µà¥à¤¹à¥‰à¤‡à¤¸ à¤µà¤¿à¤§à¥€ à¤¸à¤¹à¤¾à¤¯à¥à¤¯à¤•',
-        legalKnowledge: 'à¤µà¤¿à¤§à¥€ à¤œà¥à¤žà¤¾à¤¨à¤•à¥‹à¤¶'
+        welcome: 'स्वागत आहे',
+        selectLanguage: 'आपली भाषा निवडा',
+        legalWorkspace: 'आपले विधी कार्यक्षेत्र',
+        activeMatters: 'सक्रिय खटले',
+        savedProvisions: 'जतन केलेली कलमे',
+        aiAssistant: 'एआय विधी सहाय्यक',
+        complaintFir: 'तक्रार / एफआयआर मसुदा',
+        disputeResolution: 'तक्रार निवारण व सल्ला',
+        trafficLaw: 'वाहतूक नियम व दंड',
+        constRights: 'मूलभूत हक्क व अधिकार',
+        findLawyer: 'वकील शोधा',
+        caseTracking: 'ई-कोर्ट केस ट्रॅकिंग',
+        voiceAssistant: 'व्हॉइस विधी सहाय्यक',
+        legalKnowledge: 'विधी ज्ञानकोश'
       }
     };
 
@@ -5660,6 +5872,25 @@ const App = {
     if (welcomeTitle) {
       const name = this.user ? this.user.full_name : 'Citizen';
       welcomeTitle.innerHTML = `${strings.welcome}, <span id="dash-citizen-greeting-name">${this.escape(name)}</span>`;
+    }
+
+    // Update role labels and active auth mode
+    const dictAuth = this.getAuthLocalizationDict(lang);
+    const citizenTab = document.getElementById('role-label-citizen');
+    const lawyerTab = document.getElementById('role-label-lawyer');
+    const adminTab = document.getElementById('role-label-admin');
+    const adminRestricted = document.getElementById('admin-restricted-text');
+    const noAccountText = document.getElementById('auth-no-account-text');
+    const pwdLabel = document.getElementById('login-password-label');
+    if (citizenTab) citizenTab.textContent = dictAuth.citizenTab;
+    if (lawyerTab) lawyerTab.textContent = dictAuth.lawyerTab;
+    if (adminTab) adminTab.textContent = dictAuth.adminTab;
+    if (adminRestricted) adminRestricted.textContent = dictAuth.adminRestricted;
+    if (noAccountText) noAccountText.textContent = dictAuth.noAccount;
+    if (pwdLabel) pwdLabel.textContent = dictAuth.passwordLabel;
+
+    if (this.authMode) {
+      this.switchAuthMode(this.authMode, false);
     }
   },
 
@@ -5827,7 +6058,7 @@ const App = {
       const aiCard = document.createElement('div');
       aiCard.className = 'chat-msg-assistant';
 
-      const groundingBadgeText = res.is_grounded ? 'âœ“ Grounded in Verified Indian Law' : 'Informational Notice';
+      const groundingBadgeText = res.is_grounded ? '✓ Grounded in Verified Indian Law' : 'Informational Notice';
       const groundingColor = res.is_grounded ? 'var(--accent-emerald)' : 'var(--accent-amber)';
 
       // Citations HTML
@@ -5841,7 +6072,7 @@ const App = {
             <div style="display: flex; flex-wrap: wrap; gap: 8px;">
               ${res.sources.map(s => `
                 <span class="citation-badge" title="${this.escape(s.law_name)}: ${this.escape(s.section_title || '')}">
-                  âš–ï¸ ${this.escape(s.short_name || s.law_name)} Sec ${this.escape(s.section_number)}
+                  ⚖️ ${this.escape(s.short_name || s.law_name)} Sec ${this.escape(s.section_number)}
                 </span>
               `).join('')}
             </div>
@@ -5855,7 +6086,7 @@ const App = {
         additionalIntelHtml = `
           <div style="margin-top: 12px; padding: 12px 14px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); font-size: 13px; color: var(--text-secondary); line-height: 1.55;">
             <strong style="color: var(--text-primary);">Legal Correspondence & Precedents:</strong>
-            ${res.retrieved_sections.filter(r => r.predecessor).map(r => `<div style="margin-top: 3px;">â€¢ Old law correspondence: <strong>${this.escape(r.predecessor)}</strong></div>`).join('')}
+            ${res.retrieved_sections.filter(r => r.predecessor).map(r => `<div style="margin-top: 3px;">• Old law correspondence: <strong>${this.escape(r.predecessor)}</strong></div>`).join('')}
           </div>
         `;
       }
@@ -5863,7 +6094,7 @@ const App = {
       aiCard.innerHTML = `
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 28px; height: 28px; border-radius: 6px; background: linear-gradient(135deg, #4338CA, #06B6D4); color: #FFF; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: var(--shadow-sm);">âš–ï¸</div>
+            <div style="width: 28px; height: 28px; border-radius: 6px; background: linear-gradient(135deg, #4338CA, #06B6D4); color: #FFF; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: var(--shadow-sm);">⚖️</div>
             <strong style="font-size: 15px; font-weight: 700; color: var(--text-primary);">Vidhik Legal Assistant</strong>
           </div>
           <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: ${groundingColor}; font-size: 12px; font-weight: 600;">
@@ -5879,21 +6110,21 @@ const App = {
         ${citationsHtml}
 
         <div style="margin-top: 16px; padding: 10px 14px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); font-size: 12.5px; color: var(--text-secondary); line-height: 1.5;">
-          âš–ï¸ <strong>Statutory Disclaimer:</strong> ${this.escape(res.disclaimer || 'Informational support grounded in Indian statutes. Verify before official court filings.')}
+          ⚖️ <strong>Statutory Disclaimer:</strong> ${this.escape(res.disclaimer || 'Informational support grounded in Indian statutes. Verify before official court filings.')}
         </div>
 
         <div style="margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end;">
           <button type="button" class="btn btn-secondary btn-sm" onclick="App.copyText('${this.escapeForJs(res.answer)}')">
-            ðŸ“‹ Copy Answer
+            📋 Copy Answer
           </button>
           <button type="button" class="btn btn-secondary btn-sm" onclick="App.speakText('${this.escapeForJs(res.answer)}')">
-            ðŸ”Š Listen
+            🔊 Listen
           </button>
           <button type="button" class="btn btn-secondary btn-sm" onclick="App.prefillComplaintFromAi('${this.escapeForJs(message)}')">
-            ðŸ“ Draft Complaint
+            📝 Draft Complaint
           </button>
           <button type="button" class="btn btn-secondary btn-sm" onclick="App.prefillResolutionFromAi('${this.escapeForJs(message)}')">
-            âš–ï¸ Evaluate Dispute
+            ⚖️ Evaluate Dispute
           </button>
         </div>
       `;
@@ -5910,13 +6141,13 @@ const App = {
       errCard.style.borderLeftColor = 'var(--accent-rose)';
       errCard.innerHTML = `
         <div style="color: var(--accent-rose); font-weight: 700; margin-bottom: 6px;">
-          âœ• Unable to complete legal query
+          ✕ Unable to complete legal query
         </div>
         <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 10px;">
           ${this.escape(err.message || 'An error occurred while connecting to the Vidhik Legal Knowledge Base.')}
         </p>
         <button type="button" class="btn btn-secondary btn-sm" onclick="App.askAiSample('${this.escapeForJs(message)}')">
-          ðŸ”„ Retry Question
+          🔄 Retry Question
         </button>
       `;
       thread.appendChild(errCard);
@@ -5930,7 +6161,7 @@ const App = {
     // Bold **text**
     escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     // Bullet points
-    escaped = escaped.replace(/^\s*[-â€¢]\s+(.*)$/gm, '<li style="margin-left: 20px;">$1</li>');
+    escaped = escaped.replace(/^\s*[-•]\s+(.*)$/gm, '<li style="margin-left: 20px;">$1</li>');
     // Numbered points
     escaped = escaped.replace(/^\s*(\d+)\.\s+(.*)$/gm, '<li style="margin-left: 20px;"><strong>$1.</strong> $2</li>');
     return escaped;
@@ -6013,7 +6244,7 @@ const App = {
       if (cat.includes('Theft')) {
         desc.placeholder = 'e.g. On 04-10-2026 at around 2:30 PM, I parked my motorcycle (MH12-AB-1234) near FC Road. Upon returning at 4:00 PM, the vehicle was missing...';
       } else if (cat.includes('Cyber')) {
-        desc.placeholder = 'e.g. Received a call claiming to be electricity bill officer. Was directed to click an APK link, after which â‚¹25,000 was debited via UPI without authorization...';
+        desc.placeholder = 'e.g. Received a call claiming to be electricity bill officer. Was directed to click an APK link, after which ₹25,000 was debited via UPI without authorization...';
       }
     }
   },
@@ -6181,12 +6412,12 @@ const App = {
 
       <div style="margin-bottom: 20px; line-height: 1.8; text-align: justify;">
         <strong>1. PARTICULARS OF THE INCIDENT:</strong><br>
-        â€¢ <strong>Date of Occurrence:</strong> ${this.escape(rawReq.incident_date)}<br>
-        â€¢ <strong>Time of Occurrence:</strong> Approximate ${this.escape(rawReq.incident_time)} Hours<br>
-        â€¢ <strong>Place of Occurrence:</strong> ${this.escape(loc)}<br>
-        â€¢ <strong>Accused / Suspect:</strong> ${this.escape(accused)}${accusedDesc ? (' (' + this.escape(accusedDesc) + ')') : ''}<br>
-        ${rawReq.witnesses && rawReq.witnesses.length ? `â€¢ <strong>Witnesses:</strong> ${this.escape(rawReq.witnesses.map(w => w.name || w).join(', '))}<br>` : ''}
-        ${rawReq.evidence_list && rawReq.evidence_list.length ? `â€¢ <strong>Evidence Produced / Available:</strong> ${this.escape(rawReq.evidence_list.join(', '))}<br>` : ''}
+        • <strong>Date of Occurrence:</strong> ${this.escape(rawReq.incident_date)}<br>
+        • <strong>Time of Occurrence:</strong> Approximate ${this.escape(rawReq.incident_time)} Hours<br>
+        • <strong>Place of Occurrence:</strong> ${this.escape(loc)}<br>
+        • <strong>Accused / Suspect:</strong> ${this.escape(accused)}${accusedDesc ? (' (' + this.escape(accusedDesc) + ')') : ''}<br>
+        ${rawReq.witnesses && rawReq.witnesses.length ? `• <strong>Witnesses:</strong> ${this.escape(rawReq.witnesses.map(w => w.name || w).join(', '))}<br>` : ''}
+        ${rawReq.evidence_list && rawReq.evidence_list.length ? `• <strong>Evidence Produced / Available:</strong> ${this.escape(rawReq.evidence_list.join(', '))}<br>` : ''}
       </div>
 
       <div style="margin-bottom: 20px; line-height: 1.8; text-align: justify;">
@@ -6233,7 +6464,7 @@ const App = {
       ${guidanceHtml}
 
       <div style="margin-top: 20px; padding: 10px 14px; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 6px; font-size: 11.5px; color: #92400E;">
-        âš–ï¸ <strong>Legal Notice & Disclaimer:</strong> ${this.escape(disclaimerText)}
+        ⚖️ <strong>Legal Notice & Disclaimer:</strong> ${this.escape(disclaimerText)}
       </div>
     `;
   },
@@ -6290,7 +6521,7 @@ const App = {
     if (!this.currentComplaintDraft) return;
     const cat = document.getElementById('cg-incident-type')?.value || 'Complaint Draft';
     const payload = {
-      title: `Police Complaint Draft â€” ${cat}`,
+      title: `Police Complaint Draft — ${cat}`,
       document_type: 'Police Complaint / FIR Request',
       notes: 'Generated via Vidhik BNSS Sec 173 Complaint Generator'
     };
@@ -6362,21 +6593,21 @@ const App = {
 
     const risk = res.risk_level || 'medium';
     let riskBannerClass = 'background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.4); color: #059669;';
-    let riskIcon = 'ðŸŸ¢';
-    let riskLabel = 'Low Risk â€” Self-Resolvable Matter';
+    let riskIcon = '🟢';
+    let riskLabel = 'Low Risk — Self-Resolvable Matter';
 
     if (risk.toLowerCase() === 'critical') {
       riskBannerClass = 'background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.4); color: #DC2626;';
-      riskIcon = 'ðŸš¨';
-      riskLabel = 'CRITICAL RISK â€” IMMEDIATE SAFETY / EMERGENCY ACTION REQUIRED';
+      riskIcon = '🚨';
+      riskLabel = 'CRITICAL RISK — IMMEDIATE SAFETY / EMERGENCY ACTION REQUIRED';
     } else if (risk.toLowerCase() === 'high') {
       riskBannerClass = 'background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.4); color: #D97706;';
-      riskIcon = 'âš ï¸';
-      riskLabel = 'High Risk â€” Advocate Consultation Strongly Recommended';
+      riskIcon = '⚠️';
+      riskLabel = 'High Risk — Advocate Consultation Strongly Recommended';
     } else if (risk.toLowerCase() === 'medium') {
       riskBannerClass = 'background: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.4); color: #2563EB;';
-      riskIcon = 'âš–ï¸';
-      riskLabel = 'Medium Risk â€” Professional Review / Notice Advised';
+      riskIcon = '⚖️';
+      riskLabel = 'Medium Risk — Professional Review / Notice Advised';
     }
 
     const steps = (res.self_help_checklist && res.self_help_checklist.length > 0)
@@ -6419,7 +6650,7 @@ const App = {
           <h4 style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 8px;">Governing Legal Frameworks & Areas</h4>
           <div style="display: flex; flex-wrap: wrap; gap: 6px;">
             ${(res.applicable_areas || res.applicable_laws || ['Transfer of Property Act, 1882', 'Maharashtra Rent Control Act', 'Indian Contract Act, 1872']).map(l => `
-              <span class="badge" style="background: var(--bg-elevated); color: var(--accent-primary); font-size: 12px;">âš–ï¸ ${this.escape(l)}</span>
+              <span class="badge" style="background: var(--bg-elevated); color: var(--accent-primary); font-size: 12px;">⚖️ ${this.escape(l)}</span>
             `).join('')}
           </div>
         </div>
@@ -6447,19 +6678,19 @@ const App = {
 
         <!-- Disclaimer -->
         <div style="margin-bottom: 20px; padding: 10px 14px; background: var(--bg-elevated); border-radius: var(--radius-sm); font-size: 11.5px; color: var(--text-muted); line-height: 1.4;">
-          âš–ï¸ <strong>Statutory Disclaimer:</strong> ${this.escape(res.disclaimer || 'This automated resolution assessment is for informational and educational triage only and does not constitute formal legal advice.')}
+          ⚖️ <strong>Statutory Disclaimer:</strong> ${this.escape(res.disclaimer || 'This automated resolution assessment is for informational and educational triage only and does not constitute formal legal advice.')}
         </div>
 
         <!-- Actions -->
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
           <button type="button" class="btn btn-primary btn-sm" onclick="App.prefillAiFromResolution('${this.escapeForJs(rawReq.situation)}')">
-            ðŸ’¬ Ask AI Follow-up Question
+            💬 Ask AI Follow-up Question
           </button>
           <button type="button" class="btn btn-secondary btn-sm" onclick="App.navigate('find-lawyer')">
-            ðŸ” Find a Verified Advocate
+            🔍 Find a Verified Advocate
           </button>
           <button type="button" class="btn btn-secondary btn-sm" onclick="App.prefillComplaintFromAi('${this.escapeForJs(rawReq.situation)}')">
-            ðŸ“ Draft Formal Complaint
+            📝 Draft Formal Complaint
           </button>
         </div>
       </div>
@@ -6479,18 +6710,18 @@ const App = {
   // 5. TRAFFIC LAW & FINES (P1)
   // =============================================================
   trafficViolationsData: [
-    { section: 'Sec 129 / 194D', title: 'Driving Without Helmet', fine1: 'â‚¹1,000', fine2: 'â‚¹1,000 + 3 Months DL Disqualification', court: 'Compoundable on Spot / e-Challan', category: 'Safety Gear', desc: 'Applies to both driver and pillion rider on two-wheelers.' },
-    { section: 'Sec 194B(1)', title: 'Driving Without Seatbelt', fine1: 'â‚¹1,000', fine2: 'â‚¹1,000', court: 'Compoundable on Spot / e-Challan', category: 'Safety Gear', desc: 'Mandatory for driver and front seat passenger in four-wheelers.' },
-    { section: 'Sec 183', title: 'Over-Speeding (Excess Speed)', fine1: 'â‚¹1,000 - â‚¹2,000 (LMV)', fine2: 'â‚¹2,000 - â‚¹4,000 (Heavy) + DL Impound', court: 'Compoundable on Spot / e-Challan', category: 'Dangerous Driving', desc: 'Captured via automated speed radar cameras on highways and city corridors.' },
-    { section: 'Sec 184', title: 'Dangerous / Reckless Driving / Signal Jump', fine1: 'â‚¹1,000 - â‚¹5,000', fine2: 'Up to â‚¹10,000 or 2 Years Imprisonment', court: 'Court / Virtual Court Hearing', category: 'Dangerous Driving', desc: 'Includes jumping red lights, zig-zag driving, or endangering public safety.' },
-    { section: 'Sec 184(c)', title: 'Mobile Phone Use While Driving', fine1: 'â‚¹1,000 - â‚¹5,000', fine2: 'â‚¹10,000 or 2 Years Imprisonment', court: 'Court / Compoundable', category: 'Dangerous Driving', desc: 'Includes hand-held mobile devices while steering or halted at traffic signals.' },
-    { section: 'Sec 185', title: 'Drunk Driving (Intoxicated Operation)', fine1: 'â‚¹10,000 or 6 Months Jail', fine2: 'â‚¹15,000 or 2 Years Jail', court: 'Mandatory Court Appearance', category: 'Dangerous Driving', desc: 'Alcohol breath test exceeding 30 mg per 100 ml blood. Non-compoundable on spot.' },
-    { section: 'Sec 181', title: 'Driving Without Valid Driving Licence', fine1: 'â‚¹5,000', fine2: 'â‚¹5,000 or Community Service', court: 'Court / Compoundable', category: 'Documentation', desc: 'Applies if driver has no DL or license is disqualified under Section 19.' },
-    { section: 'Sec 196', title: 'Driving Without Third-Party Insurance', fine1: 'â‚¹2,000 or 3 Months Jail', fine2: 'â‚¹4,000 or 3 Months Jail', court: 'Court / Compoundable', category: 'Documentation', desc: 'Mandatory third-party liability insurance coverage for all motor vehicles.' },
-    { section: 'Sec 190(2)', title: 'Pollution Under Control (PUC) Violation', fine1: 'â‚¹10,000 or 6 Months Jail', fine2: 'â‚¹10,000 or 6 Months Jail', court: 'Court / Compoundable', category: 'Vehicle Compliance', desc: 'Operating vehicle with expired or absent PUC certificate.' },
-    { section: 'Sec 128 / 194C', title: 'Triple Riding on Two-Wheeler', fine1: 'â‚¹1,000', fine2: 'â‚¹1,000 + 3 Months DL Disqualification', court: 'Compoundable on Spot / e-Challan', category: 'Safety Gear', desc: 'Riding with more than one pillion rider on a two-wheeled motorcycle.' },
-    { section: 'Sec 194E', title: 'Obstructing Ambulance / Fire Engine', fine1: 'â‚¹10,000 or 6 Months Jail', fine2: 'â‚¹10,000 or 6 Months Jail', court: 'Court / Compoundable', category: 'Special Offence', desc: 'Failure to give right-of-way to emergency ambulances or fire tenders.' },
-    { section: 'Sec 199A', title: 'Juvenile Driving (Minor Behind Wheel)', fine1: 'â‚¹25,000 on Guardian + 3 Yrs Jail', fine2: 'Vehicle Registration Cancelled for 1 Yr', court: 'Juvenile Justice Board & Court', category: 'Special Offence', desc: 'Parent or vehicle owner is held criminally liable. Minor barred from DL until age 25.' }
+    { section: 'Sec 129 / 194D', title: 'Driving Without Helmet', fine1: '₹1,000', fine2: '₹1,000 + 3 Months DL Disqualification', court: 'Compoundable on Spot / e-Challan', category: 'Safety Gear', desc: 'Applies to both driver and pillion rider on two-wheelers.' },
+    { section: 'Sec 194B(1)', title: 'Driving Without Seatbelt', fine1: '₹1,000', fine2: '₹1,000', court: 'Compoundable on Spot / e-Challan', category: 'Safety Gear', desc: 'Mandatory for driver and front seat passenger in four-wheelers.' },
+    { section: 'Sec 183', title: 'Over-Speeding (Excess Speed)', fine1: '₹1,000 - ₹2,000 (LMV)', fine2: '₹2,000 - ₹4,000 (Heavy) + DL Impound', court: 'Compoundable on Spot / e-Challan', category: 'Dangerous Driving', desc: 'Captured via automated speed radar cameras on highways and city corridors.' },
+    { section: 'Sec 184', title: 'Dangerous / Reckless Driving / Signal Jump', fine1: '₹1,000 - ₹5,000', fine2: 'Up to ₹10,000 or 2 Years Imprisonment', court: 'Court / Virtual Court Hearing', category: 'Dangerous Driving', desc: 'Includes jumping red lights, zig-zag driving, or endangering public safety.' },
+    { section: 'Sec 184(c)', title: 'Mobile Phone Use While Driving', fine1: '₹1,000 - ₹5,000', fine2: '₹10,000 or 2 Years Imprisonment', court: 'Court / Compoundable', category: 'Dangerous Driving', desc: 'Includes hand-held mobile devices while steering or halted at traffic signals.' },
+    { section: 'Sec 185', title: 'Drunk Driving (Intoxicated Operation)', fine1: '₹10,000 or 6 Months Jail', fine2: '₹15,000 or 2 Years Jail', court: 'Mandatory Court Appearance', category: 'Dangerous Driving', desc: 'Alcohol breath test exceeding 30 mg per 100 ml blood. Non-compoundable on spot.' },
+    { section: 'Sec 181', title: 'Driving Without Valid Driving Licence', fine1: '₹5,000', fine2: '₹5,000 or Community Service', court: 'Court / Compoundable', category: 'Documentation', desc: 'Applies if driver has no DL or license is disqualified under Section 19.' },
+    { section: 'Sec 196', title: 'Driving Without Third-Party Insurance', fine1: '₹2,000 or 3 Months Jail', fine2: '₹4,000 or 3 Months Jail', court: 'Court / Compoundable', category: 'Documentation', desc: 'Mandatory third-party liability insurance coverage for all motor vehicles.' },
+    { section: 'Sec 190(2)', title: 'Pollution Under Control (PUC) Violation', fine1: '₹10,000 or 6 Months Jail', fine2: '₹10,000 or 6 Months Jail', court: 'Court / Compoundable', category: 'Vehicle Compliance', desc: 'Operating vehicle with expired or absent PUC certificate.' },
+    { section: 'Sec 128 / 194C', title: 'Triple Riding on Two-Wheeler', fine1: '₹1,000', fine2: '₹1,000 + 3 Months DL Disqualification', court: 'Compoundable on Spot / e-Challan', category: 'Safety Gear', desc: 'Riding with more than one pillion rider on a two-wheeled motorcycle.' },
+    { section: 'Sec 194E', title: 'Obstructing Ambulance / Fire Engine', fine1: '₹10,000 or 6 Months Jail', fine2: '₹10,000 or 6 Months Jail', court: 'Court / Compoundable', category: 'Special Offence', desc: 'Failure to give right-of-way to emergency ambulances or fire tenders.' },
+    { section: 'Sec 199A', title: 'Juvenile Driving (Minor Behind Wheel)', fine1: '₹25,000 on Guardian + 3 Yrs Jail', fine2: 'Vehicle Registration Cancelled for 1 Yr', court: 'Juvenile Justice Board & Court', category: 'Special Offence', desc: 'Parent or vehicle owner is held criminally liable. Minor barred from DL until age 25.' }
   ],
 
   loadTrafficLawModule() {
@@ -6566,18 +6797,18 @@ const App = {
     if (!box) return;
 
     const fines = {
-      helmet: { fine: freq === 'first' ? 'â‚¹1,000' : 'â‚¹1,000 + 3 Months DL Disqualification', sec: 'Section 129 / 194D', impound: 'No', court: 'Compoundable on Spot / e-Challan' },
-      red_light: { fine: freq === 'first' ? 'â‚¹1,000' : 'â‚¹5,000 or up to 2 Years Jail', sec: 'Section 119 / 184', impound: 'No', court: 'Compoundable on Spot / Virtual Court' },
-      speeding: { fine: vType === 'Heavy' ? (freq === 'first' ? 'â‚¹2,000' : 'â‚¹4,000') : (freq === 'first' ? 'â‚¹1,000' : 'â‚¹2,000'), sec: 'Section 183', impound: 'Only if repeat offender', court: 'Compoundable / Virtual Court' },
-      license: { fine: 'â‚¹5,000', sec: 'Section 181', impound: 'Vehicle can be detained until licensed driver arrives', court: 'Court / Compounding Officer' },
-      drunk: { fine: freq === 'first' ? 'â‚¹10,000 or up to 6 Months Imprisonment' : 'â‚¹15,000 or up to 2 Years Imprisonment', sec: 'Section 185', impound: 'Vehicle detained on spot under Section 207', court: 'Mandatory Appearance before Judicial Magistrate' },
-      phone: { fine: freq === 'first' ? 'â‚¹1,000 - â‚¹5,000' : 'Up to â‚¹10,000 or Jail', sec: 'Section 184(c)', impound: 'No', court: 'Virtual Court / Compoundable' },
-      seatbelt: { fine: 'â‚¹1,000', sec: 'Section 194B(1)', impound: 'No', court: 'Compoundable on Spot' },
-      insurance: { fine: freq === 'first' ? 'â‚¹2,000 or 3 Months Jail' : 'â‚¹4,000 or 3 Months Jail', sec: 'Section 196', impound: 'Vehicle may be impounded until valid covernote produced', court: 'Court' },
-      puc: { fine: 'â‚¹10,000 or 6 Months Imprisonment', sec: 'Section 190(2)', impound: 'No', court: 'Court / Compoundable' },
-      triple: { fine: 'â‚¹1,000 + 3 Months DL Disqualification', sec: 'Section 128 / 194C', impound: 'No', court: 'Compoundable on Spot' },
-      ambulance: { fine: 'â‚¹10,000 or 6 Months Imprisonment', sec: 'Section 194E', impound: 'No', court: 'Court Hearing' },
-      juvenile: { fine: 'â‚¹25,000 on Guardian + 3 Years Jail for Guardian', sec: 'Section 199A', impound: 'Vehicle Registration Cancelled for 12 Months', court: 'Juvenile Justice Board & Regular Court' }
+      helmet: { fine: freq === 'first' ? '₹1,000' : '₹1,000 + 3 Months DL Disqualification', sec: 'Section 129 / 194D', impound: 'No', court: 'Compoundable on Spot / e-Challan' },
+      red_light: { fine: freq === 'first' ? '₹1,000' : '₹5,000 or up to 2 Years Jail', sec: 'Section 119 / 184', impound: 'No', court: 'Compoundable on Spot / Virtual Court' },
+      speeding: { fine: vType === 'Heavy' ? (freq === 'first' ? '₹2,000' : '₹4,000') : (freq === 'first' ? '₹1,000' : '₹2,000'), sec: 'Section 183', impound: 'Only if repeat offender', court: 'Compoundable / Virtual Court' },
+      license: { fine: '₹5,000', sec: 'Section 181', impound: 'Vehicle can be detained until licensed driver arrives', court: 'Court / Compounding Officer' },
+      drunk: { fine: freq === 'first' ? '₹10,000 or up to 6 Months Imprisonment' : '₹15,000 or up to 2 Years Imprisonment', sec: 'Section 185', impound: 'Vehicle detained on spot under Section 207', court: 'Mandatory Appearance before Judicial Magistrate' },
+      phone: { fine: freq === 'first' ? '₹1,000 - ₹5,000' : 'Up to ₹10,000 or Jail', sec: 'Section 184(c)', impound: 'No', court: 'Virtual Court / Compoundable' },
+      seatbelt: { fine: '₹1,000', sec: 'Section 194B(1)', impound: 'No', court: 'Compoundable on Spot' },
+      insurance: { fine: freq === 'first' ? '₹2,000 or 3 Months Jail' : '₹4,000 or 3 Months Jail', sec: 'Section 196', impound: 'Vehicle may be impounded until valid covernote produced', court: 'Court' },
+      puc: { fine: '₹10,000 or 6 Months Imprisonment', sec: 'Section 190(2)', impound: 'No', court: 'Court / Compoundable' },
+      triple: { fine: '₹1,000 + 3 Months DL Disqualification', sec: 'Section 128 / 194C', impound: 'No', court: 'Compoundable on Spot' },
+      ambulance: { fine: '₹10,000 or 6 Months Imprisonment', sec: 'Section 194E', impound: 'No', court: 'Court Hearing' },
+      juvenile: { fine: '₹25,000 on Guardian + 3 Years Jail for Guardian', sec: 'Section 199A', impound: 'Vehicle Registration Cancelled for 12 Months', court: 'Juvenile Justice Board & Regular Court' }
     };
 
     const res = fines[vKey] || fines.helmet;
@@ -6591,9 +6822,9 @@ const App = {
         ${res.fine}
       </div>
       <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
-        <div>â€¢ <strong>Vehicle Impound Risk:</strong> ${res.impound}</div>
-        <div>â€¢ <strong>Adjudication Forum:</strong> ${res.court}</div>
-        <div>â€¢ <strong>Virtual Court Contestable:</strong> Yes, via vcourts.gov.in within 90 days.</div>
+        <div>• <strong>Vehicle Impound Risk:</strong> ${res.impound}</div>
+        <div>• <strong>Adjudication Forum:</strong> ${res.court}</div>
+        <div>• <strong>Virtual Court Contestable:</strong> Yes, via vcourts.gov.in within 90 days.</div>
       </div>
     `;
   },
@@ -6610,7 +6841,7 @@ const App = {
     { article: '21', pillar: 'freedom', title: 'Protection of Life & Personal Liberty', desc: 'No person shall be deprived of his life or personal liberty except according to procedure established by law.', protection: 'Expanded to include Right to Privacy, Clean Environment, Speedy Trial, Medical Care, and Livelihood.', landmark: 'K.S. Puttaswamy v. Union of India (2017) 10 SCC 1 & Maneka Gandhi (1978)' },
     { article: '21A', pillar: 'freedom', title: 'Right to Free & Compulsory Education', desc: 'The State shall provide free and compulsory education to all children of the age of six to fourteen years.', protection: 'Actionable right against denial of school admission in neighborhood schools.', landmark: 'Society for Unaided Private Schools v. UOI (2012) 6 SCC 1' },
     { article: '22', pillar: 'freedom', title: 'Protection Against Arbitrary Arrest & Detention', desc: 'Right to be informed of grounds of arrest, right to consult legal practitioner, and mandatory presentation before Magistrate within 24 hours.', protection: 'Strict statutory compliance with D.K. Basu arrest memo guidelines.', landmark: 'D.K. Basu v. State of West Bengal (1997) 1 SCC 416' },
-    { article: '23', pillar: 'exploitation', title: 'Prohibition of Traffic in Persons & Forced Labour', desc: 'Traffic in human beings and begar and other similar forms of forced labour are prohibited and punishable by law.', protection: 'Protects against unpaid bonded labour, withholding wages under coercion, or commercial sexual exploitation.', landmark: 'Peopleâ€™s Union for Democratic Rights v. UOI (1982) 3 SCC 235' },
+    { article: '23', pillar: 'exploitation', title: 'Prohibition of Traffic in Persons & Forced Labour', desc: 'Traffic in human beings and begar and other similar forms of forced labour are prohibited and punishable by law.', protection: 'Protects against unpaid bonded labour, withholding wages under coercion, or commercial sexual exploitation.', landmark: 'People’s Union for Democratic Rights v. UOI (1982) 3 SCC 235' },
     { article: '25', pillar: 'religion', title: 'Freedom of Conscience & Religious Practice', desc: 'All persons are equally entitled to freedom of conscience and the right freely to profess, practise and propagate religion.', protection: 'Guarantees freedom of belief, individual faith, and peaceful religious rituals.', landmark: 'Shayara Bano v. Union of India (2017) 9 SCC 1' },
     { article: '32', pillar: 'remedies', title: 'Remedies for Enforcement of Fundamental Rights', desc: 'Direct right to move the Supreme Court by appropriate proceedings for the enforcement of the rights conferred by Part III.', protection: 'Empowers Supreme Court to issue Writs: Habeas Corpus, Mandamus, Prohibition, Quo Warranto, and Certiorari.', landmark: 'Kesavananda Bharati v. State of Kerala (1973) 4 SCC 225' },
     { article: '226', pillar: 'remedies', title: 'Power of High Courts to Issue Writs', desc: 'High Courts have wide jurisdiction to issue directions, orders or writs for enforcement of Fundamental Rights and any other legal rights.', protection: 'Accessible state-level judicial forum for immediate relief against police excesses and state administrative abuse.', landmark: 'Bandhua Mukti Morcha v. Union of India (1984) 3 SCC 161' }
@@ -6716,7 +6947,7 @@ const App = {
           ${data.guidance}
         </div>
         <div style="font-size: 13px; color: var(--accent-primary); font-weight: 600;">
-          âš–ï¸ Judicial Remedy: ${data.remedy}
+          ⚖️ Judicial Remedy: ${data.remedy}
         </div>
       </div>
     `;
@@ -6753,7 +6984,7 @@ const App = {
         </div>
 
         <div style="font-size: 11.5px; color: var(--accent-primary);">
-          ðŸ›ï¸ <strong>Landmark Ruling:</strong> ${this.escape(item.landmark)}
+          🏛️ <strong>Landmark Ruling:</strong> ${this.escape(item.landmark)}
         </div>
       </div>
     `).join('');
@@ -6872,7 +7103,7 @@ const App = {
           <div style="display: flex; flex-direction: column; gap: 6px;">
             ${docs.map(d => `
               <div style="display: flex; gap: 8px; font-size: 13px; color: var(--text-secondary);">
-                <span style="color: var(--accent-emerald); font-weight: 800;">âœ“</span>
+                <span style="color: var(--accent-emerald); font-weight: 800;">✓</span>
                 <span>${this.escape(d)}</span>
               </div>
             `).join('')}
@@ -6881,8 +7112,8 @@ const App = {
 
         <!-- Portals & Helpline -->
         <div style="background: var(--bg-elevated); padding: 12px 14px; border-radius: var(--radius-sm); margin-bottom: 18px; font-size: 12.5px; line-height: 1.6;">
-          <div>ðŸŒ <strong>Filing Portal:</strong> <a href="https://${portal}" target="_blank" rel="noopener" style="color: var(--accent-cyan); text-decoration: underline;">${portal} â†—</a></div>
-          <div>ðŸ“ž <strong>Official Helpline:</strong> <strong style="color: var(--text-primary);">${helpline}</strong></div>
+          <div>🌐 <strong>Filing Portal:</strong> <a href="https://${portal}" target="_blank" rel="noopener" style="color: var(--accent-cyan); text-decoration: underline;">${portal} ↗</a></div>
+          <div>📞 <strong>Official Helpline:</strong> <strong style="color: var(--text-primary);">${helpline}</strong></div>
         </div>
 
         <!-- Escalation Ladder -->
@@ -6893,10 +7124,10 @@ const App = {
         <!-- Actions -->
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
           <button type="button" class="btn btn-primary btn-sm" onclick="App.navigate('complaint-generator')">
-            ðŸ“ Draft Complaint for this Forum
+            📝 Draft Complaint for this Forum
           </button>
           <button type="button" class="btn btn-secondary btn-sm" onclick="App.navigate('find-lawyer')">
-            ðŸ§‘â€âš–ï¸ Find Practicing Advocate
+            🧑‍⚖️ Find Practicing Advocate
           </button>
         </div>
       </div>
@@ -6962,7 +7193,7 @@ const App = {
     if (items.length === 0) {
       container.innerHTML = `
         <div style="grid-column: 1 / -1; text-align: center; padding: 48px 24px; color: var(--text-muted);">
-          <div style="font-size: 32px; margin-bottom: 8px;">ðŸ§‘â€âš–ï¸</div>
+          <div style="font-size: 32px; margin-bottom: 8px;">🧑‍⚖️</div>
           <h4 style="font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">No advocates found matching your filter criteria</h4>
           <p style="font-size: 13px;">Try clearing filters or selecting another practice area or city.</p>
         </div>
@@ -6984,13 +7215,13 @@ const App = {
                   <h4 style="font-size: 15.5px; font-weight: 700; color: var(--text-primary); margin: 0;">
                     ${this.escape(l.full_name)}
                   </h4>
-                  <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10B981; font-size: 10px;">âœ“ Verified</span>
+                  <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10B981; font-size: 10px;">✓ Verified</span>
                 </div>
                 <div style="font-size: 12px; color: var(--accent-primary); font-weight: 600; margin-top: 2px;">
                   ${this.escape(l.bar_council_number || 'MAH/Bar Council')}
                 </div>
                 <div style="font-size: 12px; color: var(--text-muted); margin-top: 1px;">
-                  ðŸ“ ${this.escape(l.city || 'Mumbai')}, ${this.escape(l.state || 'Maharashtra')}
+                  📍 ${this.escape(l.city || 'Mumbai')}, ${this.escape(l.state || 'Maharashtra')}
                 </div>
               </div>
             </div>
@@ -7006,18 +7237,18 @@ const App = {
             </div>
 
             <div style="background: var(--bg-elevated); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 11.5px; color: var(--text-muted); display: flex; flex-direction: column; gap: 3px; margin-bottom: 14px;">
-              <div>ðŸ›ï¸ <strong>Courts:</strong> ${this.escape(l.court_practice || 'District Courts')}</div>
-              <div>â³ <strong>Experience:</strong> ${this.escape(l.experience_years || 5)} Years Courtroom Practice</div>
-              <div>ðŸ—£ï¸ <strong>Languages:</strong> ${this.escape(languages)}</div>
+              <div>🏛️ <strong>Courts:</strong> ${this.escape(l.court_practice || 'District Courts')}</div>
+              <div>⏳ <strong>Experience:</strong> ${this.escape(l.experience_years || 5)} Years Courtroom Practice</div>
+              <div>🗣️ <strong>Languages:</strong> ${this.escape(languages)}</div>
             </div>
           </div>
 
           <div style="display: flex; gap: 8px; border-top: 1px solid var(--border-subtle); padding-top: 12px;">
             <button type="button" class="btn btn-primary btn-sm" style="flex: 1; justify-content: center;" onclick="App.openBookConsultationModal(${l.lawyer_id}, '${this.escapeForJs(l.full_name)}')">
-              ðŸ“… Book Consultation
+              📅 Book Consultation
             </button>
             <button type="button" class="btn btn-secondary btn-sm" onclick="App.linkAdvocateToActiveCase(${l.lawyer_id}, '${this.escapeForJs(l.full_name)}')">
-              ðŸ”— Link Case
+              🔗 Link Case
             </button>
           </div>
         </div>
@@ -7171,10 +7402,10 @@ const App = {
               <span class="badge badge-active">${this.escape(data.status)}</span>
             </div>
             <h3 style="font-size: 19px; font-weight: 700; color: var(--text-primary); margin-top: 6px;">
-              ${this.escape(data.case_type)} â€” No. ${this.escape(data.case_number)}
+              ${this.escape(data.case_type)} — No. ${this.escape(data.case_number)}
             </h3>
             <div style="font-size: 13.5px; color: var(--text-secondary); margin-top: 2px;">
-              ðŸ›ï¸ ${this.escape(data.court_name)} â€¢ ${this.escape(data.court_hall)} â€¢ ${this.escape(data.presiding_judge)}
+              🏛️ ${this.escape(data.court_name)} • ${this.escape(data.court_hall)} • ${this.escape(data.presiding_judge)}
             </div>
           </div>
           <div style="text-align: right;">
@@ -7188,14 +7419,14 @@ const App = {
           <div>
             <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--accent-primary); letter-spacing: 0.06em;">Next Court Hearing:</div>
             <div style="font-size: 22px; font-weight: 800; color: var(--text-primary); margin-top: 2px;">
-              ðŸ“… ${this.escape(data.next_hearing_date)}
+              📅 ${this.escape(data.next_hearing_date)}
             </div>
             <div style="font-size: 14px; color: var(--text-secondary); margin-top: 4px;">
               <strong>Purpose:</strong> ${this.escape(data.hearing_purpose)}
             </div>
           </div>
           <button type="button" class="btn btn-secondary btn-sm" onclick="App.showToast('Reminder added to calendar for ${this.escape(data.next_hearing_date)}', 'success')">
-            ðŸ”” Set Hearing Reminder
+            🔔 Set Hearing Reminder
           </button>
         </div>
 
@@ -7219,7 +7450,7 @@ const App = {
           <div class="case-progress-track">
             ${data.stages.map((st, i) => `
               <div class="case-stage-node ${st.status}">
-                <div class="stage-dot">${st.status === 'completed' ? 'âœ“' : (i + 1)}</div>
+                <div class="stage-dot">${st.status === 'completed' ? '✓' : (i + 1)}</div>
                 <span>${this.escape(st.name)}</span>
               </div>
             `).join('')}
@@ -7255,7 +7486,7 @@ const App = {
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
           <span style="font-size: 11.5px; color: var(--text-muted);">Synced from National Judicial Data Grid (NJDG) Standards</span>
           <a href="https://services.ecourts.gov.in" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">
-            ðŸ›ï¸ Verify on Official eCourts Portal (services.ecourts.gov.in) â†—
+            🏛️ Verify on Official eCourts Portal (services.ecourts.gov.in) ↗
           </a>
         </div>
 
@@ -7398,7 +7629,7 @@ const App = {
       if (ansBox) {
         ansBox.innerHTML = `
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-            <strong style="color: var(--text-primary); font-size: 14.5px;">âš–ï¸ Vidhik Legal Intelligence Answer</strong>
+            <strong style="color: var(--text-primary); font-size: 14.5px;">⚖️ Vidhik Legal Intelligence Answer</strong>
             <span class="badge badge-active">Grounded: High</span>
           </div>
           <div style="font-size: 14px; line-height: 1.7; color: var(--text-secondary); white-space: pre-wrap; margin-bottom: 14px;">
@@ -7406,13 +7637,13 @@ const App = {
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <button type="button" class="btn btn-secondary btn-sm" onclick="App.speakVoiceAnswer('${this.escapeForJs(res.answer)}')">
-              ðŸ”Š Replay Audio
+              🔊 Replay Audio
             </button>
             <button type="button" class="btn btn-secondary btn-sm" onclick="App.stopAudioPlayback()">
-              â¹ï¸ Stop Audio
+              ⏹️ Stop Audio
             </button>
             <button type="button" class="btn btn-secondary btn-sm" onclick="App.copyText('${this.escapeForJs(res.answer)}')">
-              ðŸ“‹ Copy
+              📋 Copy
             </button>
           </div>
         `;
@@ -7427,7 +7658,7 @@ const App = {
       if (ansBox) {
         ansBox.innerHTML = `
           <div style="color: var(--accent-rose); font-size: 13.5px;">
-            âœ• Error retrieving answer: ${this.escape(err.message)}
+            ✕ Error retrieving answer: ${this.escape(err.message)}
           </div>
         `;
       }
@@ -7544,7 +7775,7 @@ const App = {
         <div style="border-top: 1px solid var(--border-subtle); padding-top: 10px; display: flex; align-items: center; justify-content: space-between;">
           <span style="font-size: 12px; font-weight: 600; color: var(--text-secondary);">${a.total_sections || 0} Sections</span>
           <button type="button" class="btn btn-secondary btn-sm" onclick="App.exploreActProvisions('${a.act_id}', '${this.escapeForJs(a.act_name)}')">
-            Inspect Provisions â†’
+            Inspect Provisions →
           </button>
         </div>
       </div>
@@ -7587,7 +7818,7 @@ const App = {
     const mappingTable = {
       'IPC:302': { new_law: 'Bharatiya Nyaya Sanhita, 2023 (BNS)', new_sec: 'Section 103(1)', title: 'Punishment for Murder', punishment: 'Death or Imprisonment for Life, and Fine', notes: 'Definition consolidated into Section 101, Punishment under Section 103.' },
       'IPC:304': { new_law: 'Bharatiya Nyaya Sanhita, 2023 (BNS)', new_sec: 'Section 105', title: 'Culpable Homicide Not Amounting to Murder', punishment: 'Imprisonment for Life or up to 10 Years + Fine', notes: 'Replaces IPC Section 304.' },
-      'IPC:379': { new_law: 'Bharatiya Nyaya Sanhita, 2023 (BNS)', new_sec: 'Section 303(2)', title: 'Punishment for Theft', punishment: 'Imprisonment up to 3 Years or Fine or Both; First-time minor theft includes Community Service', notes: 'Section 303(2) introduces community service for theft of property under â‚¹5,000 upon restitution.' },
+      'IPC:379': { new_law: 'Bharatiya Nyaya Sanhita, 2023 (BNS)', new_sec: 'Section 303(2)', title: 'Punishment for Theft', punishment: 'Imprisonment up to 3 Years or Fine or Both; First-time minor theft includes Community Service', notes: 'Section 303(2) introduces community service for theft of property under ₹5,000 upon restitution.' },
       'IPC:420': { new_law: 'Bharatiya Nyaya Sanhita, 2023 (BNS)', new_sec: 'Section 318(4)', title: 'Cheating & Dishonestly Inducing Delivery of Property', punishment: 'Imprisonment up to 7 Years and Fine', notes: 'The celebrated IPC 420 is now Section 318(4) of BNS, 2023.' },
       'IPC:498A': { new_law: 'Bharatiya Nyaya Sanhita, 2023 (BNS)', new_sec: 'Section 85 & 86', title: 'Cruelty by Husband or Relatives of Husband', punishment: 'Imprisonment up to 3 Years and Fine', notes: 'Definition and punishment placed under Section 85 & 86.' },
       'IPC:376': { new_law: 'Bharatiya Nyaya Sanhita, 2023 (BNS)', new_sec: 'Section 64', title: 'Punishment for Rape', punishment: 'Rigorous Imprisonment not less than 10 Years up to Life + Fine', notes: 'Replaces IPC 376 with stringent minimum sentencing.' },
@@ -7604,11 +7835,11 @@ const App = {
     if (match) {
       box.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-          <span style="font-size: 13.5px; font-weight: 700; color: var(--accent-emerald);">âœ“ Verified Predecessor Match</span>
+          <span style="font-size: 13.5px; font-weight: 700; color: var(--accent-emerald);">✓ Verified Predecessor Match</span>
           <span class="badge badge-active">${law} Sec ${sec}</span>
         </div>
         <div style="font-size: 18px; font-weight: 800; color: var(--text-primary); margin-bottom: 4px;">
-          â†’ Modern Provision: ${this.escape(match.new_sec)}
+          → Modern Provision: ${this.escape(match.new_sec)}
         </div>
         <div style="font-size: 14.5px; font-weight: 600; color: var(--accent-primary); margin-bottom: 8px;">
           ${this.escape(match.title)} (${this.escape(match.new_law)})
@@ -7617,7 +7848,7 @@ const App = {
           <strong>Punishment / Mandate:</strong> ${this.escape(match.punishment)}
         </div>
         <div style="font-size: 13px; color: var(--text-secondary); background: var(--bg-elevated); border: 1px solid var(--border-subtle); padding: 10px 14px; border-radius: var(--radius-sm); line-height: 1.5;">
-          â„¹ï¸ <strong>Notes:</strong> ${this.escape(match.notes)}
+          ℹ️ <strong>Notes:</strong> ${this.escape(match.notes)}
         </div>
       `;
     } else {
@@ -7650,7 +7881,7 @@ const App = {
       this.renderBnsOffences([
         { section_number: '103(1)', offence_name: 'Murder', classification: 'Cognizable & Non-Bailable', punishment_description: 'Death or Imprisonment for Life, and Fine' },
         { section_number: '105', offence_name: 'Culpable Homicide Not Amounting to Murder', classification: 'Cognizable & Non-Bailable', punishment_description: 'Life or up to 10 Years Imprisonment + Fine' },
-        { section_number: '115', offence_name: 'Voluntarily Causing Hurt', classification: 'Non-Cognizable & Bailable', punishment_description: 'Up to 1 Year or Fine up to â‚¹1,000 or Both' },
+        { section_number: '115', offence_name: 'Voluntarily Causing Hurt', classification: 'Non-Cognizable & Bailable', punishment_description: 'Up to 1 Year or Fine up to ₹1,000 or Both' },
         { section_number: '303(2)', offence_name: 'Theft', classification: 'Cognizable & Non-Bailable', punishment_description: 'Up to 3 Years or Fine or Both; First-time minor theft includes Community Service' },
         { section_number: '318(4)', offence_name: 'Cheating with Delivery of Property', classification: 'Cognizable & Non-Bailable', punishment_description: 'Up to 7 Years and Fine' },
         { section_number: '351', offence_name: 'Criminal Intimidation', classification: 'Non-Cognizable & Bailable', punishment_description: 'Up to 2 Years or Fine or Both' }
@@ -7705,7 +7936,7 @@ const App = {
           ${this.escape(j.case_name)}
         </h4>
         <div style="font-size: 13px; color: var(--accent-primary); font-weight: 600; margin-bottom: 8px;">
-          ${this.escape(j.citation)} â€¢ Supreme Court of India
+          ${this.escape(j.citation)} • Supreme Court of India
         </div>
         <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.65; margin: 0;">
           <strong>Controlling Proposition:</strong> ${this.escape(j.rule)}
@@ -7766,7 +7997,7 @@ const App = {
         </div>
         <div style="margin-bottom: 18px;">
           <p><strong>IN THE MATTER OF:</strong></p>
-          <p style="padding-left: 16px; margin: 4px 0 14px 0;">${this.escape(docMeta.parties || 'Applicant / Citizen  â€”VERSUSâ€”  Opposite Party / Respondent')}</p>
+          <p style="padding-left: 16px; margin: 4px 0 14px 0;">${this.escape(docMeta.parties || 'Applicant / Citizen  —VERSUS—  Opposite Party / Respondent')}</p>
           <p><strong>SUBJECT / INSTRUMENT:</strong> ${this.escape(title)} (${this.escape(docMeta.document_type || 'Legal Filing')})</p>
           <p><strong>RECORD REFERENCE:</strong> ${this.escape(docMeta.case_title || docMeta.case_ref || 'Case Record Verified')}</p>
           ${rawText ? `<p style="margin-top: 10px; background: rgba(99, 102, 241, 0.05); padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">${this.escape(rawText)}</p>` : ''}
@@ -7791,7 +8022,7 @@ const App = {
           </div>
           <div style="text-align: right;">
             <div style="font-size: 12px; color: var(--text-muted);">VERIFIED ELECTRONIC RECORD</div>
-            <div style="font-size: 12.5px; font-weight: 600; color: var(--accent-primary);">âš–ï¸ VIDHIK AI COMPLIANCE ENGINE</div>
+            <div style="font-size: 12.5px; font-weight: 600; color: var(--accent-primary);">⚖️ VIDHIK AI COMPLIANCE ENGINE</div>
           </div>
         </div>
       `;
@@ -7883,7 +8114,7 @@ const App = {
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    const icon = type === 'success' ? 'âœ“' : (type === 'error' ? 'âœ•' : 'â„¹');
+    const icon = type === 'success' ? '✓' : (type === 'error' ? '✕' : 'ℹ');
     toast.innerHTML = `<span style="font-weight: bold;">${icon}</span> <span>${this.escape(message)}</span>`;
     container.appendChild(toast);
 
@@ -7946,35 +8177,105 @@ const App = {
     if (!tbody) return;
 
     try {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 24px;"><div class="spinner"></div></td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 28px;"><div class="spinner"></div></td></tr>';
       const data = await this.api('/api/admin/audit-logs');
-      const logs = (data && data.audit_logs) ? data.audit_logs : [];
+      const logs = (data && data.audit_logs) ? data.audit_logs : ((data && data.logs) ? data.logs : []);
+      this.adminAuditLogsCache = logs;
       if (countEl) countEl.innerText = logs.length;
 
-      if (logs.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;">No security audit events recorded.</td></tr>';
-        return;
+      this.renderAdminAuditLogs(logs);
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--danger); padding: 28px;">Failed to load audit logs: ${this.escape(err.message || 'Server error')}</td></tr>`;
+    }
+  },
+
+  filterAdminAuditLogs() {
+    if (!this.adminAuditLogsCache) return;
+    const searchInput = document.getElementById('admin-audit-search');
+    const actionFilter = document.getElementById('admin-audit-action-filter');
+    const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+    const actionVal = actionFilter ? actionFilter.value.trim().toUpperCase() : '';
+
+    const filtered = this.adminAuditLogsCache.filter(l => {
+      const actionStr = (l.action || '').toUpperCase();
+      if (actionVal && !actionStr.includes(actionVal)) return false;
+      if (!query) return true;
+      const haystack = [
+        l.log_id,
+        l.audit_id,
+        l.user_id,
+        l.action,
+        l.details,
+        l.description,
+        l.ip_address,
+        l.entity_type
+      ].filter(Boolean).join(' ').toLowerCase();
+      return haystack.includes(query);
+    });
+
+    this.renderAdminAuditLogs(filtered);
+  },
+
+  renderAdminAuditLogs(logs) {
+    const tbody = document.getElementById('admin-audit-logs-tbody');
+    if (!tbody) return;
+
+    if (!logs || logs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 28px;">No security audit events match the current criteria.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = logs.map(l => {
+      const logId = l.log_id || l.audit_id || '--';
+      const actionRaw = (l.action || 'AUDIT').toUpperCase();
+      let actionBadge = '<span class="badge" style="background: rgba(99, 102, 241, 0.15); color: var(--accent-primary); font-weight: 600;">' + this.escape(actionRaw) + '</span>';
+      let statusBadge = '<span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10B981; font-weight: 600;">SUCCESS</span>';
+
+      if (actionRaw.includes('LOGIN')) {
+        actionBadge = '<span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10B981; font-weight: 600;">' + this.escape(actionRaw) + '</span>';
+      } else if (actionRaw.includes('FAIL') || actionRaw.includes('DENIED') || actionRaw.includes('REVOKE')) {
+        actionBadge = '<span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #EF4444; font-weight: 600;">' + this.escape(actionRaw) + '</span>';
+        statusBadge = '<span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #EF4444; font-weight: 600;">FAILED</span>';
+      } else if (actionRaw.includes('USER_')) {
+        actionBadge = '<span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #3B82F6; font-weight: 600;">' + this.escape(actionRaw) + '</span>';
+      } else if (actionRaw.includes('PASSWORD')) {
+        actionBadge = '<span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #F59E0B; font-weight: 600;">' + this.escape(actionRaw) + '</span>';
       }
 
-      tbody.innerHTML = logs.map(l => {
-        const actionBadge = l.action && l.action.includes('LOGIN') 
-          ? '<span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10B981;">' + this.escape(l.action) + '</span>'
-          : '<span class="badge" style="background: rgba(99, 102, 241, 0.15); color: var(--accent-primary);">' + this.escape(l.action || 'AUDIT') + '</span>';
-        const formattedDate = l.created_at ? new Date(l.created_at).toLocaleString() : '--';
-        return `
-          <tr>
-            <td><code>#${l.log_id || '--'}</code></td>
-            <td>${actionBadge}</td>
-            <td>${l.user_id ? 'UID-' + l.user_id : '<span style="color:var(--text-muted);">system</span>'}</td>
-            <td>${this.escape(l.details || 'Standard security event')}</td>
-            <td><code>${this.escape(l.ip_address || '127.0.0.1')}</code></td>
-            <td style="color: var(--text-muted); font-size: 12.5px;">${formattedDate}</td>
-          </tr>
-        `;
-      }).join('');
-    } catch (err) {
-      tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--danger); padding: 24px;">Failed to load audit logs: ${this.escape(err.message || 'Server error')}</td></tr>`;
-    }
+      let formattedDate = '--';
+      if (l.created_at) {
+        try {
+          const d = new Date(l.created_at);
+          formattedDate = isNaN(d.getTime()) ? this.escape(l.created_at) : d.toLocaleString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+          });
+        } catch (e) {
+          formattedDate = this.escape(l.created_at);
+        }
+      }
+
+      const userDisplay = l.user_id ? `<code>UID-${l.user_id}</code>` : '<span style="color:var(--text-muted); font-style: italic;">system</span>';
+      const detailsDisplay = this.escape(l.details || l.description || 'Standard security event');
+      const ipDisplay = `<code>${this.escape(l.ip_address || '127.0.0.1')}</code>`;
+
+      return `
+        <tr>
+          <td class="col-log-id"><code>#${logId}</code></td>
+          <td class="col-time"><span style="color: var(--text-secondary); font-variant-numeric: tabular-nums;">${formattedDate}</span></td>
+          <td class="col-user">${userDisplay}</td>
+          <td class="col-action">${actionBadge}</td>
+          <td class="col-details"><span class="audit-details-text">${detailsDisplay}</span></td>
+          <td class="col-ip">${ipDisplay}</td>
+          <td class="col-status" style="text-align: center;">${statusBadge}</td>
+        </tr>
+      `;
+    }).join('');
   },
 
   async loadAdminUsers() {

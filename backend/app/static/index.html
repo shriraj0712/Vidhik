@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vidhik AI â€” Indian Legal Intelligence & Case Workspace</title>
+  <title>Vidhik AI — Indian Legal Intelligence & Case Workspace</title>
   <script>
     (function () {
       try {
@@ -19,7 +19,7 @@
   </script>
   <link rel="stylesheet" href="/static/styles.css">
   <link rel="icon"
-    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>âš–ï¸</text></svg>">
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
 </head>
 
 <body>
@@ -33,99 +33,215 @@
   <div id="login-screen" class="modal-overlay active"
     style="z-index: 999; background: radial-gradient(circle at top right, #1E1B4B 0%, #0F172A 100%);">
     <div class="modal-dialog"
-      style="max-width: 460px; border-color: rgba(99, 102, 241, 0.3); box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
+      style="max-width: 480px; border-color: rgba(99, 102, 241, 0.3); box-shadow: 0 24px 48px rgba(0,0,0,0.65);">
       
       <!-- First / Login Screen Language Bar -->
       <div class="login-lang-bar">
-        <span style="font-size: 13px;">ðŸŒ</span>
+        <span style="font-size: 13px;" aria-hidden="true">🌐</span>
         <span style="font-size: 11.5px; color: #94A3B8; font-weight: 600; margin-right: 4px;">Language:</span>
         <button type="button" class="btn btn-sm btn-secondary login-lang-btn active" id="login-lang-en" onclick="App.setLanguage('en')">English</button>
-        <button type="button" class="btn btn-sm btn-secondary login-lang-btn" id="login-lang-hi" onclick="App.setLanguage('hi')">à¤¹à¤¿à¤¨à¥à¤¦à¥€</button>
-        <button type="button" class="btn btn-sm btn-secondary login-lang-btn" id="login-lang-mr" onclick="App.setLanguage('mr')">à¤®à¤°à¤¾à¤ à¥€</button>
+        <button type="button" class="btn btn-sm btn-secondary login-lang-btn" id="login-lang-hi" onclick="App.setLanguage('hi')">हिंदी</button>
+        <button type="button" class="btn btn-sm btn-secondary login-lang-btn" id="login-lang-mr" onclick="App.setLanguage('mr')">मराठी</button>
       </div>
 
-      <div style="padding: 24px 32px 20px; text-align: center;">
-        <div
-          style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #4F46E5, #06B6D4); display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; font-size: 24px; box-shadow: 0 4px 16px rgba(79, 70, 229, 0.4);">
-          âš–ï¸
+      <!-- Brand Header -->
+      <div class="login-brand-header">
+        <div class="login-brand-icon" id="login-brand-icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/>
+          </svg>
         </div>
-        <h2 style="font-size: 22px; font-weight: 700; color: #F8FAFC;">Vidhik AI</h2>
-        <p style="font-size: 13px; color: #94A3B8; margin-top: 3px;" id="auth-card-subtitle">Indian Legal Intelligence, Case Portal & Workflow Engine</p>
+        <h2 class="login-brand-title">Vidhik AI</h2>
+        <p class="login-brand-tagline">AI-Powered Legal Assistance & Case Intelligence</p>
       </div>
 
-      <div style="padding: 0 32px 28px;">
-        <!-- Auth Role Tabs -->
-        <div class="auth-tab-bar">
-          <button type="button" class="auth-tab-btn active" id="tab-btn-login-citizen" onclick="App.switchAuthMode('citizen')">Citizen Sign In</button>
-          <button type="button" class="auth-tab-btn" id="tab-btn-login-lawyer" onclick="App.switchAuthMode('lawyer')">Lawyer Sign In</button>
-          <button type="button" class="auth-tab-btn" id="tab-btn-register-citizen" onclick="App.switchAuthMode('register')">New Citizen</button>
+      <div class="login-screen-body" style="padding: 0 32px 28px;">
+        <!-- Auth Role Segmented Tab Selector -->
+        <div class="auth-tab-bar" role="tablist" aria-label="Select user role">
+          <button type="button" class="auth-tab-btn active" id="tab-btn-login-citizen" data-auth-tab="citizen" role="tab" aria-selected="true" aria-controls="login-form" onclick="App.switchAuthMode('citizen')">
+            <svg class="role-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            <span id="role-label-citizen">Citizen</span>
+            <span class="role-indicator"></span>
+          </button>
+          <button type="button" class="auth-tab-btn" id="tab-btn-login-lawyer" data-auth-tab="lawyer" role="tab" aria-selected="false" aria-controls="login-form" onclick="App.switchAuthMode('lawyer')">
+            <svg class="role-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+            <span id="role-label-lawyer">Lawyer</span>
+            <span class="role-indicator"></span>
+          </button>
+          <button type="button" class="auth-tab-btn" id="tab-btn-login-admin" data-auth-tab="admin" role="tab" aria-selected="false" aria-controls="login-form" onclick="App.switchAuthMode('admin')">
+            <svg class="role-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+            <span id="role-label-admin">Admin</span>
+            <span class="role-indicator"></span>
+          </button>
         </div>
 
-        <!-- LOGIN FORM (Citizen & Lawyer) -->
+        <!-- Role Contextual Header -->
+        <div class="auth-role-header">
+          <h3 id="auth-role-heading" class="auth-role-heading">Citizen Login</h3>
+          <p id="auth-card-subtitle" class="auth-role-desc">Access legal assistance, complaints, case tracking and your legal workspace.</p>
+          <div id="admin-restricted-badge" class="admin-restricted-badge" style="display: none;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            <span id="admin-restricted-text">Restricted Access • Authorized Personnel Only</span>
+          </div>
+        </div>
+
+        <!-- In-Card Error Alert Banner -->
+        <div id="login-error-alert" class="login-alert-danger" style="display: none;" role="alert" aria-live="polite">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="12" cy="12" r="10" stroke-width="2"/>
+            <line x1="12" y1="8" x2="12" y2="12" stroke-width="2" stroke-linecap="round"/>
+            <line x1="12" y1="16" x2="12.01" y2="16" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span id="login-error-message">Invalid email or password. Please verify credentials.</span>
+        </div>
+
+        <!-- LOGIN FORM (Citizen, Lawyer, & Admin) -->
         <form id="login-form">
           <div class="form-group">
-            <label class="form-label" id="login-email-label">Citizen Email Address</label>
+            <label class="form-label" for="login-email" id="login-email-label">Citizen Email Address</label>
             <input type="email" id="login-email" class="form-control" value="sunita.sharma@example.com" required
-              placeholder="sunita.sharma@example.com">
+              placeholder="sunita.sharma@example.com" autocomplete="username">
           </div>
 
           <div class="form-group">
-            <label class="form-label">Password</label>
-            <input type="password" id="login-password" class="form-control" value="password123" required
-              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢">
+            <label class="form-label" for="login-password" id="login-password-label">Password</label>
+            <div class="password-input-wrapper">
+              <input type="password" id="login-password" class="form-control" value="password123" required
+                placeholder="••••••••" autocomplete="current-password">
+              <button type="button" id="btn-toggle-login-pwd" class="password-toggle-btn"
+                aria-label="Toggle password visibility" title="Show/Hide password"
+                onclick="App.togglePasswordVisibility('login-password', 'btn-toggle-login-pwd')">
+                <svg class="eye-icon-show" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <svg class="eye-icon-hide" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="display: none;">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div style="margin-top: 20px;">
-            <button type="submit" id="btn-login-submit" class="btn btn-primary"
-              style="width: 100%; justify-content: center; padding: 12px; font-size: 14px;">
-              Sign In to Citizen Portal
+            <button type="submit" id="btn-login-submit" class="btn btn-primary login-submit-btn">
+              <span id="btn-login-submit-text">Sign In</span>
+              <svg id="btn-login-submit-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+              </svg>
             </button>
           </div>
 
+          <!-- Secondary Action: Register Link for Citizen -->
+          <div id="auth-register-prompt" class="auth-secondary-prompt">
+            <span id="auth-no-account-text">New citizen user?</span>
+            <button type="button" class="auth-link-action" id="btn-switch-to-register" onclick="App.switchAuthMode('register')">Create an account →</button>
+          </div>
+
           <!-- Quick Fill Demo Accounts -->
-          <div id="login-demo-container" style="margin-top: 18px; padding: 10px; background: rgba(15, 23, 42, 0.6); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); font-size: 11.5px; color: var(--text-muted); line-height: 1.5;">
-            <strong style="color: var(--text-secondary);">Demo Accounts (password: password123):</strong>
-            <div style="margin-top: 4px; display: flex; flex-wrap: wrap; gap: 6px;">
-              <a href="#" style="color: var(--accent-cyan); text-decoration: underline;" onclick="App.fillDemoLogin('sunita.sharma@example.com', 'citizen')">Sunita (Citizen)</a> â€¢
-              <a href="#" style="color: var(--accent-cyan); text-decoration: underline;" onclick="App.fillDemoLogin('vikram.malhotra@example.com', 'citizen')">Vikram (Citizen)</a> â€¢
-              <a href="#" style="color: var(--accent-cyan); text-decoration: underline;" onclick="App.fillDemoLogin('rajesh.advocate@vidhik.ai', 'lawyer')">Adv. Rajesh (Lawyer)</a> â€¢
-              <a href="#" style="color: #F87171; text-decoration: underline;" onclick="App.fillDemoLogin('admin@vidhik.ai', 'password123')">Admin (admin@vidhik.ai)</a>
+          <div id="login-demo-container" class="demo-accounts-card">
+            <div class="demo-accounts-header">
+              <span>Demo Credentials <span style="font-weight: 400; text-transform: none; color: #94A3B8;">(password: password123)</span></span>
             </div>
+            <div class="demo-chips-grid">
+              <button type="button" class="demo-chip" onclick="App.fillDemoLogin('sunita.sharma@example.com', 'citizen')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                Sunita (Citizen)
+              </button>
+              <button type="button" class="demo-chip" onclick="App.fillDemoLogin('vikram.malhotra@example.com', 'citizen')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                Vikram (Citizen)
+              </button>
+              <button type="button" class="demo-chip" onclick="App.fillDemoLogin('rajesh.advocate@vidhik.ai', 'lawyer')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                Adv. Rajesh (Lawyer)
+              </button>
+              <button type="button" class="demo-chip demo-chip-admin" onclick="App.fillDemoLogin('admin@vidhik.ai', 'admin')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                Admin (admin@vidhik.ai)
+              </button>
+            </div>
+          </div>
+
+          <!-- Security Disclaimer -->
+          <div class="auth-security-footer">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            <span>End-to-End Encrypted Legal Workspace • Official Vidhik AI Platform</span>
           </div>
         </form>
 
         <!-- CITIZEN REGISTRATION FORM -->
         <form id="register-form" style="display: none;">
           <div class="form-group">
-            <label class="form-label">Full Name *</label>
+            <label class="form-label" for="reg-fullname">Full Name *</label>
             <input type="text" id="reg-fullname" class="form-control" required placeholder="e.g. Ramesh Kumar">
           </div>
 
           <div class="form-group">
-            <label class="form-label">Email Address *</label>
+            <label class="form-label" for="reg-email">Email Address *</label>
             <input type="email" id="reg-email" class="form-control" required placeholder="ramesh@example.com">
           </div>
 
           <div class="form-group">
-            <label class="form-label">Password * (min 6 characters)</label>
-            <input type="password" id="reg-password" class="form-control" required minlength="6" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢">
+            <label class="form-label" for="reg-password">Password * (min 6 characters)</label>
+            <div class="password-input-wrapper">
+              <input type="password" id="reg-password" class="form-control" required minlength="6" placeholder="••••••••">
+              <button type="button" id="btn-toggle-reg-pwd" class="password-toggle-btn"
+                aria-label="Toggle password visibility" title="Show/Hide password"
+                onclick="App.togglePasswordVisibility('reg-password', 'btn-toggle-reg-pwd')">
+                <svg class="eye-icon-show" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <svg class="eye-icon-hide" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="display: none;">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div class="form-group">
-            <label class="form-label">Confirm Password *</label>
-            <input type="password" id="reg-confirm-password" class="form-control" required minlength="6" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢">
+            <label class="form-label" for="reg-confirm-password">Confirm Password *</label>
+            <div class="password-input-wrapper">
+              <input type="password" id="reg-confirm-password" class="form-control" required minlength="6" placeholder="••••••••">
+              <button type="button" id="btn-toggle-reg-confirm-pwd" class="password-toggle-btn"
+                aria-label="Toggle password visibility" title="Show/Hide password"
+                onclick="App.togglePasswordVisibility('reg-confirm-password', 'btn-toggle-reg-confirm-pwd')">
+                <svg class="eye-icon-show" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <svg class="eye-icon-hide" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="display: none;">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div class="form-group">
-            <label class="form-label">Phone Number (Optional)</label>
+            <label class="form-label" for="reg-phone">Phone Number (Optional)</label>
             <input type="tel" id="reg-phone" class="form-control" placeholder="+91 98765 43210">
           </div>
 
           <div style="margin-top: 20px;">
-            <button type="submit" class="btn btn-primary"
-              style="width: 100%; justify-content: center; padding: 12px; font-size: 14px;">
+            <button type="submit" class="btn btn-primary login-submit-btn">
               Create Citizen Account & Sign In
             </button>
+          </div>
+
+          <!-- Secondary Action: Back to Login -->
+          <div class="auth-secondary-prompt">
+            <span>Already have an account?</span>
+            <button type="button" class="auth-link-action" onclick="App.switchAuthMode('citizen')">Sign In →</button>
           </div>
         </form>
 
@@ -536,13 +652,13 @@
       <!-- Drawer Language Switcher (Quick 1-tap language switching for mobile & drawer) -->
       <div class="sidebar-lang-drawer" style="padding: 10px 14px; border-top: 1px solid var(--sidebar-border, var(--border-subtle)); background: var(--bg-sidebar, var(--bg-secondary));">
         <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-          <span>Language / à¤­à¤¾à¤·à¤¾</span>
+          <span>Language / भाषा</span>
           <span style="font-size: 10px; color: var(--accent-primary); font-weight: 700;">3 Locales</span>
         </div>
         <div style="display: flex; gap: 4px;">
           <button type="button" class="btn btn-sm btn-secondary sidebar-lang-btn active" id="slang-en" onclick="App.setLanguage('en')" style="flex: 1; padding: 5px 2px; font-size: 11.5px; justify-content: center;">English</button>
-          <button type="button" class="btn btn-sm btn-secondary sidebar-lang-btn" id="slang-hi" onclick="App.setLanguage('hi')" style="flex: 1; padding: 5px 2px; font-size: 11.5px; justify-content: center;">à¤¹à¤¿à¤¨à¥à¤¦à¥€</button>
-          <button type="button" class="btn btn-sm btn-secondary sidebar-lang-btn" id="slang-mr" onclick="App.setLanguage('mr')" style="flex: 1; padding: 5px 2px; font-size: 11.5px; justify-content: center;">à¤®à¤°à¤¾à¤ à¥€</button>
+          <button type="button" class="btn btn-sm btn-secondary sidebar-lang-btn" id="slang-hi" onclick="App.setLanguage('hi')" style="flex: 1; padding: 5px 2px; font-size: 11.5px; justify-content: center;">हिंदी</button>
+          <button type="button" class="btn btn-sm btn-secondary sidebar-lang-btn" id="slang-mr" onclick="App.setLanguage('mr')" style="flex: 1; padding: 5px 2px; font-size: 11.5px; justify-content: center;">मराठी</button>
         </div>
       </div>
 
@@ -576,7 +692,7 @@
           </button>
 
           <!-- Vidhik Platform Brand & Tagline -->
-          <div class="header-brand-wrap" onclick="App.handleBrandClick()" title="Vidhik AI â€” Your Intelligent Legal Advisor" style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+          <div class="header-brand-wrap" onclick="App.handleBrandClick()" title="Vidhik AI — Your Intelligent Legal Advisor" style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
             <div class="brand-logo" style="width: 34px; height: 34px; font-size: 16px; border-radius: var(--radius-sm); flex-shrink: 0;">V</div>
             <div class="brand-titles">
               <div style="font-size: 15.5px; font-weight: 700; color: var(--text-primary); line-height: 1.1; letter-spacing: -0.01em;">VIDHIK AI</div>
@@ -588,26 +704,26 @@
         <!-- PRIMARY DESKTOP NAVBAR (For Citizen) -->
         <nav class="desktop-navbar" id="desktop-citizen-navbar" aria-label="Citizen Primary Navigation">
           <a class="desktop-nav-link active" data-view="citizen-dashboard" onclick="App.navigate('citizen-dashboard')">
-            <span class="dnav-icon">ðŸ </span>
+            <span class="dnav-icon">🏠</span>
             <span class="dnav-label">Home</span>
           </a>
           <a class="desktop-nav-link" data-view="ai-assistant" onclick="App.navigate('ai-assistant')">
-            <span class="dnav-icon">âš–ï¸</span>
+            <span class="dnav-icon">⚖️</span>
             <span class="dnav-label">AI Legal Advisor</span>
           </a>
           <a class="desktop-nav-link" data-view="legal-knowledge" onclick="App.navigate('legal-knowledge')">
-            <span class="dnav-icon">ðŸ“–</span>
+            <span class="dnav-icon">📖</span>
             <span class="dnav-label">Legal Knowledge</span>
           </a>
           <!-- Compact Current Case Pill -->
           <div class="desktop-nav-case-wrap" id="top-nav-case-wrap">
             <button type="button" class="desktop-nav-case-pill" id="btn-top-nav-case" onclick="App.navigate('case-intelligence')" title="Active Matter / Case Context">
               <span class="pulse-dot"></span>
-              <span class="dnav-case-text" id="top-nav-case-label">âš– Current Case</span>
+              <span class="dnav-case-text" id="top-nav-case-label">⚖ Current Case</span>
             </button>
           </div>
           <a class="desktop-nav-link" data-view="find-lawyer" onclick="App.navigate('find-lawyer')">
-            <span class="dnav-icon">ðŸ‘¨â€âš–ï¸</span>
+            <span class="dnav-icon">👨‍⚖️</span>
             <span class="dnav-label">Find Lawyer</span>
           </a>
 
@@ -615,42 +731,42 @@
           <div class="desktop-nav-dropdown-wrap" id="citizen-nav-more-wrap">
             <button type="button" class="desktop-nav-link desktop-nav-more-btn" onclick="App.toggleNavMore('citizen')" aria-haspopup="true" aria-expanded="false">
               <span>More</span>
-              <span style="font-size: 10px; margin-left: 2px;">â–¾</span>
+              <span style="font-size: 10px; margin-left: 2px;">▾</span>
             </button>
             <div class="desktop-nav-dropdown-menu" id="citizen-nav-more-menu" style="display: none;">
               <a class="dnav-dropdown-item" onclick="App.navigate('complaint-generator'); App.closeNavMore();">
-                <span>ðŸ“</span> Complaint / FIR Draft
+                <span>📝</span> Complaint / FIR Draft
               </a>
               <a class="dnav-dropdown-item" onclick="App.navigate('resolution'); App.closeNavMore();">
-                <span>âš–ï¸</span> Dispute Resolution
+                <span>⚖️</span> Dispute Resolution
               </a>
               <a class="dnav-dropdown-item" onclick="App.navigate('traffic-law'); App.closeNavMore();">
-                <span>ðŸš—</span> Traffic Law & Fines
+                <span>🚗</span> Traffic Law & Fines
               </a>
               <a class="dnav-dropdown-item" onclick="App.navigate('constitutional-rights'); App.closeNavMore();">
-                <span>ðŸ“œ</span> Constitutional Rights
+                <span>📜</span> Constitutional Rights
               </a>
               <a class="dnav-dropdown-item" onclick="App.navigate('authority-recommendation'); App.closeNavMore();">
-                <span>ðŸ›ï¸</span> Authority Finder
+                <span>🏛️</span> Authority Finder
               </a>
               <a class="dnav-dropdown-item" onclick="App.navigate('case-tracking'); App.closeNavMore();">
-                <span>ðŸ”</span> eCourts Case Tracking
+                <span>🔍</span> eCourts Case Tracking
               </a>
               <a class="dnav-dropdown-item" onclick="App.navigate('voice-assistant'); App.closeNavMore();">
-                <span>ðŸŽ™ï¸</span> Voice Assistant
+                <span>🎙️</span> Voice Assistant
               </a>
               <a class="dnav-dropdown-item" onclick="App.navigate('documentation'); App.closeNavMore();">
-                <span>ðŸ“‹</span> Procedure Checklists
+                <span>📋</span> Procedure Checklists
               </a>
               <a class="dnav-dropdown-item" onclick="App.navigate('citizen-documents'); App.closeNavMore();">
-                <span>ðŸ“</span> My Documents
+                <span>📁</span> My Documents
               </a>
             </div>
           </div>
 
           <!-- Admin Panel Link (Only visible if admin role) -->
           <a class="desktop-nav-link admin-nav-link" id="top-nav-admin-link" data-view="admin" onclick="App.navigate('admin')" style="display: none;">
-            <span class="dnav-icon">ðŸ›¡ï¸</span>
+            <span class="dnav-icon">🛡️</span>
             <span class="dnav-label">Admin Panel</span>
             <span class="badge" style="font-size: 9.5px; background: rgba(239, 68, 68, 0.15); color: #EF4444; padding: 1px 5px; margin-left: 4px;">ROOT</span>
           </a>
@@ -659,23 +775,23 @@
         <!-- PRIMARY DESKTOP NAVBAR (For Lawyer) -->
         <nav class="desktop-navbar" id="desktop-lawyer-navbar" style="display: none;" aria-label="Lawyer Primary Navigation">
           <a class="desktop-nav-link active" data-view="dashboard" onclick="App.navigate('dashboard')">
-            <span class="dnav-icon">ðŸ“Š</span>
+            <span class="dnav-icon">📊</span>
             <span class="dnav-label">Dashboard</span>
           </a>
           <a class="desktop-nav-link" data-view="cases" onclick="App.navigate('cases')">
-            <span class="dnav-icon">ðŸ“</span>
+            <span class="dnav-icon">📁</span>
             <span class="dnav-label">Cases</span>
           </a>
           <a class="desktop-nav-link" data-view="case-intelligence" onclick="App.navigate('case-intelligence')">
-            <span class="dnav-icon">âš–ï¸</span>
+            <span class="dnav-icon">⚖️</span>
             <span class="dnav-label">Case Intelligence</span>
           </a>
           <a class="desktop-nav-link" data-view="clients" onclick="App.navigate('clients')">
-            <span class="dnav-icon">ðŸ‘¥</span>
+            <span class="dnav-icon">👥</span>
             <span class="dnav-label">Clients</span>
           </a>
           <a class="desktop-nav-link" data-view="ai-assistant" onclick="App.navigate('ai-assistant')">
-            <span class="dnav-icon">âœ¨</span>
+            <span class="dnav-icon">✨</span>
             <span class="dnav-label">Legal AI</span>
           </a>
 
@@ -683,30 +799,30 @@
           <div class="desktop-nav-dropdown-wrap" id="lawyer-nav-more-wrap">
             <button type="button" class="desktop-nav-link desktop-nav-more-btn" onclick="App.toggleNavMore('lawyer')" aria-haspopup="true" aria-expanded="false">
               <span>More</span>
-              <span style="font-size: 10px; margin-left: 2px;">â–¾</span>
+              <span style="font-size: 10px; margin-left: 2px;">▾</span>
             </button>
             <div class="desktop-nav-dropdown-menu" id="lawyer-nav-more-menu" style="display: none;">
               <a class="dnav-dropdown-item" onclick="App.navigate('hearings'); App.closeNavMore();">
-                <span>ðŸ“…</span> Hearings Calendar
+                <span>📅</span> Hearings Calendar
               </a>
               <a class="dnav-dropdown-item" onclick="App.navigate('documents'); App.closeNavMore();">
-                <span>ðŸ“‘</span> Case Documents
+                <span>📑</span> Case Documents
               </a>
               <a class="dnav-dropdown-item" onclick="App.navigate('legal-knowledge'); App.closeNavMore();">
-                <span>ðŸ“–</span> Legal Knowledge
+                <span>📖</span> Legal Knowledge
               </a>
               <a class="dnav-dropdown-item" onclick="App.navigate('research'); App.closeNavMore();">
-                <span>ðŸ”</span> Bare Acts Research
+                <span>🔍</span> Bare Acts Research
               </a>
               <a class="dnav-dropdown-item" onclick="App.navigate('document-analysis'); App.closeNavMore();">
-                <span>ðŸ”¬</span> Document Analysis
+                <span>🔬</span> Document Analysis
               </a>
             </div>
           </div>
 
           <!-- Admin Panel Link (Lawyer Admin) -->
           <a class="desktop-nav-link admin-nav-link" id="top-nav-admin-lawyer-link" data-view="admin" onclick="App.navigate('admin')" style="display: none;">
-            <span class="dnav-icon">ðŸ›¡ï¸</span>
+            <span class="dnav-icon">🛡️</span>
             <span class="dnav-label">Admin Panel</span>
             <span class="badge" style="font-size: 9.5px; background: rgba(239, 68, 68, 0.15); color: #EF4444; padding: 1px 5px; margin-left: 4px;">ROOT</span>
           </a>
@@ -716,12 +832,12 @@
           <!-- Language Selector Container -->
           <div class="lang-selector-container" id="lang-selector-container">
             <button type="button" class="theme-toggle-btn" id="btn-lang-toggle" onclick="App.toggleLanguagePicker(event)" title="Language: English (Click to change)" aria-label="Select Language" aria-haspopup="true" aria-expanded="false" style="width: auto; padding: 0 10px; gap: 4px; display: inline-flex; align-items: center;">
-              <span style="font-size: 15px;">ðŸŒ</span>
+              <span style="font-size: 15px;">🌐</span>
               <span id="header-lang-code" style="font-weight: 700; font-size: 12px; letter-spacing: 0.05em;">EN</span>
             </button>
             <div class="lang-popover" id="lang-popover" role="dialog" aria-label="Language Selector" style="display: none;">
               <div class="theme-popover-header">
-                <span class="theme-popover-title">Select Language / à¤­à¤¾à¤·à¤¾</span>
+                <span class="theme-popover-title">Select Language / भाषा</span>
                 <span class="theme-popover-subtitle">3 Official Locales</span>
               </div>
               <div class="theme-options-list">
@@ -730,21 +846,21 @@
                     <strong style="display: block; font-size: 13px;">English</strong>
                     <span style="font-size: 11px; color: var(--text-muted);">Standard Statutory English</span>
                   </div>
-                  <span class="lang-check" id="lang-check-en" style="color: var(--accent-primary); font-weight: 800;">âœ“</span>
+                  <span class="lang-check" id="lang-check-en" style="color: var(--accent-primary); font-weight: 800;">✓</span>
                 </button>
                 <button type="button" class="lang-option-btn" id="lang-opt-hi" data-lang="hi" onclick="App.setLanguage('hi')">
                   <div>
-                    <strong style="display: block; font-size: 13px;">à¤¹à¤¿à¤¨à¥à¤¦à¥€ (Hindi)</strong>
-                    <span style="font-size: 11px; color: var(--text-muted);">à¤­à¤¾à¤°à¤¤à¥€à¤¯ à¤µà¤¿à¤§à¤¿ à¤”à¤° à¤ªà¥à¤°à¤•à¥à¤°à¤¿à¤¯à¤¾</span>
+                    <strong style="display: block; font-size: 13px;">हिंदी (Hindi)</strong>
+                    <span style="font-size: 11px; color: var(--text-muted);">भारतीय विधि और प्रक्रिया</span>
                   </div>
-                  <span class="lang-check" id="lang-check-hi" style="display: none; color: var(--accent-primary); font-weight: 800;">âœ“</span>
+                  <span class="lang-check" id="lang-check-hi" style="display: none; color: var(--accent-primary); font-weight: 800;">✓</span>
                 </button>
-                <button type="button" class="lang-option-btn" id="lang-opt-mr" data-lang="mr" onclick="App.setLanguage('mr')">
+                <button type="button" class="lang-option-btn" id="lang-opt-mr" data-lang="mr" onclick="App.setLanguage('mr')" title="आपली भाषा निवडा">
                   <div>
-                    <strong style="display: block; font-size: 13px;">à¤®à¤°à¤¾à¤ à¥€ (Marathi)</strong>
-                    <span style="font-size: 11px; color: var(--text-muted);">à¤®à¤¹à¤¾à¤°à¤¾à¤·à¥à¤Ÿà¥à¤° à¤µà¤¿à¤§à¥€ à¤µ à¤¤à¤•à¥à¤°à¤¾à¤° à¤¨à¤¿à¤µà¤¾à¤°à¤£</span>
+                    <strong style="display: block; font-size: 13px;">मराठी (Marathi)</strong>
+                    <span style="font-size: 11px; color: var(--text-muted);">महाराष्ट्र विधी व तक्रार निवारण</span>
                   </div>
-                  <span class="lang-check" id="lang-check-mr" style="display: none; color: var(--accent-primary); font-weight: 800;">âœ“</span>
+                  <span class="lang-check" id="lang-check-mr" style="display: none; color: var(--accent-primary); font-weight: 800;">✓</span>
                 </button>
               </div>
             </div>
@@ -931,7 +1047,7 @@
               </div>
               <div class="notif-list" id="notifications-list-container" role="feed" aria-live="polite">
                 <div class="notif-empty-state">
-                  <div class="notif-empty-icon">âœ“</div>
+                  <div class="notif-empty-icon">✓</div>
                   <div class="notif-empty-title">You're all caught up</div>
                   <div class="notif-empty-desc">No new notifications at this time.</div>
                 </div>
@@ -993,10 +1109,10 @@
         </div>
         <div class="current-case-actions">
           <button type="button" class="btn btn-sm btn-primary" onclick="App.navigate('case-intelligence')">
-            âš–ï¸ Case Intelligence
+            ⚖️ Case Intelligence
           </button>
           <button type="button" class="btn btn-sm btn-secondary" onclick="App.openCaseSwitchModal()">
-            â‡„ Switch Case
+            ⇄ Switch Case
           </button>
           <button type="button" class="btn btn-sm btn-outline" onclick="App.openCitizenNewCaseModal()">
             + New Case
@@ -1022,14 +1138,14 @@
                 <span class="badge" id="ci-header-version" style="background: var(--bg-elevated); color: var(--text-muted); font-size: 11px;">Version 1.0</span>
               </div>
               <h2 class="page-title" id="ci-header-title">Traffic Police Licence Incident</h2>
-              <p class="page-subtitle" id="ci-header-case-num" style="margin-top: 4px;">Case ID: CASE-2026-0001 â€¢ Jurisdiction: Pune, Maharashtra</p>
+              <p class="page-subtitle" id="ci-header-case-num" style="margin-top: 4px;">Case ID: CASE-2026-0001 • Jurisdiction: Pune, Maharashtra</p>
             </div>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
               <button type="button" class="btn btn-secondary btn-sm" onclick="App.openCaseReanalyzeModal()">
-                ðŸ“ Add Facts / Re-analyze
+                📝 Add Facts / Re-analyze
               </button>
               <button type="button" class="btn btn-secondary btn-sm" onclick="App.openCaseSwitchModal()">
-                â‡„ Switch Case
+                ⇄ Switch Case
               </button>
               <button type="button" class="btn btn-primary btn-sm" onclick="App.openCitizenNewCaseModal()">
                 + New Matter
@@ -1039,7 +1155,7 @@
 
           <!-- Emotional Adaptation & Communication Guidance Notice (Feature 7) -->
           <div id="ci-emotion-banner" class="disclaimer-banner" style="margin-bottom: 20px; display: none;">
-            <span style="font-size: 20px;" id="ci-emotion-icon">ðŸ’¬</span>
+            <span style="font-size: 20px;" id="ci-emotion-icon">💬</span>
             <div style="flex: 1;">
               <strong id="ci-emotion-title">Communication Guidance:</strong>
               <div id="ci-emotion-desc" style="font-size: 13px; margin-top: 3px; line-height: 1.5;">Language adapted to structured step-by-step guidance.</div>
@@ -1048,7 +1164,7 @@
 
           <!-- Immediate Safety Alert Notice (if safety indicators present) -->
           <div id="ci-safety-banner" class="disclaimer-banner" style="margin-bottom: 20px; display: none; background: rgba(239, 68, 68, 0.12); border-color: rgba(239, 68, 68, 0.4); color: #F87171;">
-            <span style="font-size: 22px;">ðŸš¨</span>
+            <span style="font-size: 22px;">🚨</span>
             <div style="flex: 1;">
               <strong>IMMEDIATE SAFETY NOTICE:</strong>
               <div id="ci-safety-text" style="font-size: 13px; margin-top: 3px;">If you face imminent physical harm, dial 112 (National Emergency Helpline).</div>
@@ -1058,31 +1174,31 @@
           <!-- Tab Navigation for Case Intelligence Sections -->
           <div class="tab-nav case-intel-tabs" style="margin-bottom: 20px; overflow-x: auto; flex-wrap: nowrap;">
             <button type="button" class="tab-btn active" data-ci-tab="overview" onclick="App.switchCiTab('overview')">
-              ðŸ“‹ Case Overview
+              📋 Case Overview
             </button>
             <button type="button" class="tab-btn" data-ci-tab="legal" onclick="App.switchCiTab('legal')">
-              âš–ï¸ Legal Analysis & Sections (<span id="ci-sections-tab-count">0</span>)
+              ⚖️ Legal Analysis & Sections (<span id="ci-sections-tab-count">0</span>)
             </button>
             <button type="button" class="tab-btn" data-ci-tab="actions" onclick="App.switchCiTab('actions')">
-              ðŸŽ¯ Action Plan
+              🎯 Action Plan
             </button>
             <button type="button" class="tab-btn" data-ci-tab="documents" onclick="App.switchCiTab('documents')">
-              ðŸ“ Documents & Evidence
+              📁 Documents & Evidence
             </button>
             <button type="button" class="tab-btn" data-ci-tab="authorities" onclick="App.switchCiTab('authorities')">
-              ðŸ›ï¸ Who Can Help?
+              🏛️ Who Can Help?
             </button>
             <button type="button" class="tab-btn" data-ci-tab="lawyers" onclick="App.switchCiTab('lawyers')">
-              ðŸ§‘â€âš–ï¸ Lawyer Recommendations (<span id="ci-lawyers-tab-count">0</span>)
+              🧑‍⚖️ Lawyer Recommendations (<span id="ci-lawyers-tab-count">0</span>)
             </button>
             <button type="button" class="tab-btn" data-ci-tab="procedure" onclick="App.switchCiTab('procedure')">
-              â³ What Happens Next?
+              ⏳ What Happens Next?
             </button>
             <button type="button" class="tab-btn" data-ci-tab="emotions" onclick="App.switchCiTab('emotions')">
-              ðŸ§  Emotional Analysis
+              🧠 Emotional Analysis
             </button>
             <button type="button" class="tab-btn" data-ci-tab="missing" onclick="App.switchCiTab('missing')">
-              â“ Missing Information
+              ❓ Missing Information
             </button>
           </div>
 
@@ -1098,7 +1214,7 @@
                 Loading case understanding...
               </p>
               <div style="font-size: 12px; color: var(--text-muted); line-height: 1.5; background: var(--bg-elevated); padding: 8px 12px; border-radius: var(--radius-sm);">
-                âš–ï¸ <strong>Legal Principle:</strong> Analysis uses strictly cautious, non-judgmental language based only on stated facts without presuming officer or party liability.
+                ⚖️ <strong>Legal Principle:</strong> Analysis uses strictly cautious, non-judgmental language based only on stated facts without presuming officer or party liability.
               </div>
             </div>
 
@@ -1106,7 +1222,7 @@
             <div class="dashboard-grid" style="margin-bottom: 20px;">
               <div class="card">
                 <h3 class="card-title" style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                  <span>ðŸ’¬</span> What You Explicitly Stated
+                  <span>💬</span> What You Explicitly Stated
                 </h3>
                 <div id="ci-explicit-facts-list" style="display: flex; flex-direction: column; gap: 8px;">
                   <div class="spinner"></div>
@@ -1115,7 +1231,7 @@
 
               <div class="card">
                 <h3 class="card-title" style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                  <span>ðŸ”</span> Important Facts Extracted
+                  <span>🔍</span> Important Facts Extracted
                 </h3>
                 <div id="ci-extracted-facts-list" style="display: flex; flex-direction: column; gap: 8px;">
                   <div class="spinner"></div>
@@ -1127,7 +1243,7 @@
             <div class="dashboard-grid">
               <div class="card">
                 <h3 class="card-title" style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                  <span>âš–ï¸</span> Possible Legal Issues Identified
+                  <span>⚖️</span> Possible Legal Issues Identified
                 </h3>
                 <div id="ci-identified-issues-list" style="display: flex; flex-direction: column; gap: 8px;">
                   <div class="spinner"></div>
@@ -1136,7 +1252,7 @@
 
               <div class="card">
                 <h3 class="card-title" style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                  <span>â“</span> Facts That Are Uncertain
+                  <span>❓</span> Facts That Are Uncertain
                 </h3>
                 <div id="ci-uncertain-facts-list" style="display: flex; flex-direction: column; gap: 8px;">
                   <div class="spinner"></div>
@@ -1219,7 +1335,7 @@
 
             <!-- BSA Section 63 Digital Evidence Banner -->
             <div class="disclaimer-banner" style="margin-bottom: 20px;">
-              <span style="font-size: 18px;">ðŸ’¾</span>
+              <span style="font-size: 18px;">💾</span>
               <div>
                 <strong>Electronic Evidence Admissibility (BSA 2023):</strong> Under Section 63 of the Bharatiya Sakshya Adhiniyam, 2023, electronic evidence (photos, video footage, SMS, WhatsApp messages) must be accompanied by an electronic certificate when submitted in formal judicial proceedings.
               </div>
@@ -1228,7 +1344,7 @@
             <!-- Required Documents List -->
             <div style="margin-bottom: 24px;">
               <h4 style="font-size: 14px; font-weight: 700; color: #EF4444; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-                <span>ðŸ”´</span> Required Documents
+                <span>🔴</span> Required Documents
               </h4>
               <div id="ci-required-docs-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
             </div>
@@ -1236,7 +1352,7 @@
             <!-- Important Documents List -->
             <div style="margin-bottom: 24px;">
               <h4 style="font-size: 14px; font-weight: 700; color: #F59E0B; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-                <span>ðŸŸ¡</span> Important Documents
+                <span>🟡</span> Important Documents
               </h4>
               <div id="ci-important-docs-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
             </div>
@@ -1244,7 +1360,7 @@
             <!-- Supporting Documents List -->
             <div>
               <h4 style="font-size: 14px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-                <span>ðŸ”µ</span> Supporting Documents
+                <span>🔵</span> Supporting Documents
               </h4>
               <div id="ci-supporting-docs-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
             </div>
@@ -1300,7 +1416,7 @@
 
             <!-- Procedural Disclaimer -->
             <div class="disclaimer-banner" style="margin-bottom: 20px;">
-              <span style="font-size: 18px;">â³</span>
+              <span style="font-size: 18px;">⏳</span>
               <div>
                 <strong>Procedural Notice:</strong> Depending on the applicable procedure, the concerned authority may verify the complaint, examine relevant records, and seek an explanation from the concerned officers or parties. No outcome is guaranteed.
               </div>
@@ -1339,7 +1455,7 @@
 
             <!-- Medical Non-Diagnosis Disclaimer -->
             <div class="disclaimer-banner">
-              <span style="font-size: 18px;">â„¹ï¸</span>
+              <span style="font-size: 18px;">ℹ️</span>
               <div>
                 <strong>Non-Diagnostic Disclaimer:</strong> This analysis evaluates language characteristics in the submitted text to adapt communication style. It does NOT constitute medical, psychiatric, or psychological evaluation. Emotional state does not alter applicable substantive statutes or procedural legal rights.
               </div>
@@ -1359,7 +1475,7 @@
 
             <div style="text-align: right;">
               <button type="button" class="btn btn-primary" onclick="App.openCaseReanalyzeModal()">
-                ðŸ“ Provide Missing Information Now
+                📝 Provide Missing Information Now
               </button>
             </div>
           </div>
@@ -1377,7 +1493,7 @@
             </div>
             <div style="display: flex; gap: 10px;">
               <button class="btn btn-secondary btn-sm" id="btn-lawyer-header-research" onclick="App.navigate('research')">
-                âœ¨ Ask VIDHIK / Research
+                ✨ Ask VIDHIK / Research
               </button>
               <button class="btn btn-primary btn-sm" onclick="App.openCreateCaseModal()">
                 + File New Case
@@ -1390,7 +1506,7 @@
             <div class="metric-card indigo">
               <div class="metric-card-header">
                 <span class="metric-label">Total Clients</span>
-                <div class="metric-icon-wrap">ðŸ‘¥</div>
+                <div class="metric-icon-wrap">👥</div>
               </div>
               <div class="metric-value" id="kpi-clients">0</div>
               <div style="font-size: 11.5px; color: var(--accent-cyan); margin-top: 4px;">Verified client roster</div>
@@ -1399,7 +1515,7 @@
             <div class="metric-card emerald">
               <div class="metric-card-header">
                 <span class="metric-label">Active Cases</span>
-                <div class="metric-icon-wrap">âš–ï¸</div>
+                <div class="metric-icon-wrap">⚖️</div>
               </div>
               <div class="metric-value" id="kpi-cases">0</div>
               <div style="font-size: 11.5px; color: #34D399; margin-top: 4px;">Bombay HC & District Courts</div>
@@ -1408,7 +1524,7 @@
             <div class="metric-card amber">
               <div class="metric-card-header">
                 <span class="metric-label">Upcoming Hearings</span>
-                <div class="metric-icon-wrap">ðŸ“…</div>
+                <div class="metric-icon-wrap">📅</div>
               </div>
               <div class="metric-value" id="kpi-hearings">0</div>
               <div style="font-size: 11.5px; color: #FBBF24; margin-top: 4px;">Scheduled court appearances</div>
@@ -1417,7 +1533,7 @@
             <div class="metric-card cyan">
               <div class="metric-card-header">
                 <span class="metric-label">Case Documents</span>
-                <div class="metric-icon-wrap">ðŸ“</div>
+                <div class="metric-icon-wrap">📁</div>
               </div>
               <div class="metric-value" id="kpi-documents">0</div>
               <div style="font-size: 11.5px; color: #22D3EE; margin-top: 4px;">Pleadings, evidence & notices</div>
@@ -1429,13 +1545,13 @@
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
               <div>
                 <h3 style="font-size: 15px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
-                  <span onclick="App.navigate('research')" style="cursor: pointer;" title="Open Ask VIDHIK Legal AI">âœ¨</span> Ask VIDHIK & Statutory Intelligence
+                  <span onclick="App.navigate('research')" style="cursor: pointer;" title="Open Ask VIDHIK Legal AI">✨</span> Ask VIDHIK & Statutory Intelligence
                 </h3>
                 <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
                   Search Central & State Acts, section numbers, or query the legal corpus
                 </p>
               </div>
-              <span class="badge badge-active" style="font-size: 11px;">869 Acts â€¢ 41,442 Sections</span>
+              <span class="badge badge-active" style="font-size: 11px;">869 Acts • 41,442 Sections</span>
             </div>
             <form onsubmit="App.handleLawyerQuickSearch(event)" style="display: flex; gap: 10px; flex-wrap: wrap;">
               <input type="text" id="lawyer-quick-search-input" class="form-control" style="flex: 1; min-width: 0;" placeholder="Search section number or legal title (e.g. 'Section 138 NI Act', 'Order 39 CPC', 'Article 226')...">
@@ -1452,7 +1568,7 @@
                 <span class="urgency-pill urgency-today">TODAY</span>
                 <h3 class="urgency-title">Scheduled Court Appearances & Hearings</h3>
               </div>
-              <button class="btn btn-secondary btn-sm" onclick="App.navigate('hearings')">View Hearing Calendar â†’</button>
+              <button class="btn btn-secondary btn-sm" onclick="App.navigate('hearings')">View Hearing Calendar →</button>
             </div>
             <div class="card" style="border-top: 3px solid var(--accent-amber);">
               <div id="dash-hearings-list">
@@ -1468,7 +1584,7 @@
                 <span class="urgency-pill urgency-thisweek">THIS WEEK</span>
                 <h3 class="urgency-title">Active Briefs & Court Matters</h3>
               </div>
-              <button class="btn btn-secondary btn-sm" onclick="App.navigate('cases')">View All Cases â†’</button>
+              <button class="btn btn-secondary btn-sm" onclick="App.navigate('cases')">View All Cases →</button>
             </div>
             <div class="card" style="border-top: 3px solid var(--accent-primary);">
               <div id="dash-cases-list">
@@ -1488,7 +1604,7 @@
             <div class="dashboard-grid">
               <div class="card" style="border-top: 3px solid var(--accent-cyan);">
                 <div class="card-header">
-                  <h3 class="card-title">ðŸ“„ Recent Case Documents</h3>
+                  <h3 class="card-title">📄 Recent Case Documents</h3>
                   <button class="btn btn-secondary btn-sm" onclick="App.navigate('documents')">Manage Docs</button>
                 </div>
                 <div id="dash-documents-list">
@@ -1498,7 +1614,7 @@
 
               <div class="card" style="border-top: 3px solid var(--accent-emerald);">
                 <div class="card-header">
-                  <h3 class="card-title">âš¡ Case Activity Feed</h3>
+                  <h3 class="card-title">⚡ Case Activity Feed</h3>
                 </div>
                 <div id="dash-activity-list">
                   <div class="spinner"></div>
@@ -1627,7 +1743,7 @@
               style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
               <div>
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                  <button class="btn btn-secondary btn-sm" onclick="App.navigate('cases')">â† Back to Cases</button>
+                  <button class="btn btn-secondary btn-sm" onclick="App.navigate('cases')">← Back to Cases</button>
                   <span class="badge" id="cd-status-badge">Active</span>
                   <span style="font-size: 12.5px; color: var(--accent-cyan);" id="cd-type-badge">Writ Petition</span>
                 </div>
@@ -1647,13 +1763,13 @@
 
           <!-- Navigation Tabs -->
           <div class="tab-nav">
-            <button class="tab-btn active" data-tab="tab-overview">ðŸ“‹ Overview & Timeline</button>
-            <button class="tab-btn" data-tab="tab-client">ðŸ‘¤ Client Profile</button>
-            <button class="tab-btn" data-tab="tab-documents">ðŸ“ Case Documents (<span
+            <button class="tab-btn active" data-tab="tab-overview">📋 Overview & Timeline</button>
+            <button class="tab-btn" data-tab="tab-client">👤 Client Profile</button>
+            <button class="tab-btn" data-tab="tab-documents">📁 Case Documents (<span
                 id="cd-doc-count">0</span>)</button>
-            <button class="tab-btn" data-tab="tab-hearings">ðŸ“… Hearings (<span id="cd-hearing-count">0</span>)</button>
-            <button class="tab-btn" data-tab="tab-notes">ðŸ“ Case Notes (<span id="cd-note-count">0</span>)</button>
-            <button class="tab-btn" data-tab="tab-research">âš–ï¸ Statutory Provisions (<span
+            <button class="tab-btn" data-tab="tab-hearings">📅 Hearings (<span id="cd-hearing-count">0</span>)</button>
+            <button class="tab-btn" data-tab="tab-notes">📝 Case Notes (<span id="cd-note-count">0</span>)</button>
+            <button class="tab-btn" data-tab="tab-research">⚖️ Statutory Provisions (<span
                 id="cd-sec-count">0</span>)</button>
           </div>
 
@@ -1800,7 +1916,7 @@
                   </p>
                 </div>
                 <button class="btn btn-primary btn-sm" onclick="App.openSearchAndLinkModal()">
-                  ðŸ” Search & Link Provisions
+                  🔍 Search & Link Provisions
                 </button>
               </div>
 
@@ -1998,7 +2114,7 @@
                 grounding across Indian legal processes.</p>
             </div>
             <span class="badge badge-active" style="padding: 6px 12px; font-size: 13px;">
-              ðŸ“‹ Verified Statutory Grounding
+              📋 Verified Statutory Grounding
             </span>
           </div>
 
@@ -2037,12 +2153,12 @@
               <p class="page-subtitle">Automated structural extraction, clause analysis, potential risk detection, and verified statutory grounding.</p>
             </div>
             <span class="badge badge-active" style="padding: 6px 12px; font-size: 13px;">
-              âš–ï¸ Grounded in Vidhik Database
+              ⚖️ Grounded in Vidhik Database
             </span>
           </div>
 
           <div class="disclaimer-banner">
-            <span style="font-size: 18px;">â„¹ï¸</span>
+            <span style="font-size: 18px;">ℹ️</span>
             <div>
               <strong>Legal Research & Information Notice:</strong> Vidhik AI Document Analysis is an automated informational tool for advocates and citizens. It does not constitute formal legal advice, statutory certification, or substitute for professional advocate consultation.
             </div>
@@ -2052,8 +2168,8 @@
           <div class="card" id="analysis-input-card" style="margin-bottom: 24px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
               <div class="tab-nav" style="margin-bottom: 0;">
-                <button class="tab-btn active" id="btn-mode-file" onclick="App.switchAnalysisMode('file')">ðŸ“ Upload File (.pdf, .docx, .txt)</button>
-                <button class="tab-btn" id="btn-mode-text" onclick="App.switchAnalysisMode('text')">ðŸ“ Direct Text Input / Paste</button>
+                <button class="tab-btn active" id="btn-mode-file" onclick="App.switchAnalysisMode('file')">📁 Upload File (.pdf, .docx, .txt)</button>
+                <button class="tab-btn" id="btn-mode-text" onclick="App.switchAnalysisMode('text')">📝 Direct Text Input / Paste</button>
               </div>
 
               <!-- Optional Case Association -->
@@ -2070,13 +2186,13 @@
             <div id="pane-analysis-file">
               <input type="file" id="analysis-file-input" style="display: none;" accept=".pdf,.docx,.txt" onchange="App.handleAnalysisFileSelect(event)">
               <div class="upload-dropzone" id="analysis-dropzone" onclick="document.getElementById('analysis-file-input').click()" ondragover="App.handleDragOver(event)" ondragleave="App.handleDragLeave(event)" ondrop="App.handleFileDrop(event)">
-                <div class="upload-dropzone-icon">ðŸ“„</div>
+                <div class="upload-dropzone-icon">📄</div>
                 <div class="upload-dropzone-title" id="dropzone-title">Click to browse or drag & drop legal document</div>
                 <div class="upload-dropzone-desc">Supported formats: <strong>PDF (Digital with text layer), Word (.docx), Plain Text (.txt)</strong>. Max file size: 15 MB. Scanned image-only PDFs without digital text will be flagged.</div>
               </div>
               <div id="selected-file-chip" style="display: none; margin-top: 14px; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.35); padding: 10px 16px; border-radius: var(--radius-md); align-items: center; justify-content: space-between;">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                  <span style="font-size: 18px;">ðŸ“Ž</span>
+                  <span style="font-size: 18px;">📎</span>
                   <div>
                     <strong id="selected-file-name" style="color: var(--text-primary); font-size: 14px;">filename.pdf</strong>
                     <div id="selected-file-size" style="font-size: 12px; color: var(--text-muted);">1.2 MB</div>
@@ -2101,12 +2217,12 @@
             <!-- ANALYZE ACTION BUTTON -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-subtle);">
               <div style="font-size: 12.5px; color: var(--text-muted);">
-                âš¡ Deterministic legal extraction with PostgreSQL statutory grounding
+                ⚡ Deterministic legal extraction with PostgreSQL statutory grounding
               </div>
               <div style="display: flex; gap: 12px;">
                 <button class="btn btn-secondary" onclick="App.resetAnalysisInput()">Reset</button>
                 <button class="btn btn-primary" id="btn-run-analysis" onclick="App.submitDocumentAnalysis()">
-                  ðŸ” Analyze Legal Document
+                  🔍 Analyze Legal Document
                 </button>
               </div>
             </div>
@@ -2130,18 +2246,18 @@
                   <span id="res-case-badge" class="badge" style="display: none; background: rgba(99, 102, 241, 0.2); color: #A5B4FC;">Case #1</span>
                 </div>
                 <h3 id="res-doc-name" style="font-size: 20px; color: var(--text-primary); margin-top: 4px;">Commercial Lease Agreement.pdf</h3>
-                <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;" id="res-doc-meta">Size: 245 KB â€¢ Checksum: sha256:7f3a...</div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;" id="res-doc-meta">Size: 245 KB • Checksum: sha256:7f3a...</div>
               </div>
               <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button class="btn btn-secondary btn-sm" onclick="App.openSaveAnalysisModal()">ðŸ’¼ Save to Case Brief</button>
-                <button class="btn btn-secondary btn-sm" onclick="App.exportAnalysisSummary()">ðŸ“¥ Export Brief</button>
+                <button class="btn btn-secondary btn-sm" onclick="App.openSaveAnalysisModal()">💼 Save to Case Brief</button>
+                <button class="btn btn-secondary btn-sm" onclick="App.exportAnalysisSummary()">📥 Export Brief</button>
                 <button class="btn btn-primary btn-sm" onclick="App.resetAnalysisInput()">+ New Analysis</button>
               </div>
             </div>
 
             <!-- Warning Alert (if any) -->
             <div id="res-warning-alert" class="disclaimer-banner" style="display: none; background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: #FCA5A5;">
-              <span style="font-size: 20px;">âš ï¸</span>
+              <span style="font-size: 20px;">⚠️</span>
               <div id="res-warning-text"></div>
             </div>
 
@@ -2161,12 +2277,12 @@
 
             <!-- Segmented Results Navigation -->
             <div class="tab-nav" style="margin-bottom: 20px; overflow-x: auto;">
-              <button class="tab-btn active" data-res-tab="parties" onclick="App.switchResTab('parties')">ðŸ‘¥ Parties (<span id="res-parties-count">0</span>)</button>
-              <button class="tab-btn" data-res-tab="dates-values" onclick="App.switchResTab('dates-values')">ðŸ“… Dates & Financials (<span id="res-dates-count">0</span> / <span id="res-values-count">0</span>)</button>
-              <button class="tab-btn" data-res-tab="clauses" onclick="App.switchResTab('clauses')">ðŸ“œ Clauses & Obligations (<span id="res-clauses-count">0</span>)</button>
-              <button class="tab-btn" data-res-tab="risks" onclick="App.switchResTab('risks')">âš ï¸ Risks & Issues (<span id="res-risks-count">0</span>)</button>
-              <button class="tab-btn" data-res-tab="actions" onclick="App.switchResTab('actions')">ðŸ“‹ Missing Info & Actions (<span id="res-actions-count">0</span>)</button>
-              <button class="tab-btn" data-res-tab="statutes" onclick="App.switchResTab('statutes')">âš–ï¸ Statutory References (<span id="res-statutes-count">0</span>)</button>
+              <button class="tab-btn active" data-res-tab="parties" onclick="App.switchResTab('parties')">👥 Parties (<span id="res-parties-count">0</span>)</button>
+              <button class="tab-btn" data-res-tab="dates-values" onclick="App.switchResTab('dates-values')">📅 Dates & Financials (<span id="res-dates-count">0</span> / <span id="res-values-count">0</span>)</button>
+              <button class="tab-btn" data-res-tab="clauses" onclick="App.switchResTab('clauses')">📜 Clauses & Obligations (<span id="res-clauses-count">0</span>)</button>
+              <button class="tab-btn" data-res-tab="risks" onclick="App.switchResTab('risks')">⚠️ Risks & Issues (<span id="res-risks-count">0</span>)</button>
+              <button class="tab-btn" data-res-tab="actions" onclick="App.switchResTab('actions')">📋 Missing Info & Actions (<span id="res-actions-count">0</span>)</button>
+              <button class="tab-btn" data-res-tab="statutes" onclick="App.switchResTab('statutes')">⚖️ Statutory References (<span id="res-statutes-count">0</span>)</button>
             </div>
 
             <!-- TAB 1: PARTIES -->
@@ -2272,7 +2388,7 @@
                 <h3 class="card-title">Recent Document Analyses</h3>
                 <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Inspect past analyzed documents and case briefs.</p>
               </div>
-              <button class="btn btn-secondary btn-sm" onclick="App.loadAnalysisHistory()">â†» Refresh</button>
+              <button class="btn btn-secondary btn-sm" onclick="App.loadAnalysisHistory()">↻ Refresh</button>
             </div>
             <div id="analysis-history-container">
               <div class="spinner"></div>
@@ -2357,9 +2473,9 @@
                   Details</span>
                 <div
                   style="margin-top: 8px; font-size: 13.5px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 6px;">
-                  <div>ðŸ“§ <span id="prof-email">-</span></div>
-                  <div>ðŸ“ž <span id="prof-phone">-</span></div>
-                  <div>ðŸ“ <span id="prof-location">-</span></div>
+                  <div>📧 <span id="prof-email">-</span></div>
+                  <div>📞 <span id="prof-phone">-</span></div>
+                  <div>📍 <span id="prof-location">-</span></div>
                 </div>
               </div>
             </div>
@@ -2383,13 +2499,13 @@
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
               <!-- Quick Language Switch on Home Page -->
               <div class="dash-lang-quick-switch" style="display: inline-flex; align-items: center; gap: 3px; padding: 3px 6px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); font-size: 11.5px;">
-                <span style="font-size: 12px; margin-right: 2px;">ðŸŒ</span>
+                <span style="font-size: 12px; margin-right: 2px;">🌐</span>
                 <button type="button" class="btn btn-sm btn-secondary dash-lang-btn active" id="dash-lang-en" onclick="App.setLanguage('en')" style="padding: 2px 6px; font-size: 11px; border-radius: var(--radius-sm);">EN</button>
-                <button type="button" class="btn btn-sm btn-secondary dash-lang-btn" id="dash-lang-hi" onclick="App.setLanguage('hi')" style="padding: 2px 6px; font-size: 11px; border-radius: var(--radius-sm);">à¤¹à¤¿à¤¨à¥à¤¦à¥€</button>
-                <button type="button" class="btn btn-sm btn-secondary dash-lang-btn" id="dash-lang-mr" onclick="App.setLanguage('mr')" style="padding: 2px 6px; font-size: 11px; border-radius: var(--radius-sm);">à¤®à¤°à¤¾à¤ à¥€</button>
+                <button type="button" class="btn btn-sm btn-secondary dash-lang-btn" id="dash-lang-hi" onclick="App.setLanguage('hi')" style="padding: 2px 6px; font-size: 11px; border-radius: var(--radius-sm);">हिंदी</button>
+                <button type="button" class="btn btn-sm btn-secondary dash-lang-btn" id="dash-lang-mr" onclick="App.setLanguage('mr')" style="padding: 2px 6px; font-size: 11px; border-radius: var(--radius-sm);">मराठी</button>
               </div>
               <button class="btn btn-secondary btn-sm" onclick="App.navigate('documentation')">
-                ðŸ“‹ Procedure Checklists
+                📋 Procedure Checklists
               </button>
               <button class="btn btn-primary btn-sm" onclick="App.openCitizenNewCaseModal()">
                 + File New Matter
@@ -2401,7 +2517,7 @@
           <div class="ask-vidhik-hero" style="margin-bottom: 24px;">
             <div class="ask-vidhik-header">
               <div class="ask-vidhik-title-wrap">
-                <div class="ask-vidhik-badge" onclick="App.navigate('research')" style="cursor: pointer;" title="Open Ask VIDHIK AI Workspace">âœ¨ Ask VIDHIK</div>
+                <div class="ask-vidhik-badge" onclick="App.navigate('research')" style="cursor: pointer;" title="Open Ask VIDHIK AI Workspace">✨ Ask VIDHIK</div>
                 <h3 class="ask-vidhik-title" onclick="App.navigate('research')" style="cursor: pointer;" title="Open Ask VIDHIK AI Workspace">Intelligent Indian Legal Workspace</h3>
                 <p class="ask-vidhik-subtitle">Ask about Indian law, your case, or a legal provision across BNS, BNSS, BSA & 24 Bare Acts.</p>
               </div>
@@ -2424,12 +2540,12 @@
             <div class="ask-vidhik-suggestions">
               <span class="suggestion-label">Suggested:</span>
               <div class="suggestion-chips-list">
-                <button type="button" class="suggestion-chip" onclick="App.handleAskVidhikChip('BNS')">âš–ï¸ BNS</button>
-                <button type="button" class="suggestion-chip" onclick="App.handleAskVidhikChip('BNSS')">ðŸ“œ BNSS</button>
-                <button type="button" class="suggestion-chip" onclick="App.handleAskVidhikChip('BSA')">ðŸ” BSA</button>
-                <button type="button" class="suggestion-chip" onclick="App.handleAskVidhikChip('24 Bare Acts')">ðŸ“š Bare Acts</button>
-                <button type="button" class="suggestion-chip" onclick="App.handleAskVidhikChip('My Cases')">ðŸ“ My Cases</button>
-                <button type="button" class="suggestion-chip" onclick="App.handleAskVidhikChip('Legal Rights')">ðŸ›¡ï¸ Legal Rights</button>
+                <button type="button" class="suggestion-chip" onclick="App.handleAskVidhikChip('BNS')">⚖️ BNS</button>
+                <button type="button" class="suggestion-chip" onclick="App.handleAskVidhikChip('BNSS')">📜 BNSS</button>
+                <button type="button" class="suggestion-chip" onclick="App.handleAskVidhikChip('BSA')">🔍 BSA</button>
+                <button type="button" class="suggestion-chip" onclick="App.handleAskVidhikChip('24 Bare Acts')">📚 Bare Acts</button>
+                <button type="button" class="suggestion-chip" onclick="App.handleAskVidhikChip('My Cases')">📁 My Cases</button>
+                <button type="button" class="suggestion-chip" onclick="App.handleAskVidhikChip('Legal Rights')">🛡️ Legal Rights</button>
               </div>
             </div>
           </div>
@@ -2446,48 +2562,48 @@
               <div class="metric-card indigo" onclick="App.navigate('citizen-cases')" style="cursor: pointer;" title="View all active matters">
                 <div class="metric-card-header">
                   <span class="metric-label">Active Matters</span>
-                  <div class="metric-icon-wrap">âš–ï¸</div>
+                  <div class="metric-icon-wrap">⚖️</div>
                 </div>
                 <div class="metric-value" id="kpi-citizen-cases">0</div>
                 <div style="font-size: 11.5px; color: var(--accent-cyan); margin-top: 4px; display: flex; align-items: center; justify-content: space-between;">
                   <span>Registered matters</span>
-                  <span>View â†’</span>
+                  <span>View →</span>
                 </div>
               </div>
 
               <div class="metric-card cyan" onclick="App.navigate('citizen-documents')" style="cursor: pointer;" title="View all case documents">
                 <div class="metric-card-header">
                   <span class="metric-label">Case Documents</span>
-                  <div class="metric-icon-wrap">ðŸ“„</div>
+                  <div class="metric-icon-wrap">📄</div>
                 </div>
                 <div class="metric-value" id="kpi-citizen-docs">0</div>
                 <div style="font-size: 11.5px; color: var(--accent-cyan); margin-top: 4px; display: flex; align-items: center; justify-content: space-between;">
                   <span>Uploaded briefs</span>
-                  <span>View â†’</span>
+                  <span>View →</span>
                 </div>
               </div>
 
               <div class="metric-card amber" onclick="App.scrollToHearings()" style="cursor: pointer;" title="View scheduled court appearances">
                 <div class="metric-card-header">
                   <span class="metric-label">Upcoming Hearings</span>
-                  <div class="metric-icon-wrap">ðŸ“…</div>
+                  <div class="metric-icon-wrap">📅</div>
                 </div>
                 <div class="metric-value" id="kpi-citizen-hearings">0</div>
                 <div style="font-size: 11.5px; color: var(--accent-amber); margin-top: 4px; display: flex; align-items: center; justify-content: space-between;">
                   <span>Court appearances</span>
-                  <span>View â†’</span>
+                  <span>View →</span>
                 </div>
               </div>
 
               <div class="metric-card rose" onclick="App.navigate('citizen-bookmarks')" style="cursor: pointer;" title="View bookmarked statutory sections">
                 <div class="metric-card-header">
                   <span class="metric-label">Saved Provisions</span>
-                  <div class="metric-icon-wrap">ðŸ”–</div>
+                  <div class="metric-icon-wrap">🔖</div>
                 </div>
                 <div class="metric-value" id="kpi-citizen-bookmarks">0</div>
                 <div style="font-size: 11.5px; color: var(--accent-rose); margin-top: 4px; display: flex; align-items: center; justify-content: space-between;">
                   <span>Saved provisions</span>
-                  <span>View â†’</span>
+                  <span>View →</span>
                 </div>
               </div>
             </div>
@@ -2505,7 +2621,7 @@
               <!-- Tile 1: AI Assistant -->
               <div class="card" onclick="App.navigate('ai-assistant')" style="cursor: pointer; padding: 16px; border-left: 3px solid #6366F1; transition: var(--transition);">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                  <span style="font-size: 24px;">ðŸ’¬</span>
+                  <span style="font-size: 24px;">💬</span>
                   <span class="badge badge-active" style="font-size: 10px;">BNS RAG</span>
                 </div>
                 <h4 style="font-size: 14.5px; font-weight: 700; margin-bottom: 4px; color: var(--text-primary);">AI Legal Assistant</h4>
@@ -2515,7 +2631,7 @@
               <!-- Tile 2: Complaint / FIR -->
               <div class="card" onclick="App.navigate('complaint-generator')" style="cursor: pointer; padding: 16px; border-left: 3px solid #06B6D4; transition: var(--transition);">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                  <span style="font-size: 24px;">ðŸ“</span>
+                  <span style="font-size: 24px;">📝</span>
                   <span class="badge" style="font-size: 10px; background: rgba(6, 182, 212, 0.15); color: #06B6D4;">BNSS 173</span>
                 </div>
                 <h4 style="font-size: 14.5px; font-weight: 700; margin-bottom: 4px; color: var(--text-primary);">Complaint / FIR Draft</h4>
@@ -2525,7 +2641,7 @@
               <!-- Tile 3: Dispute Resolution -->
               <div class="card" onclick="App.navigate('resolution')" style="cursor: pointer; padding: 16px; border-left: 3px solid #10B981; transition: var(--transition);">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                  <span style="font-size: 24px;">âš–ï¸</span>
+                  <span style="font-size: 24px;">⚖️</span>
                   <span class="badge" style="font-size: 10px; background: rgba(16, 185, 129, 0.15); color: #10B981;">Triage</span>
                 </div>
                 <h4 style="font-size: 14.5px; font-weight: 700; margin-bottom: 4px; color: var(--text-primary);">Dispute Resolution</h4>
@@ -2535,7 +2651,7 @@
               <!-- Tile 4: Traffic Law -->
               <div class="card" onclick="App.navigate('traffic-law')" style="cursor: pointer; padding: 16px; border-left: 3px solid #F59E0B; transition: var(--transition);">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                  <span style="font-size: 24px;">ðŸš¦</span>
+                  <span style="font-size: 24px;">🚦</span>
                   <span class="badge" style="font-size: 10px; background: rgba(245, 158, 11, 0.15); color: #F59E0B;">MVA 2019</span>
                 </div>
                 <h4 style="font-size: 14.5px; font-weight: 700; margin-bottom: 4px; color: var(--text-primary);">Traffic Law & Fines</h4>
@@ -2545,7 +2661,7 @@
               <!-- Tile 5: Constitutional Rights -->
               <div class="card" onclick="App.navigate('constitutional-rights')" style="cursor: pointer; padding: 16px; border-left: 3px solid #8B5CF6; transition: var(--transition);">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                  <span style="font-size: 24px;">ðŸ“œ</span>
+                  <span style="font-size: 24px;">📜</span>
                   <span class="badge" style="font-size: 10px; background: rgba(139, 92, 246, 0.15); color: #8B5CF6;">Part III</span>
                 </div>
                 <h4 style="font-size: 14.5px; font-weight: 700; margin-bottom: 4px; color: var(--text-primary);">Constitutional Rights</h4>
@@ -2555,7 +2671,7 @@
               <!-- Tile 6: Authority Finder -->
               <div class="card" onclick="App.navigate('authority-recommendation')" style="cursor: pointer; padding: 16px; border-left: 3px solid #EC4899; transition: var(--transition);">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                  <span style="font-size: 24px;">ðŸ›ï¸</span>
+                  <span style="font-size: 24px;">🏛️</span>
                   <span class="badge" style="font-size: 10px; background: rgba(236, 72, 153, 0.15); color: #EC4899;">Forums</span>
                 </div>
                 <h4 style="font-size: 14.5px; font-weight: 700; margin-bottom: 4px; color: var(--text-primary);">Authority Finder</h4>
@@ -2565,7 +2681,7 @@
               <!-- Tile 7: Find a Lawyer -->
               <div class="card" onclick="App.navigate('find-lawyer')" style="cursor: pointer; padding: 16px; border-left: 3px solid #14B8A6; transition: var(--transition);">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                  <span style="font-size: 24px;">ðŸ§‘â€âš–ï¸</span>
+                  <span style="font-size: 24px;">🧑‍⚖️</span>
                   <span class="badge" style="font-size: 10px; background: rgba(20, 184, 166, 0.15); color: #14B8A6;">Advocates</span>
                 </div>
                 <h4 style="font-size: 14.5px; font-weight: 700; margin-bottom: 4px; color: var(--text-primary);">Find a Lawyer</h4>
@@ -2575,7 +2691,7 @@
               <!-- Tile 8: eCourts Case Tracking -->
               <div class="card" onclick="App.navigate('case-tracking')" style="cursor: pointer; padding: 16px; border-left: 3px solid #3B82F6; transition: var(--transition);">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                  <span style="font-size: 24px;">ðŸ”</span>
+                  <span style="font-size: 24px;">🔍</span>
                   <span class="badge" style="font-size: 10px; background: rgba(59, 130, 246, 0.15); color: #3B82F6;">eCourts</span>
                 </div>
                 <h4 style="font-size: 14.5px; font-weight: 700; margin-bottom: 4px; color: var(--text-primary);">eCourts Tracking</h4>
@@ -2585,7 +2701,7 @@
               <!-- Tile 9: Voice Assistant -->
               <div class="card" onclick="App.navigate('voice-assistant')" style="cursor: pointer; padding: 16px; border-left: 3px solid #06B6D4; transition: var(--transition);">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                  <span style="font-size: 24px;">ðŸŽ™ï¸</span>
+                  <span style="font-size: 24px;">🎙️</span>
                   <span class="badge" style="font-size: 10px; background: rgba(6, 182, 212, 0.15); color: #06B6D4;">Voice</span>
                 </div>
                 <h4 style="font-size: 14.5px; font-weight: 700; margin-bottom: 4px; color: var(--text-primary);">Voice Assistant</h4>
@@ -2595,7 +2711,7 @@
               <!-- Tile 10: Legal Knowledge -->
               <div class="card" onclick="App.navigate('legal-knowledge')" style="cursor: pointer; padding: 16px; border-left: 3px solid #6366F1; transition: var(--transition);">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                  <span style="font-size: 24px;">ðŸ“š</span>
+                  <span style="font-size: 24px;">📚</span>
                   <span class="badge" style="font-size: 10px; background: rgba(99, 102, 241, 0.15); color: #6366F1;">24 Acts</span>
                 </div>
                 <h4 style="font-size: 14.5px; font-weight: 700; margin-bottom: 4px; color: var(--text-primary);">Legal Knowledge</h4>
@@ -2613,7 +2729,7 @@
               <div class="card" style="margin-bottom: 24px;">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
                   <h3 class="card-title">My Active Legal Matters</h3>
-                  <button class="btn btn-secondary btn-sm" onclick="App.navigate('citizen-cases')" style="font-size: 11.5px; padding: 4px 8px;">View All Cases â†’</button>
+                  <button class="btn btn-secondary btn-sm" onclick="App.navigate('citizen-cases')" style="font-size: 11.5px; padding: 4px 8px;">View All Cases →</button>
                 </div>
                 <div id="citizen-dash-cases-list">
                   <div class="spinner"></div>
@@ -2633,8 +2749,8 @@
               <!-- Recent Case Documents Card -->
               <div class="card" style="margin-bottom: 24px;">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
-                  <h3 class="card-title">ðŸ“„ Recent Case Documents</h3>
-                  <button class="btn btn-secondary btn-sm" onclick="App.navigate('citizen-documents')" style="font-size: 11.5px; padding: 4px 8px;">View All Docs â†’</button>
+                  <h3 class="card-title">📄 Recent Case Documents</h3>
+                  <button class="btn btn-secondary btn-sm" onclick="App.navigate('citizen-documents')" style="font-size: 11.5px; padding: 4px 8px;">View All Docs →</button>
                 </div>
                 <div id="citizen-dash-documents-list">
                   <div class="spinner"></div>
@@ -2644,8 +2760,8 @@
               <!-- Procedure Checklists Progress Card -->
               <div class="card">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
-                  <h3 class="card-title">ðŸ“‹ Tracked Procedure Progress</h3>
-                  <button class="btn btn-secondary btn-sm" onclick="App.navigate('documentation')" style="font-size: 11.5px; padding: 4px 8px;">Explore Procedures â†’</button>
+                  <h3 class="card-title">📋 Tracked Procedure Progress</h3>
+                  <button class="btn btn-secondary btn-sm" onclick="App.navigate('documentation')" style="font-size: 11.5px; padding: 4px 8px;">Explore Procedures →</button>
                 </div>
                 <div id="citizen-dash-procedures-list">
                   <div class="spinner"></div>
@@ -2660,16 +2776,16 @@
                 <h3 class="card-title" style="margin-bottom: 14px;">Quick Actions</h3>
                 <div class="quick-actions-grid">
                   <button class="btn btn-secondary quick-action-btn" onclick="App.navigate('document-analysis')">
-                    ðŸ” <strong>Analyze Contract</strong>
+                    🔍 <strong>Analyze Contract</strong>
                   </button>
                   <button class="btn btn-secondary quick-action-btn" onclick="App.navigate('documentation')">
-                    ðŸ“‹ <strong>Document Checklists</strong>
+                    📋 <strong>Document Checklists</strong>
                   </button>
                   <button class="btn btn-secondary quick-action-btn" onclick="App.navigate('research')">
-                    âš–ï¸ <strong>Research Laws</strong>
+                    ⚖️ <strong>Research Laws</strong>
                   </button>
                   <button class="btn btn-secondary quick-action-btn" onclick="App.navigate('citizen-bookmarks')">
-                    ðŸ”– <strong>Saved Laws</strong>
+                    🔖 <strong>Saved Laws</strong>
                   </button>
                 </div>
               </div>
@@ -2677,8 +2793,8 @@
               <!-- Saved Provisions Card -->
               <div class="card" style="margin-bottom: 24px;">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
-                  <h3 class="card-title">ðŸ”– Saved Provisions</h3>
-                  <button class="btn btn-secondary btn-sm" onclick="App.navigate('citizen-bookmarks')" style="font-size: 11.5px; padding: 4px 8px;">View All Bookmarks â†’</button>
+                  <h3 class="card-title">🔖 Saved Provisions</h3>
+                  <button class="btn btn-secondary btn-sm" onclick="App.navigate('citizen-bookmarks')" style="font-size: 11.5px; padding: 4px 8px;">View All Bookmarks →</button>
                 </div>
                 <div id="citizen-dash-bookmarks-list">
                   <div class="spinner"></div>
@@ -2699,8 +2815,8 @@
               <!-- Recent Legal Searches -->
               <div class="card" style="margin-bottom: 24px;">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
-                  <h3 class="card-title">ðŸ” Recent Legal Searches</h3>
-                  <button class="btn btn-secondary btn-sm" onclick="App.navigate('citizen-search-history')" style="font-size: 11.5px; padding: 4px 8px;">History â†’</button>
+                  <h3 class="card-title">🔍 Recent Legal Searches</h3>
+                  <button class="btn btn-secondary btn-sm" onclick="App.navigate('citizen-search-history')" style="font-size: 11.5px; padding: 4px 8px;">History →</button>
                 </div>
                 <div id="citizen-dash-searches-list">
                   <div class="spinner"></div>
@@ -2711,7 +2827,7 @@
               <div class="card">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
                   <h3 class="card-title">Recent Case Updates & Alerts</h3>
-                  <button class="btn btn-secondary btn-sm" onclick="App.navigate('citizen-notifications')" style="font-size: 11.5px; padding: 4px 8px;">View All â†’</button>
+                  <button class="btn btn-secondary btn-sm" onclick="App.navigate('citizen-notifications')" style="font-size: 11.5px; padding: 4px 8px;">View All →</button>
                 </div>
                 <div id="citizen-dash-notifs-list">
                   <div class="spinner"></div>
@@ -2757,7 +2873,7 @@
         <!-- ============================================================== -->
         <section id="view-citizen-case-detail" class="view-panel" style="display: none;">
           <div style="margin-bottom: 18px;">
-            <button class="btn btn-secondary btn-sm" onclick="App.navigate('citizen-cases')">â† Back to My Cases</button>
+            <button class="btn btn-secondary btn-sm" onclick="App.navigate('citizen-cases')">← Back to My Cases</button>
           </div>
 
           <div class="card" style="margin-bottom: 24px;">
@@ -2775,7 +2891,7 @@
                 <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Assigned Counsel</div>
                 <div style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin-top: 2px;" id="c-detail-lawyer-name">Adv. Rajesh Deshmukh</div>
                 <div style="font-size: 12px; color: var(--accent-cyan);" id="c-detail-lawyer-spec">Constitutional Law</div>
-                <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;" id="c-detail-lawyer-contact">ðŸ“ž +91 98201 54321</div>
+                <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;" id="c-detail-lawyer-contact">📞 +91 98201 54321</div>
               </div>
             </div>
           </div>
@@ -2885,7 +3001,7 @@
               <p class="page-subtitle">Your personal reference collection of legal sections from Central & State Acts.</p>
             </div>
             <button class="btn btn-secondary btn-sm" onclick="App.navigate('research')">
-              ðŸ” Discover More in Legal Research
+              🔍 Discover More in Legal Research
             </button>
           </div>
 
@@ -2910,10 +3026,10 @@
             </div>
             <div style="display: flex; gap: 10px;">
               <button class="btn btn-secondary btn-sm" onclick="App.navigate('research')">
-                ðŸ” New Legal Search
+                🔍 New Legal Search
               </button>
               <button class="btn btn-danger btn-sm" id="btn-clear-search-history" onclick="App.clearSearchHistory()">
-                ðŸ—‘ï¸ Clear History
+                🗑️ Clear History
               </button>
             </div>
           </div>
@@ -2939,7 +3055,7 @@
             </div>
             <div style="display: flex; gap: 10px;">
               <button class="btn btn-secondary btn-sm" onclick="App.markAllNotificationsRead()">
-                âœ“ Mark All as Read
+                ✓ Mark All as Read
               </button>
             </div>
           </div>
@@ -3010,8 +3126,8 @@
                     <label class="form-label">Preferred Language</label>
                     <select id="c-prof-lang" class="form-control">
                       <option value="en">English</option>
-                      <option value="mr">Marathi (à¤®à¤°à¤¾à¤ à¥€)</option>
-                      <option value="hi">Hindi (à¤¹à¤¿à¤‚à¤¦à¥€)</option>
+                      <option value="mr">Marathi (मराठी)</option>
+                      <option value="hi">Hindi (हिंदी)</option>
                     </select>
                   </div>
                 </div>
@@ -3070,7 +3186,7 @@
               <p class="page-subtitle">Conversational legal intelligence strictly grounded in 869 Central & State Acts, Bharatiya Nyaya Sanhita (BNS), BNSS, BSA & Indian Constitution.</p>
             </div>
             <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
-              <span class="badge badge-active" id="ai-grounding-indicator">â— Zero-Hallucination Verified</span>
+              <span class="badge badge-active" id="ai-grounding-indicator">● Zero-Hallucination Verified</span>
               <button type="button" class="btn btn-secondary btn-sm" onclick="App.newAiChat()" title="Start New Conversation">
                 + New Chat
               </button>
@@ -3079,7 +3195,7 @@
 
           <!-- Mandatory Legal Disclaimer Banner -->
           <div class="disclaimer-banner" style="margin-bottom: 16px;">
-            <span style="font-size: 20px;">âš–ï¸</span>
+            <span style="font-size: 20px;">⚖️</span>
             <div style="flex: 1; font-size: 12.5px; line-height: 1.5;">
               <strong>Statutory Legal Disclaimer:</strong> VIDHIK provides AI-assisted legal research strictly grounded in verified Indian statutes and judicial rulings. It is designed for informational and procedural assistance and does not constitute formal legal counsel. For court representation, consult a licensed advocate.
             </div>
@@ -3094,7 +3210,7 @@
               <!-- Landing State (Shown when thread is empty) -->
               <div id="ai-chat-landing" style="margin: auto; max-width: 720px; text-align: center; padding: 20px 10px;">
                 <div style="width: 58px; height: 58px; border-radius: 16px; background: linear-gradient(135deg, #4338CA, #06B6D4); color: #FFF; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 16px; box-shadow: var(--shadow-glow);">
-                  âš–ï¸
+                  ⚖️
                 </div>
                 <h3 style="font-size: 22px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">What legal question can I assist you with today?</h3>
                 <p style="font-size: 13.5px; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px;">
@@ -3103,31 +3219,31 @@
 
                 <!-- Category Shortcuts -->
                 <div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 24px;">
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="App.askAiCategory('Criminal Law & BNS')">âš–ï¸ Criminal Law (BNS)</button>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="App.askAiCategory('Police Procedure & FIR')">ðŸ“œ Police & BNSS</button>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="App.askAiCategory('Consumer Rights')">ðŸ›ï¸ Consumer Rights</button>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="App.askAiCategory('Property & Tenancy')">ðŸ  Property & Rent</button>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="App.askAiCategory('Traffic & MV Act')">ðŸš¦ Traffic Law</button>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="App.askAiCategory('Cyber Crime & BSA')">ðŸ’» Cyber Crime</button>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="App.askAiCategory('Criminal Law & BNS')">⚖️ Criminal Law (BNS)</button>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="App.askAiCategory('Police Procedure & FIR')">📜 Police & BNSS</button>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="App.askAiCategory('Consumer Rights')">🛍️ Consumer Rights</button>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="App.askAiCategory('Property & Tenancy')">🏠 Property & Rent</button>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="App.askAiCategory('Traffic & MV Act')">🚦 Traffic Law</button>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="App.askAiCategory('Cyber Crime & BSA')">💻 Cyber Crime</button>
                 </div>
 
                 <!-- Example Questions Grid -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; text-align: left;">
                   <div class="card" onclick="App.askAiSample('What is the punishment for theft under BNS Section 303 compared to old IPC Section 379?')" style="cursor: pointer; padding: 12px 14px; font-size: 13px; line-height: 1.4; border: 1px solid var(--border-subtle); transition: var(--transition);" onmouseover="this.style.borderColor='var(--accent-primary)'" onmouseout="this.style.borderColor='var(--border-subtle)'">
                     <span style="color: var(--accent-primary); font-weight: 600;">Theft & BNS</span>
-                    <div style="margin-top: 4px; color: var(--text-secondary);">"What is the punishment for theft under BNS Section 303 compared to old IPC Section 379?" â†’</div>
+                    <div style="margin-top: 4px; color: var(--text-secondary);">"What is the punishment for theft under BNS Section 303 compared to old IPC Section 379?" →</div>
                   </div>
                   <div class="card" onclick="App.askAiSample('Can police refuse to file an FIR for a cognizable offence under BNSS Section 173?')" style="cursor: pointer; padding: 12px 14px; font-size: 13px; line-height: 1.4; border: 1px solid var(--border-subtle); transition: var(--transition);" onmouseover="this.style.borderColor='var(--accent-primary)'" onmouseout="this.style.borderColor='var(--border-subtle)'">
                     <span style="color: var(--accent-cyan); font-weight: 600;">Mandatory FIR</span>
-                    <div style="margin-top: 4px; color: var(--text-secondary);">"Can police refuse to file an FIR for a cognizable offence under BNSS Section 173?" â†’</div>
+                    <div style="margin-top: 4px; color: var(--text-secondary);">"Can police refuse to file an FIR for a cognizable offence under BNSS Section 173?" →</div>
                   </div>
                   <div class="card" onclick="App.askAiSample('What are my rights if traffic police seize my driver licence on the spot?')" style="cursor: pointer; padding: 12px 14px; font-size: 13px; line-height: 1.4; border: 1px solid var(--border-subtle); transition: var(--transition);" onmouseover="this.style.borderColor='var(--accent-primary)'" onmouseout="this.style.borderColor='var(--border-subtle)'">
                     <span style="color: var(--accent-amber); font-weight: 600;">Traffic Police Stop</span>
-                    <div style="margin-top: 4px; color: var(--text-secondary);">"What are my rights if traffic police seize my driver licence on the spot?" â†’</div>
+                    <div style="margin-top: 4px; color: var(--text-secondary);">"What are my rights if traffic police seize my driver licence on the spot?" →</div>
                   </div>
                   <div class="card" onclick="App.askAiSample('What legal remedy is available if a landlord refuses to refund my security deposit?')" style="cursor: pointer; padding: 12px 14px; font-size: 13px; line-height: 1.4; border: 1px solid var(--border-subtle); transition: var(--transition);" onmouseover="this.style.borderColor='var(--accent-primary)'" onmouseout="this.style.borderColor='var(--border-subtle)'">
                     <span style="color: var(--accent-emerald); font-weight: 600;">Tenancy Dispute</span>
-                    <div style="margin-top: 4px; color: var(--text-secondary);">"What legal remedy is available if a landlord refuses to refund my security deposit?" â†’</div>
+                    <div style="margin-top: 4px; color: var(--text-secondary);">"What legal remedy is available if a landlord refuses to refund my security deposit?" →</div>
                   </div>
                 </div>
               </div>
@@ -3146,14 +3262,14 @@
                 
                 <!-- Voice button -->
                 <button type="button" class="btn btn-secondary" id="btn-ai-voice" onclick="App.startSpeechInputForChat()" title="Speak your question (English / Hindi / Marathi)" style="padding: 10px 12px; height: 42px;">
-                  ðŸŽ™ï¸
+                  🎙️
                 </button>
 
                 <!-- Language Pill Dropdown -->
                 <select id="ai-chat-lang" class="form-control" style="width: auto; height: 42px; font-size: 12.5px; padding: 0 10px; font-weight: 600;" title="Select Response Language">
                   <option value="en">English</option>
-                  <option value="hi">à¤¹à¤¿à¤¨à¥à¤¦à¥€ (Hindi)</option>
-                  <option value="mr">à¤®à¤°à¤¾à¤ à¥€ (Marathi)</option>
+                  <option value="hi">हिंदी (Hindi)</option>
+                  <option value="mr">मराठी (Marathi)</option>
                 </select>
 
                 <!-- Textarea -->
@@ -3171,7 +3287,7 @@
               </form>
               <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 11px; color: var(--text-muted);">
                 <span>Press <strong>Enter</strong> to send, <strong>Shift + Enter</strong> for new line</span>
-                <span>Grounded Retrieval â€¢ Zero Fabrication Guarantee</span>
+                <span>Grounded Retrieval • Zero Fabrication Guarantee</span>
               </div>
             </div>
 
@@ -3215,7 +3331,7 @@
             <form id="form-complaint-generator" onsubmit="App.handleGenerateComplaintSubmit(event)">
               <div class="card" style="margin-bottom: 20px;">
                 <h3 class="card-title" style="margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-                  <span>ðŸ“Œ</span> Incident Details & Classification
+                  <span>📌</span> Incident Details & Classification
                 </h3>
                 
                 <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 14px;">
@@ -3252,8 +3368,8 @@
                     <label class="form-label">Language of Output Draft</label>
                     <select id="cg-language" class="form-control">
                       <option value="en">English (Standard Legal Petition)</option>
-                      <option value="hi">à¤¹à¤¿à¤¨à¥à¤¦à¥€ (Hindi)</option>
-                      <option value="mr">à¤®à¤°à¤¾à¤ à¥€ (Marathi)</option>
+                      <option value="hi">हिंदी (Hindi)</option>
+                      <option value="mr">मराठी (Marathi)</option>
                     </select>
                   </div>
                 </div>
@@ -3262,7 +3378,7 @@
                   <label class="form-label">Detailed Chronological Narrative of the Incident *</label>
                   <textarea id="cg-incident-desc" class="form-control" rows="5" required placeholder="State facts in chronological order: What happened, where, who was involved, what was stolen or damaged, and any specific statements made..." style="font-size: 13.5px; line-height: 1.6;"></textarea>
                   <span style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px; display: block;">
-                    ðŸ’¡ Tip: Focus on verifiable facts (times, places, sequence of events) without conjecture or exaggerated language.
+                    💡 Tip: Focus on verifiable facts (times, places, sequence of events) without conjecture or exaggerated language.
                   </span>
                 </div>
               </div>
@@ -3270,7 +3386,7 @@
               <!-- Complainant & Accused Parties Card -->
               <div class="card" style="margin-bottom: 20px;">
                 <h3 class="card-title" style="margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-                  <span>ðŸ‘¥</span> Complainant & Accused Information
+                  <span>👥</span> Complainant & Accused Information
                 </h3>
 
                 <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; gap: 20px;">
@@ -3342,7 +3458,7 @@
               <!-- Submit Form Button -->
               <div style="display: flex; justify-content: flex-end; gap: 12px;">
                 <button type="submit" id="btn-cg-generate" class="btn btn-primary" style="padding: 12px 28px; font-size: 15px;">
-                  <span>ðŸš€ Generate Formal Legal Complaint Draft</span>
+                  <span>🚀 Generate Formal Legal Complaint Draft</span>
                 </button>
               </div>
             </form>
@@ -3358,10 +3474,10 @@
               </p>
 
               <div style="background: var(--bg-elevated); border-radius: var(--radius-sm); padding: 14px; text-align: left; font-size: 12.5px; line-height: 1.8; color: var(--text-secondary);">
-                <div>âœ“ Factual input sanitization & anti-fabrication screening</div>
-                <div>âœ“ Deterministic retrieval of applicable BNS criminal offences</div>
-                <div>âœ“ BNSS Section 173(2) mandatory police procedure formatting</div>
-                <div>â³ Generating structured legal prayer and signature blocks...</div>
+                <div>✓ Factual input sanitization & anti-fabrication screening</div>
+                <div>✓ Deterministic retrieval of applicable BNS criminal offences</div>
+                <div>✓ BNSS Section 173(2) mandatory police procedure formatting</div>
+                <div>⏳ Generating structured legal prayer and signature blocks...</div>
               </div>
             </div>
           </div>
@@ -3373,29 +3489,29 @@
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
               <div style="display: flex; align-items: center; gap: 8px;">
                 <button type="button" class="btn btn-secondary btn-sm" onclick="App.switchCgStep(1)">
-                  â† Edit Information
+                  ← Edit Information
                 </button>
                 <span class="badge badge-active" id="cg-draft-badge-status">Draft Generated</span>
               </div>
               <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                 <button type="button" class="btn btn-primary btn-sm" id="btn-cg-download-docx" onclick="App.downloadComplaintDocx()">
-                  ðŸ“¥ Download Word (.docx)
+                  📥 Download Word (.docx)
                 </button>
                 <button type="button" class="btn btn-secondary btn-sm" onclick="App.printComplaintDraft()">
-                  ðŸ–¨ï¸ Print / Save PDF
+                  🖨️ Print / Save PDF
                 </button>
                 <button type="button" class="btn btn-secondary btn-sm" onclick="App.copyComplaintDraft()">
-                  ðŸ“‹ Copy Text
+                  📋 Copy Text
                 </button>
                 <button type="button" class="btn btn-secondary btn-sm" onclick="App.saveComplaintToDocuments()">
-                  ðŸ’¾ Save to My Documents
+                  💾 Save to My Documents
                 </button>
               </div>
             </div>
 
             <!-- Prominent Non-Filing Distinction Banner -->
             <div class="disclaimer-banner" style="margin-bottom: 20px; background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.4); color: #B45309;">
-              <span style="font-size: 22px;">âš ï¸</span>
+              <span style="font-size: 22px;">⚠️</span>
               <div style="flex: 1; font-size: 13px; line-height: 1.5;">
                 <strong>IMPORTANT CITIZEN NOTICE:</strong> This document is an <strong>AI-generated factual draft</strong> formatted in accordance with Section 173 of the Bharatiya Nagarik Suraksha Sanhita (BNSS), 2023. <strong>This does not constitute an officially registered First Information Report (FIR).</strong> You must print, sign, and submit this written complaint to the Station House Officer (SHO) of the jurisdictional Police Station, or submit it through your State Police online portal.
               </div>
@@ -3432,7 +3548,7 @@
             <!-- Left Pane: Problem Description Input Form -->
             <div class="card">
               <h3 class="card-title" style="margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-                <span>ðŸ“</span> Describe Your Legal Dispute
+                <span>📝</span> Describe Your Legal Dispute
               </h3>
 
               <form id="form-resolution" onsubmit="App.handleResolutionSubmit(event)">
@@ -3463,7 +3579,7 @@
 
                 <div class="form-group">
                   <label class="form-label">Current Situation / What Happened? *</label>
-                  <textarea id="res-situation" class="form-control" rows="6" required placeholder="Explain the factual dispute in detail: What was agreed upon, what went wrong, what has the opposing party said or refused, and what outcome are you seeking?" style="font-size: 13.5px; line-height: 1.6;">My landlord is refusing to return my â‚¹50,000 security deposit after I vacated the apartment in Pune upon completing the 11-month registered leave and license agreement. He is claiming arbitrary painting charges without providing any bills.</textarea>
+                  <textarea id="res-situation" class="form-control" rows="6" required placeholder="Explain the factual dispute in detail: What was agreed upon, what went wrong, what has the opposing party said or refused, and what outcome are you seeking?" style="font-size: 13.5px; line-height: 1.6;">My landlord is refusing to return my ₹50,000 security deposit after I vacated the apartment in Pune upon completing the 11-month registered leave and license agreement. He is claiming arbitrary painting charges without providing any bills.</textarea>
                 </div>
 
                 <div class="form-group">
@@ -3477,7 +3593,7 @@
                 </div>
 
                 <button type="submit" id="btn-res-evaluate" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 14px;">
-                  <span>âš–ï¸ Evaluate Legal Triage & Resolution Path</span>
+                  <span>⚖️ Evaluate Legal Triage & Resolution Path</span>
                 </button>
               </form>
             </div>
@@ -3485,7 +3601,7 @@
             <!-- Right Pane: Triage & Resolution Output -->
             <div id="res-output-container">
               <div class="card" style="text-align: center; padding: 48px 24px; color: var(--text-muted);">
-                <div style="font-size: 36px; margin-bottom: 12px;">âš–ï¸</div>
+                <div style="font-size: 36px; margin-bottom: 12px;">⚖️</div>
                 <h4 style="font-size: 16px; color: var(--text-primary); margin-bottom: 6px;">Awaiting Dispute Evaluation</h4>
                 <p style="font-size: 13px; line-height: 1.5; max-width: 380px; margin: 0 auto;">
                   Submit your dispute details on the left. The engine will evaluate statutory risk, recommend self-resolution vs lawyer consultation, and generate an actionable step-by-step resolution plan.
@@ -3518,16 +3634,16 @@
           <!-- Traffic Tabs -->
           <div class="tab-nav" style="margin-bottom: 20px;">
             <button type="button" class="tab-btn active" id="tab-traffic-fines" onclick="App.switchTrafficTab('fines')">
-              ðŸš¦ Violation & Fine Schedule
+              🚦 Violation & Fine Schedule
             </button>
             <button type="button" class="tab-btn" id="tab-traffic-rights" onclick="App.switchTrafficTab('rights')">
-              ðŸ›¡ï¸ Citizen Rights During Police Stop
+              🛡️ Citizen Rights During Police Stop
             </button>
             <button type="button" class="tab-btn" id="tab-traffic-virtual-court" onclick="App.switchTrafficTab('virtual-court')">
-              âš–ï¸ Contest e-Challan in Virtual Court
+              ⚖️ Contest e-Challan in Virtual Court
             </button>
             <button type="button" class="tab-btn" id="tab-traffic-calc" onclick="App.switchTrafficTab('calc')">
-              ðŸ§® Interactive Penalty Calculator
+              🧮 Interactive Penalty Calculator
             </button>
           </div>
 
@@ -3557,7 +3673,7 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px;">
               
               <div class="card" style="border-left: 4px solid var(--accent-rose);">
-                <h3 class="card-title" style="margin-bottom: 8px;">ðŸ”‘ Can Traffic Police Snatch Your Vehicle Keys?</h3>
+                <h3 class="card-title" style="margin-bottom: 8px;">🔑 Can Traffic Police Snatch Your Vehicle Keys?</h3>
                 <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #EF4444; margin-bottom: 10px;">Strictly Illegal</span>
                 <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">
                   Under Indian Motor Vehicles Law and official Police Standing Orders, a police officer <strong>cannot forcibly snatch or remove keys from the ignition</strong> of a moving or stationary vehicle. Doing so constitutes arbitrary physical restraint. You have the right to politely request the officer's name, buckle number, and demand that they issue an official e-Challan rather than physically seizing keys.
@@ -3565,7 +3681,7 @@
               </div>
 
               <div class="card" style="border-left: 4px solid var(--accent-amber);">
-                <h3 class="card-title" style="margin-bottom: 8px;">ðŸªª Can Police Confiscate Your Physical Licence?</h3>
+                <h3 class="card-title" style="margin-bottom: 8px;">🪪 Can Police Confiscate Your Physical Licence?</h3>
                 <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #F59E0B; margin-bottom: 10px;">Only Under Section 206(4)</span>
                 <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">
                   Under Section 206(4) of the Motor Vehicles Act, 1988, a physical licence can <strong>ONLY be impounded by an officer of Assistant Sub-Inspector (ASI) rank or above</strong>, and strictly for specified offences: drunk driving (Sec 185), dangerous driving (Sec 184), over-speeding (Sec 183), or carrying overload. The officer <strong>MUST issue a mandatory official temporary acknowledgment receipt</strong> on the spot.
@@ -3573,7 +3689,7 @@
               </div>
 
               <div class="card" style="border-left: 4px solid var(--accent-emerald);">
-                <h3 class="card-title" style="margin-bottom: 8px;">ðŸ“± Are DigiLocker & mParivahan Documents Valid?</h3>
+                <h3 class="card-title" style="margin-bottom: 8px;">📱 Are DigiLocker & mParivahan Documents Valid?</h3>
                 <span class="badge badge-active" style="margin-bottom: 10px;">100% Legally Binding</span>
                 <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">
                   Under <strong>Rule 139 of the Central Motor Vehicles Rules (CMVR), 1989</strong> and MoRTH Notification dated 17-12-2018, electronic documents produced through official DigiLocker or mParivahan apps carry the exact same legal status as original physical certificates. Police <strong>cannot compel physical production</strong> or issue a fine for not carrying physical cards.
@@ -3581,7 +3697,7 @@
               </div>
 
               <div class="card" style="border-left: 4px solid var(--accent-cyan);">
-                <h3 class="card-title" style="margin-bottom: 8px;">ðŸŒ¬ï¸ Breathalyzer Alcohol Testing Rules</h3>
+                <h3 class="card-title" style="margin-bottom: 8px;">🌬️ Breathalyzer Alcohol Testing Rules</h3>
                 <span class="badge" style="background: rgba(6, 182, 212, 0.15); color: #06B6D4; margin-bottom: 10px;">Section 203 & 204 MVA</span>
                 <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">
                   Police can request a breath test under Section 203. The citizen has the statutory right to request a <strong>fresh, sealed, sterile plastic pipe</strong> before blowing. If alcohol level exceeds 30 mg per 100 ml of blood (Section 185), police must take the driver for a medical blood test at a registered government hospital within 2 hours.
@@ -3589,7 +3705,7 @@
               </div>
 
               <div class="card" style="border-left: 4px solid var(--accent-primary);">
-                <h3 class="card-title" style="margin-bottom: 8px;">ðŸ‘© Special Protections for Female Drivers</h3>
+                <h3 class="card-title" style="margin-bottom: 8px;">👩 Special Protections for Female Drivers</h3>
                 <span class="badge" style="background: rgba(99, 102, 241, 0.15); color: #6366F1; margin-bottom: 10px;">BNSS Statutory Safeguards</span>
                 <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">
                   A female driver or passenger cannot be physically searched or bodily handled by a male police officer under any circumstances. Furthermore, under Section 43(5) of Bharatiya Nagarik Suraksha Sanhita (BNSS), 2023, female citizens cannot be detained or arrested between sunset and sunrise except under exceptional circumstances with prior Magistrate permission.
@@ -3597,7 +3713,7 @@
               </div>
 
               <div class="card" style="border-left: 4px solid #8B5CF6;">
-                <h3 class="card-title" style="margin-bottom: 8px;">ðŸ“¸ Right to Record Video of Police Encounter</h3>
+                <h3 class="card-title" style="margin-bottom: 8px;">📸 Right to Record Video of Police Encounter</h3>
                 <span class="badge badge-active" style="margin-bottom: 10px;">Citizen Constitutional Freedom</span>
                 <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">
                   Recording a public official conducting duties in a public place is a protected constitutional freedom under <strong>Article 19(1)(a)</strong> of the Constitution of India, provided it does not physically obstruct the officer from performing lawful duties. Police officers cannot confiscate your mobile phone simply for filming a traffic stop.
@@ -3652,10 +3768,10 @@
 
               <div style="margin-top: 20px; display: flex; gap: 10px;">
                 <a href="https://echallan.parivahan.gov.in" target="_blank" rel="noopener" class="btn btn-primary btn-sm">
-                  ðŸŒ Parivahan e-Challan Portal â†—
+                  🌐 Parivahan e-Challan Portal ↗
                 </a>
                 <a href="https://vcourts.gov.in" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">
-                  ðŸ›ï¸ Virtual Courts Portal (eCourts) â†—
+                  🏛️ Virtual Courts Portal (eCourts) ↗
                 </a>
               </div>
             </div>
@@ -3664,7 +3780,7 @@
           <!-- TAB 4: INTERACTIVE PENALTY CALCULATOR -->
           <div id="traffic-pane-calc" class="traffic-tab-pane" style="display: none;">
             <div class="card" style="max-width: 640px; margin: 0 auto;">
-              <h3 class="card-title" style="margin-bottom: 14px;">ðŸ§® Interactive Traffic Fine Calculator</h3>
+              <h3 class="card-title" style="margin-bottom: 14px;">🧮 Interactive Traffic Fine Calculator</h3>
               
               <div class="form-group">
                 <label class="form-label">Vehicle Type</label>
@@ -3717,7 +3833,7 @@
           <div class="page-header" style="margin-bottom: 16px;">
             <div>
               <div style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent-primary); margin-bottom: 3px;">
-                The Supreme Law of India â€¢ Part III
+                The Supreme Law of India • Part III
               </div>
               <h2 class="page-title">Constitutional Rights & Judicial Remedies</h2>
               <p class="page-subtitle">Fundamental Rights guaranteed under the Constitution of India, controlling Supreme Court landmark rulings, and constitutional writ remedies under Articles 32 & 226.</p>
@@ -3733,26 +3849,26 @@
             <div style="display: flex; gap: 12px; margin-bottom: 14px; flex-wrap: wrap;">
               <input type="text" id="const-search-input" class="form-control" placeholder="Search Fundamental Rights, Article number, or situation (e.g. Article 21, equality, arrest, privacy, speech)..." style="max-width: 480px;" oninput="App.filterConstitutionalRights()">
               <button type="button" class="btn btn-secondary btn-sm" onclick="App.openConstitutionEvaluator()">
-                âœ¨ Does this apply to my situation?
+                ✨ Does this apply to my situation?
               </button>
             </div>
 
             <!-- Pillars Category Bar -->
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
               <button type="button" class="tab-btn active" data-const-cat="all" onclick="App.filterConstCategory('all')">All Rights</button>
-              <button type="button" class="tab-btn" data-const-cat="equality" onclick="App.filterConstCategory('equality')">âš–ï¸ Equality (Art 14-18)</button>
-              <button type="button" class="tab-btn" data-const-cat="freedom" onclick="App.filterConstCategory('freedom')">ðŸ•Šï¸ Freedom (Art 19-22)</button>
-              <button type="button" class="tab-btn" data-const-cat="exploitation" onclick="App.filterConstCategory('exploitation')">ðŸ›¡ï¸ Against Exploitation (Art 23-24)</button>
-              <button type="button" class="tab-btn" data-const-cat="religion" onclick="App.filterConstCategory('religion')">ðŸ›• Religious Freedom (Art 25-28)</button>
-              <button type="button" class="tab-btn" data-const-cat="remedies" onclick="App.filterConstCategory('remedies')">ðŸ›ï¸ Writs & Remedies (Art 32/226)</button>
+              <button type="button" class="tab-btn" data-const-cat="equality" onclick="App.filterConstCategory('equality')">⚖️ Equality (Art 14-18)</button>
+              <button type="button" class="tab-btn" data-const-cat="freedom" onclick="App.filterConstCategory('freedom')">🕊️ Freedom (Art 19-22)</button>
+              <button type="button" class="tab-btn" data-const-cat="exploitation" onclick="App.filterConstCategory('exploitation')">🛡️ Against Exploitation (Art 23-24)</button>
+              <button type="button" class="tab-btn" data-const-cat="religion" onclick="App.filterConstCategory('religion')">🛕 Religious Freedom (Art 25-28)</button>
+              <button type="button" class="tab-btn" data-const-cat="remedies" onclick="App.filterConstCategory('remedies')">🏛️ Writs & Remedies (Art 32/226)</button>
             </div>
           </div>
 
           <!-- "Does this apply to my situation?" Interactive Evaluator Drawer (toggleable) -->
           <div id="const-evaluator-card" class="card" style="margin-bottom: 24px; border-left: 4px solid #8B5CF6; display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-              <h3 class="card-title">ðŸ” Interactive Citizen Constitutional Rights Checker</h3>
-              <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeConstitutionEvaluator()">âœ• Close</button>
+              <h3 class="card-title">🔍 Interactive Citizen Constitutional Rights Checker</h3>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeConstitutionEvaluator()">✕ Close</button>
             </div>
             <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 14px;">Select the legal situation you are facing to determine which constitutional provision protects you and what judicial remedy is available:</p>
             
@@ -3799,7 +3915,7 @@
             <!-- Left: Authority Finder Form -->
             <div class="card">
               <h3 class="card-title" style="margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-                <span>ðŸ›ï¸</span> Describe the Grievance
+                <span>🏛️</span> Describe the Grievance
               </h3>
 
               <form id="form-authority-finder" onsubmit="App.handleAuthorityFinderSubmit(event)">
@@ -3838,7 +3954,7 @@
                 </div>
 
                 <button type="submit" id="btn-auth-recommend" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 14px;">
-                  <span>ðŸ” Find Competent Authority & Escalation Path</span>
+                  <span>🔍 Find Competent Authority & Escalation Path</span>
                 </button>
               </form>
             </div>
@@ -3846,7 +3962,7 @@
             <!-- Right: Recommended Authority Result -->
             <div id="auth-result-container">
               <div class="card" style="text-align: center; padding: 48px 24px; color: var(--text-muted);">
-                <div style="font-size: 36px; margin-bottom: 12px;">ðŸ›ï¸</div>
+                <div style="font-size: 36px; margin-bottom: 12px;">🏛️</div>
                 <h4 style="font-size: 16px; color: var(--text-primary); margin-bottom: 6px;">Awaiting Authority Search</h4>
                 <p style="font-size: 13px; line-height: 1.5; max-width: 380px; margin: 0 auto;">
                   Enter your grievance details on the left. Vidhik will identify the correct statutory forum with direct contact details, filing checklist, and escalation ladder.
@@ -3865,7 +3981,7 @@
           <div class="page-header" style="margin-bottom: 16px;">
             <div>
               <div style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent-primary); margin-bottom: 3px;">
-                Verified Advocate Directory â€¢ Maharashtra & National
+                Verified Advocate Directory • Maharashtra & National
               </div>
               <h2 class="page-title">Find a Verified Legal Advocate</h2>
               <p class="page-subtitle">Connect with Bar Council verified advocates specializing in criminal defense (BNS), civil litigation, property disputes, consumer forums, and motor vehicle law.</p>
@@ -3948,7 +4064,7 @@
 
           <!-- Mandatory External Record Disclaimer -->
           <div class="disclaimer-banner" style="margin-bottom: 20px;">
-            <span style="font-size: 20px;">ðŸ›ï¸</span>
+            <span style="font-size: 20px;">🏛️</span>
             <div style="flex: 1; font-size: 12.5px; line-height: 1.5;">
               <strong>Authoritative Records Notice:</strong> Case history, hearing dates, and interim orders displayed herein are aggregated for workflow management. The official records maintained by the National Judicial Data Grid (NJDG) and the respective High Court or District Court registry remain the sole legal authority.
             </div>
@@ -3969,7 +4085,7 @@
                   <input type="text" id="track-cnr-input" class="form-control" required placeholder="e.g. MHPU01-004523-2024" value="MHPU01-004523-2024" maxlength="20" style="font-family: 'JetBrains Mono', monospace; font-size: 14.5px; letter-spacing: 0.05em;">
                 </div>
                 <button type="submit" id="btn-track-cnr" class="btn btn-primary" style="height: 42px; padding: 0 24px;">
-                  <span>ðŸ” Track Case Status</span>
+                  <span>🔍 Track Case Status</span>
                 </button>
               </div>
               <span style="font-size: 11.5px; color: var(--text-muted); margin-top: 6px; display: block;">
@@ -4006,7 +4122,7 @@
               </div>
               <div style="margin-top: 14px; display: flex; justify-content: flex-end;">
                 <button type="submit" class="btn btn-primary" style="padding: 0 24px; height: 42px;">
-                  <span>ðŸ” Search Case Records</span>
+                  <span>🔍 Search Case Records</span>
                 </button>
               </div>
             </form>
@@ -4045,15 +4161,15 @@
               <span style="font-size: 12.5px; font-weight: 600; color: var(--text-muted);">Spoken Language:</span>
               <select id="voice-lang-select" class="form-control" style="width: auto; height: 32px; padding: 0 8px; font-size: 12.5px; font-weight: 700; background: transparent; border: none;" onchange="App.handleVoiceLangChange()">
                 <option value="en-IN">English (India)</option>
-                <option value="hi-IN">à¤¹à¤¿à¤¨à¥à¤¦à¥€ (Hindi - India)</option>
-                <option value="mr-IN">à¤®à¤°à¤¾à¤ à¥€ (Marathi - India)</option>
+                <option value="hi-IN">हिंदी (Hindi - India)</option>
+                <option value="mr-IN">मराठी (Marathi - India)</option>
               </select>
             </div>
 
             <!-- Big Pulsing Microphone Control -->
             <div style="position: relative; width: 120px; height: 120px; margin: 0 auto 24px;">
               <button type="button" id="voice-main-mic-btn" onclick="App.toggleVoiceRecording()" title="Click to Speak" style="width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(135deg, #4338CA, #06B6D4); color: #FFFFFF; font-size: 42px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 30px rgba(67, 56, 202, 0.4); transition: var(--transition);">
-                ðŸŽ™ï¸
+                🎙️
               </button>
             </div>
 
@@ -4083,10 +4199,10 @@
 
             <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 24px;">
               <button type="button" class="btn btn-primary" id="btn-voice-send-ai" onclick="App.submitVoiceQuestionToAi()" style="padding: 10px 24px;">
-                <span>âœ¨ Get Grounded Legal Answer</span>
+                <span>✨ Get Grounded Legal Answer</span>
               </button>
               <button type="button" class="btn btn-secondary" id="btn-voice-stop-playback" onclick="App.stopAudioPlayback()" style="display: none; padding: 10px 18px;">
-                â¹ï¸ Stop Speaking
+                ⏹️ Stop Speaking
               </button>
             </div>
 
@@ -4109,7 +4225,7 @@
                 Phase 17 Comprehensive Legal Intelligence Engine
               </div>
               <h2 class="page-title">Advanced Legal Knowledge Base</h2>
-              <p class="page-subtitle">Unified statutory intelligence spanning 24 Central Bare Acts, Bharatiya Nyaya Sanhita (BNS), BNSS, BSA, Predecessor Correlations (IPC â†” BNS), and Landmark Judgments.</p>
+              <p class="page-subtitle">Unified statutory intelligence spanning 24 Central Bare Acts, Bharatiya Nyaya Sanhita (BNS), BNSS, BSA, Predecessor Correlations (IPC ↔ BNS), and Landmark Judgments.</p>
             </div>
             <div style="display: flex; gap: 8px;">
               <span class="badge badge-active">24 Bare Acts</span>
@@ -4120,19 +4236,19 @@
           <!-- Knowledge Navigation Tabs -->
           <div class="tab-nav" style="margin-bottom: 20px;">
             <button type="button" class="tab-btn active" id="tab-lk-acts" onclick="App.switchLkTab('acts')">
-              ðŸ“š 24 Central Bare Acts
+              📚 24 Central Bare Acts
             </button>
             <button type="button" class="tab-btn" id="tab-lk-bns" onclick="App.switchLkTab('bns')">
-              âš–ï¸ Criminal Offences (BNS 2023)
+              ⚖️ Criminal Offences (BNS 2023)
             </button>
             <button type="button" class="tab-btn" id="tab-lk-converter" onclick="App.switchLkTab('converter')">
-              ðŸ”„ Predecessor Converter (IPC â†” BNS)
+              🔄 Predecessor Converter (IPC ↔ BNS)
             </button>
             <button type="button" class="tab-btn" id="tab-lk-judgments" onclick="App.switchLkTab('judgments')">
-              ðŸ›ï¸ Landmark Supreme Court Judgments
+              🏛️ Landmark Supreme Court Judgments
             </button>
             <button type="button" class="tab-btn" id="tab-lk-evidence" onclick="App.switchLkTab('evidence')">
-              ðŸ” Digital Evidence (BSA 2023)
+              🔍 Digital Evidence (BSA 2023)
             </button>
           </div>
 
@@ -4159,7 +4275,7 @@
           <!-- TAB 3: PREDECESSOR CONVERTER (IPC <-> BNS) -->
           <div id="lk-pane-converter" class="lk-tab-pane" style="display: none;">
             <div class="card" style="max-width: 680px; margin: 0 auto;">
-              <h3 class="card-title" style="margin-bottom: 14px;">ðŸ”„ Statutory Section Converter (Old Law â†” Modern Law)</h3>
+              <h3 class="card-title" style="margin-bottom: 14px;">🔄 Statutory Section Converter (Old Law ↔ Modern Law)</h3>
               <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 18px;">
                 Instantly map old Indian Penal Code (IPC), Code of Criminal Procedure (CrPC), and Indian Evidence Act (IEA) sections to the newly enacted Bharatiya Nyaya Sanhita (BNS), BNSS, and BSA (w.e.f. 01 July 2024).
               </p>
@@ -4168,10 +4284,10 @@
                 <div class="form-group">
                   <label class="form-label">Select Source Law</label>
                   <select id="conv-source-law" class="form-control" onchange="App.handleConverterLawChange()">
-                    <option value="IPC">Indian Penal Code, 1860 (IPC â†’ BNS)</option>
-                    <option value="BNS">Bharatiya Nyaya Sanhita, 2023 (BNS â†’ IPC)</option>
-                    <option value="CrPC">Code of Criminal Procedure, 1973 (CrPC â†’ BNSS)</option>
-                    <option value="IEA">Indian Evidence Act, 1872 (IEA â†’ BSA)</option>
+                    <option value="IPC">Indian Penal Code, 1860 (IPC → BNS)</option>
+                    <option value="BNS">Bharatiya Nyaya Sanhita, 2023 (BNS → IPC)</option>
+                    <option value="CrPC">Code of Criminal Procedure, 1973 (CrPC → BNSS)</option>
+                    <option value="IEA">Indian Evidence Act, 1872 (IEA → BSA)</option>
                   </select>
                 </div>
                 <div class="form-group">
@@ -4248,44 +4364,57 @@
             <div class="stat-card">
               <div class="stat-label">System Security</div>
               <div class="stat-value" style="font-size: 18px; color: #10B981;">HEALTHY</div>
-              <div class="stat-subtext">PostgreSQL 18.4 â€¢ Bcrypt Hardened</div>
+              <div class="stat-subtext">PostgreSQL 18.4 • Bcrypt Hardened</div>
             </div>
           </div>
 
           <!-- Admin Tabs -->
           <div class="tab-nav" style="margin-bottom: 20px;">
             <button type="button" class="tab-btn active" id="tab-btn-admin-logs" onclick="App.switchAdminTab('logs')">
-              ðŸ›¡ï¸ Security & Audit Logs (<span id="admin-logs-count">0</span>)
+              🛡️ Security & Audit Logs (<span id="admin-logs-count">0</span>)
             </button>
             <button type="button" class="tab-btn" id="tab-btn-admin-users" onclick="App.switchAdminTab('users')">
-              ðŸ‘¥ User Governance (<span id="admin-users-count">0</span>)
+              👥 User Governance (<span id="admin-users-count">0</span>)
             </button>
             <button type="button" class="tab-btn" id="tab-btn-admin-telemetry" onclick="App.switchAdminTab('telemetry')">
-              âš™ï¸ System Telemetry & Schema
+              ⚙️ System Telemetry & Schema
             </button>
           </div>
 
           <!-- Pane 1: Audit Logs -->
           <div id="admin-pane-logs" class="admin-tab-pane">
-            <div class="card" style="padding: 20px;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
-                <h3 class="card-title" style="margin: 0;">Security Audit Trail</h3>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="App.loadAdminAuditLogs()">â†» Refresh Logs</button>
+            <div class="card admin-pane-card" style="padding: 24px;">
+              <div class="admin-pane-header">
+                <div>
+                  <h3 class="card-title" style="margin: 0 0 4px 0; font-size: 18px;">Security Audit Trail</h3>
+                  <p style="margin: 0; font-size: 12.5px; color: var(--text-muted);">Real-time immutable security event logging, user sessions, and access telemetry</p>
+                </div>
+                <div class="admin-audit-controls">
+                  <input type="text" id="admin-audit-search" class="admin-search-input" placeholder="🔍 Search user, action, IP..." oninput="App.filterAdminAuditLogs()">
+                  <select id="admin-audit-action-filter" class="admin-filter-select" onchange="App.filterAdminAuditLogs()">
+                    <option value="">All Security Actions</option>
+                    <option value="LOGIN">Authentication / Login</option>
+                    <option value="USER_">User Lifecycle</option>
+                    <option value="PASSWORD">Password & Security</option>
+                  </select>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="App.loadAdminAuditLogs()">↻ Refresh Logs</button>
+                </div>
               </div>
-              <div class="table-responsive">
-                <table class="table" style="width: 100%; font-size: 13.5px;">
+              <div class="audit-table-wrapper">
+                <table class="table admin-audit-table">
                   <thead>
                     <tr>
-                      <th style="width: 90px;">Log ID</th>
-                      <th style="width: 170px;">Security Action</th>
-                      <th style="width: 110px;">User ID</th>
-                      <th>Event Details</th>
-                      <th style="width: 120px;">IP Address</th>
-                      <th style="width: 170px;">Timestamp (UTC)</th>
+                      <th class="col-log-id">Log ID</th>
+                      <th class="col-time">Timestamp (UTC)</th>
+                      <th class="col-user">User</th>
+                      <th class="col-action">Security Action</th>
+                      <th class="col-details">Resource / Details</th>
+                      <th class="col-ip">IP / Source</th>
+                      <th class="col-status">Status</th>
                     </tr>
                   </thead>
                   <tbody id="admin-audit-logs-tbody">
-                    <tr><td colspan="6" style="text-align: center; padding: 24px;"><div class="spinner"></div></td></tr>
+                    <tr><td colspan="7" style="text-align: center; padding: 28px;"><div class="spinner"></div></td></tr>
                   </tbody>
                 </table>
               </div>
@@ -4294,25 +4423,28 @@
 
           <!-- Pane 2: User Governance -->
           <div id="admin-pane-users" class="admin-tab-pane" style="display: none;">
-            <div class="card" style="padding: 20px;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
-                <h3 class="card-title" style="margin: 0;">Registered Accounts & Roles</h3>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="App.loadAdminUsers()">â†» Refresh Users</button>
+            <div class="card admin-pane-card" style="padding: 24px;">
+              <div class="admin-pane-header">
+                <div>
+                  <h3 class="card-title" style="margin: 0 0 4px 0; font-size: 18px;">Registered Accounts & Roles</h3>
+                  <p style="margin: 0; font-size: 12.5px; color: var(--text-muted);">Platform user directory, role allocations, and verification status</p>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="App.loadAdminUsers()">↻ Refresh Users</button>
               </div>
-              <div class="table-responsive">
-                <table class="table" style="width: 100%; font-size: 13.5px;">
+              <div class="audit-table-wrapper">
+                <table class="table admin-users-table">
                   <thead>
                     <tr>
-                      <th style="width: 80px;">User ID</th>
-                      <th>Full Name</th>
-                      <th>Email Address</th>
-                      <th style="width: 120px;">Assigned Role</th>
-                      <th style="width: 100px;">Status</th>
+                      <th style="width: 100px;">User ID</th>
+                      <th style="min-width: 160px;">Full Name</th>
+                      <th style="min-width: 180px;">Email Address</th>
+                      <th style="width: 130px;">Assigned Role</th>
+                      <th style="width: 100px; text-align: center;">Status</th>
                       <th style="width: 150px;">Account Created</th>
                     </tr>
                   </thead>
                   <tbody id="admin-users-tbody">
-                    <tr><td colspan="6" style="text-align: center; padding: 24px;"><div class="spinner"></div></td></tr>
+                    <tr><td colspan="6" style="text-align: center; padding: 28px;"><div class="spinner"></div></td></tr>
                   </tbody>
                 </table>
               </div>
@@ -4369,7 +4501,7 @@
                   </div>
                   <div style="display: flex; justify-content: space-between; padding: 8px 0;">
                     <span style="color: var(--text-muted);">Constitutional Coverage:</span>
-                    <strong>Part III Fundamental Rights (Arts 12â€“35) + Art 226/32</strong>
+                    <strong>Part III Fundamental Rights (Arts 12–35) + Art 226/32</strong>
                   </div>
                 </div>
               </div>
@@ -4382,12 +4514,12 @@
       <!-- APPLICATION FOOTER -->
       <footer class="app-footer">
         <div class="footer-left">
-          <span class="footer-brand">âš–ï¸ Vidhik AI</span>
+          <span class="footer-brand">⚖️ Vidhik AI</span>
           <span class="footer-desc">AI-Native Indian Statutory Knowledge & Legal Workflow Platform</span>
         </div>
         <div class="footer-center">
           <span class="status-indicator-live"></span>
-          <span class="status-text">PostgreSQL Live â€¢ 869 Central & State Acts â€¢ 41,442 Statutory Sections</span>
+          <span class="status-text">PostgreSQL Live • 869 Central & State Acts • 41,442 Statutory Sections</span>
         </div>
         <div class="footer-right">
           <span class="footer-note">Confidential & Compliant with Indian Evidence Act & IT Act</span>
@@ -4411,7 +4543,7 @@
         </button>
 
         <button type="button" class="bottom-nav-item bottom-nav-ai" id="bnav-ai" data-views="research,document-analysis,documentation" onclick="App.handleBottomNav('ai')" aria-label="Ask VIDHIK AI">
-          <div class="bnav-ai-bubble">âœ¨</div>
+          <div class="bnav-ai-bubble">✨</div>
           <span class="bottom-nav-label">Ask VIDHIK</span>
         </button>
 
@@ -4441,7 +4573,7 @@
     <div class="modal-dialog">
       <div class="modal-header">
         <h3 class="modal-title">Register New Client</h3>
-        <button class="modal-close" onclick="App.closeModals()">âœ•</button>
+        <button class="modal-close" onclick="App.closeModals()">✕</button>
       </div>
       <form id="form-add-client">
         <div class="modal-body">
@@ -4471,7 +4603,7 @@
     <div class="modal-dialog" style="max-width: 680px;">
       <div class="modal-header">
         <h3 class="modal-title" id="m-modal-title">Open New Legal Matter</h3>
-        <button type="button" class="modal-close" onclick="App.closeModals()" aria-label="Close dialog">âœ•</button>
+        <button type="button" class="modal-close" onclick="App.closeModals()" aria-label="Close dialog">✕</button>
       </div>
       <form id="form-create-case" onsubmit="App.submitCreateCase(event)">
         <div class="modal-body">
@@ -4530,7 +4662,7 @@
     <div class="modal-dialog">
       <div class="modal-header">
         <h3 class="modal-title">Catalog Case Document</h3>
-        <button class="modal-close" onclick="App.closeModals()">âœ•</button>
+        <button class="modal-close" onclick="App.closeModals()">✕</button>
       </div>
       <form id="form-upload-doc">
         <div class="modal-body">
@@ -4576,7 +4708,7 @@
     <div class="modal-dialog">
       <div class="modal-header">
         <h3 class="modal-title">Schedule Court Appearance / Hearing</h3>
-        <button class="modal-close" onclick="App.closeModals()">âœ•</button>
+        <button class="modal-close" onclick="App.closeModals()">✕</button>
       </div>
       <form id="form-schedule-hearing">
         <div class="modal-body">
@@ -4633,7 +4765,7 @@
     <div class="modal-dialog">
       <div class="modal-header">
         <h3 class="modal-title">Confidential Case Note</h3>
-        <button class="modal-close" onclick="App.closeModals()">âœ•</button>
+        <button class="modal-close" onclick="App.closeModals()">✕</button>
       </div>
       <form id="form-add-note">
         <div class="modal-body">
@@ -4671,7 +4803,7 @@
           <h3 class="modal-title" id="m-prov-title">Section Title</h3>
           <span style="font-size: 13px; color: var(--accent-cyan);" id="m-prov-law-name">Act Name</span>
         </div>
-        <button class="modal-close" onclick="App.closeModals()">âœ•</button>
+        <button class="modal-close" onclick="App.closeModals()">✕</button>
       </div>
       <div class="modal-body">
         <div
@@ -4718,7 +4850,7 @@
     <div class="modal-dialog">
       <div class="modal-header">
         <h3 class="modal-title">Link Provision to Case Brief</h3>
-        <button class="modal-close" onclick="App.closeModals()">âœ•</button>
+        <button class="modal-close" onclick="App.closeModals()">✕</button>
       </div>
       <form id="form-link-provision">
         <div class="modal-body">
@@ -4762,7 +4894,7 @@
     <div class="modal-dialog" style="max-width: 650px;">
       <div class="modal-header">
         <h3 class="modal-title">Edit Lawyer Profile</h3>
-        <button class="modal-close" onclick="App.closeModals()">âœ•</button>
+        <button class="modal-close" onclick="App.closeModals()">✕</button>
       </div>
       <form id="form-edit-profile">
         <div class="modal-body">
@@ -4834,7 +4966,7 @@
           <h3 class="modal-title" id="chk-proc-title" style="font-size: 19px;">Procedure Checklist</h3>
           <p id="chk-proc-authority" style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;"></p>
         </div>
-        <button class="modal-close" onclick="App.closeModals()">âœ•</button>
+        <button class="modal-close" onclick="App.closeModals()">✕</button>
       </div>
 
       <div class="modal-body" style="overflow-y: auto; flex: 1; padding: 24px;">
@@ -4869,7 +5001,7 @@
         <div id="chk-lawyer-case-attach"
           style="display: none; background: var(--accent-light); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px;">
           <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-            <span style="font-size: 13px; font-weight: 500; color: var(--text-primary);">ðŸ’¼ Save Checklist into Case File:</span>
+            <span style="font-size: 13px; font-weight: 500; color: var(--text-primary);">💼 Save Checklist into Case File:</span>
             <select id="chk-attach-case-select" class="form-control"
               style="width: auto; min-width: 220px; padding: 6px 12px; font-size: 12.5px;"></select>
             <button type="button" class="btn btn-primary btn-sm" onclick="App.attachChecklistToCase()">Save to Case
@@ -4901,7 +5033,7 @@
         <!-- Legal Disclaimer -->
         <div
           style="margin-top: 24px; padding: 12px 16px; background: var(--bg-card); border-left: 3px solid var(--accent-primary); border-radius: var(--radius-sm); font-size: 12px; color: var(--text-secondary); line-height: 1.5; border-top: 1px solid var(--border-subtle); border-right: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);">
-          âš–ï¸ <strong>Legal Information Notice:</strong> This checklist provides procedural guidance grounded in Indian
+          ⚖️ <strong>Legal Information Notice:</strong> This checklist provides procedural guidance grounded in Indian
           statutory law. Checking items tracks your preparation readiness and does not certify legal admissibility or
           official agency acceptance.
         </div>
@@ -4921,7 +5053,7 @@
     <div class="modal-dialog" style="max-width: 520px;">
       <div class="modal-header">
         <h3 class="modal-title">Save Analysis to Lawyer Case Brief</h3>
-        <button class="modal-close" onclick="App.closeModals()">âœ•</button>
+        <button class="modal-close" onclick="App.closeModals()">✕</button>
       </div>
       <form id="form-save-analysis-to-case" onsubmit="App.submitSaveAnalysisToCase(event)">
         <div class="modal-body">
@@ -4968,7 +5100,7 @@
     <div class="modal-dialog" style="max-width: 680px;">
       <div class="modal-header">
         <h3 class="modal-title" id="m-c-modal-title">File New Legal Matter</h3>
-        <button type="button" class="modal-close" onclick="App.closeModals()" aria-label="Close dialog">âœ•</button>
+        <button type="button" class="modal-close" onclick="App.closeModals()" aria-label="Close dialog">✕</button>
       </div>
       <form id="form-citizen-new-case" onsubmit="App.submitCitizenNewCase(event)">
         <div class="modal-body">
@@ -5037,7 +5169,7 @@
     <div class="modal-dialog">
       <div class="modal-header">
         <h3 class="modal-title">Upload Citizen Document</h3>
-        <button class="modal-close" onclick="App.closeModals()">âœ•</button>
+        <button class="modal-close" onclick="App.closeModals()">✕</button>
       </div>
       <form id="form-citizen-upload-doc" onsubmit="App.submitCitizenUploadDoc(event)">
         <div class="modal-body">
@@ -5087,7 +5219,7 @@
             All Vidhik intelligence modules (Legal Analysis, Ranking, Authorities, Lawyers, Actions & Documents) will automatically anchor to your selected case.
           </p>
         </div>
-        <button type="button" class="modal-close" onclick="App.closeModals()" aria-label="Close dialog">âœ•</button>
+        <button type="button" class="modal-close" onclick="App.closeModals()" aria-label="Close dialog">✕</button>
       </div>
       <div class="modal-body">
         <div id="switch-case-list" style="display: flex; flex-direction: column; gap: 12px; max-height: 400px; overflow-y: auto; padding-right: 4px;">
@@ -5111,7 +5243,7 @@
             Add new facts, timeline events, or officer conduct details. Vidhik will update the central context and re-evaluate affected legal provisions, authorities, and actions.
           </p>
         </div>
-        <button type="button" class="modal-close" onclick="App.closeModals()" aria-label="Close dialog">âœ•</button>
+        <button type="button" class="modal-close" onclick="App.closeModals()" aria-label="Close dialog">✕</button>
       </div>
       <form id="form-reanalyze-case" onsubmit="App.submitCaseReanalyze(event)">
         <div class="modal-body">
@@ -5125,12 +5257,12 @@
               placeholder="e.g. 'The officer also kept my driving licence for two days without giving any receipt.' or 'I requested the security deposit refund via registered post but the landlord replied denying receipt.'"></textarea>
           </div>
           <div style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
-            â„¹ï¸ Your previous facts will be preserved in case history. Provisions, authorities, and documents will be deterministically refreshed based on the combined facts.
+            ℹ️ Your previous facts will be preserved in case history. Provisions, authorities, and documents will be deterministically refreshed based on the combined facts.
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="App.closeModals()">Cancel</button>
-          <button type="submit" id="btn-submit-reanalyze" class="btn btn-primary">âš¡ Update & Re-Analyze</button>
+          <button type="submit" id="btn-submit-reanalyze" class="btn btn-primary">⚡ Update & Re-Analyze</button>
         </div>
       </form>
     </div>
@@ -5140,7 +5272,7 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- APPLICATION SCRIPTS -->
-  <script src="/static/app.js"></script>
+  <script src="/static/app.js?v=2.1"></script>
 
   <!-- ============================================================== -->
   <!-- MODAL: REUSABLE PROFESSIONAL DOCUMENT PREVIEW (FEATURE 16)     -->
@@ -5152,7 +5284,7 @@
           <h3 class="modal-title" id="doc-preview-modal-title">Document Inspection & Preview</h3>
           <span style="font-size: 12px; color: var(--text-muted);" id="doc-preview-modal-subtitle">AI-grounded legal draft formatted to Indian statutory layout</span>
         </div>
-        <button type="button" class="modal-close" onclick="App.closeModals()" aria-label="Close dialog">âœ•</button>
+        <button type="button" class="modal-close" onclick="App.closeModals()" aria-label="Close dialog">✕</button>
       </div>
 
       <div class="modal-body" style="flex: 1; overflow-y: auto; padding: 20px; background: var(--bg-primary);">
@@ -5168,9 +5300,9 @@
               </div>
             </div>
             <div class="doc-action-toolbar" style="width: auto; margin-left: auto;">
-              <button type="button" class="btn btn-primary btn-sm" onclick="App.downloadModalDocument()">ðŸ“¥ Download Text</button>
-              <button type="button" class="btn btn-secondary btn-sm" onclick="App.printModalDocument()">ðŸ–¨ï¸ Print / PDF</button>
-              <button type="button" class="btn btn-secondary btn-sm" onclick="App.copyModalDocumentText()">ðŸ“‹ Copy</button>
+              <button type="button" class="btn btn-primary btn-sm" onclick="App.downloadModalDocument()">📥 Download Text</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="App.printModalDocument()">🖨️ Print / PDF</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="App.copyModalDocumentText()">📋 Copy</button>
             </div>
           </div>
 
@@ -5188,7 +5320,7 @@
             </div>
             <div class="doc-info-card">
               <span class="doc-info-label">Filing Date & Jurisdiction</span>
-              <span class="doc-info-value"><span id="modal-doc-date">--</span> â€¢ <span id="modal-doc-jurisdiction">Indian Jurisdiction</span></span>
+              <span class="doc-info-value"><span id="modal-doc-date">--</span> • <span id="modal-doc-jurisdiction">Indian Jurisdiction</span></span>
               <span class="doc-info-subtext">Judicial / Administrative Forum</span>
             </div>
             <div class="doc-info-card">
@@ -5200,7 +5332,7 @@
 
           <!-- 3. AI Statutory Guidance Notice -->
           <div class="doc-ai-notice">
-            <span style="font-size: 16px;">âš–ï¸</span>
+            <span style="font-size: 16px;">⚖️</span>
             <div>
               <strong>Verified Legal Document Record:</strong> Formatted to Indian judicial practice standards. Review all factual statements prior to official filing before courts or police authorities.
             </div>
@@ -5214,10 +5346,10 @@
       </div>
 
       <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-        <span style="font-size: 11.5px; color: var(--text-muted);">âš–ï¸ AI-generated legal assistance â€” verify before official submission.</span>
+        <span style="font-size: 11.5px; color: var(--text-muted);">⚖️ AI-generated legal assistance — verify before official submission.</span>
         <div style="display: flex; gap: 8px;">
-          <button type="button" class="btn btn-secondary btn-sm" onclick="App.copyModalDocumentText()">ðŸ“‹ Copy Text</button>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="App.printModalDocument()">ðŸ–¨ï¸ Print</button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.copyModalDocumentText()">📋 Copy Text</button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.printModalDocument()">🖨️ Print</button>
           <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeModals()">Close</button>
         </div>
       </div>
@@ -5235,7 +5367,7 @@
           <h3 class="modal-title" id="book-lawyer-title">Request Advocate Consultation</h3>
           <span style="font-size: 12px; color: var(--text-muted);" id="book-lawyer-name">Adv. Rajesh Deshmukh</span>
         </div>
-        <button type="button" class="modal-close" onclick="App.closeModals()" aria-label="Close dialog">âœ•</button>
+        <button type="button" class="modal-close" onclick="App.closeModals()" aria-label="Close dialog">✕</button>
       </div>
       <form id="form-book-consultation" onsubmit="App.submitBookConsultation(event)">
         <div class="modal-body">
