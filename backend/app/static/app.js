@@ -249,9 +249,11 @@ const App = {
     // Keep body.modal-open synchronized whenever any modal opens or closes
     try {
       const modalObserver = new MutationObserver(() => {
-        const hasActiveModal = Array.from(document.querySelectorAll('.modal-overlay.active')).some(m => m.id !== 'login-screen');
+        const activeModals = Array.from(document.querySelectorAll('.modal-overlay.active')).filter(m => m.id !== 'login-screen');
+        const hasActiveModal = activeModals.length > 0;
         if (hasActiveModal) {
           document.body.classList.add('modal-open');
+          activeModals.forEach(m => this.applyLocalization(m));
         } else {
           document.body.classList.remove('modal-open');
         }
@@ -1143,6 +1145,12 @@ const App = {
       case 'admin':
         this.loadAdminData();
         break;
+    }
+
+    if (this.currentLanguage !== 'en') {
+      setTimeout(() => {
+        this.applyLocalization();
+      }, 50);
     }
   },
 
@@ -3325,6 +3333,7 @@ const App = {
 
     // Switch to first results tab
     this.switchResTab('parties');
+    this.applyLocalization(document.getElementById('analysis-results-card'));
   },
 
   switchResTab(tabName) {
@@ -5558,6 +5567,10 @@ const App = {
         </div>
       `).join('') : '<div class="card"><div class="empty-state"><div class="empty-state-desc">All essential foundational facts for initial legal analysis have been supplied.</div></div></div>';
     }
+    const ciContainer = document.getElementById('view-case-intelligence');
+    if (ciContainer) {
+      this.applyLocalization(ciContainer);
+    }
   },
 
   switchCiTab(tabKey) {
@@ -5700,8 +5713,18 @@ const App = {
   // =============================================================
   // 1. LOCALIZATION & LANGUAGE SWITCHING (P2)
   // =============================================================
+  t(text) {
+    if (window.VidhikI18n && typeof window.VidhikI18n.t === 'function') {
+      return window.VidhikI18n.t(text, this.currentLanguage);
+    }
+    return text;
+  },
+
   initLocalization() {
     this.currentLanguage = localStorage.getItem('vidhik_lang') || 'en';
+    if (window.VidhikI18n) {
+      window.VidhikI18n.currentLang = this.currentLanguage;
+    }
     const langLabel = document.getElementById('header-lang-code');
     if (langLabel) {
       langLabel.textContent = this.currentLanguage.toUpperCase();
@@ -5725,6 +5748,7 @@ const App = {
     document.querySelectorAll('.dash-lang-btn').forEach(btn => {
       btn.classList.toggle('active', btn.id === `dash-lang-${this.currentLanguage}`);
     });
+    this.applyLocalization();
   },
 
   toggleLanguagePicker(event) {
@@ -5781,6 +5805,9 @@ const App = {
   setLanguage(lang) {
     this.currentLanguage = lang;
     localStorage.setItem('vidhik_lang', lang);
+    if (window.VidhikI18n) {
+      window.VidhikI18n.setLanguage(lang);
+    }
     const langLabel = document.getElementById('header-lang-code');
     if (langLabel) langLabel.textContent = lang.toUpperCase();
 
@@ -5809,69 +5836,37 @@ const App = {
 
     this.closeLanguagePicker();
     this.applyLocalization();
-    const names = { en: 'English', hi: 'हिंदी', mr: 'मराठी' };
-    this.showToast(`Language switched to ${names[lang] || lang}`, 'info');
+
+    const toastMsg = {
+      en: 'Language switched to English',
+      hi: 'भाषा हिंदी में बदली गई',
+      mr: 'भाषा मराठीमध्ये बदलली'
+    }[lang] || `Language switched to ${lang}`;
+    this.showToast(toastMsg, 'info');
   },
 
-  applyLocalization() {
+  applyLocalization(root = document.body) {
     const lang = this.currentLanguage;
-    const dict = {
-      en: {
-        welcome: 'Welcome',
-        selectLanguage: 'Select Language',
-        legalWorkspace: 'Your Legal Workspace',
-        activeMatters: 'Active Matters',
-        savedProvisions: 'Saved Provisions',
-        aiAssistant: 'AI Legal Assistant',
-        complaintFir: 'Complaint / FIR Draft',
-        disputeResolution: 'Dispute Resolution',
-        trafficLaw: 'Traffic Law & Fines',
-        constRights: 'Constitutional Rights',
-        findLawyer: 'Find a Lawyer',
-        caseTracking: 'eCourts Case Tracking',
-        voiceAssistant: 'Voice Assistant',
-        legalKnowledge: 'Legal Knowledge'
-      },
-      hi: {
-        welcome: 'स्वागत है',
-        selectLanguage: 'अपनी भाषा चुनें',
-        legalWorkspace: 'आपका विधिक कार्यक्षेत्र',
-        activeMatters: 'सक्रिय मामले',
-        savedProvisions: 'सुरक्षित धाराएं',
-        aiAssistant: 'एआई विधिक सहायक',
-        complaintFir: 'शिकायत / एफआईआर प्रारूप',
-        disputeResolution: 'विवाद समाधान एवं ट्राइएज',
-        trafficLaw: 'यातायात नियम व जुर्माना',
-        constRights: 'संवैधानिक अधिकार',
-        findLawyer: 'अधिवक्ता खोजें',
-        caseTracking: 'ई-कोर्ट केस ट्रैकिंग',
-        voiceAssistant: 'ध्वनि विधिक सहायक',
-        legalKnowledge: 'विधिक ज्ञानकोष'
-      },
-      mr: {
-        welcome: 'स्वागत आहे',
-        selectLanguage: 'आपली भाषा निवडा',
-        legalWorkspace: 'आपले विधी कार्यक्षेत्र',
-        activeMatters: 'सक्रिय खटले',
-        savedProvisions: 'जतन केलेली कलमे',
-        aiAssistant: 'एआय विधी सहाय्यक',
-        complaintFir: 'तक्रार / एफआयआर मसुदा',
-        disputeResolution: 'तक्रार निवारण व सल्ला',
-        trafficLaw: 'वाहतूक नियम व दंड',
-        constRights: 'मूलभूत हक्क व अधिकार',
-        findLawyer: 'वकील शोधा',
-        caseTracking: 'ई-कोर्ट केस ट्रॅकिंग',
-        voiceAssistant: 'व्हॉइस विधी सहाय्यक',
-        legalKnowledge: 'विधी ज्ञानकोश'
-      }
-    };
+    if (window.VidhikI18n) {
+      window.VidhikI18n.translateDom(root, lang);
+    }
 
-    const strings = dict[lang] || dict['en'];
+    // Update document title
+    if (document.title) {
+      const titles = {
+        en: 'VIDHIK AI — Intelligent Legal Assistant & Case Workspace',
+        hi: 'विधिक एआई — बुद्धिमान विधिक सहायक एवं मामला कार्यक्षेत्र',
+        mr: 'विधिक एआय — बुद्धिमान विधी सहाय्यक व खटला कार्यक्षेत्र'
+      };
+      if (titles[lang]) document.title = titles[lang];
+    }
+
     // Update view titles if needed
     const welcomeTitle = document.getElementById('dash-citizen-welcome-title');
     if (welcomeTitle) {
       const name = this.user ? this.user.full_name : 'Citizen';
-      welcomeTitle.innerHTML = `${strings.welcome}, <span id="dash-citizen-greeting-name">${this.escape(name)}</span>`;
+      const welcomeWord = this.t('Welcome');
+      welcomeTitle.innerHTML = `${welcomeWord}, <span id="dash-citizen-greeting-name">${this.escape(name)}</span>`;
     }
 
     // Update role labels and active auth mode
@@ -5891,6 +5886,11 @@ const App = {
 
     if (this.authMode) {
       this.switchAuthMode(this.authMode, false);
+    }
+
+    // Sync in-page form controls
+    if (window.VidhikI18n && typeof window.VidhikI18n.syncFormControls === 'function') {
+      window.VidhikI18n.syncFormControls(lang);
     }
   },
 
@@ -5935,14 +5935,33 @@ const App = {
 
   askAiCategory(categoryName) {
     const questions = {
-      'Criminal Law & BNS': 'What are the main offences and punishments for theft and robbery under Bharatiya Nyaya Sanhita (BNS), 2023?',
-      'Police Procedure & FIR': 'What is the mandatory procedure for registration of FIR under Section 173 of BNSS, 2023?',
-      'Consumer Rights': 'How can a consumer file a claim against an e-commerce platform for defective products under Consumer Protection Act, 2019?',
-      'Property & Tenancy': 'What legal remedies exist if a landlord refuses to refund a security deposit after tenancy expiry in Maharashtra?',
-      'Traffic & MV Act': 'What are driver rights during a traffic police stop regarding licence seizure under Motor Vehicles Act, 1988?',
-      'Cyber Crime & BSA': 'What is the admissibility requirement for electronic records and digital certificates under Section 63 of Bharatiya Sakshya Adhiniyam, 2023?'
+      en: {
+        'Criminal Law & BNS': 'What are the main offences and punishments for theft and robbery under Bharatiya Nyaya Sanhita (BNS), 2023?',
+        'Police Procedure & FIR': 'What is the mandatory procedure for registration of FIR under Section 173 of BNSS, 2023?',
+        'Consumer Rights': 'How can a consumer file a claim against an e-commerce platform for defective products under Consumer Protection Act, 2019?',
+        'Property & Tenancy': 'What legal remedies exist if a landlord refuses to refund a security deposit after tenancy expiry in Maharashtra?',
+        'Traffic & MV Act': 'What are driver rights during a traffic police stop regarding licence seizure under Motor Vehicles Act, 1988?',
+        'Cyber Crime & BSA': 'What is the admissibility requirement for electronic records and digital certificates under Section 63 of Bharatiya Sakshya Adhiniyam, 2023?'
+      },
+      hi: {
+        'Criminal Law & BNS': 'भारतीय न्याय संहिता (BNS), 2023 के तहत चोरी और डकैती के लिए मुख्य अपराध और सजा क्या हैं?',
+        'Police Procedure & FIR': 'बीएनएसएस, 2023 की धारा 173 के तहत प्राथमिकी दर्ज करने की अनिवार्य प्रक्रिया क्या है?',
+        'Consumer Rights': 'उपभोक्ता संरक्षण अधिनियम, 2019 के तहत खराब उत्पादों के लिए ई-कॉमर्स प्लेटफॉर्म के खिलाफ दावा कैसे दायर करें?',
+        'Property & Tenancy': 'महाराष्ट्र में किरायेदारी समाप्त होने के बाद यदि मकान मालिक सुरक्षा जमा राशि वापस करने से इनकार करता है तो क्या कानूनी उपाय हैं?',
+        'Traffic & MV Act': 'मोटर वाहन अधिनियम, 1988 के तहत ड्राइविंग लाइसेंस जब्ती के संबंध में पुलिस रोक के दौरान चालक के क्या अधिकार हैं?',
+        'Cyber Crime & BSA': 'भारतीय साक्ष्य अधिनियम, 2023 की धारा 63 के तहत इलेक्ट्रॉनिक रिकॉर्ड और डिजिटल प्रमाणपत्रों के लिए स्वीकार्यता की क्या आवश्यकता है?'
+      },
+      mr: {
+        'Criminal Law & BNS': 'भारतीय न्याय संहिता (BNS), २०२३ अंतर्गत चोरी आणि दरोड्यासाठी मुख्य गुन्हे आणि शिक्षा काय आहेत?',
+        'Police Procedure & FIR': 'बीएनएसएस, २०२३ च्या कलम १७३ अंतर्गत एफआयआर नोंदणीची अनिवार्य प्रक्रिया काय आहे?',
+        'Consumer Rights': 'ग्राहक संरक्षण कायदा, २०१९ अंतर्गत सदोष उत्पादनांसाठी ई-कॉमर्स प्लॅटफॉर्मविरुद्ध दावा कसा दाखल करावा?',
+        'Property & Tenancy': 'महाराष्ट्रात भाडेकरार संपल्यानंतर घरमालकाने अनामत रक्कम परत करण्यास नकार दिल्यास कायदेशीर उपाय काय आहेत?',
+        'Traffic & MV Act': 'मोटार वाहन कायदा, १९८८ अंतर्गत वाहतूक पोलिसांकडून वाहन परवाना जप्त करण्याबाबत वाहनचालकाचे काय अधिकार आहेत?',
+        'Cyber Crime & BSA': 'भारतीय साक्ष्य अधिनियम, २०२३ च्या कलम ६३ अंतर्गत इलेक्ट्रॉनिक नोंदी आणि डिजिटल प्रमाणपत्रांच्या ग्राह्यतेची काय आवश्यकता आहे?'
+      }
     };
-    const q = questions[categoryName] || `Explain legal provisions regarding ${categoryName} in India.`;
+    const langDict = questions[this.currentLanguage] || questions.en;
+    const q = langDict[categoryName] || questions.en[categoryName] || `Explain legal provisions regarding ${categoryName} in India.`;
     this.askAiSample(q);
   },
 
@@ -6026,12 +6045,13 @@ const App = {
     const typingText = document.getElementById('ai-typing-status-text');
     if (typing) {
       typing.style.display = 'flex';
-      if (typingText) typingText.textContent = 'Grounded retrieval in BNS, BNSS, BSA & 24 Acts...';
+      if (typingText) typingText.textContent = this.t('Grounded retrieval in BNS, BNSS, BSA & 24 Acts...');
     }
 
     try {
       const langSelect = document.getElementById('ai-chat-lang');
-      const lang = langSelect ? langSelect.value : (this.currentLanguage || 'en');
+      const lang = this.currentLanguage || (langSelect ? langSelect.value : 'en');
+      if (langSelect && langSelect.value !== lang) langSelect.value = lang;
 
       const payload = {
         message: message,
@@ -6283,7 +6303,7 @@ const App = {
     const accusedDesc = document.getElementById('cg-accused-desc')?.value.trim() || '';
     const witnessesText = document.getElementById('cg-witnesses')?.value.trim() || '';
     const evidenceText = document.getElementById('cg-evidence')?.value.trim() || '';
-    const lang = document.getElementById('cg-language')?.value || 'en';
+    const lang = this.currentLanguage || document.getElementById('cg-language')?.value || 'en';
 
     const payload = {
       complaint_type: 'police_fir_request',
@@ -6313,6 +6333,7 @@ const App = {
 
       // Render Step 3
       this.renderComplaintDocument(res, payload);
+      this.applyLocalization(document.getElementById('cg-draft-output-container'));
       this.switchCgStep(3);
       this.showToast('Complaint draft generated successfully!', 'success');
     } catch (err) {
@@ -6695,6 +6716,7 @@ const App = {
         </div>
       </div>
     `;
+    this.applyLocalization(container);
   },
 
   prefillAiFromResolution(sit) {
@@ -6787,6 +6809,7 @@ const App = {
         </div>
       </div>
     `).join('');
+    this.applyLocalization(container);
   },
 
   calculateTrafficFine() {
@@ -6827,6 +6850,7 @@ const App = {
         <div>• <strong>Virtual Court Contestable:</strong> Yes, via vcourts.gov.in within 90 days.</div>
       </div>
     `;
+    this.applyLocalization(box);
   },
 
   // =============================================================
@@ -6988,6 +7012,7 @@ const App = {
         </div>
       </div>
     `).join('');
+    this.applyLocalization(container);
   },
 
   // =============================================================
@@ -7132,6 +7157,7 @@ const App = {
         </div>
       </div>
     `;
+    this.applyLocalization(container);
   },
 
   renderAuthorityFallback(rawReq) {
@@ -7254,6 +7280,7 @@ const App = {
         </div>
       `;
     }).join('');
+    this.applyLocalization(container);
   },
 
   openBookConsultationModal(lawyerId, lawyerName) {
@@ -7492,6 +7519,7 @@ const App = {
 
       </div>
     `;
+    this.applyLocalization(container);
   },
 
   // =============================================================
@@ -7616,7 +7644,7 @@ const App = {
       `;
     }
 
-    const langCode = (document.getElementById('voice-lang-select')?.value || 'en-IN').split('-')[0];
+    const langCode = this.currentLanguage || (document.getElementById('voice-lang-select')?.value || 'en-IN').split('-')[0];
 
     try {
       const res = await this.api('/api/assistant/chat', 'POST', {
@@ -7647,6 +7675,7 @@ const App = {
             </button>
           </div>
         `;
+        this.applyLocalization(ansBox);
       }
 
       // Automatically speak the answer!
@@ -7661,6 +7690,7 @@ const App = {
             ✕ Error retrieving answer: ${this.escape(err.message)}
           </div>
         `;
+        this.applyLocalization(ansBox);
       }
     }
   },
@@ -7671,7 +7701,7 @@ const App = {
     const clean = text.replace(/[*#_~]/g, '');
     const utter = new SpeechSynthesisUtterance(clean);
     const langSelect = document.getElementById('voice-lang-select');
-    utter.lang = langSelect ? langSelect.value : 'en-IN';
+    utter.lang = this.currentLanguage === 'hi' ? 'hi-IN' : (this.currentLanguage === 'mr' ? 'mr-IN' : (langSelect ? langSelect.value : 'en-IN'));
     utter.rate = 1.0;
     utter.onend = () => {
       const stopBtn = document.getElementById('btn-voice-stop-playback');
@@ -8112,10 +8142,12 @@ const App = {
 
   showToast(message, type = 'info') {
     const container = document.getElementById('toast-container');
+    if (!container) return;
+    const localizedMessage = this.t(message);
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     const icon = type === 'success' ? '✓' : (type === 'error' ? '✕' : 'ℹ');
-    toast.innerHTML = `<span style="font-weight: bold;">${icon}</span> <span>${this.escape(message)}</span>`;
+    toast.innerHTML = `<span style="font-weight: bold;">${icon}</span> <span>${this.escape(localizedMessage)}</span>`;
     container.appendChild(toast);
 
     setTimeout(() => {
