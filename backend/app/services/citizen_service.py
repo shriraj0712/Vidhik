@@ -18,12 +18,15 @@ from typing import Optional, List, Dict, Any
 from fastapi import HTTPException, status
 from psycopg2.extras import RealDictCursor
 
+from datetime import datetime, date
 from app.schemas.citizen import (
     CitizenProfileUpdate,
     CitizenCaseCreate,
+    CitizenCaseCourtReferenceUpdate,
     CitizenDocumentUpload,
     BookmarkCreate
 )
+from app.core.cnr_validator import validate_cnr, normalize_cnr, get_official_ecourts_portal_url
 
 
 class CitizenService:
@@ -222,6 +225,8 @@ class CitizenService:
                 c.case_id, c.case_title, c.case_number, c.case_type,
                 c.court_name, c.opposite_party, c.status, c.filing_date,
                 c.incident_date, c.location, c.police_station, c.case_description,
+                c.cnr_number, c.court_source, c.official_case_url,
+                c.last_verified_at, c.external_status, c.external_next_hearing_date,
                 c.assigned_lawyer_id, c.created_at, c.updated_at,
                 l.full_name AS assigned_lawyer_name,
                 l.phone AS assigned_lawyer_phone,
@@ -244,9 +249,10 @@ class CitizenService:
                 c.case_title ILIKE %s OR
                 c.case_number ILIKE %s OR
                 c.court_name ILIKE %s OR
-                c.opposite_party ILIKE %s
+                c.opposite_party ILIKE %s OR
+                c.cnr_number ILIKE %s
             )"""
-            params.extend([search_param, search_param, search_param, search_param])
+            params.extend([search_param, search_param, search_param, search_param, search_param])
 
         query += " ORDER BY c.updated_at DESC;"
         db.execute(query, tuple(params))
@@ -273,6 +279,8 @@ class CitizenService:
                 c.case_id, c.case_title, c.case_number, c.case_type,
                 c.court_name, c.opposite_party, c.status, c.filing_date,
                 c.incident_date, c.location, c.police_station, c.case_description,
+                c.cnr_number, c.court_source, c.official_case_url,
+                c.last_verified_at, c.external_status, c.external_next_hearing_date,
                 c.assigned_lawyer_id, c.created_at, c.updated_at,
                 l.full_name AS assigned_lawyer_name,
                 l.phone AS assigned_lawyer_phone,
@@ -349,14 +357,35 @@ class CitizenService:
         """, (case_id,))
         case_data["legal_sections"] = [dict(sec) for sec in db.fetchall()]
 
+        # 5. Official Court Reference Block
+        court_ref = {
+            "cnr_number": case_row.get("cnr_number"),
+            "court_source": case_row.get("court_source") or "eCourts India",
+            "official_case_url": case_row.get("official_case_url") or (get_official_ecourts_portal_url() if case_row.get("cnr_number") else None),
+            "last_verified_at": case_row.get("last_verified_at"),
+            "external_status": case_row.get("external_status"),
+            "external_next_hearing_date": case_row.get("external_next_hearing_date"),
+            "is_verified": case_row.get("last_verified_at") is not None,
+            "portal_url": get_official_ecourts_portal_url()
+        }
+        case_data["court_reference"] = court_ref
+
         # NOTE: case_notes are intentionally NOT queried or returned.
         return case_data
 
     @staticmethod
-    def create_case(db: RealDictCursor, user_id: int, payload: CitizenCaseCreate) -> dict:
+    def create_case(
+        db: RealDictCursor,
+        user_id: int,
+        payload: Optional[CitizenCaseCreate] = None,
+        data: Optional[CitizenCaseCreate] = None
+    ) -> dict:
         """
         Allows an authenticated citizen to submit/register a new legal case matter.
         """
+        payload = payload or data
+        if not payload:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing case data.")
         title = (payload.case_title or payload.title or "").strip()
         court = (payload.court_name or payload.court or "").strip() or None
         desc = (payload.case_description or payload.description or "").strip() or None
@@ -365,12 +394,27 @@ class CitizenService:
         loc = (payload.location or "").strip() or None
         ps = (payload.police_station or "").strip() or None
 
+        validated_cnr = None
+        if payload.cnr_number and str(payload.cnr_number).strip():
+            is_valid, normalized, err = validate_cnr(payload.cnr_number)
+            if not is_valid:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=err or "Invalid CNR Number format."
+                )
+            validated_cnr = normalized
+
+        official_url = payload.official_case_url or (get_official_ecourts_portal_url() if validated_cnr else None)
+        court_src = payload.court_source or "eCourts India"
+
         db.execute("""
             INSERT INTO cases (
                 user_id, case_title, case_type, court_name,
                 opposite_party, case_description, incident_date,
-                location, police_station, status
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'active')
+                location, police_station, status,
+                cnr_number, court_source, official_case_url,
+                external_status, external_next_hearing_date
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'active', %s, %s, %s, %s, %s)
             RETURNING *;
         """, (
             user_id,
@@ -381,7 +425,12 @@ class CitizenService:
             desc,
             payload.incident_date,
             loc,
-            ps
+            ps,
+            validated_cnr,
+            court_src,
+            official_url,
+            payload.external_status,
+            payload.external_next_hearing_date
         ))
         row = db.fetchone()
         if not row:
@@ -396,15 +445,37 @@ class CitizenService:
         case_id = new_case["case_id"]
 
         # Insert procedural registration update
+        activity_msg = 'Legal matter was registered directly by the citizen.'
+        if validated_cnr:
+            activity_msg += f" Linked with eCourts CNR: {validated_cnr}."
+
         db.execute("""
             INSERT INTO case_updates (
                 case_id, update_type, update_title,
                 update_description, status, updated_by
             ) VALUES (
                 %s, 'Registration', 'Matter Registered via Citizen Portal',
-                'Legal matter was registered directly by the citizen.', 'active', 'Citizen'
+                %s, 'active', 'Citizen'
             );
-        """, (case_id,))
+        """, (case_id, activity_msg))
+
+        # If an official next hearing date is provided, create initial hearing reminder
+        if payload.external_next_hearing_date:
+            db.execute("""
+                INSERT INTO reminders (
+                    case_id, user_id, title, description, reminder_type,
+                    reminder_date, reminder_time, court_name, status, priority, notes
+                ) VALUES (
+                    %s, %s, %s, %s, 'hearing',
+                    %s, '10:30:00', %s, 'scheduled', 'high', 'Initial scheduled court hearing.'
+                );
+            """, (
+                case_id, user_id,
+                f"Court Hearing: {title}",
+                f"Scheduled court appearance for matter '{title}'.",
+                payload.external_next_hearing_date,
+                court
+            ))
 
         # Create confirmation notification for citizen
         db.execute("""
@@ -418,6 +489,130 @@ class CitizenService:
 
         db.connection.commit()
         return new_case
+
+    @staticmethod
+    def update_court_reference(
+        db: RealDictCursor,
+        user_id: int,
+        case_id: int,
+        payload: Optional[CitizenCaseCourtReferenceUpdate] = None,
+        data: Optional[CitizenCaseCourtReferenceUpdate] = None
+    ) -> dict:
+        """
+        Allows an authenticated citizen to record user-verified official court reference information
+        (CNR, official stage, next hearing date) for their personal case.
+        Strictly enforces cases.user_id = user_id ownership boundary.
+        """
+        payload = payload or data
+        if not payload:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing court reference data.")
+        db.execute("""
+            SELECT case_id, user_id, case_title, court_name, cnr_number
+            FROM cases
+            WHERE case_id = %s AND user_id = %s;
+        """, (case_id, user_id))
+        c_row = db.fetchone()
+        if not c_row:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Case #{case_id} not found or unauthorized."
+            )
+
+        validated_cnr = c_row.get("cnr_number")
+        if payload.cnr_number is not None:
+            if str(payload.cnr_number).strip():
+                is_valid, normalized, err = validate_cnr(payload.cnr_number)
+                if not is_valid:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=err or "Invalid CNR Number format."
+                    )
+                validated_cnr = normalized
+            else:
+                validated_cnr = None
+
+        now = datetime.now()
+        official_url = payload.official_case_url or (get_official_ecourts_portal_url() if validated_cnr else None)
+        court_src = payload.court_source or "eCourts India"
+
+        # Update official reference columns
+        db.execute("""
+            UPDATE cases
+            SET cnr_number = %s,
+                court_source = %s,
+                official_case_url = %s,
+                last_verified_at = %s,
+                external_status = %s,
+                external_next_hearing_date = %s,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE case_id = %s AND user_id = %s
+            RETURNING case_id;
+        """, (
+            validated_cnr, court_src, official_url, now,
+            payload.external_status, payload.external_next_hearing_date,
+            case_id, user_id
+        ))
+
+        # Record procedural update
+        desc = f"Verified on official eCourts portal: CNR {validated_cnr or 'N/A'}"
+        if payload.external_status:
+            desc += f", Stage: {payload.external_status}"
+        if payload.external_next_hearing_date:
+            desc += f", Next Hearing: {payload.external_next_hearing_date}"
+
+        db.execute("""
+            INSERT INTO case_updates (
+                case_id, update_type, update_title, update_description, status, updated_by
+            ) VALUES (
+                %s, 'Court Reference Update', 'Official Court Reference Verified', %s, 'active', 'Citizen'
+            );
+        """, (case_id, desc))
+
+        # Synchronize hearing reminder if requested
+        case_name = c_row.get("case_title") or c_row.get("title") or "Legal Matter"
+        if payload.sync_hearing_reminder and payload.external_next_hearing_date:
+            db.execute("""
+                SELECT reminder_id FROM reminders
+                WHERE case_id = %s AND reminder_date = %s AND reminder_type = 'hearing';
+            """, (case_id, payload.external_next_hearing_date))
+            existing_hearing = db.fetchone()
+
+            if not existing_hearing:
+                db.execute("""
+                    INSERT INTO reminders (
+                        case_id, user_id, title, description, reminder_type,
+                        reminder_date, reminder_time, court_name, status, priority, notes
+                    ) VALUES (
+                        %s, %s, %s, %s, 'hearing',
+                        %s, '10:30:00', %s, 'scheduled', 'high', 'Synchronized from verified eCourts record.'
+                    );
+                """, (
+                    case_id, user_id,
+                    f"Official Hearing: {payload.external_status or 'Court Listing'}",
+                    f"Scheduled hearing on official record for matter '{case_name}'.",
+                    payload.external_next_hearing_date,
+                    c_row.get("court_name")
+                ))
+
+        # Notification to citizen
+        db.execute("""
+            INSERT INTO notifications (
+                user_id, title, message, notification_type
+            ) VALUES (
+                %s, 'Court Reference Verified',
+                %s, 'case_update'
+            );
+        """, (
+            user_id,
+            f"Official court reference for '{case_name}' has been updated with CNR {validated_cnr or 'N/A'}."
+        ))
+
+        db.connection.commit()
+
+        updated_detail = CitizenService.get_case_detail(db, user_id, case_id)
+        if not updated_detail:
+            raise HTTPException(status_code=500, detail="Failed to retrieve updated case.")
+        return updated_detail
 
     # --------------------------------------------------------------------------
     # 3. CITIZEN DOCUMENTS

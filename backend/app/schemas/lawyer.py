@@ -14,7 +14,7 @@ Pydantic v2 schemas for the Lawyer Workspace:
 
 from typing import Optional, List, Any
 from datetime import datetime, date, time
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 # -------------------------------------------------------------
@@ -104,6 +104,19 @@ class CaseCreate(BaseModel):
     location: Optional[str] = Field(None, max_length=300)
     police_station: Optional[str] = Field(None, max_length=300)
     case_description: Optional[str] = None
+    cnr_number: Optional[str] = Field(None, max_length=16, description="16-character alphanumeric eCourts CNR Number")
+    court_source: Optional[str] = Field("eCourts India", max_length=100)
+    official_case_url: Optional[str] = None
+    external_status: Optional[str] = Field(None, max_length=150)
+    external_next_hearing_date: Optional[date] = None
+
+    @field_validator("cnr_number", mode="before")
+    @classmethod
+    def clean_cnr(cls, v):
+        if v is None:
+            return None
+        v_str = str(v).strip()
+        return v_str if v_str else None
 
 
 class CaseUpdate(BaseModel):
@@ -118,6 +131,37 @@ class CaseUpdate(BaseModel):
     location: Optional[str] = None
     police_station: Optional[str] = None
     case_description: Optional[str] = None
+    cnr_number: Optional[str] = Field(None, max_length=16)
+    court_source: Optional[str] = None
+    official_case_url: Optional[str] = None
+    external_status: Optional[str] = None
+    external_next_hearing_date: Optional[date] = None
+    last_verified_at: Optional[datetime] = None
+
+    @field_validator("cnr_number", mode="before")
+    @classmethod
+    def clean_cnr(cls, v):
+        if v is None:
+            return None
+        v_str = str(v).strip()
+        return v_str if v_str else None
+
+
+class CaseCourtReferenceUpdate(BaseModel):
+    cnr_number: Optional[str] = Field(None, max_length=16, description="16-character eCourts CNR Number")
+    court_source: Optional[str] = Field("eCourts India", max_length=100)
+    official_case_url: Optional[str] = None
+    external_status: Optional[str] = Field(None, max_length=150, description="User-verified court status/stage")
+    external_next_hearing_date: Optional[date] = Field(None, description="User-verified next court hearing date")
+    sync_hearing_reminder: Optional[bool] = Field(True, description="Synchronize next hearing date to reminders calendar")
+
+    @field_validator("cnr_number", mode="before")
+    @classmethod
+    def clean_cnr(cls, v):
+        if v is None:
+            return None
+        v_str = str(v).strip()
+        return v_str if v_str else None
 
 
 class CaseSummaryResponse(BaseModel):
@@ -134,6 +178,12 @@ class CaseSummaryResponse(BaseModel):
     opposite_party: Optional[str] = None
     status: str
     filing_date: Optional[date] = None
+    cnr_number: Optional[str] = None
+    court_source: Optional[str] = "eCourts India"
+    official_case_url: Optional[str] = None
+    last_verified_at: Optional[datetime] = None
+    external_status: Optional[str] = None
+    external_next_hearing_date: Optional[date] = None
     created_at: datetime
     updated_at: datetime
 
@@ -149,6 +199,7 @@ class CaseDetailResponse(CaseSummaryResponse):
     police_station: Optional[str] = None
     case_description: Optional[str] = None
     client_email: Optional[str] = None
+    court_reference: Optional[dict] = None
     documents: List[dict] = []
     hearings: List[dict] = []
     notes: List[dict] = []

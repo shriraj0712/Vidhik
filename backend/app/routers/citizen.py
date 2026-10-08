@@ -37,7 +37,8 @@ from app.schemas.citizen import (
     NotificationResponse,
     NotificationListResponse,
     ProcedureTrackerResponse,
-    ProcedureTrackerToggle
+    ProcedureTrackerToggle,
+    CitizenCaseCourtReferenceUpdate
 )
 
 router = APIRouter(prefix="/api/citizen", tags=["Citizen Module"])
@@ -117,6 +118,27 @@ def create_case(
     """
     user_id = current_citizen["user_id"]
     return CitizenService.create_case(db, user_id, payload)
+
+
+@router.patch("/cases/{case_id}/court-reference", response_model=CitizenCaseDetailResponse, summary="Update Official Court Reference")
+def update_court_reference(
+    case_id: int,
+    payload: CitizenCaseCourtReferenceUpdate,
+    current_citizen: dict = Depends(require_citizen),
+    db: RealDictCursor = Depends(get_db)
+):
+    """
+    Updates or records user-verified official eCourts reference information for a citizen's case.
+    Strictly isolated to cases owned by the authenticated citizen.
+    """
+    user_id = current_citizen["user_id"]
+    case = CitizenService.update_court_reference(db, user_id, case_id, payload)
+    if not case:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Case with ID {case_id} not found or unauthorized."
+        )
+    return case
 
 
 # -------------------------------------------------------------

@@ -679,6 +679,53 @@
 
           <!-- TAB 1: OVERVIEW & TIMELINE -->
           <div id="tab-overview" class="tab-pane active">
+            <!-- Official eCourts Reference Card -->
+            <div class="card" style="margin-bottom: 20px; border-left: 4px solid var(--accent-cyan); background: rgba(15, 23, 42, 0.7);">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                    <span style="font-size: 16px;">🏛️</span>
+                    <h3 class="card-title" style="margin: 0; font-size: 15px;">Official Court Reference (eCourts India)</h3>
+                    <span class="badge badge-info" id="cd-cnr-badge">CNR Reference</span>
+                  </div>
+                  <p style="font-size: 12.5px; color: var(--text-muted); margin: 0 0 12px 0;">
+                    Official eCourts portal reference layer linked via 16-character Case Number Record (CNR).
+                  </p>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <button class="btn btn-secondary btn-sm" id="btn-open-ecourts" onclick="App.openOfficialECourtsLookup()">
+                    🌐 Open Official eCourts ↗
+                  </button>
+                  <button class="btn btn-primary btn-sm" onclick="App.openUpdateCourtReferenceModal(false)">
+                    ✏️ Record Verified Status
+                  </button>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; padding-top: 14px; border-top: 1px solid var(--border-subtle);">
+                <div>
+                  <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">CNR Number</div>
+                  <div style="font-size: 13.5px; font-family: monospace; font-weight: 600; color: #818CF8; margin-top: 2px;" id="cd-cnr-number">-</div>
+                </div>
+                <div>
+                  <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Court Source</div>
+                  <div style="font-size: 13px; color: var(--text-primary); margin-top: 2px;" id="cd-court-source">eCourts India</div>
+                </div>
+                <div>
+                  <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Verified Court Status</div>
+                  <div style="font-size: 13px; color: var(--text-primary); font-weight: 500; margin-top: 2px;" id="cd-external-status">Not verified yet</div>
+                </div>
+                <div>
+                  <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Next Hearing Date (Official)</div>
+                  <div style="font-size: 13px; color: var(--accent-cyan); font-weight: 600; margin-top: 2px;" id="cd-external-hearing-date">None recorded</div>
+                </div>
+                <div>
+                  <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Last Verified</div>
+                  <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;" id="cd-last-verified-at">Never</div>
+                </div>
+              </div>
+            </div>
+
             <div class="dashboard-grid">
               <div class="card">
                 <h3 class="card-title" style="margin-bottom: 14px;">Case Summary & Pleadings Background</h3>
@@ -1579,6 +1626,53 @@
 
           <!-- Tab Content -->
           <div id="tab-c-overview" class="citizen-tab-pane active">
+            <!-- Official eCourts Reference Card -->
+            <div class="card" style="margin-bottom: 20px; border-left: 4px solid var(--accent-cyan); background: rgba(15, 23, 42, 0.7);">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                    <span style="font-size: 16px;">🏛️</span>
+                    <h3 class="card-title" style="margin: 0; font-size: 15px;">Official Court Reference (eCourts India)</h3>
+                    <span class="badge badge-info" id="c-detail-cnr-badge">CNR Reference</span>
+                  </div>
+                  <p style="font-size: 12.5px; color: var(--text-muted); margin: 0 0 12px 0;">
+                    Official eCourts reference layer linked via 16-character Case Number Record (CNR).
+                  </p>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <button class="btn btn-secondary btn-sm" id="btn-c-open-ecourts" onclick="App.openOfficialECourtsLookup(App.currentCitizenCaseCNR)">
+                    🌐 Open Official eCourts ↗
+                  </button>
+                  <button class="btn btn-primary btn-sm" onclick="App.openUpdateCourtReferenceModal(true)">
+                    ✏️ Record Verified Status
+                  </button>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; padding-top: 14px; border-top: 1px solid var(--border-subtle);">
+                <div>
+                  <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">CNR Number</div>
+                  <div style="font-size: 13.5px; font-family: monospace; font-weight: 600; color: #818CF8; margin-top: 2px;" id="c-detail-cnr">-</div>
+                </div>
+                <div>
+                  <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Court Source</div>
+                  <div style="font-size: 13px; color: var(--text-primary); margin-top: 2px;" id="c-detail-court-source">eCourts India</div>
+                </div>
+                <div>
+                  <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Verified Court Status</div>
+                  <div style="font-size: 13px; color: var(--text-primary); font-weight: 500; margin-top: 2px;" id="c-detail-external-status">Not verified yet</div>
+                </div>
+                <div>
+                  <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Next Hearing Date (Official)</div>
+                  <div style="font-size: 13px; color: var(--accent-cyan); font-weight: 600; margin-top: 2px;" id="c-detail-external-hearing-date">None recorded</div>
+                </div>
+                <div>
+                  <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Last Verified</div>
+                  <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;" id="c-detail-last-verified-at">Never</div>
+                </div>
+              </div>
+            </div>
+
             <div class="card">
               <h3 class="card-title" style="margin-bottom: 12px;">Case Description & Facts</h3>
               <p id="c-detail-description" style="font-size: 14px; color: var(--text-secondary); line-height: 1.7;">-</p>
@@ -1937,9 +2031,15 @@
                 placeholder="e.g. Municipal Corporation of Greater Mumbai">
             </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">Filing Date</label>
-            <input type="date" id="m-case-filing-date" class="form-control">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label">Filing Date</label>
+              <input type="date" id="m-case-filing-date" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">eCourts CNR Number (Optional)</label>
+              <input type="text" id="m-case-cnr" class="form-control" maxlength="16" placeholder="e.g. MHAU010123452023" style="font-family: monospace; text-transform: uppercase;">
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label">Case Description & Pleadings Summary</label>
@@ -2436,6 +2536,10 @@
             </div>
           </div>
           <div class="form-group">
+            <label class="form-label">eCourts CNR Number (Optional)</label>
+            <input type="text" id="m-c-case-cnr" class="form-control" maxlength="16" placeholder="e.g. MHAU010123452023" style="font-family: monospace; text-transform: uppercase;">
+          </div>
+          <div class="form-group">
             <label class="form-label">Summary of Facts & Relief Sought *</label>
             <textarea id="m-c-case-description" class="form-control" rows="3" required
               placeholder="Describe the factual background, grievance, and relief requested..."></textarea>
@@ -2489,6 +2593,47 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="App.closeModals()">Cancel</button>
           <button type="submit" class="btn btn-primary">Upload Document</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: UPDATE OFFICIAL COURT REFERENCE -->
+  <div id="modal-update-court-reference" class="modal-overlay">
+    <div class="modal-dialog" style="max-width: 580px;">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">Record Official Court Reference</h3>
+          <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">User-verified eCourts CNR reference information</p>
+        </div>
+        <button class="modal-close" onclick="App.closeModals()">✕</button>
+      </div>
+      <form id="form-update-court-reference" onsubmit="App.submitUpdateCourtReference(event)">
+        <div class="modal-body">
+          <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 16px; font-size: 12.5px; color: #CBD5E1; line-height: 1.5;">
+            ℹ️ <strong>User-Assisted Reference:</strong> VIDHIK records user-verified court reference data. Solve the CAPTCHA directly on the official portal, then record the verified status and next hearing date below.
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">CNR Number (16-Character Alphanumeric) *</label>
+            <input type="text" id="m-ref-cnr" class="form-control" maxlength="16" placeholder="e.g. MHAU010123452023" style="font-family: monospace; text-transform: uppercase;" required>
+            <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">Example: <code>MHAU010123452023</code> (State: MH, District/Court: AU01, Case: 012345, Year: 2023)</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Verified Official Court Status / Stage</label>
+            <input type="text" id="m-ref-status" class="form-control" placeholder="e.g. Listed for Admission / Awaiting Service / Arguments">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Verified Official Next Hearing Date</label>
+            <input type="date" id="m-ref-hearing-date" class="form-control">
+            <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">Recording an official next hearing date synchronizes with the calendar reminder system.</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="App.closeModals()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Court Reference</button>
         </div>
       </form>
     </div>

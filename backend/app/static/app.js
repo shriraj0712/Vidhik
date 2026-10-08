@@ -791,6 +791,7 @@ const App = {
 
   async submitCreateCase(e) {
     e.preventDefault();
+    const cnr = document.getElementById('m-case-cnr')?.value.trim() || null;
     const payload = {
       user_id: parseInt(document.getElementById('m-case-client').value),
       case_title: document.getElementById('m-case-title').value,
@@ -800,6 +801,7 @@ const App = {
       opposite_party: document.getElementById('m-case-opposite').value || null,
       filing_date: document.getElementById('m-case-filing-date').value || null,
       case_description: document.getElementById('m-case-description').value || null,
+      cnr_number: cnr,
       status: 'active'
     };
 
@@ -839,6 +841,32 @@ const App = {
       document.getElementById('cd-hearing-count').innerText = data.hearings.length;
       document.getElementById('cd-note-count').innerText = data.notes.length;
       document.getElementById('cd-sec-count').innerText = data.legal_sections.length;
+
+      // Official Court Reference (eCourts)
+      const cnr = data.cnr_number || (data.court_reference ? data.court_reference.cnr_number : null);
+      this.currentCaseCNR = cnr;
+      this.currentCaseCourtReference = data.court_reference || {
+        cnr_number: data.cnr_number,
+        court_source: data.court_source || 'eCourts India',
+        official_case_url: data.official_case_url,
+        last_verified_at: data.last_verified_at,
+        external_status: data.external_status,
+        external_next_hearing_date: data.external_next_hearing_date
+      };
+      
+      const cnrElem = document.getElementById('cd-cnr-number');
+      if (cnrElem) cnrElem.innerText = cnr || 'Not Linked';
+      const cSourceElem = document.getElementById('cd-court-source');
+      if (cSourceElem) cSourceElem.innerText = (data.court_reference?.court_source || data.court_source) || 'eCourts India';
+      const extStatusElem = document.getElementById('cd-external-status');
+      if (extStatusElem) extStatusElem.innerText = (data.court_reference?.external_status || data.external_status) || 'Not verified yet';
+      const extHearingElem = document.getElementById('cd-external-hearing-date');
+      if (extHearingElem) extHearingElem.innerText = (data.court_reference?.external_next_hearing_date || data.external_next_hearing_date) || 'None recorded';
+      const lastVerElem = document.getElementById('cd-last-verified-at');
+      if (lastVerElem) {
+        const lv = data.court_reference?.last_verified_at || data.last_verified_at;
+        lastVerElem.innerText = lv ? new Date(lv).toLocaleString() : 'Never';
+      }
 
       // Overview Tab
       document.getElementById('cd-description').innerText = data.case_description || 'No description provided for this matter.';
@@ -2783,6 +2811,32 @@ const App = {
       document.getElementById('c-detail-incident-date').innerText = c.incident_date || 'N/A';
       document.getElementById('c-detail-police').innerText = `${c.police_station || ''} ${c.location ? `(${c.location})` : ''}`.trim() || 'N/A';
 
+      // Official Court Reference (eCourts)
+      const cnr = c.cnr_number || (c.court_reference ? c.court_reference.cnr_number : null);
+      this.currentCitizenCaseCNR = cnr;
+      this.currentCitizenCaseCourtReference = c.court_reference || {
+        cnr_number: c.cnr_number,
+        court_source: c.court_source || 'eCourts India',
+        official_case_url: c.official_case_url,
+        last_verified_at: c.last_verified_at,
+        external_status: c.external_status,
+        external_next_hearing_date: c.external_next_hearing_date
+      };
+
+      const cnrElem = document.getElementById('c-detail-cnr');
+      if (cnrElem) cnrElem.innerText = cnr || 'Not Linked';
+      const cSourceElem = document.getElementById('c-detail-court-source');
+      if (cSourceElem) cSourceElem.innerText = (c.court_reference?.court_source || c.court_source) || 'eCourts India';
+      const extStatusElem = document.getElementById('c-detail-external-status');
+      if (extStatusElem) extStatusElem.innerText = (c.court_reference?.external_status || c.external_status) || 'Not verified yet';
+      const extHearingElem = document.getElementById('c-detail-external-hearing-date');
+      if (extHearingElem) extHearingElem.innerText = (c.court_reference?.external_next_hearing_date || c.external_next_hearing_date) || 'None recorded';
+      const lastVerElem = document.getElementById('c-detail-last-verified-at');
+      if (lastVerElem) {
+        const lv = c.court_reference?.last_verified_at || c.last_verified_at;
+        lastVerElem.innerText = lv ? new Date(lv).toLocaleString() : 'Never';
+      }
+
       // Counts
       const docCount = c.documents ? c.documents.length : 0;
       const hearingCount = c.hearings ? c.hearings.length : 0;
@@ -2890,6 +2944,7 @@ const App = {
 
   async submitCitizenNewCase(e) {
     e.preventDefault();
+    const cnr = document.getElementById('m-c-case-cnr')?.value.trim() || null;
     const payload = {
       title: document.getElementById('m-c-case-title').value.trim(),
       case_type: document.getElementById('m-c-case-type').value || 'Civil Litigation',
@@ -2898,7 +2953,8 @@ const App = {
       incident_date: document.getElementById('m-c-case-incident-date').value || null,
       police_station: document.getElementById('m-c-case-police').value.trim() || null,
       location: document.getElementById('m-c-case-location').value.trim() || null,
-      description: document.getElementById('m-c-case-description').value.trim()
+      description: document.getElementById('m-c-case-description').value.trim(),
+      cnr_number: cnr
     };
 
     try {
@@ -3453,6 +3509,73 @@ const App = {
       this.renderNotificationsFullList();
     } catch (err) {
       this.showToast('Failed to mark read: ' + err.message, 'error');
+    }
+  },
+
+  // -------------------------------------------------------------
+  // eCOURTS OFFICIAL REFERENCE & LOOKUP (USER-ASSISTED)
+  // -------------------------------------------------------------
+  openOfficialECourtsLookup(cnrOverride) {
+    const cnr = cnrOverride || this.currentCaseCNR || this.currentCitizenCaseCNR;
+    if (cnr) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(cnr).catch(e => console.warn('Clipboard write failed:', e));
+      }
+      this.showToast(`CNR ${cnr} copied to clipboard! Solve CAPTCHA on official portal.`, 'info');
+    } else {
+      this.showToast('Opening official eCourts portal in new tab...', 'info');
+    }
+    window.open('https://services.ecourts.gov.in/ecourtindia_v6/', '_blank');
+  },
+
+  openUpdateCourtReferenceModal(isCitizen = false) {
+    this.updatingCourtReferenceIsCitizen = isCitizen;
+    const form = document.getElementById('form-update-court-reference');
+    if (form) form.reset();
+
+    const ref = isCitizen ? (this.currentCitizenCaseCourtReference || {}) : (this.currentCaseCourtReference || {});
+    const cnrInput = document.getElementById('m-ref-cnr');
+    const statusInput = document.getElementById('m-ref-status');
+    const hearingDateInput = document.getElementById('m-ref-hearing-date');
+
+    if (cnrInput) cnrInput.value = ref.cnr_number || (isCitizen ? (this.currentCitizenCaseCNR || '') : (this.currentCaseCNR || ''));
+    if (statusInput) statusInput.value = ref.external_status || '';
+    if (hearingDateInput) hearingDateInput.value = ref.external_next_hearing_date || '';
+
+    document.getElementById('modal-update-court-reference')?.classList.add('active');
+  },
+
+  async submitUpdateCourtReference(e) {
+    e.preventDefault();
+    const cnr = (document.getElementById('m-ref-cnr')?.value || '').trim().toUpperCase();
+    const externalStatus = (document.getElementById('m-ref-status')?.value || '').trim() || null;
+    const nextHearingDate = document.getElementById('m-ref-hearing-date')?.value || null;
+
+    if (!cnr) {
+      this.showToast('Please provide a valid 16-character CNR number.', 'error');
+      return;
+    }
+
+    const payload = {
+      cnr_number: cnr,
+      external_status: externalStatus,
+      external_next_hearing_date: nextHearingDate
+    };
+
+    try {
+      if (this.updatingCourtReferenceIsCitizen) {
+        await this.api(`/api/citizen/cases/${this.currentCaseId}/court-reference`, 'PATCH', payload);
+        this.showToast('Official court reference recorded successfully!', 'success');
+        this.closeModals();
+        this.loadCitizenCaseDetail(this.currentCaseId);
+      } else {
+        await this.api(`/api/lawyer/cases/${this.currentCaseId}/court-reference`, 'PATCH', payload);
+        this.showToast('Official court reference recorded successfully!', 'success');
+        this.closeModals();
+        this.openCaseDetail(this.currentCaseId);
+      }
+    } catch (err) {
+      this.showToast('Update failed: ' + err.message, 'error');
     }
   },
 

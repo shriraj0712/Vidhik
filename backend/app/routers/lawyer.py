@@ -27,7 +27,8 @@ from app.schemas.lawyer import (
     DocumentCreate, DocumentResponse, DocumentListResponse,
     NoteCreate, NoteUpdate, NoteResponse,
     LawyerProfileResponse, LawyerProfileUpdate,
-    CaseSectionLinkRequest, CaseSectionLinkResponse
+    CaseSectionLinkRequest, CaseSectionLinkResponse,
+    CaseCourtReferenceUpdate
 )
 
 router = APIRouter(prefix="/api/lawyer", tags=["Lawyer Module"])
@@ -192,6 +193,27 @@ def update_case(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Case with ID {case_id} not found or update failed."
+        )
+    return case
+
+
+@router.patch("/cases/{case_id}/court-reference", response_model=CaseDetailResponse, summary="Update Official Court Reference")
+def update_court_reference(
+    case_id: int,
+    payload: CaseCourtReferenceUpdate,
+    current_lawyer: dict = Depends(require_lawyer),
+    db: RealDictCursor = Depends(get_db)
+):
+    """
+    Updates or records user-verified official eCourts reference information for a case.
+    Does not scrape eCourts; saves manually verified reference data (CNR, stage, hearing date).
+    """
+    lawyer_id = current_lawyer.get("lawyer_id", 1)
+    case = LawyerService.update_court_reference(db, case_id, lawyer_id, payload)
+    if not case:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Case with ID {case_id} not found or not assigned to you."
         )
     return case
 

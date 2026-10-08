@@ -15,6 +15,7 @@ env/
 *.dump
 *.backup
 !database/migrations/008_expand_legal_procedures_phase12.sql
+!database/migrations/010_ecourts_case_tracking_schema.sql
 
 # IDE
 .vscode/
