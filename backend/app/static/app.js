@@ -1137,8 +1137,9 @@ const App = {
         this.loadCaseTrackingModule();
         break;
       case 'voice-assistant':
-        this.loadVoiceAssistantModule();
-        break;
+        this.navigate('ai-assistant');
+        setTimeout(() => this.startSpeechInputForChat(), 300);
+        return;
       case 'legal-knowledge':
         this.loadLegalKnowledgeModule();
         break;
@@ -5980,43 +5981,144 @@ const App = {
     }
   },
 
+  aiSpeechRecognition: null,
+
+  toggleSpeechInputForChat() {
+    if (this.aiSpeechRecognition) {
+      this.stopSpeechInputForChat();
+    } else {
+      this.startSpeechInputForChat();
+    }
+  },
+
   startSpeechInputForChat() {
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRec) {
       this.showToast('Speech recognition not supported in this browser. Please type your query.', 'error');
       return;
     }
+    if (this.aiSpeechRecognition) {
+      try { this.aiSpeechRecognition.abort(); } catch (e) {}
+      this.aiSpeechRecognition = null;
+    }
+
     const rec = new SpeechRec();
-    rec.lang = this.currentLanguage === 'hi' ? 'hi-IN' : (this.currentLanguage === 'mr' ? 'mr-IN' : 'en-IN');
-    rec.interimResults = false;
+    const langSelect = document.getElementById('ai-chat-lang');
+    const selectedLang = (langSelect && langSelect.value) || this.currentLanguage || 'en';
+    rec.lang = selectedLang === 'hi' ? 'hi-IN' : (selectedLang === 'mr' ? 'mr-IN' : 'en-IN');
+    rec.interimResults = true;
+    rec.continuous = false;
+
     const btn = document.getElementById('btn-ai-voice');
-    if (btn) btn.classList.add('mic-recording-active');
+    const statusBar = document.getElementById('ai-voice-status-bar');
+    const statusLabel = document.getElementById('ai-voice-status-label');
 
     rec.onstart = () => {
-      this.showToast('Listening... Speak your legal query now.', 'info');
+      this.aiSpeechRecognition = rec;
+      if (btn) btn.classList.add('mic-recording-active');
+      if (statusBar) statusBar.style.display = 'flex';
+      if (statusLabel) {
+        statusLabel.textContent = selectedLang === 'hi' ? 'सुन रहा हूँ... अपना कानूनी सवाल बोलें।' :
+                                  (selectedLang === 'mr' ? 'ऐकत आहे... तुमचा कायदेशीर प्रश्न विचारा.' :
+                                  'Listening... Speak your legal query now.');
+      }
     };
 
     rec.onresult = (evt) => {
-      const spoken = evt.results[0][0].transcript;
-      const input = document.getElementById('ai-chat-input');
-      if (input) {
-        input.value = spoken;
-        input.focus();
+      let interim = '';
+      let final = '';
+      for (let i = evt.resultIndex; i < evt.results.length; ++i) {
+        if (evt.results[i].isFinal) {
+          final += evt.results[i][0].transcript;
+        } else {
+          interim += evt.results[i][0].transcript;
+        }
       }
-      this.showToast(`Heard: "${spoken}"`, 'success');
+      const spoken = final || interim;
+      const input = document.getElementById('ai-chat-input');
+      if (input && spoken) {
+        input.value = spoken;
+      }
     };
 
     rec.onerror = (err) => {
       console.warn('Speech recognition error:', err);
-      this.showToast('Could not recognize voice. Please try typing.', 'error');
       if (btn) btn.classList.remove('mic-recording-active');
+      if (statusBar) statusBar.style.display = 'none';
+      this.aiSpeechRecognition = null;
+      if (err.error !== 'no-speech' && err.error !== 'aborted') {
+        this.showToast('Voice input: ' + (err.error || 'microphone error'), 'warning');
+      }
     };
 
     rec.onend = () => {
       if (btn) btn.classList.remove('mic-recording-active');
+      if (statusBar) statusBar.style.display = 'none';
+      this.aiSpeechRecognition = null;
+      const input = document.getElementById('ai-chat-input');
+      if (input && input.value.trim()) {
+        input.focus();
+        this.showToast('Voice captured! Tap Send or Enter to submit query.', 'success');
+      }
     };
 
-    rec.start();
+    try {
+      rec.start();
+    } catch (e) {
+      console.warn('Speech rec start failed:', e);
+    }
+  },
+
+  stopSpeechInputForChat() {
+    if (this.aiSpeechRecognition) {
+      try { this.aiSpeechRecognition.stop(); } catch (e) {}
+      this.aiSpeechRecognition = null;
+    }
+    const btn = document.getElementById('btn-ai-voice');
+    const statusBar = document.getElementById('ai-voice-status-bar');
+    if (btn) btn.classList.remove('mic-recording-active');
+    if (statusBar) statusBar.style.display = 'none';
+  },
+
+  toggleAiDocumentContext() {
+    const drawer = document.getElementById('ai-doc-context-drawer');
+    if (!drawer) return;
+    const isHidden = drawer.style.display === 'none' || !drawer.style.display;
+    drawer.style.display = isHidden ? 'block' : 'none';
+    const btn = document.getElementById('btn-ai-doc-toggle');
+    if (btn) {
+      btn.style.background = isHidden ? 'var(--accent-primary)' : '';
+      btn.style.color = isHidden ? '#fff' : '';
+    }
+    if (isHidden) {
+      const input = document.getElementById('ai-doc-text-input');
+      if (input) input.focus();
+    }
+  },
+
+  clearAiDocumentContext() {
+    const title = document.getElementById('ai-doc-title-input');
+    const text = document.getElementById('ai-doc-text-input');
+    if (title) title.value = '';
+    if (text) text.value = '';
+    const drawer = document.getElementById('ai-doc-context-drawer');
+    if (drawer) drawer.style.display = 'none';
+    const btn = document.getElementById('btn-ai-doc-toggle');
+    if (btn) {
+      btn.style.background = '';
+      btn.style.color = '';
+    }
+    this.showToast('Document context cleared.', 'info');
+  },
+
+  handleAiChatLangChange() {
+    const select = document.getElementById('ai-chat-lang');
+    if (select) {
+      this.currentLanguage = select.value;
+      if (this.setLanguage) {
+        this.setLanguage(select.value);
+      }
+    }
   },
 
   async handleAiChatSubmit(e) {
@@ -6026,6 +6128,12 @@ const App = {
     const message = input.value.trim();
     if (!message) return;
 
+    // Check optional document/notice context
+    const docTextInput = document.getElementById('ai-doc-text-input');
+    const docTitleInput = document.getElementById('ai-doc-title-input');
+    const docText = (docTextInput && docTextInput.value.trim()) || undefined;
+    const docTitle = (docTitleInput && docTitleInput.value.trim()) || undefined;
+
     const thread = document.getElementById('ai-chat-thread');
     const landing = document.getElementById('ai-chat-landing');
     if (landing) landing.style.display = 'none';
@@ -6033,7 +6141,11 @@ const App = {
     // 1. Render User Message Bubble
     const userBubble = document.createElement('div');
     userBubble.className = 'chat-msg-user';
-    userBubble.textContent = message;
+    let userDisplayHtml = this.escape(message);
+    if (docTitle) {
+      userDisplayHtml += `<div style="margin-top: 6px; font-size: 11.5px; opacity: 0.85; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 4px;">📄 Attached Document: <strong>${this.escape(docTitle)}</strong></div>`;
+    }
+    userBubble.innerHTML = userDisplayHtml;
     thread.appendChild(userBubble);
     input.value = '';
 
@@ -6045,7 +6157,7 @@ const App = {
     const typingText = document.getElementById('ai-typing-status-text');
     if (typing) {
       typing.style.display = 'flex';
-      if (typingText) typingText.textContent = this.t('Grounded retrieval in BNS, BNSS, BSA & 24 Acts...');
+      if (typingText) typingText.textContent = this.t('Unified retrieval across Constitution, BNS, BNSS, BSA & 24 Acts...');
     }
 
     try {
@@ -6059,6 +6171,11 @@ const App = {
         language: lang,
         history: this.aiHistory.slice(-8)
       };
+
+      if (docText) {
+        payload.document_text = docText;
+        if (docTitle) payload.document_title = docTitle;
+      }
 
       const res = await this.api('/api/assistant/chat', 'POST', payload);
 
@@ -6078,10 +6195,10 @@ const App = {
       const aiCard = document.createElement('div');
       aiCard.className = 'chat-msg-assistant';
 
-      const groundingBadgeText = res.is_grounded ? '✓ Grounded in Verified Indian Law' : 'Informational Notice';
+      const groundingBadgeText = res.is_grounded ? '✓ Grounded in Indian Law' : 'Informational Notice';
       const groundingColor = res.is_grounded ? 'var(--accent-emerald)' : 'var(--accent-amber)';
 
-      // Citations HTML
+      // Clean Citations HTML (Formatting Art for Constitution, Sec for Acts)
       let citationsHtml = '';
       if (res.sources && res.sources.length > 0) {
         citationsHtml = `
@@ -6090,11 +6207,18 @@ const App = {
               Statutory Citations (${res.sources.length}):
             </div>
             <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-              ${res.sources.map(s => `
-                <span class="citation-badge" title="${this.escape(s.law_name)}: ${this.escape(s.section_title || '')}">
-                  ⚖️ ${this.escape(s.short_name || s.law_name)} Sec ${this.escape(s.section_number)}
+              ${res.sources.map(s => {
+                const law = s.law_name || '';
+                const isConst = s.is_constitutional || law.toLowerCase().includes('constitution') || (s.article_number != null);
+                const prefix = isConst ? 'Art ' : 'Sec ';
+                const num = s.article_number || s.section_number || '';
+                const shortLaw = s.short_name || s.law_name;
+                return `
+                <span class="citation-badge" title="${this.escape(law)}: ${this.escape(s.section_title || '')}">
+                  ⚖️ ${this.escape(shortLaw)} ${this.escape(prefix + num)}
                 </span>
-              `).join('')}
+                `;
+              }).join('')}
             </div>
           </div>
         `;
@@ -6130,14 +6254,14 @@ const App = {
         ${citationsHtml}
 
         <div style="margin-top: 16px; padding: 10px 14px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); font-size: 12.5px; color: var(--text-secondary); line-height: 1.5;">
-          ⚖️ <strong>Statutory Disclaimer:</strong> ${this.escape(res.disclaimer || 'Informational support grounded in Indian statutes. Verify before official court filings.')}
+          ⚖️ <strong>Statutory Disclaimer:</strong> ${this.escape(res.disclaimer || 'Informational legal assistance grounded in Indian statutes. Verify before official court filings.')}
         </div>
 
         <div style="margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end;">
           <button type="button" class="btn btn-secondary btn-sm" onclick="App.copyText('${this.escapeForJs(res.answer)}')">
             📋 Copy Answer
           </button>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="App.speakText('${this.escapeForJs(res.answer)}')">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleSpeakText('${this.escapeForJs(res.answer)}', this)">
             🔊 Listen
           </button>
           <button type="button" class="btn btn-secondary btn-sm" onclick="App.prefillComplaintFromAi('${this.escapeForJs(message)}')">
@@ -6207,19 +6331,42 @@ const App = {
     }
   },
 
-  speakText(text) {
+  toggleSpeakText(text, btnElement) {
     if (!window.speechSynthesis) {
       this.showToast('Speech synthesis not supported in this browser.', 'error');
       return;
     }
-    window.speechSynthesis.cancel();
-    // Clean text of markdown
-    const clean = text.replace(/[*#_~]/g, '');
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+      if (btnElement) btnElement.innerHTML = '🔊 Listen';
+      this.showToast('Audio playback stopped.', 'info');
+      return;
+    }
+    // Clean text of markdown characters, URLs, and formatting
+    const clean = text
+      .replace(/https?:\/\/\S+/g, '')
+      .replace(/[*#_~`>]/g, ' ')
+      .replace(/\n+/g, '. ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
     const utterance = new SpeechSynthesisUtterance(clean);
-    utterance.lang = this.currentLanguage === 'hi' ? 'hi-IN' : (this.currentLanguage === 'mr' ? 'mr-IN' : 'en-IN');
-    utterance.rate = 1.0;
+    const lang = this.currentLanguage || 'en';
+    utterance.lang = lang === 'hi' ? 'hi-IN' : (lang === 'mr' ? 'mr-IN' : 'en-IN');
+    utterance.rate = 0.95;
+
+    if (btnElement) {
+      btnElement.innerHTML = '⏹️ Stop';
+      utterance.onend = () => { btnElement.innerHTML = '🔊 Listen'; };
+      utterance.onerror = () => { btnElement.innerHTML = '🔊 Listen'; };
+    }
+
     window.speechSynthesis.speak(utterance);
-    this.showToast('Playing voice response...', 'info');
+    this.showToast(lang === 'hi' ? 'कानूनी उत्तर सुनाया जा रहा है...' : (lang === 'mr' ? 'कायदेशीर उत्तर ऐकवत आहे...' : 'Playing spoken legal explanation...'), 'info');
+  },
+
+  speakText(text, btnElement) {
+    this.toggleSpeakText(text, btnElement);
   },
 
   prefillComplaintFromAi(query) {

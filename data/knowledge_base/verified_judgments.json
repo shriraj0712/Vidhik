@@ -134,5 +134,95 @@
         "explanation": "Catalyzed the statutory codification of mandatory videography for search and seizure in Section 105 BNSS."
       }
     ]
+  },
+  {
+    "case_title": "D.K. Basu v. State of West Bengal",
+    "case_number": "Writ Petition (Crl.) No. 592 of 1987",
+    "court": "Supreme Court of India",
+    "bench": "Kuldip Singh, A.S. Anand, JJ.",
+    "judgment_date": "1996-12-18",
+    "citation": "(1997) 1 SCC 416",
+    "judgment_text": "The Supreme Court laid down 11 mandatory guidelines governing the arrest and detention of individuals to prevent custodial violence and protect personal liberty guaranteed under Articles 21 and 22 of the Constitution. The Court mandated that the arresting officer must display visible identification, prepare a memo of arrest with independent witnesses, inform the arrestee's nominated relative or friend, record grounds of arrest in police diary, and arrange for medical examination. These safeguards are codified in Section 47 and Section 48 of the Bharatiya Nagarik Suraksha Sanhita, 2023.",
+    "headnotes": "Arrest Guidelines - Custodial Violence - Protection under Articles 21 and 22 - Duty to inform grounds of arrest and notify family members codified in Sections 47 and 48 BNSS.",
+    "source_url": "https://main.sci.gov.in",
+    "source_name": "Supreme Court of India Official Repository",
+    "source_type": "Supreme Court of India",
+    "language": "en",
+    "linked_sections": [
+      {
+        "law_name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+        "section_number": "47",
+        "relationship_type": "Codified",
+        "relevance": "Direct",
+        "explanation": "Codifies mandatory duty to inform grounds of arrest and right to bail."
+      },
+      {
+        "law_name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+        "section_number": "48",
+        "relationship_type": "Codified",
+        "relevance": "Direct",
+        "explanation": "Codifies obligation to notify nominated relative/friend of arrest."
+      },
+      {
+        "law_name": "Constitution of India",
+        "section_number": "Article 22",
+        "relationship_type": "Applied",
+        "relevance": "Direct",
+        "explanation": "Constitutional protection against arbitrary arrest and detention without information."
+      }
+    ]
+  },
+  {
+    "case_title": "Justice K.S. Puttaswamy (Retd.) and Another v. Union of India and Others",
+    "case_number": "Writ Petition (Civil) No. 494 of 2012",
+    "court": "Supreme Court of India (9-Judge Constitution Bench)",
+    "bench": "J.S. Khehar, C.J., J. Chelameswar, S.A. Bobde, R.K. Agrawal, R.F. Nariman, A.M. Sapre, D.Y. Chandrachud, S.K. Kaul, S. Abdul Nazeer, JJ.",
+    "judgment_date": "2017-08-24",
+    "citation": "(2017) 10 SCC 1",
+    "judgment_text": "The 9-Judge Constitution Bench held that the right to privacy is an intrinsic part of the right to life and personal liberty guaranteed under Article 21 of the Constitution and forms part of the freedoms guaranteed by Part III. The Court ruled that informational privacy, bodily integrity, and personal choices are constitutionally protected from unlawful state surveillance and private intrusion, requiring legitimate state aim, legality, and proportionality.",
+    "headnotes": "Constitutional Law - Right to Privacy - Fundamental Right under Article 21 and Part III of the Constitution.",
+    "source_url": "https://main.sci.gov.in",
+    "source_name": "Supreme Court of India Official Repository",
+    "source_type": "Supreme Court of India",
+    "language": "en",
+    "linked_sections": [
+      {
+        "law_name": "Constitution of India",
+        "section_number": "Article 21",
+        "relationship_type": "Interpreted",
+        "relevance": "Direct",
+        "explanation": "Affirms Right to Privacy as fundamental right under Article 21."
+      },
+      {
+        "law_name": "Information Technology Act, 2000",
+        "section_number": "43A",
+        "relationship_type": "Applied",
+        "relevance": "Direct",
+        "explanation": "Governs data protection and sensitive personal information security standards."
+      }
+    ]
+  },
+  {
+    "case_title": "Arnesh Kumar v. State of Bihar and Another",
+    "case_number": "Criminal Appeal No. 1277 of 2014",
+    "court": "Supreme Court of India",
+    "bench": "Chandramauli Kr. Prasad, Pinaki Chandra Ghose, JJ.",
+    "judgment_date": "2014-07-02",
+    "citation": "(2014) 8 SCC 273",
+    "judgment_text": "The Supreme Court mandated that police officers shall not automatically arrest accused persons in cases where the offence is punishable with imprisonment for seven years or less. Instead, a notice of appearance under Section 41A CrPC (now Section 35(3) BNSS) must be served within two weeks, and arrest can only be effected upon recording specific statutory reasons. Magistrates were directed not to authorise mechanical detention without verifying satisfaction of arrest criteria.",
+    "headnotes": "Arrest Restrictions - Offences under 7 years - Notice of appearance mandatory - Codified in Section 35 BNSS.",
+    "source_url": "https://main.sci.gov.in",
+    "source_name": "Supreme Court of India Official Repository",
+    "source_type": "Supreme Court of India",
+    "language": "en",
+    "linked_sections": [
+      {
+        "law_name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+        "section_number": "35",
+        "relationship_type": "Codified",
+        "relevance": "Direct",
+        "explanation": "Restricts automatic arrest for offences punishable up to 7 years."
+      }
+    ]
   }
 ]

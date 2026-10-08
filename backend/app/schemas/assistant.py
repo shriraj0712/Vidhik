@@ -78,6 +78,14 @@ class AssistantChatRequest(BaseModel):
         le=1.0,
         description="Generation temperature (low value ensures deterministic, factual adherence)"
     )
+    document_text: Optional[str] = Field(
+        default=None,
+        description="Optional full text of uploaded legal notice, contract, or evidence document to analyze"
+    )
+    document_title: Optional[str] = Field(
+        default=None,
+        description="Optional title or file name of the uploaded document"
+    )
 
 
 class AssistantChatResponse(BaseModel):

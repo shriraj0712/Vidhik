@@ -3759,6 +3759,366 @@
       "subsections_count": 0,
       "clauses_count": 0,
       "judgments_status": "Cross-statute Precedents Linked"
+    },
+    {
+      "section_id": "the-bharatiya-nagarik-suraksha-sanhita-2023-sec-48",
+      "law_id": 2,
+      "law_name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+      "short_name": "BNSS",
+      "section_number": "48",
+      "section_title": "Obligation of person making arrest to inform about arrest to nominated person",
+      "full_text": "(1) Every police officer or other person making any arrest under this Sanhita shall forthwith give the information regarding such arrest and place where the arrested person is being held to any of his friends, relatives or such other persons as may be disclosed or nominated by the arrested person for the purpose of giving such information.\n(2) The police officer shall inform the arrested person of his rights under sub-section (1) as soon as he is brought to the police station.",
+      "chapter": "CHAPTER V - ARREST OF PERSONS",
+      "procedure": {
+        "title": "Mandatory Notification to Family/Nominated Person of Arrest",
+        "procedure_category": "Arrest & Rights of Accused",
+        "description": "Duty of arresting officer to inform relatives or nominated friend of arrest and location of detention, codifying D.K. Basu guidelines",
+        "statutory_steps": [
+          "Inform arrested person of right to have a friend or relative informed",
+          "Obtain nominated person details from arrestee",
+          "Transmit information of arrest and place of custody forthwith",
+          "Record entry in police station diary regarding notice given"
+        ],
+        "safeguards": [
+          "Prevents custodial disappearances and incommunicado detention",
+          "Codifies Supreme Court D.K. Basu guidelines",
+          "Enforces transparency in police custody"
+        ],
+        "timeline_days": 1
+      },
+      "keywords": [
+        "inform family",
+        "nominated person",
+        "place of custody",
+        "dk basu guidelines",
+        "arrest memo",
+        "police diary"
+      ],
+      "is_offence": false
+    },
+    {
+      "section_id": "the-bharatiya-nagarik-suraksha-sanhita-2023-sec-478",
+      "law_id": 2,
+      "law_name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+      "short_name": "BNSS",
+      "section_number": "478",
+      "section_title": "In what cases bail to be taken (Bailable offences)",
+      "full_text": "(1) When any person other than a person accused of a non-bailable offence is arrested or detained without warrant by an officer in charge of a police station, or appears or is brought before a Court, and is prepared at any time while in the custody of such officer or at any stage of the proceeding before such Court to give bail, such person shall be released on bail:\nProvided that such officer or Court, if he or it thinks fit, may, and shall, if such person is indigent and unable to furnish surety, instead of taking bail from such person, discharge him on his executing a bond without sureties for his appearance.\nExplanation.\u2014Where a person is unable to give bail within a week of the date of his arrest, it shall be a sufficient ground for the officer or Court to presume him to be an indigent person for the purposes of this proviso.",
+      "chapter": "CHAPTER XXXV - PROVISIONS AS TO BAIL AND BONDS",
+      "procedure": {
+        "title": "Mandatory Right to Bail in Bailable Offences",
+        "procedure_category": "Bail",
+        "description": "Statutory guarantee that bail is an absolute right in bailable offences; indigent persons unable to furnish surety within a week must be released on personal bond",
+        "statutory_steps": [
+          "Verify whether offence is bailable as per First Schedule of BNSS",
+          "Arrestee or counsel offers bail/surety before police station officer or Magistrate",
+          "Police officer or Magistrate must grant bail immediately as matter of right",
+          "If arrestee is indigent (unable to furnish surety within 1 week): release on personal recognizance bond without surety"
+        ],
+        "safeguards": [
+          "Bail is mandatory right, not discretionary",
+          "Police and court cannot deny bail if surety offered",
+          "Protection for poor / indigent persons from staying in jail merely due to inability to pay"
+        ],
+        "timeline_days": 1
+      },
+      "keywords": [
+        "bail",
+        "bailable offence",
+        "matter of right",
+        "indigent person",
+        "personal bond without surety",
+        "surety",
+        "police bail"
+      ],
+      "is_offence": false
+    },
+    {
+      "section_id": "the-bharatiya-nagarik-suraksha-sanhita-2023-sec-480",
+      "law_id": 2,
+      "law_name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+      "short_name": "BNSS",
+      "section_number": "480",
+      "section_title": "When bail may be taken in case of non-bailable offence",
+      "full_text": "(1) When any person accused of, or suspected of, the commission of any non-bailable offence is arrested or detained without warrant by an officer in charge of a police station or appears or is brought before a Court other than the High Court or Court of Session, he may be released on bail, but\u2014\n(i) such person shall not be so released if there appear reasonable grounds for believing that he has been guilty of an offence punishable with death or imprisonment for life;\n(ii) such person shall not be so released if such offence is a cognizable offence and he had been previously convicted of an offence punishable with death, imprisonment for life or imprisonment for seven years or more:\nProvided that the Court may direct that a person referred to in clause (i) or clause (ii) be released on bail if such person is under the age of sixteen years or is a woman or is sick or infirm:\nProvided further that the Court may also direct that a person accused of an offence shall be released on bail if it is satisfied that it is just and proper for any other special reason.",
+      "chapter": "CHAPTER XXXV - PROVISIONS AS TO BAIL AND BONDS",
+      "procedure": {
+        "title": "Bail in Non-Bailable Offences Before Magistrate Court",
+        "procedure_category": "Bail",
+        "description": "Judicial discretion for granting bail in non-bailable offences with special humanitarian exceptions for women, minors under 16, and sick or infirm persons",
+        "statutory_steps": [
+          "File regular bail application before Magistrate under Section 480 BNSS",
+          "Establish that offence is not punishable with death or life imprisonment",
+          "Argue special grounds (woman, juvenile under 16, sick or infirm, parity with co-accused, absence of flight risk)",
+          "Furnish bail bond and local solvent sureties upon grant of bail order"
+        ],
+        "safeguards": [
+          "Special statutory leniency for women, sick, infirm, and minors",
+          "Judicial discretion balancing individual liberty and societal interest",
+          "Bail is rule, jail is exception (Satender Kumar Antil v. CBI)"
+        ],
+        "timeline_days": 7
+      },
+      "keywords": [
+        "bail",
+        "non-bailable offence",
+        "magistrate bail",
+        "regular bail",
+        "woman bail exception",
+        "sick or infirm",
+        "surety"
+      ],
+      "is_offence": false
+    },
+    {
+      "section_id": "the-bharatiya-nagarik-suraksha-sanhita-2023-sec-482",
+      "law_id": 2,
+      "law_name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+      "short_name": "BNSS",
+      "section_number": "482",
+      "section_title": "Direction for grant of bail to person apprehending arrest (Anticipatory bail)",
+      "full_text": "(1) Where any person has reason to believe that he may be arrested on an accusation of having committed a non-bailable offence, he may apply to the High Court or the Court of Session for a direction under this section; and that Court may, if it thinks fit, direct that in the event of such arrest, he shall be released on bail.\n(2) When the High Court or the Court of Session makes a direction under sub-section (1), it may include such conditions in such directions as the case may warrant, including:\n(i) a condition that the person shall make himself available for interrogation by a police officer as and when required;\n(ii) a condition that the person shall not, directly or indirectly, make any inducement, threat or promise to any person acquainted with the facts of the case;\n(iii) a condition that the person shall not leave India without the previous permission of the Court.",
+      "chapter": "CHAPTER XXXV - PROVISIONS AS TO BAIL AND BONDS",
+      "procedure": {
+        "title": "Anticipatory Bail Application (Bail Apprehending Arrest)",
+        "procedure_category": "Bail",
+        "description": "Pre-arrest protection granted by Court of Session or High Court where applicant apprehends arrest on false, frivolous, or non-bailable accusations",
+        "statutory_steps": [
+          "Establish reasonable apprehension of arrest in non-bailable offence",
+          "Draft and file anticipatory bail application before Sessions Court or High Court under Section 482 BNSS",
+          "Undertake to cooperate with police investigation and attend interrogation when summoned",
+          "Obtain interim protection order from arrest pending final hearing",
+          "Upon final grant: produce certified order copy before arresting officer to execute bail bond on spot"
+        ],
+        "safeguards": [
+          "Protects personal liberty against politically motivated or malicious arrests",
+          "Preserves dignity of citizens under Article 21",
+          "Court may grant interim protection from arrest"
+        ],
+        "timeline_days": 14
+      },
+      "keywords": [
+        "anticipatory bail",
+        "pre-arrest bail",
+        "apprehending arrest",
+        "sessions court",
+        "high court",
+        "interim protection",
+        "bail conditions"
+      ],
+      "is_offence": false
+    },
+    {
+      "section_id": "the-bharatiya-nagarik-suraksha-sanhita-2023-sec-483",
+      "law_id": 2,
+      "law_name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+      "short_name": "BNSS",
+      "section_number": "483",
+      "section_title": "Special powers of High Court or Court of Session regarding bail",
+      "full_text": "(1) A High Court or Court of Session may direct\u2014\n(a) that any person accused of an offence and in custody be released on bail, and if the arrest is for an offence specified in sub-section (3) of section 480, may impose any condition which it considers necessary;\n(b) that any condition imposed by a Magistrate when releasing any person on bail be set aside or modified.",
+      "chapter": "CHAPTER XXXV - PROVISIONS AS TO BAIL AND BONDS",
+      "procedure": {
+        "title": "Special Powers of High Court / Sessions Court Regarding Regular Bail",
+        "procedure_category": "Bail",
+        "description": "Superior court plenary jurisdiction to grant bail to accused in custody, including for heinous offences, and to modify harsh Magistrate bail conditions",
+        "statutory_steps": [
+          "File regular bail application before Sessions Court or High Court under Section 483 BNSS",
+          "Demonstrate investigation completed, chargesheet filed, absence of tampering risk",
+          "Argue parity or substantial incarceration period",
+          "Obtain release order and furnish sureties before trial court"
+        ],
+        "safeguards": [
+          "Wider discretion than Magistrate court",
+          "Power to relax or set aside onerous conditions"
+        ],
+        "timeline_days": 14
+      },
+      "keywords": [
+        "regular bail",
+        "high court bail",
+        "sessions court bail",
+        "custody",
+        "modify bail conditions"
+      ],
+      "is_offence": false
+    },
+    {
+      "law_id": 2,
+      "law_name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+      "short_name": "BNSS",
+      "section_id": 91035,
+      "section_number": "35",
+      "section_title": "When police may arrest without warrant",
+      "chapter": "CHAPTER V - ARREST OF PERSONS",
+      "full_text": "(1) Any police officer may without an order from a Magistrate and without a warrant, arrest any person who has been concerned in any cognizable offence, or against whom a reasonable complaint has been made, or credible information has been received, or a reasonable suspicion exists:\nProvided that for offences punishable with imprisonment for a term which may be less than three years or which may extend to seven years, arrest shall not be mandatory, and the police officer shall record reasons in writing if arrest is effected.\n(2) No arrest shall be made without prior permission of an officer not below the rank of Deputy Superintendent of Police where the offence is punishable with imprisonment for less than three years and the person is an infirm person or above sixty years of age.",
+      "procedure": {
+        "title": "Arrest Without Warrant Procedure and Safeguards",
+        "procedure_category": "Arrest",
+        "description": "Comprehensive statutory rules governing arrest without warrant, mandate of recording reasons, and special protections for senior citizens and infirm individuals",
+        "statutory_steps": [
+          "Ascertain nature of offence (cognizable vs non-cognizable)",
+          "For offences punishable up to 7 years: evaluate necessity criteria and issue Section 35(3) notice of appearance",
+          "If arrest made: record reasons in writing immediately in diary",
+          "For person above 60 years or infirm where offence is < 3 years: obtain prior written permission from DSP"
+        ],
+        "safeguards": [
+          "Arrest not mandatory for offences under 7 years",
+          "Mandatory recording of reasons in case of arrest",
+          "Prior approval of DSP required for senior citizens (above 60) for minor offences",
+          "Mandatory entry in arrest memo"
+        ],
+        "timeline_days": 1
+      },
+      "keywords": [
+        "arrest without warrant",
+        "cognizable offence",
+        "police power",
+        "dsp permission",
+        "senior citizen protection"
+      ]
+    },
+    {
+      "law_id": 2,
+      "law_name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+      "short_name": "BNSS",
+      "section_id": 91173,
+      "section_number": "173",
+      "section_title": "Information in cognizable cases (FIR, e-FIR and Zero FIR)",
+      "chapter": "CHAPTER XIII - INFORMATION TO THE POLICE AND THEIR POWERS TO INVESTIGATE",
+      "full_text": "(1) Every information relating to the commission of a cognizable offence, if given orally to an officer in charge of a police station, shall be reduced to writing by him or under his direction, and be read over to the informant; and every such information, whether given in writing or reduced to writing as aforesaid, shall be signed by the person giving it, and the substance thereof shall be entered in a book to be kept by such officer in such form as the State Government may prescribe in this behalf:\nProvided that if the information is given by the woman against whom an offence under section 64, 65, 66, 67, 68, 69, 70, 71, 74, 75, 76, 77, 78 or 79 of the Bharatiya Nyaya Sanhita, 2023 is alleged to have been committed or attempted, then such information shall be recorded, by a woman police officer or any woman officer:\nProvided further that information may be given electronically (e-FIR), and the signature of the person giving it shall be taken within three days before such e-FIR is taken on record:\nProvided also that information relating to the commission of any cognizable offence, irrespective of the area where the offence is committed, may be given (Zero FIR) to a police station, and such police station shall register the information and transfer the same to the police station having jurisdiction.\n(3) On receipt of information of a cognizable offence punishable for three years or more but less than seven years, the officer in charge of a police station may, with the prior permission of an officer not below the rank of Deputy Superintendent of Police, proceed to conduct preliminary enquiry within a period of fourteen days to ascertain whether there exists a prima facie case for proceeding.",
+      "procedure": {
+        "title": "Registration of First Information Report (FIR), e-FIR, and Zero FIR",
+        "procedure_category": "FIR & Investigation",
+        "description": "Comprehensive framework for mandatory registration of FIR for cognizable offences, electronic FIR filing, Zero FIR across jurisdictional limits, and preliminary inquiry for 3-7 year offences",
+        "statutory_steps": [
+          "Receive oral or written information of cognizable offence",
+          "If e-FIR received: obtain signature of informant within 3 days",
+          "If crime occurred outside jurisdiction: register Zero FIR and transfer immediately to competent police station",
+          "For offences punishable between 3 and 7 years: with DSP approval, complete preliminary enquiry within 14 days",
+          "Provide free copy of FIR to informant immediately"
+        ],
+        "safeguards": [
+          "Zero FIR guarantees no victim is turned away due to territorial jurisdiction disputes",
+          "Women officer mandate for sexual offences",
+          "14-day strict statutory deadline for preliminary inquiry",
+          "Immediate free copy to informant"
+        ],
+        "timeline_days": 14
+      },
+      "keywords": [
+        "fir",
+        "first information report",
+        "zero fir",
+        "e-fir",
+        "preliminary enquiry",
+        "cognizable case",
+        "14 days"
+      ]
+    },
+    {
+      "law_id": 2,
+      "law_name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+      "short_name": "BNSS",
+      "section_id": 91193,
+      "section_number": "193",
+      "section_title": "Report of police officer on completion of investigation (Challan / Chargesheet)",
+      "chapter": "CHAPTER XIII - INFORMATION TO THE POLICE AND THEIR POWERS TO INVESTIGATE",
+      "full_text": "(1) Every investigation under this Chapter shall be completed without unnecessary delay.\n(2) As soon as it is completed, the officer in charge of the police station shall forward to a Magistrate empowered to take cognizance of the offence on a police report, a report in the form prescribed by the State Government:\nProvided that investigation in relation to an offence under section 64, 65, 66, 67, 68, 70, 71 of the Bharatiya Nyaya Sanhita, 2023 or section 4, 6, 8 or 10 of the Protection of Children from Sexual Offences Act, 2012 shall be completed within two months from the date on which the information was recorded by the officer in charge of the police station.\n(3) The police officer shall submit the report through electronic means or physically, along with all documents, electronic records, statements recorded under section 180 and 183, and videographic recordings of search and seizure.",
+      "procedure": {
+        "title": "Police Report on Completion of Investigation (Chargesheet)",
+        "procedure_category": "Investigation & Chargesheet",
+        "description": "Filing of final police report (chargesheet) with electronic submission options and 2-month strict deadline for sexual offences",
+        "statutory_steps": [
+          "Complete all investigative steps (evidence gathering, forensic report, witness statements)",
+          "For sexual offences / child sexual abuse: complete within 2 months (60 days)",
+          "Compile chargesheet in statutory format with all annexures, digital evidence, and electronic seizure logs",
+          "Forward electronically or physically to Magistrate taking cognizance",
+          "Supply copies to the accused"
+        ],
+        "safeguards": [
+          "Strict 60-day deadline for rape and POCSO cases",
+          "Electronic transparency of documents",
+          "Mandatory inclusion of search/seizure videography"
+        ],
+        "timeline_days": 60
+      },
+      "keywords": [
+        "chargesheet",
+        "police report",
+        "final report",
+        "completion of investigation",
+        "two months",
+        "pocso",
+        "electronic submission"
+      ]
+    },
+    {
+      "law_id": 2,
+      "law_name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+      "short_name": "BNSS",
+      "section_id": 91479,
+      "section_number": "479",
+      "section_title": "Maximum period for which an undertrial prisoner can be detained",
+      "chapter": "CHAPTER XXXV - PROVISIONS AS TO BAIL AND BONDS",
+      "full_text": "(1) Where a person has, during the period of investigation, inquiry or trial under this Sanhita of an offence under any law (not being an offence for which the punishment of death or life imprisonment has been specified as one of the punishments under that law) undergone detention for a period extending up to one-half of the maximum period of imprisonment specified for that offence under that law, he shall be released by the Court on bail:\nProvided that where such person is a first-time offender (who has never been convicted of any offence in the past), he shall be released on bail by the Court if he has undergone detention for the period extending up to one-third of the maximum period of imprisonment specified for such offence under that law:\nProvided further that no such person shall in any case be detained during the period of investigation, inquiry or trial for more than the maximum period of imprisonment provided for the said offence.",
+      "procedure": {
+        "title": "Undertrial Prisoner Release and First-Time Offender Bail",
+        "procedure_category": "Bail",
+        "description": "Statutory right to mandatory release on bail for undertrial prisoners after 1/2 of maximum term, and after 1/3 of maximum term for first-time offenders",
+        "statutory_steps": [
+          "Jail superintendent reviews detention duration of undertrials weekly",
+          "Ascertain whether person has prior convictions (first-time offender status)",
+          "If first-time offender completed 1/3rd of sentence: make immediate application to Court",
+          "If regular undertrial completed 1/2 of sentence: apply for mandatory release on personal bond or bail",
+          "Court orders release on bail without onerous conditions"
+        ],
+        "safeguards": [
+          "1/3rd detention threshold for first-time offenders greatly reduces jail overcrowding",
+          "Mandatory release prevents indefinite undertrial incarceration",
+          "Applies to all offences except those punishable by death or life imprisonment"
+        ],
+        "timeline_days": null
+      },
+      "keywords": [
+        "bail",
+        "undertrial prisoner",
+        "first-time offender",
+        "one-third detention",
+        "half detention",
+        "personal bond",
+        "decongestion"
+      ]
+    },
+    {
+      "law_id": 2,
+      "law_name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+      "short_name": "BNSS",
+      "section_id": 91531,
+      "section_number": "531",
+      "section_title": "Repeal and savings",
+      "chapter": "CHAPTER XXXIX - REPEAL AND SAVINGS",
+      "full_text": "(1) The Code of Criminal Procedure, 1973 (2 of 1974) is hereby repealed.\n(2) Notwithstanding such repeal,-\n(a) if, immediately before the date on which this Sanhita comes into force, there is any appeal, application, trial, inquiry or investigation pending, then, such appeal, application, trial, inquiry or investigation shall be disposed of, continued, held or made, as the case may be, in accordance with the provisions of the Code of Criminal Procedure, 1973, as in force immediately before such date, as if this Sanhita had not come into force;\n(b) all notifications published, proclamations issued, powers conferred, forms prescribed, local jurisdictions defined, sentences passed and orders, rules and appointments, not being appointments as Special Magistrates, made under the said Code, and which are in force immediately before the commencement of this Sanhita, shall be deemed, respectively, to have been published, issued, conferred, prescribed, defined, passed or made under the corresponding provisions of this Sanhita.",
+      "procedure": {
+        "title": "Repeal of CrPC 1973 and Transitional Savings",
+        "procedure_category": "Transitional Provisions",
+        "description": "Repeals the Code of Criminal Procedure 1973 while protecting pending trials, inquiries, investigations and appeals instituted prior to commencement",
+        "statutory_steps": [
+          "Ascertain date of registration of FIR or institution of trial",
+          "If initiated prior to July 1, 2024: continue under CrPC 1973 provisions",
+          "If initiated on or after July 1, 2024: conduct under BNSS 2023 procedures"
+        ],
+        "safeguards": [
+          "Preservation of pending trials and existing warrants/orders"
+        ],
+        "timeline_days": null
+      },
+      "keywords": [
+        "repeal and savings",
+        "code of criminal procedure",
+        "crpc 1973",
+        "transitional provisions",
+        "pending trials"
+      ]
     }
   ]
 }

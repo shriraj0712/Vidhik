@@ -9,11 +9,22 @@
       "title": "Application of Bharatiya Nagarik Suraksha Sanhita",
       "procedure_category": "Jurisdiction & Preliminary",
       "description": "Statutory territorial applicability and commencement of the procedural code governing all criminal proceedings in India",
-      "statutory_steps": ["Check territorial applicability", "Ascertain date of commencement", "Apply provisions to inquiry and trial"],
-      "safeguards": ["Protection of tribal area customary procedures unless expressly notified"],
+      "statutory_steps": [
+        "Check territorial applicability",
+        "Ascertain date of commencement",
+        "Apply provisions to inquiry and trial"
+      ],
+      "safeguards": [
+        "Protection of tribal area customary procedures unless expressly notified"
+      ],
       "timeline_days": null
     },
-    "keywords": ["short title", "extent", "commencement", "territorial jurisdiction"]
+    "keywords": [
+      "short title",
+      "extent",
+      "commencement",
+      "territorial jurisdiction"
+    ]
   },
   {
     "section_number": "35",
@@ -39,7 +50,13 @@
       ],
       "timeline_days": 1
     },
-    "keywords": ["arrest without warrant", "cognizable offence", "police power", "dsp permission", "senior citizen protection"]
+    "keywords": [
+      "arrest without warrant",
+      "cognizable offence",
+      "police power",
+      "dsp permission",
+      "senior citizen protection"
+    ]
   },
   {
     "section_number": "105",
@@ -65,7 +82,14 @@
       ],
       "timeline_days": 1
     },
-    "keywords": ["search and seizure", "audio-video recording", "videography", "electronic means", "panchnama", "magistrate"]
+    "keywords": [
+      "search and seizure",
+      "audio-video recording",
+      "videography",
+      "electronic means",
+      "panchnama",
+      "magistrate"
+    ]
   },
   {
     "section_number": "173",
@@ -92,7 +116,15 @@
       ],
       "timeline_days": 14
     },
-    "keywords": ["fir", "first information report", "zero fir", "e-fir", "preliminary enquiry", "cognizable case", "14 days"]
+    "keywords": [
+      "fir",
+      "first information report",
+      "zero fir",
+      "e-fir",
+      "preliminary enquiry",
+      "cognizable case",
+      "14 days"
+    ]
   },
   {
     "section_number": "193",
@@ -118,7 +150,15 @@
       ],
       "timeline_days": 60
     },
-    "keywords": ["chargesheet", "police report", "final report", "completion of investigation", "two months", "pocso", "electronic submission"]
+    "keywords": [
+      "chargesheet",
+      "police report",
+      "final report",
+      "completion of investigation",
+      "two months",
+      "pocso",
+      "electronic submission"
+    ]
   },
   {
     "section_number": "479",
@@ -144,7 +184,15 @@
       ],
       "timeline_days": null
     },
-    "keywords": ["bail", "undertrial prisoner", "first-time offender", "one-third detention", "half detention", "personal bond", "decongestion"]
+    "keywords": [
+      "bail",
+      "undertrial prisoner",
+      "first-time offender",
+      "one-third detention",
+      "half detention",
+      "personal bond",
+      "decongestion"
+    ]
   },
   {
     "section_number": "531",
@@ -161,9 +209,211 @@
         "If initiated prior to July 1, 2024: continue under CrPC 1973 provisions",
         "If initiated on or after July 1, 2024: conduct under BNSS 2023 procedures"
       ],
-      "safeguards": ["Preservation of pending trials and existing warrants/orders"],
+      "safeguards": [
+        "Preservation of pending trials and existing warrants/orders"
+      ],
       "timeline_days": null
     },
-    "keywords": ["repeal and savings", "code of criminal procedure", "crpc 1973", "transitional provisions", "pending trials"]
+    "keywords": [
+      "repeal and savings",
+      "code of criminal procedure",
+      "crpc 1973",
+      "transitional provisions",
+      "pending trials"
+    ]
+  },
+  {
+    "section_number": "47",
+    "section_title": "Person arrested to be informed of grounds of arrest and of right to bail",
+    "full_text": "(1) Every police officer or other person arresting any person without warrant shall forthwith communicate to him full particulars of the offence for which he is arrested or other grounds for such arrest.\n(2) Where a police officer arrests without warrant any person other than a person accused of a non-bailable offence, he shall inform the person arrested that he is entitled to be released on bail and that he may arrange for sureties on his behalf.",
+    "chapter": "CHAPTER V - ARREST OF PERSONS",
+    "procedure_category": "Arrest & Rights of Accused",
+    "procedure": {
+      "title": "Mandatory Communication of Grounds of Arrest and Right to Bail",
+      "procedure_category": "Arrest & Rights of Accused",
+      "description": "Statutory mandate requiring police to communicate grounds of arrest and inform accused of entitlement to bail for bailable offences immediately upon arrest",
+      "statutory_steps": [
+        "Communicate full particulars of offence and grounds of arrest to the arrested person forthwith",
+        "If offence is bailable: expressly inform the arrestee of right to release on bail and to arrange sureties",
+        "Record receipt of communication in arrest memo signed by arrestee"
+      ],
+      "safeguards": [
+        "Constitutional right under Article 22(1) codified statutorily",
+        "Prevents unlawful detention without explanation",
+        "Mandatory notification of right to bail"
+      ],
+      "timeline_days": 1
+    },
+    "keywords": [
+      "arrest rights",
+      "grounds of arrest",
+      "right to bail",
+      "bailable offence",
+      "sureties",
+      "article 22",
+      "police duty"
+    ]
+  },
+  {
+    "section_number": "48",
+    "section_title": "Obligation of person making arrest to inform about arrest to nominated person",
+    "full_text": "(1) Every police officer or other person making any arrest under this Sanhita shall forthwith give the information regarding such arrest and place where the arrested person is being held to any of his friends, relatives or such other persons as may be disclosed or nominated by the arrested person for the purpose of giving such information.\n(2) The police officer shall inform the arrested person of his rights under sub-section (1) as soon as he is brought to the police station.",
+    "chapter": "CHAPTER V - ARREST OF PERSONS",
+    "procedure_category": "Arrest & Rights of Accused",
+    "procedure": {
+      "title": "Mandatory Notification to Family/Nominated Person of Arrest",
+      "procedure_category": "Arrest & Rights of Accused",
+      "description": "Duty of arresting officer to inform relatives or nominated friend of arrest and location of detention, codifying D.K. Basu guidelines",
+      "statutory_steps": [
+        "Inform arrested person of right to have a friend or relative informed",
+        "Obtain nominated person details from arrestee",
+        "Transmit information of arrest and place of custody forthwith",
+        "Record entry in police station diary regarding notice given"
+      ],
+      "safeguards": [
+        "Prevents custodial disappearances and incommunicado detention",
+        "Codifies Supreme Court D.K. Basu guidelines",
+        "Enforces transparency in police custody"
+      ],
+      "timeline_days": 1
+    },
+    "keywords": [
+      "inform family",
+      "nominated person",
+      "place of custody",
+      "dk basu guidelines",
+      "arrest memo",
+      "police diary"
+    ]
+  },
+  {
+    "section_number": "478",
+    "section_title": "In what cases bail to be taken (Bailable offences)",
+    "full_text": "(1) When any person other than a person accused of a non-bailable offence is arrested or detained without warrant by an officer in charge of a police station, or appears or is brought before a Court, and is prepared at any time while in the custody of such officer or at any stage of the proceeding before such Court to give bail, such person shall be released on bail:\nProvided that such officer or Court, if he or it thinks fit, may, and shall, if such person is indigent and unable to furnish surety, instead of taking bail from such person, discharge him on his executing a bond without sureties for his appearance.\nExplanation.—Where a person is unable to give bail within a week of the date of his arrest, it shall be a sufficient ground for the officer or Court to presume him to be an indigent person for the purposes of this proviso.",
+    "chapter": "CHAPTER XXXV - PROVISIONS AS TO BAIL AND BONDS",
+    "procedure_category": "Bail",
+    "procedure": {
+      "title": "Mandatory Right to Bail in Bailable Offences",
+      "procedure_category": "Bail",
+      "description": "Statutory guarantee that bail is an absolute right in bailable offences; indigent persons unable to furnish surety within a week must be released on personal bond",
+      "statutory_steps": [
+        "Verify whether offence is bailable as per First Schedule of BNSS",
+        "Arrestee or counsel offers bail/surety before police station officer or Magistrate",
+        "Police officer or Magistrate must grant bail immediately as matter of right",
+        "If arrestee is indigent (unable to furnish surety within 1 week): release on personal recognizance bond without surety"
+      ],
+      "safeguards": [
+        "Bail is mandatory right, not discretionary",
+        "Police and court cannot deny bail if surety offered",
+        "Protection for poor / indigent persons from staying in jail merely due to inability to pay"
+      ],
+      "timeline_days": 1
+    },
+    "keywords": [
+      "bail",
+      "bailable offence",
+      "matter of right",
+      "indigent person",
+      "personal bond without surety",
+      "surety",
+      "police bail"
+    ]
+  },
+  {
+    "section_number": "480",
+    "section_title": "When bail may be taken in case of non-bailable offence",
+    "full_text": "(1) When any person accused of, or suspected of, the commission of any non-bailable offence is arrested or detained without warrant by an officer in charge of a police station or appears or is brought before a Court other than the High Court or Court of Session, he may be released on bail, but—\n(i) such person shall not be so released if there appear reasonable grounds for believing that he has been guilty of an offence punishable with death or imprisonment for life;\n(ii) such person shall not be so released if such offence is a cognizable offence and he had been previously convicted of an offence punishable with death, imprisonment for life or imprisonment for seven years or more:\nProvided that the Court may direct that a person referred to in clause (i) or clause (ii) be released on bail if such person is under the age of sixteen years or is a woman or is sick or infirm:\nProvided further that the Court may also direct that a person accused of an offence shall be released on bail if it is satisfied that it is just and proper for any other special reason.",
+    "chapter": "CHAPTER XXXV - PROVISIONS AS TO BAIL AND BONDS",
+    "procedure_category": "Bail",
+    "procedure": {
+      "title": "Bail in Non-Bailable Offences Before Magistrate Court",
+      "procedure_category": "Bail",
+      "description": "Judicial discretion for granting bail in non-bailable offences with special humanitarian exceptions for women, minors under 16, and sick or infirm persons",
+      "statutory_steps": [
+        "File regular bail application before Magistrate under Section 480 BNSS",
+        "Establish that offence is not punishable with death or life imprisonment",
+        "Argue special grounds (woman, juvenile under 16, sick or infirm, parity with co-accused, absence of flight risk)",
+        "Furnish bail bond and local solvent sureties upon grant of bail order"
+      ],
+      "safeguards": [
+        "Special statutory leniency for women, sick, infirm, and minors",
+        "Judicial discretion balancing individual liberty and societal interest",
+        "Bail is rule, jail is exception (Satender Kumar Antil v. CBI)"
+      ],
+      "timeline_days": 7
+    },
+    "keywords": [
+      "bail",
+      "non-bailable offence",
+      "magistrate bail",
+      "regular bail",
+      "woman bail exception",
+      "sick or infirm",
+      "surety"
+    ]
+  },
+  {
+    "section_number": "482",
+    "section_title": "Direction for grant of bail to person apprehending arrest (Anticipatory bail)",
+    "full_text": "(1) Where any person has reason to believe that he may be arrested on an accusation of having committed a non-bailable offence, he may apply to the High Court or the Court of Session for a direction under this section; and that Court may, if it thinks fit, direct that in the event of such arrest, he shall be released on bail.\n(2) When the High Court or the Court of Session makes a direction under sub-section (1), it may include such conditions in such directions as the case may warrant, including:\n(i) a condition that the person shall make himself available for interrogation by a police officer as and when required;\n(ii) a condition that the person shall not, directly or indirectly, make any inducement, threat or promise to any person acquainted with the facts of the case;\n(iii) a condition that the person shall not leave India without the previous permission of the Court.",
+    "chapter": "CHAPTER XXXV - PROVISIONS AS TO BAIL AND BONDS",
+    "procedure_category": "Bail",
+    "procedure": {
+      "title": "Anticipatory Bail Application (Bail Apprehending Arrest)",
+      "procedure_category": "Bail",
+      "description": "Pre-arrest protection granted by Court of Session or High Court where applicant apprehends arrest on false, frivolous, or non-bailable accusations",
+      "statutory_steps": [
+        "Establish reasonable apprehension of arrest in non-bailable offence",
+        "Draft and file anticipatory bail application before Sessions Court or High Court under Section 482 BNSS",
+        "Undertake to cooperate with police investigation and attend interrogation when summoned",
+        "Obtain interim protection order from arrest pending final hearing",
+        "Upon final grant: produce certified order copy before arresting officer to execute bail bond on spot"
+      ],
+      "safeguards": [
+        "Protects personal liberty against politically motivated or malicious arrests",
+        "Preserves dignity of citizens under Article 21",
+        "Court may grant interim protection from arrest"
+      ],
+      "timeline_days": 14
+    },
+    "keywords": [
+      "anticipatory bail",
+      "pre-arrest bail",
+      "apprehending arrest",
+      "sessions court",
+      "high court",
+      "interim protection",
+      "bail conditions"
+    ]
+  },
+  {
+    "section_number": "483",
+    "section_title": "Special powers of High Court or Court of Session regarding bail",
+    "full_text": "(1) A High Court or Court of Session may direct—\n(a) that any person accused of an offence and in custody be released on bail, and if the arrest is for an offence specified in sub-section (3) of section 480, may impose any condition which it considers necessary;\n(b) that any condition imposed by a Magistrate when releasing any person on bail be set aside or modified.",
+    "chapter": "CHAPTER XXXV - PROVISIONS AS TO BAIL AND BONDS",
+    "procedure_category": "Bail",
+    "procedure": {
+      "title": "Special Powers of High Court / Sessions Court Regarding Regular Bail",
+      "procedure_category": "Bail",
+      "description": "Superior court plenary jurisdiction to grant bail to accused in custody, including for heinous offences, and to modify harsh Magistrate bail conditions",
+      "statutory_steps": [
+        "File regular bail application before Sessions Court or High Court under Section 483 BNSS",
+        "Demonstrate investigation completed, chargesheet filed, absence of tampering risk",
+        "Argue parity or substantial incarceration period",
+        "Obtain release order and furnish sureties before trial court"
+      ],
+      "safeguards": [
+        "Wider discretion than Magistrate court",
+        "Power to relax or set aside onerous conditions"
+      ],
+      "timeline_days": 14
+    },
+    "keywords": [
+      "regular bail",
+      "high court bail",
+      "sessions court bail",
+      "custody",
+      "modify bail conditions"
+    ]
   }
 ]

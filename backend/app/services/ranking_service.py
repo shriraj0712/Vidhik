@@ -120,7 +120,11 @@ class LegalRankingService:
         short_name = (candidate.get("short_name") or "").strip().lower()
         description = (candidate.get("description") or "").strip().lower()
         full_text = (candidate.get("full_text") or "").strip().lower()
-        sec_id = int(candidate.get("section_id") or 0)
+        raw_sec_id = candidate.get("section_id")
+        try:
+            sec_id = int(raw_sec_id) if raw_sec_id is not None else 0
+        except (ValueError, TypeError):
+            sec_id = abs(hash(str(raw_sec_id))) % 1000000
 
         matched_terms = query_analysis.matched_terms if query_analysis else []
         matched_term_ens = [t.term_en.lower() for t in matched_terms if t.term_en]
@@ -129,10 +133,20 @@ class LegalRankingService:
         matched_term_his = [t.term_hi.lower() for t in matched_terms if t.term_hi]
 
         # -----------------------------------------------------------------
-        # Tier 1: Exact Section Number Match (e.g. query is "155")
+        # Tier 0: Authoritative Unified Knowledge Match (Constitution + 24 Bare Acts)
         # -----------------------------------------------------------------
-        if sec_num and clean_q == sec_num:
-            return (1, 0, len(sec_title), len(law_name), len(sec_num), sec_id, "exact_section_number")
+        kb_score = float(candidate.get("score") or 0)
+        if kb_score >= 300:
+            penalty = max(0, int(1500 - kb_score))
+            return (0, penalty, len(sec_title), len(law_name), 0, sec_id, f"authoritative_unified_kb_match({int(kb_score)})")
+
+        # -----------------------------------------------------------------
+        # Tier 1: Exact Section / Article Number Match (e.g. query has "Article 21" or "Section 303")
+        # -----------------------------------------------------------------
+        if sec_num:
+            sec_num_clean = sec_num.lower().replace("article", "").replace("section", "").strip()
+            if clean_q == sec_num.lower() or f"article {sec_num_clean}" in clean_q or f"section {sec_num_clean}" in clean_q or (sec_num.lower() in clean_q and len(sec_num) > 1):
+                return (1, 0, len(sec_title), len(law_name), len(sec_num), sec_id, "exact_section_number")
 
         # -----------------------------------------------------------------
         # Tier 2: Exact Legal Term Match on Section Title

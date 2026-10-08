@@ -363,7 +363,9 @@ class LegalAssistantService:
                 request.temperature
                 if request.temperature is not None
                 else 0.1
-            )
+            ),
+            document_text=request.document_text,
+            document_title=request.document_title
         )
 
         rag_response: RAGResponse = LegalRAGService.query(
