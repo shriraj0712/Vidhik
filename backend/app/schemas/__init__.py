@@ -72,5 +72,20 @@ __all__ = [
     "NotificationResponse",
     "NotificationListResponse",
     "ProcedureTrackerResponse",
-    "ProcedureTrackerToggle"
+    "ProcedureTrackerToggle",
+    "TranscriptSegment",
+    "VisualObservation",
+    "EvidenceReportSummary",
+    "EvidenceUploadResponse",
+    "EvidenceDetailResponse",
+    "EvidenceListResponse"
 ]
+
+from .evidence import (
+    TranscriptSegment,
+    VisualObservation,
+    EvidenceReportSummary,
+    EvidenceUploadResponse,
+    EvidenceDetailResponse,
+    EvidenceListResponse
+)

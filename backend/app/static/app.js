@@ -5982,6 +5982,29 @@ const App = {
   },
 
   aiSpeechRecognition: null,
+  isContinuousVoiceActive: false,
+  activeEvidenceId: null,
+  activeEvidenceData: null,
+  evidencePollInterval: null,
+
+  toggleContinuousVoiceMode() {
+    this.isContinuousVoiceActive = !this.isContinuousVoiceActive;
+    const btn = document.getElementById('btn-continuous-voice-toggle');
+    if (btn) {
+      if (this.isContinuousVoiceActive) {
+        btn.classList.add('active');
+        btn.innerHTML = '🟢 Continuous Active';
+        this.showToast('Hands-free Continuous Voice Assistant enabled. Vidhik AI will listen, respond, and speak continuously.', 'info');
+        if (!this.aiSpeechRecognition) {
+          this.startSpeechInputForChat();
+        }
+      } else {
+        btn.classList.remove('active');
+        btn.innerHTML = '🔄 Continuous Mode';
+        this.showToast('Continuous voice mode disabled.', 'info');
+      }
+    }
+  },
 
   toggleSpeechInputForChat() {
     if (this.aiSpeechRecognition) {
@@ -6044,7 +6067,7 @@ const App = {
     rec.onerror = (err) => {
       console.warn('Speech recognition error:', err);
       if (btn) btn.classList.remove('mic-recording-active');
-      if (statusBar) statusBar.style.display = 'none';
+      if (statusBar && !this.isContinuousVoiceActive) statusBar.style.display = 'none';
       this.aiSpeechRecognition = null;
       if (err.error !== 'no-speech' && err.error !== 'aborted') {
         this.showToast('Voice input: ' + (err.error || 'microphone error'), 'warning');
@@ -6053,12 +6076,21 @@ const App = {
 
     rec.onend = () => {
       if (btn) btn.classList.remove('mic-recording-active');
-      if (statusBar) statusBar.style.display = 'none';
       this.aiSpeechRecognition = null;
       const input = document.getElementById('ai-chat-input');
       if (input && input.value.trim()) {
         input.focus();
-        this.showToast('Voice captured! Tap Send or Enter to submit query.', 'success');
+        if (this.isContinuousVoiceActive) {
+          // Auto-submit in continuous conversation mode
+          this.handleAiChatSubmit(new Event('submit'));
+        } else {
+          if (statusBar) statusBar.style.display = 'none';
+          this.showToast('Voice captured! Tap Send or Enter to submit query.', 'success');
+        }
+      } else {
+        if (!this.isContinuousVoiceActive && statusBar) {
+          statusBar.style.display = 'none';
+        }
       }
     };
 
@@ -6070,6 +6102,12 @@ const App = {
   },
 
   stopSpeechInputForChat() {
+    this.isContinuousVoiceActive = false;
+    const contBtn = document.getElementById('btn-continuous-voice-toggle');
+    if (contBtn) {
+      contBtn.classList.remove('active');
+      contBtn.innerHTML = '🔄 Continuous Mode';
+    }
     if (this.aiSpeechRecognition) {
       try { this.aiSpeechRecognition.stop(); } catch (e) {}
       this.aiSpeechRecognition = null;
@@ -6078,6 +6116,229 @@ const App = {
     const statusBar = document.getElementById('ai-voice-status-bar');
     if (btn) btn.classList.remove('mic-recording-active');
     if (statusBar) statusBar.style.display = 'none';
+  },
+
+  // =============================================================
+  // VIDEO EVIDENCE ANALYSIS HANDLERS
+  // =============================================================
+  toggleAiVideoContext() {
+    const drawer = document.getElementById('ai-video-context-drawer');
+    if (!drawer) return;
+    const isHidden = drawer.style.display === 'none' || !drawer.style.display;
+    drawer.style.display = isHidden ? 'block' : 'none';
+    const btn = document.getElementById('btn-ai-video-toggle');
+    if (btn) {
+      btn.style.background = isHidden ? 'var(--accent-cyan)' : '';
+      btn.style.color = isHidden ? '#fff' : '';
+    }
+  },
+
+  clearAiVideoContext() {
+    if (this.evidencePollInterval) {
+      clearInterval(this.evidencePollInterval);
+      this.evidencePollInterval = null;
+    }
+    this.activeEvidenceId = null;
+    this.activeEvidenceData = null;
+
+    const drawer = document.getElementById('ai-video-context-drawer');
+    if (drawer) drawer.style.display = 'none';
+    const activeCard = document.getElementById('ai-video-active-card');
+    if (activeCard) activeCard.style.display = 'none';
+    const progressWrap = document.getElementById('ai-video-progress-wrap');
+    if (progressWrap) progressWrap.style.display = 'none';
+    const reportBtn = document.getElementById('btn-evidence-report-download');
+    if (reportBtn) reportBtn.style.display = 'none';
+    const btn = document.getElementById('btn-ai-video-toggle');
+    if (btn) {
+      btn.style.background = '';
+      btn.style.color = '';
+    }
+    const fileInput = document.getElementById('ai-video-file-input');
+    if (fileInput) fileInput.value = '';
+
+    this.showToast('Video evidence detached.', 'info');
+  },
+
+  async handleEvidenceFileSelected(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    // Check size limit: 100MB
+    const maxBytes = 100 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      this.showToast('File exceeds maximum allowed size of 100MB.', 'error');
+      return;
+    }
+
+    const progressWrap = document.getElementById('ai-video-progress-wrap');
+    const progressBar = document.getElementById('ai-video-progress-bar');
+    const progressLabel = document.getElementById('ai-video-progress-label');
+    const progressPct = document.getElementById('ai-video-progress-pct');
+
+    if (progressWrap) progressWrap.style.display = 'block';
+    if (progressBar) progressBar.style.width = '0%';
+    if (progressLabel) progressLabel.textContent = `Uploading ${file.name}...`;
+
+    const formData = new FormData();
+    formData.append('file', file);
+    if (this.aiConversationId) {
+      formData.append('conversation_id', this.aiConversationId);
+    }
+
+    try {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/api/evidence/upload', true);
+
+      // Auth headers if present
+      const token = this.token || localStorage.getItem('vidhik_token');
+      if (token) {
+        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      }
+
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          const pct = Math.round((e.loaded / e.total) * 100);
+          if (progressBar) progressBar.style.width = `${pct}%`;
+          if (progressPct) progressPct.textContent = `${pct}%`;
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          const res = JSON.parse(xhr.responseText);
+          this.activeEvidenceId = res.evidence_id;
+          if (progressLabel) progressLabel.textContent = 'Upload complete! Queued for media processing...';
+          this.showToast('Video evidence uploaded securely! Processing audio & frames...', 'success');
+          this.renderActiveEvidenceCard(res);
+          this.startEvidencePolling(res.evidence_id);
+        } else {
+          let errDetail = 'Failed to upload video recording.';
+          try {
+            const errJson = JSON.parse(xhr.responseText);
+            errDetail = errJson.detail || errDetail;
+          } catch (e) {}
+          this.showToast(errDetail, 'error');
+          if (progressWrap) progressWrap.style.display = 'none';
+        }
+      };
+
+      xhr.onerror = () => {
+        this.showToast('Network error while uploading video evidence.', 'error');
+        if (progressWrap) progressWrap.style.display = 'none';
+      };
+
+      xhr.send(formData);
+
+    } catch (err) {
+      console.error('Evidence upload error:', err);
+      this.showToast('Error uploading video: ' + err.message, 'error');
+      if (progressWrap) progressWrap.style.display = 'none';
+    }
+  },
+
+  renderActiveEvidenceCard(data) {
+    const card = document.getElementById('ai-video-active-card');
+    if (!card) return;
+    card.style.display = 'block';
+
+    const nameEl = document.getElementById('ai-active-ev-name');
+    const metaEl = document.getElementById('ai-active-ev-meta');
+    const hashEl = document.getElementById('ai-active-ev-hash');
+    const badgeEl = document.getElementById('ai-active-ev-status-badge');
+
+    if (nameEl) nameEl.textContent = data.original_filename || 'Evidence Recording';
+    const mb = data.file_size_bytes ? (data.file_size_bytes / (1024 * 1024)).toFixed(1) + ' MB' : '';
+    const dur = data.duration_seconds ? `${Math.floor(data.duration_seconds / 60)}m ${Math.floor(data.duration_seconds % 60)}s` : 'Analyzing...';
+    if (metaEl) metaEl.textContent = `Duration: ${dur} | Size: ${mb} | Format: ${(data.media_container || 'video').toUpperCase()}`;
+    if (hashEl) hashEl.textContent = `SHA-256: ${data.file_hash_sha256 ? data.file_hash_sha256.substring(0, 24) + '...' : 'Calculating...'}`;
+
+    if (badgeEl) {
+      badgeEl.textContent = (data.processing_status || 'queued').toUpperCase();
+      if (data.processing_status === 'completed') {
+        badgeEl.style.background = 'rgba(16, 185, 129, 0.15)';
+        badgeEl.style.color = 'var(--accent-emerald)';
+      } else if (data.processing_status === 'failed') {
+        badgeEl.style.background = 'rgba(239, 68, 68, 0.15)';
+        badgeEl.style.color = 'var(--accent-rose)';
+      } else {
+        badgeEl.style.background = 'rgba(99, 102, 241, 0.15)';
+        badgeEl.style.color = 'var(--accent-primary)';
+      }
+    }
+  },
+
+  startEvidencePolling(evidenceId) {
+    if (this.evidencePollInterval) {
+      clearInterval(this.evidencePollInterval);
+    }
+
+    const poll = async () => {
+      try {
+        const detail = await this.api(`/api/evidence/${evidenceId}`, 'GET');
+        if (!detail) return;
+        this.activeEvidenceData = detail;
+        this.renderActiveEvidenceCard(detail);
+
+        // Update stats
+        const audioStat = document.getElementById('ai-active-ev-audio-stat');
+        const framesStat = document.getElementById('ai-active-ev-frames-stat');
+        const transStat = document.getElementById('ai-active-ev-trans-stat');
+
+        if (audioStat) audioStat.textContent = `🔊 Audio: ${detail.has_audio ? 'Extracted (16kHz)' : 'No Audio Track'}`;
+        if (framesStat) framesStat.textContent = `🖼️ Sampled Frames: ${detail.observations ? detail.observations.length : 0}`;
+        if (transStat) transStat.textContent = `📝 Transcripts: ${detail.transcripts ? detail.transcripts.length : 0} segments`;
+
+        const reportBtn = document.getElementById('btn-evidence-report-download');
+        const progressWrap = document.getElementById('ai-video-progress-wrap');
+
+        if (['completed', 'partially_completed', 'failed'].includes(detail.processing_status)) {
+          clearInterval(this.evidencePollInterval);
+          this.evidencePollInterval = null;
+          if (progressWrap) progressWrap.style.display = 'none';
+
+          if (reportBtn) reportBtn.style.display = 'inline-block';
+
+          if (detail.processing_status === 'completed' || detail.processing_status === 'partially_completed') {
+            this.showToast('Evidence processing complete! You can now ask questions about what happened in the video.', 'success');
+          } else if (detail.processing_status === 'failed') {
+            this.showToast('Video processing encountered an error: ' + (detail.error_message || 'Unknown'), 'error');
+          }
+        }
+      } catch (e) {
+        console.warn('Evidence poll error:', e);
+      }
+    };
+
+    this.evidencePollInterval = setInterval(poll, 2500);
+    poll(); // Initial call
+  },
+
+  downloadActiveEvidenceReport() {
+    if (!this.activeEvidenceId) {
+      this.showToast('No active video evidence loaded.', 'warning');
+      return;
+    }
+    const token = this.token || localStorage.getItem('vidhik_token');
+    const url = `/api/evidence/${this.activeEvidenceId}/download-report` + (token ? `?token=${encodeURIComponent(token)}` : '');
+    window.open(url, '_blank');
+  },
+
+  downloadEvidenceReportById(evidenceId) {
+    const token = this.token || localStorage.getItem('vidhik_token');
+    const url = `/api/evidence/${evidenceId}/download-report` + (token ? `?token=${encodeURIComponent(token)}` : '');
+    window.open(url, '_blank');
+  },
+
+  jumpToEvidenceTimestamp(seconds) {
+    const input = document.getElementById('ai-chat-input');
+    if (input) {
+      const min = Math.floor(seconds / 60);
+      const sec = Math.floor(seconds % 60);
+      const formatted = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+      input.value = `Explain what happens at ${formatted} in the video evidence.`;
+      input.focus();
+    }
   },
 
   toggleAiDocumentContext() {
@@ -6142,8 +6403,11 @@ const App = {
     const userBubble = document.createElement('div');
     userBubble.className = 'chat-msg-user';
     let userDisplayHtml = this.escape(message);
+    if (this.activeEvidenceId) {
+      userDisplayHtml += `<div style="margin-top: 6px; font-size: 11.5px; opacity: 0.9; border-top: 1px solid rgba(255,255,255,0.25); padding-top: 4px;">🎥 Attached Evidence: <strong>EVD-${this.activeEvidenceId}</strong></div>`;
+    }
     if (docTitle) {
-      userDisplayHtml += `<div style="margin-top: 6px; font-size: 11.5px; opacity: 0.85; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 4px;">📄 Attached Document: <strong>${this.escape(docTitle)}</strong></div>`;
+      userDisplayHtml += `<div style="margin-top: 4px; font-size: 11.5px; opacity: 0.85; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 4px;">📄 Attached Document: <strong>${this.escape(docTitle)}</strong></div>`;
     }
     userBubble.innerHTML = userDisplayHtml;
     thread.appendChild(userBubble);
@@ -6157,7 +6421,9 @@ const App = {
     const typingText = document.getElementById('ai-typing-status-text');
     if (typing) {
       typing.style.display = 'flex';
-      if (typingText) typingText.textContent = this.t('Unified retrieval across Constitution, BNS, BNSS, BSA & 24 Acts...');
+      if (typingText) typingText.textContent = this.activeEvidenceId
+        ? this.t('Analyzing video evidence, transcripts & grounding in Indian statutes...')
+        : this.t('Unified retrieval across Constitution, BNS, BNSS, BSA & 24 Acts...');
     }
 
     try {
@@ -6171,6 +6437,10 @@ const App = {
         language: lang,
         history: this.aiHistory.slice(-8)
       };
+
+      if (this.activeEvidenceId) {
+        payload.evidence_id = this.activeEvidenceId;
+      }
 
       if (docText) {
         payload.document_text = docText;
@@ -6197,6 +6467,55 @@ const App = {
 
       const groundingBadgeText = res.is_grounded ? '✓ Grounded in Indian Law' : 'Informational Notice';
       const groundingColor = res.is_grounded ? 'var(--accent-emerald)' : 'var(--accent-amber)';
+
+      // Evidence Intelligence Card (if evidence was incorporated)
+      let evidenceCardHtml = '';
+      if (res.evidence_id || (res.evidence_observations && res.evidence_observations.length > 0)) {
+        const evId = res.evidence_id || this.activeEvidenceId;
+        const obs = res.evidence_observations || [];
+        const trans = res.evidence_transcripts || [];
+
+        evidenceCardHtml = `
+          <div style="margin-bottom: 14px; padding: 12px 14px; background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: var(--radius-sm);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <strong style="font-size: 13px; color: var(--accent-primary); display: flex; align-items: center; gap: 6px;">
+                🎥 Video Evidence Intelligence (EVD-${evId})
+              </strong>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="App.downloadEvidenceReportById(${evId})" style="font-size: 11px; padding: 2px 8px;">
+                📥 Download Report (.docx)
+              </button>
+            </div>
+            ${obs.length > 0 ? `
+              <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                <strong>Sampled Frame Observations:</strong>
+                <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;">
+                  ${obs.slice(0, 4).map(o => `
+                    <div style="display: flex; align-items: baseline; gap: 6px;">
+                      <button type="button" class="timestamp-jump-btn" onclick="App.jumpToEvidenceTimestamp(${o.timestamp_seconds})">
+                        ⏱️ ${this.escape(o.time_formatted || '00:00')}
+                      </button>
+                      <span>${this.escape(o.observation)}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
+            ${trans.length > 0 ? `
+              <div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
+                <strong>Transcript Segments:</strong>
+                <div style="display: flex; flex-direction: column; gap: 3px; margin-top: 3px;">
+                  ${trans.slice(0, 3).map(t => `
+                    <div style="display: flex; align-items: baseline; gap: 6px;">
+                      <span class="badge" style="font-size: 10px;">${this.escape(t.time_formatted || '00:00')}</span>
+                      <span>"${this.escape(t.text)}"${t.speaker ? ` (${this.escape(t.speaker)})` : ''}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }
 
       // Clean Citations HTML (Formatting Art for Constitution, Sec for Acts)
       let citationsHtml = '';
@@ -6246,6 +6565,8 @@ const App = {
           </span>
         </div>
 
+        ${evidenceCardHtml}
+
         <div style="white-space: pre-wrap; font-size: 15px; line-height: 1.75; color: var(--text-primary);">
           ${this.formatLegalMarkdown(res.answer)}
         </div>
@@ -6275,6 +6596,11 @@ const App = {
 
       thread.appendChild(aiCard);
       thread.scrollTop = thread.scrollHeight;
+
+      // In continuous voice mode: speak answer automatically and resume listening
+      if (this.isContinuousVoiceActive) {
+        this.toggleSpeakText(res.answer, null);
+      }
 
     } catch (err) {
       console.error('AI chat error:', err);
@@ -6357,13 +6683,28 @@ const App = {
 
     if (btnElement) {
       btnElement.innerHTML = '⏹️ Stop';
-      utterance.onend = () => { btnElement.innerHTML = '🔊 Listen'; };
-      utterance.onerror = () => { btnElement.innerHTML = '🔊 Listen'; };
     }
+
+    utterance.onend = () => {
+      if (btnElement) btnElement.innerHTML = '🔊 Listen';
+      // In continuous voice mode: resume listening automatically after spoken answer
+      if (this.isContinuousVoiceActive) {
+        setTimeout(() => {
+          if (this.isContinuousVoiceActive && !this.aiSpeechRecognition) {
+            this.startSpeechInputForChat();
+          }
+        }, 500);
+      }
+    };
+
+    utterance.onerror = () => {
+      if (btnElement) btnElement.innerHTML = '🔊 Listen';
+    };
 
     window.speechSynthesis.speak(utterance);
     this.showToast(lang === 'hi' ? 'कानूनी उत्तर सुनाया जा रहा है...' : (lang === 'mr' ? 'कायदेशीर उत्तर ऐकवत आहे...' : 'Playing spoken legal explanation...'), 'info');
   },
+
 
   speakText(text, btnElement) {
     this.toggleSpeakText(text, btnElement);

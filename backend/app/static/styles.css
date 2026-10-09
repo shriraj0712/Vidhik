@@ -6899,3 +6899,88 @@ table td {
   font-size: 13px;
   display: block;
 }
+
+/* ============================================================== */
+/* VIDEO EVIDENCE ANALYSIS & CONTINUOUS VOICE UI                  */
+/* ============================================================== */
+.video-evidence-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  transition: var(--transition);
+}
+
+.video-evidence-card:hover {
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.video-upload-dropzone {
+  border: 2px dashed var(--accent-primary);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  text-align: center;
+  background: rgba(99, 102, 241, 0.04);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.video-upload-dropzone:hover,
+.video-upload-dropzone.dragover {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: var(--accent-cyan);
+}
+
+.video-progress-container {
+  width: 100%;
+  height: 8px;
+  background: var(--border-subtle);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin: 10px 0;
+}
+
+.video-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-cyan));
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+.timestamp-jump-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--accent-primary);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.timestamp-jump-btn:hover {
+  background: var(--accent-primary);
+  color: #FFF;
+}
+
+.continuous-voice-toggle-btn.active {
+  background: linear-gradient(135deg, #10B981, #059669) !important;
+  color: #FFF !important;
+  border-color: #059669 !important;
+}
+
+.audio-player-dock {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+}

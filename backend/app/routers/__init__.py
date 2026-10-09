@@ -18,6 +18,7 @@ from .knowledge_base import router as knowledge_base_router
 from .authorities import router as authorities_router
 from .case_intelligence import router as case_intelligence_router
 from .admin import router as admin_router
+from .evidence import router as evidence_router
 
 __all__ = [
     "health_router",
@@ -37,4 +38,5 @@ __all__ = [
     "resolution_router",
     "complaint_generator_router",
     "admin_router",
+    "evidence_router",
 ]
