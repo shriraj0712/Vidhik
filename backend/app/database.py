@@ -2,10 +2,12 @@
 Vidhik Platform - Database Connection & Session Management
 ==========================================================
 Manages thread-safe PostgreSQL connection pooling for FastAPI endpoints.
-All database operations are read-only and consume environment variables.
+Ensures relational database schemas, indexes, and constraints are
+idempotently applied on startup.
 """
 
 import os
+import logging
 from pathlib import Path
 from contextlib import contextmanager
 from typing import Generator, Optional
@@ -13,6 +15,8 @@ import psycopg2
 from psycopg2.pool import ThreadedConnectionPool
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
+
+logger = logging.getLogger("vidhik.database")
 
 # Load environment variables from backend/.env if available
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,6 +35,32 @@ DB_MAX_CONN = int(os.getenv("DB_MAX_CONN", "10"))
 _pool: Optional[ThreadedConnectionPool] = None
 
 
+def run_startup_migrations():
+    """
+    Applies production database migrations idempotently on pool startup.
+    """
+    migration_file = BASE_DIR.parent / "database" / "migrations" / "011_production_auth_security_schema.sql"
+    if not migration_file.exists():
+        return
+
+    try:
+        conn = psycopg2.connect(
+            host=DB_HOST,
+            port=DB_PORT,
+            dbname=DB_NAME,
+            user=DB_USER,
+            password=DB_PASSWORD
+        )
+        conn.autocommit = True
+        with conn.cursor() as cur:
+            with open(migration_file, "r", encoding="utf-8") as f:
+                cur.execute(f.read())
+        conn.close()
+        logger.info("Startup database migration 011 verified and applied successfully.")
+    except Exception as e:
+        logger.warning(f"Could not apply startup migration: {e}")
+
+
 def init_db_pool():
     """Initializes the PostgreSQL connection pool."""
     global _pool
@@ -44,6 +74,7 @@ def init_db_pool():
             user=DB_USER,
             password=DB_PASSWORD
         )
+        run_startup_migrations()
 
 
 def close_db_pool():

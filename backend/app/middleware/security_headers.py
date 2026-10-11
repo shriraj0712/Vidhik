@@ -35,12 +35,23 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         # 5. Content Security Policy compatible with static UI, fonts, and inline styles
         csp = (
             "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline'; "
+            "script-src 'self' 'unsafe-inline' "
+            "https://challenges.cloudflare.com "
+            "https://accounts.google.com; "
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
             "font-src 'self' https://fonts.gstatic.com data:; "
             "img-src 'self' data: https:; "
-            "connect-src 'self' http://localhost:* http://127.0.0.1:*; "
-            "frame-ancestors 'self';"
+            "connect-src 'self' "
+            "http://localhost:* "
+            "http://127.0.0.1:* "
+            "https://challenges.cloudflare.com "
+            "https://accounts.google.com; "
+            "frame-src 'self' "
+            "https://challenges.cloudflare.com "
+            "https://accounts.google.com; "
+            "frame-ancestors 'self'; "
+            "object-src 'none'; "
+            "base-uri 'self';"
         )
         response.headers["Content-Security-Policy"] = csp
 

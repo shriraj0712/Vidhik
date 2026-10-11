@@ -16,7 +16,6 @@ const App = {
   currentDocSearch: '',
   activeChecklistProcedure: null,
   checklistState: {},
-  authMode: 'citizen',
   citizenCases: [],
   citizenDocuments: [],
   citizenBookmarks: [],
@@ -24,15 +23,134 @@ const App = {
   unreadNotifCount: 0,
 
   // -------------------------------------------------------------
+  // ENTERPRISE PRODUCTION AUTHENTICATION & SECURITY STATE
+  // -------------------------------------------------------------
+  authScreen: 'signin', // 'signin' | 'signup' | 'otp' | '2fa_setup' | 'recovery_codes' | '2fa_challenge' | 'forgot'
+  pendingEmail: '',
+  pendingPhone: '',
+  twoFactorToken: '',
+  twoFactorSetupToken: '',
+  recoveryCodes: [],
+  otpExpiryInterval: null,
+  otpResendCooldownInterval: null,
+  otpCooldownSeconds: 0,
+  isRecoveryLoginMode: false,
+  signinTurnstileWidgetId: null,
+  signupTurnstileWidgetId: null,
+  forgotTurnstileWidgetId: null,
+  signinTurnstileToken: '',
+  signupTurnstileToken: '',
+  forgotTurnstileToken: '',
+  turnstileSiteKey: '1x00000000000000000000AA',
+  turnstileEnabled: true,
+
+  // -------------------------------------------------------------
+  // CORE API UTILITY
+  // -------------------------------------------------------------
+  async api(endpoint, method = 'GET', body = null, isFormData = false) {
+    const headers = {};
+    if (this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`;
+    }
+
+    const options = {
+      method: method,
+      headers: headers
+    };
+
+    if (body) {
+      if (isFormData) {
+        options.body = body;
+      } else {
+        headers['Content-Type'] = 'application/json';
+        options.body = JSON.stringify(body);
+      }
+    }
+
+    let response;
+    try {
+      response = await fetch(endpoint, options);
+    } catch (networkErr) {
+      throw new Error('Network error: Unable to connect to server. Please check your connection.');
+    }
+
+    if (response.status === 204) {
+      return null;
+    }
+
+    let data;
+    const contentType = response.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      try {
+        data = await response.json();
+      } catch (e) {
+        data = { detail: 'Invalid JSON response from server' };
+      }
+    } else {
+      const text = await response.text();
+      data = { detail: text };
+    }
+
+    if (!response.ok) {
+      let errMsg = 'Request failed';
+      if (data) {
+        if (typeof data.detail === 'string') {
+          errMsg = data.detail;
+        } else if (Array.isArray(data.detail)) {
+          errMsg = data.detail.map(d => `${d.loc ? d.loc[d.loc.length - 1] + ': ' : ''}${d.msg}`).join(', ');
+        } else if (data.message) {
+          errMsg = data.message;
+        } else if (typeof data === 'string') {
+          errMsg = data;
+        }
+      }
+
+      if (response.status === 401 && this.token && !endpoint.includes('/api/auth/login')) {
+        this.token = null;
+        this.user = null;
+        localStorage.removeItem('vidhik_token');
+        this.showLogin();
+      }
+
+      const error = new Error(errMsg);
+      error.status = response.status;
+      error.data = data;
+      throw error;
+    }
+
+    return data;
+  },
+
+  async loadAuthConfig() {
+    try {
+      const config = await this.api('/api/auth/turnstile-config');
+      if (config && config.site_key) {
+        this.turnstileSiteKey = config.site_key;
+        this.turnstileEnabled = config.enabled !== false;
+      }
+    } catch (e) {
+      console.warn('Failed to load Turnstile config from server, using default test key.', e);
+      this.turnstileSiteKey = '1x00000000000000000000AA';
+    }
+  },
+
+  // -------------------------------------------------------------
   // INITIALIZATION
   // -------------------------------------------------------------
   async init() {
     this.bindEvents();
+    await this.loadAuthConfig();
+    this.initTurnstile();
+    this.initGoogleAuth();
+
     if (this.token) {
       try {
         await this.fetchCurrentUser();
         this.showApp();
       } catch (e) {
+        this.token = null;
+        this.user = null;
+        localStorage.removeItem('vidhik_token');
         this.showLogin();
       }
     } else {
@@ -43,37 +161,11 @@ const App = {
   bindEvents() {
     // Navigation clicks
     document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => {
-      item.addEventListener('click', (e) => {
+      item.addEventListener('click', () => {
         const view = item.getAttribute('data-view');
         if (view) this.navigate(view);
       });
     });
-
-    // Auth Mode Switcher Tabs
-    document.querySelectorAll('.auth-tab-btn[data-auth-tab]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const mode = btn.getAttribute('data-auth-tab');
-        this.switchAuthMode(mode);
-      });
-    });
-
-    // Login Form
-    const loginForm = document.getElementById('login-form');
-    if (loginForm) {
-      loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await this.handleLogin();
-      });
-    }
-
-    // Register Form
-    const registerForm = document.getElementById('register-form');
-    if (registerForm) {
-      registerForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await this.handleRegister(e);
-      });
-    }
 
     // Mobile Menu & Backdrop
     document.getElementById('btn-mobile-menu-toggle')?.addEventListener('click', () => this.toggleMobileSidebar());
@@ -117,7 +209,8 @@ const App = {
       gSearch.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && gSearch.value.trim()) {
           this.navigate('research');
-          document.getElementById('research-query-input').value = gSearch.value.trim();
+          const rInput = document.getElementById('research-query-input');
+          if (rInput) rInput.value = gSearch.value.trim();
           this.handleLegalSearch();
         }
       });
@@ -189,191 +282,717 @@ const App = {
   },
 
   // -------------------------------------------------------------
-  // MOBILE NAVIGATION & HEADER HELPERS
+  // CLOUDFLARE TURNSTILE & GOOGLE OAUTH
   // -------------------------------------------------------------
-  toggleMobileSidebar() {
-    const sb = document.querySelector('.sidebar');
-    const bd = document.getElementById('mobile-backdrop');
-    if (sb) sb.classList.toggle('open');
-    if (bd) bd.classList.toggle('active');
-  },
-
-  closeMobileSidebar() {
-    const sb = document.querySelector('.sidebar');
-    const bd = document.getElementById('mobile-backdrop');
-    if (sb) sb.classList.remove('open');
-    if (bd) bd.classList.remove('active');
-  },
-
-  handleCitizenQuickSearch(e) {
-    if (e) e.preventDefault();
-    const input = document.getElementById('citizen-quick-search-input');
-    if (!input) return;
-    const q = input.value.trim();
-    if (!q) {
-      this.showToast('Please enter a search query.', 'error');
+  initTurnstile() {
+    if (typeof turnstile === 'undefined') {
+      setTimeout(() => this.initTurnstile(), 400);
       return;
     }
-    this.navigate('research');
-    const rInput = document.getElementById('research-query-input');
-    if (rInput) rInput.value = q;
-    this.handleLegalSearch();
-  },
+    const siteKey = this.turnstileSiteKey || '1x00000000000000000000AA';
 
-  handleLawyerQuickSearch(e) {
-    if (e) e.preventDefault();
-    const input = document.getElementById('lawyer-quick-search-input');
-    if (!input) return;
-    const q = input.value.trim();
-    if (!q) {
-      this.showToast('Please enter a search query.', 'error');
-      return;
-    }
-    this.navigate('research');
-    const rInput = document.getElementById('research-query-input');
-    if (rInput) rInput.value = q;
-    this.handleLegalSearch();
-  },
-
-  navigateToCurrentProfile() {
-    if (!this.user) return;
-    if (this.user.role === 'lawyer') {
-      this.navigate('profile');
-    } else {
-      this.navigate('citizen-profile');
-    }
-  },
-
-  navigateToNotifications(e) {
-    if (e) e.preventDefault();
-    const popover = document.getElementById('notifications-popover');
-    if (popover) {
-      popover.classList.remove('active');
-      popover.style.display = 'none';
-    }
-    if (this.user && (this.user.role === 'user' || this.user.role === 'citizen')) {
-      this.navigate('citizen-notifications');
-    } else {
-      this.showToast('Notifications are displayed in the Lawyer Dashboard activity feed.', 'info');
-    }
-  },
-
-  // -------------------------------------------------------------
-  // API HELPER
-  // -------------------------------------------------------------
-  async api(endpoint, method = 'GET', body = null) {
-    const headers = { 'Content-Type': 'application/json' };
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
-    }
-
-    const options = { method, headers };
-    if (body) {
-      options.body = JSON.stringify(body);
-    }
-
-    const res = await fetch(endpoint, options);
-    if (!res.ok) {
-      if (res.status === 401 && this.token && !endpoint.includes('/api/auth/login')) {
-        this.token = null;
-        this.user = null;
-        localStorage.removeItem('vidhik_token');
-        this.showLogin();
-        this.showToast('Session expired or unauthorized. Please sign in again.', 'error');
-      }
-      let errorMsg = `API Error (${res.status})`;
+    const signinEl = document.getElementById('signin-turnstile-widget');
+    if (signinEl && !this.signinTurnstileWidgetId) {
       try {
-        const errJson = await res.json();
-        errorMsg = errJson.detail || errorMsg;
-      } catch (err) {}
-      throw new Error(errorMsg);
+        this.signinTurnstileWidgetId = turnstile.render('#signin-turnstile-widget', {
+          sitekey: siteKey,
+          theme: 'dark',
+          callback: (token) => { this.signinTurnstileToken = token; },
+          'expired-callback': () => { this.signinTurnstileToken = ''; },
+          'error-callback': () => { this.signinTurnstileToken = ''; }
+        });
+      } catch (e) {}
     }
-    return await res.json();
+
+    const signupEl = document.getElementById('signup-turnstile-widget');
+    if (signupEl && !this.signupTurnstileWidgetId) {
+      try {
+        this.signupTurnstileWidgetId = turnstile.render('#signup-turnstile-widget', {
+          sitekey: siteKey,
+          theme: 'dark',
+          callback: (token) => { this.signupTurnstileToken = token; },
+          'expired-callback': () => { this.signupTurnstileToken = ''; },
+          'error-callback': () => { this.signupTurnstileToken = ''; }
+        });
+      } catch (e) {}
+    }
+
+    const forgotEl = document.getElementById('forgot-turnstile-widget');
+    if (forgotEl && !this.forgotTurnstileWidgetId) {
+      try {
+        this.forgotTurnstileWidgetId = turnstile.render('#forgot-turnstile-widget', {
+          sitekey: siteKey,
+          theme: 'dark',
+          callback: (token) => { this.forgotTurnstileToken = token; },
+          'expired-callback': () => { this.forgotTurnstileToken = ''; },
+          'error-callback': () => { this.forgotTurnstileToken = ''; }
+        });
+      } catch (e) {}
+    }
+  },
+
+  resetTurnstiles() {
+    if (typeof turnstile === 'undefined') return;
+    try {
+      if (this.signinTurnstileWidgetId) turnstile.reset(this.signinTurnstileWidgetId);
+      if (this.signupTurnstileWidgetId) turnstile.reset(this.signupTurnstileWidgetId);
+      if (this.forgotTurnstileWidgetId) turnstile.reset(this.forgotTurnstileWidgetId);
+    } catch (e) {}
+    this.signinTurnstileToken = '';
+    this.signupTurnstileToken = '';
+    this.forgotTurnstileToken = '';
+  },
+
+  initGoogleAuth() {
+    if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+      try {
+        google.accounts.id.initialize({
+          client_id: '1084820293847-vidhik-google-auth.apps.googleusercontent.com',
+          callback: (response) => this.handleGoogleCredentialResponse(response),
+          auto_select: false
+        });
+      } catch (e) {}
+    }
+  },
+
+  triggerGoogleLogin() {
+    if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+      try {
+        google.accounts.id.prompt((notification) => {
+          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+            this.showToast('Google Sign-In prompt unavailable. Please sign in with email/password.', 'info');
+          }
+        });
+        return;
+      } catch (e) {}
+    }
+    this.showToast('Google Sign-In is initializing. Configure GOOGLE_CLIENT_ID for live OAuth.', 'info');
+  },
+
+  async handleGoogleCredentialResponse(response) {
+    if (!response || !response.credential) return;
+    try {
+      const data = await this.api('/api/auth/google', 'POST', {
+        id_token: response.credential
+      });
+
+      if (data.two_factor_required) {
+        this.twoFactorToken = data.two_factor_token;
+        this.switchAuthScreen('2fa_challenge');
+        this.showToast('Google Identity verified! Please enter your 2FA code.', 'info');
+      } else if (data.two_factor_enrollment_required) {
+        this.twoFactorSetupToken = data.two_factor_setup_token;
+        const setupData = await this.api('/api/auth/2fa/setup-initiate', 'POST', {
+          two_factor_setup_token: this.twoFactorSetupToken
+        });
+        document.getElementById('totp-qr-image').src = setupData.qr_code_data_url;
+        document.getElementById('totp-secret-key-text').innerText = setupData.secret;
+        this.switchAuthScreen('2fa_setup');
+        this.showToast('Google account linked. Complete mandatory 2FA enrollment.', 'info');
+      } else if (data.access_token) {
+        this.token = data.access_token;
+        this.user = data.user;
+        localStorage.setItem('vidhik_token', this.token);
+        this.showToast(`Welcome to Vidhik AI, ${this.user.full_name}!`, 'success');
+        this.showApp();
+      }
+    } catch (err) {
+      this.showToast(err.message || 'Google authentication failed', 'error');
+    }
   },
 
   // -------------------------------------------------------------
-  // AUTHENTICATION
+  // PASSWORD STRENGTH & UTILITIES
   // -------------------------------------------------------------
-  switchAuthMode(mode) {
-    this.authMode = mode;
-    document.querySelectorAll('.auth-tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelector(`.auth-tab-btn[data-auth-tab="${mode}"]`)?.classList.add('active');
+  checkPasswordStrength(pwd) {
+    const meter = document.getElementById('pwd-strength-meter');
+    const reqLen = document.getElementById('req-len');
+    const reqUpper = document.getElementById('req-upper');
+    const reqLower = document.getElementById('req-lower');
+    const reqDigit = document.getElementById('req-digit');
 
-    const loginForm = document.getElementById('login-form');
-    const regForm = document.getElementById('register-form');
-    const demoContainer = document.getElementById('login-demo-container');
-    const subtitle = document.getElementById('auth-card-subtitle');
+    const hasLen = pwd.length >= 8;
+    const hasUpper = /[A-Z]/.test(pwd);
+    const hasLower = /[a-z]/.test(pwd);
+    const hasDigitOrSpecial = /[0-9]/.test(pwd) && /[^A-Za-z0-9]/.test(pwd);
 
-    if (mode === 'register') {
-      if (loginForm) loginForm.style.display = 'none';
-      if (regForm) regForm.style.display = 'block';
-      if (demoContainer) demoContainer.style.display = 'none';
-      if (subtitle) subtitle.innerText = 'Create your citizen account to track cases and legal documents.';
-    } else {
-      if (loginForm) loginForm.style.display = 'block';
-      if (regForm) regForm.style.display = 'none';
-      if (demoContainer) demoContainer.style.display = 'block';
+    if (reqLen) {
+      reqLen.classList.toggle('met', hasLen);
+      reqLen.innerHTML = `<span>${hasLen ? '✓' : '•'}</span> 8+ characters`;
+    }
+    if (reqUpper) {
+      reqUpper.classList.toggle('met', hasUpper);
+      reqUpper.innerHTML = `<span>${hasUpper ? '✓' : '•'}</span> 1 uppercase (A-Z)`;
+    }
+    if (reqLower) {
+      reqLower.classList.toggle('met', hasLower);
+      reqLower.innerHTML = `<span>${hasLower ? '✓' : '•'}</span> 1 lowercase (a-z)`;
+    }
+    if (reqDigit) {
+      reqDigit.classList.toggle('met', hasDigitOrSpecial);
+      reqDigit.innerHTML = `<span>${hasDigitOrSpecial ? '✓' : '•'}</span> 1 number & special char`;
+    }
 
-      if (mode === 'citizen') {
-        if (subtitle) subtitle.innerText = 'Access your personal case tracker, documents, and legal updates.';
-        this.fillDemoLogin('sunita.sharma@example.com', 'password123');
+    let score = 0;
+    if (hasLen) score += 25;
+    if (hasUpper) score += 25;
+    if (hasLower) score += 25;
+    if (hasDigitOrSpecial) score += 25;
+
+    if (meter) {
+      meter.style.width = `${score}%`;
+      if (score <= 25) {
+        meter.style.background = '#EF4444';
+      } else if (score <= 75) {
+        meter.style.background = '#F59E0B';
       } else {
-        if (subtitle) subtitle.innerText = 'Advocate and legal counsel professional practice suite.';
-        this.fillDemoLogin('rajesh.advocate@vidhik.ai', 'password123');
+        meter.style.background = '#10B981';
       }
     }
   },
 
-  fillDemoLogin(email, password = 'password123') {
-    const emailInput = document.getElementById('login-email');
-    const pwdInput = document.getElementById('login-password');
-    if (emailInput) emailInput.value = email;
-    if (pwdInput) pwdInput.value = password;
+  togglePasswordVisibility(fieldId) {
+    const el = document.getElementById(fieldId);
+    if (!el) return;
+    el.type = (el.type === 'password') ? 'text' : 'password';
   },
 
-  async handleRegister(e) {
-    const fullName = document.getElementById('reg-fullname').value.trim();
-    const email = document.getElementById('reg-email').value.trim();
-    const phone = document.getElementById('reg-phone').value.trim();
-    const password = document.getElementById('reg-password').value;
-    const confirmPwd = document.getElementById('reg-confirm-password').value;
+  // -------------------------------------------------------------
+  // AUTHENTICATION SCREENS & ROUTING
+  // -------------------------------------------------------------
+  switchAuthScreen(screenName) {
+    this.authScreen = screenName;
+    const screenMap = {
+      'signin': 'auth-signin-view',
+      'signup': 'auth-signup-view',
+      'otp': 'auth-otp-view',
+      '2fa_setup': 'auth-2fa-setup-view',
+      'recovery_codes': 'auth-recovery-codes-view',
+      '2fa_challenge': 'auth-2fa-challenge-view',
+      'forgot': 'auth-forgot-view'
+    };
 
-    if (password !== confirmPwd) {
-      this.showToast('Passwords do not match.', 'error');
+    Object.values(screenMap).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+
+    const targetId = screenMap[screenName];
+    if (targetId) {
+      const el = document.getElementById(targetId);
+      if (el) el.style.display = 'block';
+    }
+
+    const tabSignin = document.getElementById('tab-btn-signin');
+    const tabSignup = document.getElementById('tab-btn-signup');
+    if (tabSignin && tabSignup) {
+      tabSignin.classList.toggle('active', screenName === 'signin');
+      tabSignup.classList.toggle('active', screenName === 'signup');
+    }
+
+    if (screenName === 'signin' || screenName === 'signup' || screenName === 'forgot') {
+      this.initTurnstile();
+    }
+  },
+
+  // -------------------------------------------------------------
+  // SIGN IN & 2FA VERIFICATION
+  // -------------------------------------------------------------
+  async handleLogin(e) {
+    if (e) e.preventDefault();
+    const identifier = document.getElementById('signin-email')?.value?.trim();
+    const password = document.getElementById('signin-password')?.value;
+    const btn = document.getElementById('btn-signin-submit');
+
+    if (!identifier || !password) {
+      this.showToast('Please enter both identifier and password.', 'error');
       return;
     }
 
     try {
-      const data = await this.api('/api/auth/register', 'POST', {
-        full_name: fullName,
-        email: email,
-        phone: phone || null,
-        password: password
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Verifying Credentials...';
+      }
+
+      const data = await this.api('/api/auth/login', 'POST', {
+        identifier: identifier,
+        password: password,
+        turnstile_token: this.signinTurnstileToken || null
       });
 
-      this.token = data.token;
-      this.user = data;
+      if (data.two_factor_required) {
+        this.twoFactorToken = data.two_factor_token;
+        this.isRecoveryLoginMode = false;
+        const totpBox = document.getElementById('totp-input-box');
+        const recBox = document.getElementById('recovery-input-box');
+        const toggleLink = document.getElementById('toggle-recovery-link');
+        if (totpBox) totpBox.style.display = 'block';
+        if (recBox) recBox.style.display = 'none';
+        if (toggleLink) toggleLink.innerText = '🔑 Use an Emergency Recovery Code Instead';
+
+        this.switchAuthScreen('2fa_challenge');
+        setTimeout(() => document.getElementById('login-2fa-code')?.focus(), 100);
+        this.showToast('Password verified. Please enter your 2FA code.', 'info');
+      } else if (data.two_factor_enrollment_required) {
+        this.twoFactorSetupToken = data.two_factor_setup_token;
+        const setupData = await this.api('/api/auth/2fa/setup-initiate', 'POST', {
+          two_factor_setup_token: this.twoFactorSetupToken
+        });
+        document.getElementById('totp-qr-image').src = setupData.qr_code_data_url;
+        document.getElementById('totp-secret-key-text').innerText = setupData.secret;
+        this.switchAuthScreen('2fa_setup');
+        this.showToast('Mandatory 2FA setup required.', 'info');
+      } else if (data.access_token) {
+        this.token = data.access_token;
+        this.user = data.user;
+        localStorage.setItem('vidhik_token', this.token);
+        this.showToast(`Welcome back, ${this.user.full_name}!`, 'success');
+        this.showApp();
+      }
+    } catch (err) {
+      this.showToast(err.message, 'error');
+      this.resetTurnstiles();
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerText = 'Sign In to VIDHIK';
+      }
+    }
+  },
+
+  async handle2FALogin(e) {
+    if (e) e.preventDefault();
+    const btn = document.getElementById('btn-2fa-login-submit');
+    const totpCode = document.getElementById('login-2fa-code')?.value?.trim();
+    const recoveryCode = document.getElementById('login-recovery-code')?.value?.trim();
+
+    const code = this.isRecoveryLoginMode ? recoveryCode : totpCode;
+    if (!code) {
+      this.showToast(this.isRecoveryLoginMode ? 'Please enter your emergency recovery code.' : 'Please enter the 6-digit authenticator code.', 'error');
+      return;
+    }
+
+    try {
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Validating 2FA...';
+      }
+
+      const data = await this.api('/api/auth/2fa/verify-login', 'POST', {
+        two_factor_token: this.twoFactorToken,
+        code: code
+      });
+
+      this.token = data.access_token;
+      this.user = data.user;
       localStorage.setItem('vidhik_token', this.token);
-      this.showToast(`Welcome to Vidhik AI, ${data.full_name}!`, 'success');
+      this.showToast(`2FA Verified. Welcome, ${this.user.full_name}!`, 'success');
       this.showApp();
     } catch (err) {
       this.showToast(err.message, 'error');
+      if (this.isRecoveryLoginMode) {
+        const rInput = document.getElementById('login-recovery-code');
+        if (rInput) rInput.value = '';
+      } else {
+        const tInput = document.getElementById('login-2fa-code');
+        if (tInput) {
+          tInput.value = '';
+          tInput.focus();
+        }
+      }
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerText = 'Verify Code & Enter VIDHIK';
+      }
     }
   },
 
-  async handleLogin() {
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
+  toggleRecoveryCodeLogin(e) {
+    if (e) e.preventDefault();
+    this.isRecoveryLoginMode = !this.isRecoveryLoginMode;
+    const totpBox = document.getElementById('totp-input-box');
+    const recBox = document.getElementById('recovery-input-box');
+    const toggleLink = document.getElementById('toggle-recovery-link');
+    const btn = document.getElementById('btn-2fa-login-submit');
+
+    if (this.isRecoveryLoginMode) {
+      if (totpBox) totpBox.style.display = 'none';
+      if (recBox) recBox.style.display = 'block';
+      if (toggleLink) toggleLink.innerText = '🛡️ Use Authenticator 6-Digit Code Instead';
+      if (btn) btn.innerText = 'Verify Recovery Code & Enter VIDHIK';
+      setTimeout(() => document.getElementById('login-recovery-code')?.focus(), 100);
+    } else {
+      if (totpBox) totpBox.style.display = 'block';
+      if (recBox) recBox.style.display = 'none';
+      if (toggleLink) toggleLink.innerText = '🔑 Use an Emergency Recovery Code Instead';
+      if (btn) btn.innerText = 'Verify Code & Enter VIDHIK';
+      setTimeout(() => document.getElementById('login-2fa-code')?.focus(), 100);
+    }
+  },
+
+  // -------------------------------------------------------------
+  // SIGN UP, OTP & MANDATORY 2FA ENROLLMENT
+  // -------------------------------------------------------------
+  async handleRegisterInitiate(e) {
+    if (e) e.preventDefault();
+    const fullName = document.getElementById('reg-fullname')?.value?.trim();
+    const email = document.getElementById('reg-email')?.value?.trim();
+    const phone = document.getElementById('reg-phone')?.value?.trim();
+    const password = document.getElementById('reg-password')?.value;
+    const confirmPassword = document.getElementById('reg-confirm-password')?.value;
+    const btn = document.getElementById('btn-signup-submit');
+
+    if (!fullName || fullName.length < 2) {
+      this.showToast('Please enter your full legal name.', 'error');
+      document.getElementById('reg-fullname')?.focus();
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      this.showToast('Please enter a valid email address.', 'error');
+      document.getElementById('reg-email')?.focus();
+      return;
+    }
+
+    if (phone && phone.replace(/\D/g, '').length < 10) {
+      this.showToast('Please enter a valid 10-digit mobile number.', 'error');
+      document.getElementById('reg-phone')?.focus();
+      return;
+    }
+
+    if (!password || !confirmPassword) {
+      this.showToast('Please enter and confirm your password.', 'error');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      this.showToast('Passwords do not match. Please verify both fields.', 'error');
+      document.getElementById('reg-confirm-password')?.focus();
+      return;
+    }
+
+    if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
+      this.showToast('Password must contain at least 8 characters, an uppercase letter, lowercase letter, number, and special symbol.', 'error');
+      document.getElementById('reg-password')?.focus();
+      return;
+    }
 
     try {
-      const data = await this.api('/api/auth/login', 'POST', { email, password });
-      this.token = data.token;
-      this.user = data;
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Creating Account & Dispatching OTP...';
+      }
+
+      const res = await this.api('/api/auth/register-initiate', 'POST', {
+        full_name: fullName,
+        email: email,
+        phone: phone || null,
+        password: password,
+        turnstile_token: this.signupTurnstileToken || null
+      });
+
+      this.pendingEmail = email;
+      this.pendingPhone = phone || '';
+
+      const destText = document.getElementById('otp-destination-text');
+      if (destText) {
+        destText.innerText = email + (phone ? ` & ${phone}` : '');
+      }
+
+      this.switchAuthScreen('otp');
+      this.startOtpTimer();
+      this.startResendCooldown(60);
+      this.showToast(res.message || 'Verification code dispatched to your registered email/phone!', 'success');
+      setTimeout(() => document.getElementById('otp-code-input')?.focus(), 100);
+    } catch (err) {
+      this.showToast(err.message || 'Registration initiation failed', 'error');
+      this.resetTurnstiles();
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerText = 'Continue to Identity Verification →';
+      }
+    }
+  },
+
+  startOtpTimer() {
+    if (this.otpExpiryInterval) clearInterval(this.otpExpiryInterval);
+    let secondsLeft = 600; // 10 minutes
+    const timerEl = document.getElementById('otp-expiry-timer');
+
+    const updateTimer = () => {
+      const mins = Math.floor(secondsLeft / 60);
+      const secs = secondsLeft % 60;
+      if (timerEl) {
+        timerEl.innerText = `Expires in ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      }
+      if (secondsLeft <= 0) {
+        clearInterval(this.otpExpiryInterval);
+        if (timerEl) timerEl.innerText = 'Code expired. Please request a new one.';
+      }
+      secondsLeft--;
+    };
+
+    updateTimer();
+    this.otpExpiryInterval = setInterval(updateTimer, 1000);
+  },
+
+  startResendCooldown(seconds = 60) {
+    if (this.otpResendCooldownInterval) clearInterval(this.otpResendCooldownInterval);
+    this.otpCooldownSeconds = seconds;
+    const btn = document.getElementById('btn-resend-otp');
+
+    const updateBtn = () => {
+      if (this.otpCooldownSeconds > 0) {
+        if (btn) {
+          btn.disabled = true;
+          btn.style.opacity = '0.5';
+          btn.style.cursor = 'not-allowed';
+          btn.innerText = `Resend in ${this.otpCooldownSeconds}s`;
+        }
+        this.otpCooldownSeconds--;
+      } else {
+        clearInterval(this.otpResendCooldownInterval);
+        if (btn) {
+          btn.disabled = false;
+          btn.style.opacity = '1';
+          btn.style.cursor = 'pointer';
+          btn.innerText = 'Resend Code';
+        }
+      }
+    };
+
+    updateBtn();
+    this.otpResendCooldownInterval = setInterval(updateBtn, 1000);
+  },
+
+  async handleResendOtp() {
+    if (this.otpCooldownSeconds > 0) return;
+    const btn = document.getElementById('btn-resend-otp');
+    try {
+      if (btn) btn.innerText = 'Sending...';
+
+      const res = await this.api('/api/auth/resend-otp', 'POST', {
+        email: this.pendingEmail,
+        phone: this.pendingPhone || null,
+        purpose: 'signup_verification'
+      });
+
+      this.startOtpTimer();
+      this.startResendCooldown(60);
+      this.showToast(res.message || 'New verification code dispatched!', 'success');
+    } catch (err) {
+      this.showToast(err.message || 'Failed to resend verification code', 'error');
+      if (btn) {
+        btn.innerText = 'Resend Code';
+      }
+    }
+  },
+
+  async handleVerifyOtp(e) {
+    if (e) e.preventDefault();
+    const otpCode = document.getElementById('otp-code-input')?.value?.trim();
+    const btn = document.getElementById('btn-verify-otp-submit');
+
+    if (!otpCode || otpCode.length !== 6 || !/^\d{6}$/.test(otpCode)) {
+      this.showToast('Please enter the valid 6-digit numeric verification code.', 'error');
+      document.getElementById('otp-code-input')?.focus();
+      return;
+    }
+
+    try {
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Verifying Code...';
+      }
+
+      const data = await this.api('/api/auth/verify-otp', 'POST', {
+        email: this.pendingEmail,
+        phone: this.pendingPhone || null,
+        otp_code: otpCode,
+        purpose: 'signup_verification'
+      });
+
+      if (this.otpExpiryInterval) clearInterval(this.otpExpiryInterval);
+      if (this.otpResendCooldownInterval) clearInterval(this.otpResendCooldownInterval);
+
+      if (data.two_factor_setup_token) {
+        this.twoFactorSetupToken = data.two_factor_setup_token;
+        if (data.qr_code_data_url) {
+          document.getElementById('totp-qr-image').src = data.qr_code_data_url;
+        }
+        if (data.secret) {
+          document.getElementById('totp-secret-key-text').innerText = data.secret;
+        }
+        this.switchAuthScreen('2fa_setup');
+        this.showToast('Identity verified! Please scan the QR code to set up mandatory 2FA.', 'success');
+        setTimeout(() => document.getElementById('totp-setup-code')?.focus(), 100);
+      } else if (data.access_token) {
+        this.token = data.access_token;
+        this.user = data.user;
+        localStorage.setItem('vidhik_token', this.token);
+        this.showToast(`Welcome to VIDHIK AI, ${this.user.full_name}!`, 'success');
+        this.showApp();
+      } else {
+        this.showToast(data.message || 'Verification successful!', 'success');
+      }
+    } catch (err) {
+      this.showToast(err.message || 'Verification failed. Please check the code.', 'error');
+      const input = document.getElementById('otp-code-input');
+      if (input) {
+        input.value = '';
+        input.focus();
+      }
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerText = 'Verify & Setup Mandatory 2FA →';
+      }
+    }
+  },
+
+  copyTotpSecret() {
+    const text = document.getElementById('totp-secret-key-text')?.innerText?.replace(/\s+/g, '');
+    if (text) {
+      navigator.clipboard.writeText(text).then(() => {
+        this.showToast('Authenticator secret key copied to clipboard!', 'info');
+      }).catch(() => {
+        this.showToast('Secret key: ' + text, 'info');
+      });
+    }
+  },
+
+  async handleComplete2FASetup(e) {
+    if (e) e.preventDefault();
+    const totpCode = document.getElementById('totp-setup-code')?.value?.trim();
+    const btn = document.getElementById('btn-totp-setup-submit');
+
+    if (!totpCode || totpCode.length !== 6) {
+      this.showToast('Please enter the 6-digit code from your authenticator app.', 'error');
+      return;
+    }
+
+    try {
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Enrolling 2FA...';
+      }
+
+      const data = await this.api('/api/auth/2fa/setup-verify', 'POST', {
+        two_factor_setup_token: this.twoFactorSetupToken,
+        totp_code: totpCode
+      });
+
+      this.token = data.access_token;
+      this.user = data.user;
       localStorage.setItem('vidhik_token', this.token);
-      this.showToast(`Welcome back, ${data.full_name}`, 'success');
-      this.showApp();
-    } catch (e) {
-      this.showToast(e.message, 'error');
+      this.recoveryCodes = data.recovery_codes || [];
+
+      // Render recovery codes in grid
+      const grid = document.getElementById('recovery-codes-display-grid');
+      if (grid) {
+        grid.innerHTML = this.recoveryCodes.map(code => `
+          <div class="recovery-code-card">
+            <code>${this.escape(code)}</code>
+          </div>
+        `).join('');
+      }
+
+      this.switchAuthScreen('recovery_codes');
+      this.showToast('Mandatory 2FA successfully configured!', 'success');
+    } catch (err) {
+      this.showToast(err.message, 'error');
+      const input = document.getElementById('totp-setup-code');
+      if (input) {
+        input.value = '';
+        input.focus();
+      }
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerText = 'Activate 2FA & Generate Recovery Codes';
+      }
+    }
+  },
+
+  copyAllRecoveryCodes() {
+    if (!this.recoveryCodes || this.recoveryCodes.length === 0) return;
+    const text = 'VIDHIK AI — 2FA EMERGENCY RECOVERY CODES\n' +
+      'Account: ' + (this.user ? this.user.email : '') + '\n' +
+      'Generated: ' + new Date().toISOString() + '\n\n' +
+      this.recoveryCodes.join('\n') + '\n\n' +
+      'Each recovery code can only be used once for emergency account access.';
+
+    navigator.clipboard.writeText(text).then(() => {
+      this.showToast('All 8 recovery codes copied to clipboard!', 'success');
+    }).catch(() => {
+      this.showToast('Failed to copy to clipboard automatically.', 'error');
+    });
+  },
+
+  downloadRecoveryCodes() {
+    if (!this.recoveryCodes || this.recoveryCodes.length === 0) return;
+    const text = '===================================================\n' +
+      'VIDHIK AI — 2FA EMERGENCY RECOVERY CODES\n' +
+      'Account: ' + (this.user ? this.user.email : '') + '\n' +
+      'Generated: ' + new Date().toLocaleString() + '\n' +
+      '===================================================\n\n' +
+      'These one-time recovery codes allow emergency account access\n' +
+      'if you ever lose access to your authenticator app.\n\n' +
+      this.recoveryCodes.map((code, idx) => `${idx + 1}.  ${code}`).join('\n') + '\n\n' +
+      'Store this document in a safe, encrypted location.\n';
+
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `vidhik-recovery-codes-${(this.user ? this.user.email.split('@')[0] : 'account')}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    this.showToast('Recovery codes downloaded as text file.', 'success');
+  },
+
+  finishRegistrationFlow() {
+    this.showToast(`Welcome to VIDHIK AI, ${this.user.full_name}!`, 'success');
+    this.showApp();
+  },
+
+  async handleForgotPassword(e) {
+    if (e) e.preventDefault();
+    const email = document.getElementById('forgot-email')?.value?.trim();
+    const btn = document.getElementById('btn-forgot-submit');
+
+    if (!email) {
+      this.showToast('Please enter your email address.', 'error');
+      return;
+    }
+
+    try {
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Dispatching Reset Link...';
+      }
+
+      await this.api('/api/auth/password-reset/request', 'POST', {
+        email: email,
+        turnstile_token: this.forgotTurnstileToken || null
+      });
+
+      this.showToast('If an account exists with that email, password reset instructions have been sent.', 'success');
+      this.switchAuthScreen('signin');
+    } catch (err) {
+      this.showToast(err.message, 'error');
+      this.resetTurnstiles();
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerText = 'Send Password Reset Instructions';
+      }
     }
   },
 
@@ -391,10 +1010,11 @@ const App = {
     this.user = null;
     localStorage.removeItem('vidhik_token');
     this.showLogin();
-    this.showToast('You have been signed out.', 'success');
+    this.showToast('You have been securely signed out.', 'success');
   },
 
   showLogin() {
+    this.switchAuthScreen('signin');
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('app-shell').style.display = 'none';
   },
@@ -435,7 +1055,7 @@ const App = {
     const initials = this.user.full_name ? this.user.full_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'U';
     const avatar = document.getElementById('sidebar-lawyer-avatar');
     const nameEl = document.getElementById('sidebar-lawyer-name');
-    const roleEl = document.getElementById('sidebar-lawyer-role');
+    const roleEl = document.getElementById('sidebar-lawyer-bar');
 
     if (avatar) avatar.innerText = initials;
     if (nameEl) nameEl.innerText = this.user.full_name;
@@ -522,6 +1142,9 @@ const App = {
         break;
       case 'profile':
         this.loadProfile();
+        break;
+      case 'security-activity':
+        this.loadSecurityActivity();
         break;
       case 'citizen-dashboard':
         this.loadCitizenDashboard();
@@ -3576,6 +4199,216 @@ const App = {
       }
     } catch (err) {
       this.showToast('Update failed: ' + err.message, 'error');
+    }
+  },
+
+  // -------------------------------------------------------------
+  // ACCOUNT SECURITY, SESSIONS & ACTIVITY METHODS
+  // -------------------------------------------------------------
+  async loadSecurityActivity() {
+    if (!this.user) return;
+    try {
+      const emailEl = document.getElementById('sec-verified-email-text');
+      if (emailEl) emailEl.innerText = this.user.email || 'Primary Account Email';
+
+      // 1. Fetch Active Sessions
+      const sessions = await this.api('/api/auth/sessions');
+      const countEl = document.getElementById('sec-active-sessions-count');
+      if (countEl) countEl.innerText = `${sessions.length} Active`;
+
+      const sContainer = document.getElementById('active-sessions-list-container');
+      if (sContainer) {
+        if (sessions.length === 0) {
+          sContainer.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-muted);">No active sessions found.</div>`;
+        } else {
+          sContainer.innerHTML = sessions.map(s => {
+            const isCurrent = s.is_current;
+            const deviceIcon = s.device_type === 'Mobile' ? '📱' : (s.device_type === 'Tablet' ? '📟' : '💻');
+            const createdDate = new Date(s.created_at).toLocaleString();
+            const lastActiveDate = new Date(s.last_active).toLocaleTimeString();
+            const locationStr = s.approximate_location || (s.ip_address === '127.0.0.1' ? 'Local / Development' : 'Location Recorded');
+
+            return `
+              <div class="session-card ${isCurrent ? 'current-session' : ''}" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-radius: var(--radius-md); background: rgba(15, 23, 42, 0.4); border: 1px solid ${isCurrent ? 'rgba(16, 185, 129, 0.4)' : 'var(--border-subtle)'}; margin-bottom: 10px;">
+                <div style="display: flex; gap: 14px; align-items: center;">
+                  <div style="font-size: 24px;">${deviceIcon}</div>
+                  <div>
+                    <div style="font-weight: 600; font-size: 14px; color: #F8FAFC; display: flex; align-items: center; gap: 8px;">
+                      <span>${this.escape(s.browser || 'Browser')} on ${this.escape(s.os || 'Operating System')}</span>
+                      ${isCurrent ? '<span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10B981; font-size: 10px;">Current Session</span>' : ''}
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
+                      📍 ${this.escape(locationStr)} • <code>${this.escape(s.ip_address)}</code>
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
+                      Signed in ${createdDate} • Last active: ${lastActiveDate}
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  ${!isCurrent ? `
+                    <button class="btn btn-secondary btn-sm" onclick="App.revokeSession(${s.id})" style="color: #F87171; border-color: rgba(239, 68, 68, 0.3); font-size: 11px;">
+                      Sign Out
+                    </button>
+                  ` : ''}
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      // 2. Fetch Security Alerts
+      const alerts = await this.api('/api/auth/security-alerts');
+      const aContainer = document.getElementById('security-alerts-list-container');
+      const unreadBadge = document.getElementById('security-alerts-unread-badge');
+
+      const unreadCount = alerts.filter(a => !a.is_read).length;
+      if (unreadBadge) {
+        if (unreadCount > 0) {
+          unreadBadge.innerText = `${unreadCount} New`;
+          unreadBadge.style.display = 'inline-block';
+        } else {
+          unreadBadge.style.display = 'none';
+        }
+      }
+
+      if (aContainer) {
+        if (alerts.length === 0) {
+          aContainer.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px;">🛡️ No security incidents or suspicious logins detected.</div>`;
+        } else {
+          aContainer.innerHTML = alerts.map(a => {
+            const severityColor = a.severity === 'CRITICAL' ? '#EF4444' : (a.severity === 'WARNING' ? '#F59E0B' : '#3B82F6');
+            const alertDate = new Date(a.created_at).toLocaleString();
+            return `
+              <div style="padding: 12px 14px; border-radius: var(--radius-sm); background: rgba(15, 23, 42, 0.5); border-left: 3px solid ${severityColor}; border-top: 1px solid var(--border-subtle); border-right: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                  <span style="font-weight: 600; font-size: 13px; color: #F8FAFC;">${this.escape(a.alert_type.replace(/_/g, ' '))}</span>
+                  <span style="font-size: 10px; color: ${severityColor}; font-weight: 700; text-transform: uppercase;">${a.severity}</span>
+                </div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin: 4px 0;">${this.escape(a.message)}</p>
+                <div style="font-size: 10.5px; color: var(--text-muted); display: flex; justify-content: space-between;">
+                  <span>📍 ${this.escape(a.location || 'Local')} (${this.escape(a.ip_address)})</span>
+                  <span>${alertDate}</span>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+    } catch (err) {
+      this.showToast('Failed to load security activity: ' + err.message, 'error');
+    }
+  },
+
+  async revokeSession(sessionId) {
+    if (!confirm('Are you sure you want to remotely terminate this session?')) return;
+    try {
+      await this.api(`/api/auth/sessions/${sessionId}`, 'DELETE');
+      this.showToast('Session terminated successfully.', 'success');
+      this.loadSecurityActivity();
+    } catch (err) {
+      this.showToast('Failed to terminate session: ' + err.message, 'error');
+    }
+  },
+
+  async revokeAllOtherSessions() {
+    if (!confirm('Sign out of all other active browser and mobile sessions?')) return;
+    try {
+      const data = await this.api('/api/auth/sessions/revoke-others', 'DELETE');
+      this.showToast(`Terminated ${data.revoked_count} active session(s).`, 'success');
+      this.loadSecurityActivity();
+    } catch (err) {
+      this.showToast('Failed to revoke sessions: ' + err.message, 'error');
+    }
+  },
+
+  openChangePasswordModal() {
+    const cp = document.getElementById('cp-current-password');
+    const np = document.getElementById('cp-new-password');
+    const cnp = document.getElementById('cp-confirm-password');
+    if (cp) cp.value = '';
+    if (np) np.value = '';
+    if (cnp) cnp.value = '';
+    document.getElementById('modal-change-password')?.classList.add('active');
+  },
+
+  async submitChangePassword(e) {
+    if (e) e.preventDefault();
+    const currentPassword = document.getElementById('cp-current-password')?.value;
+    const newPassword = document.getElementById('cp-new-password')?.value;
+    const confirmPassword = document.getElementById('cp-confirm-password')?.value;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      this.showToast('Please fill in all fields.', 'error');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      this.showToast('New passwords do not match.', 'error');
+      return;
+    }
+
+    if (newPassword.length < 8 || !/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/[0-9]/.test(newPassword) || !/[^A-Za-z0-9]/.test(newPassword)) {
+      this.showToast('New password must contain at least 8 chars with uppercase, lowercase, digit, and special char.', 'error');
+      return;
+    }
+
+    try {
+      await this.api('/api/auth/password/change', 'POST', {
+        current_password: currentPassword,
+        new_password: newPassword
+      });
+
+      this.showToast('Password successfully updated!', 'success');
+      this.closeModals();
+      this.loadSecurityActivity();
+    } catch (err) {
+      this.showToast('Password change failed: ' + err.message, 'error');
+    }
+  },
+
+  openRegenerateRecoveryCodesModal() {
+    const rInput = document.getElementById('regen-auth-input');
+    if (rInput) rInput.value = '';
+    document.getElementById('modal-regenerate-recovery-codes')?.classList.add('active');
+  },
+
+  async submitRegenerateRecoveryCodes(e) {
+    if (e) e.preventDefault();
+    const authVal = document.getElementById('regen-auth-input')?.value?.trim();
+    if (!authVal) {
+      this.showToast('Please enter your password or 6-digit 2FA code.', 'error');
+      return;
+    }
+
+    const payload = {};
+    if (authVal.length === 6 && /^\d+$/.test(authVal)) {
+      payload.totp_code = authVal;
+    } else {
+      payload.password = authVal;
+    }
+
+    try {
+      const data = await this.api('/api/auth/2fa/recovery-codes/regenerate', 'POST', payload);
+      this.recoveryCodes = data.recovery_codes || [];
+      this.closeModals();
+
+      // Show codes in grid on recovery codes view
+      const grid = document.getElementById('recovery-codes-display-grid');
+      if (grid) {
+        grid.innerHTML = this.recoveryCodes.map(code => `
+          <div class="recovery-code-card">
+            <code>${this.escape(code)}</code>
+          </div>
+        `).join('');
+      }
+
+      this.switchAuthScreen('recovery_codes');
+      document.getElementById('login-screen').style.display = 'flex';
+      this.showToast('8 new recovery codes generated! Previous codes are invalidated.', 'success');
+    } catch (err) {
+      this.showToast('Failed to regenerate recovery codes: ' + err.message, 'error');
     }
   },
 

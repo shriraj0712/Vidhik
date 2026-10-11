@@ -8,6 +8,7 @@ the Phase 9 Legal RAG engine.
 import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
+import json
 from psycopg2.extras import RealDictCursor
 
 from app.database import get_db
@@ -96,11 +97,18 @@ def stream_chat_with_assistant(
         )
 
     try:
-        stream_generator = LegalAssistantService.chat_stream(
-            db=db,
-            request=request
-        )
-        return StreamingResponse(stream_generator, media_type="text/event-stream")
+        response = LegalAssistantService.chat(db=db, request=request)
+
+        def event_stream():
+            metadata = {"conversation_id": response.conversation_id, "is_grounded": response.is_grounded, "sources_count": len(response.sources)}
+            yield "event: metadata\ndata: " + json.dumps(metadata) + "\n\n"
+            words = response.answer.split(" ")
+            for i, word in enumerate(words):
+                chunk = word + (" " if i < len(words) - 1 else "")
+                yield "event: message\ndata: " + json.dumps({"delta": chunk}) + "\n\n"
+            yield "event: done\ndata: [DONE]\n\n"
+
+        return StreamingResponse(event_stream(), media_type="text/event-stream")
     except Exception as e:
         logger.error(f"Error streaming assistant response: {e}", exc_info=True)
         raise HTTPException(

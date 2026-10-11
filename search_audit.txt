@@ -1,0 +1,980 @@
+﻿"""
+Vidhik Platform - Legal Search API Router
+=========================================
+Thin API endpoint layer for legal search request validation and dispatch.
+"""
+
+from typing import Optional
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from psycopg2.extras import RealDictCursor
+
+from app.database import get_db
+from app.schemas.search import SearchResponse
+from app.services.search_service import LegalSearchService
+
+router = APIRouter(prefix="/api/search", tags=["Search"])
+
+
+@router.get("", response_model=SearchResponse, summary="Search Legal Corpus")
+def search_legal_corpus(
+    q: str = Query(..., min_length=1, description="Required search text across laws and sections"),
+    limit: int = Query(default=10, ge=1, le=50, description="Maximum records to return (1-50)"),
+    offset: int = Query(default=0, ge=0, description="Number of records to skip"),
+    law_id: Optional[int] = Query(default=None, gt=0, description="Filter by parent Law ID (must be > 0)"),
+    jurisdiction: Optional[str] = Query(default=None, description="Filter by jurisdiction (e.g., India, Maharashtra)"),
+    db: RealDictCursor = Depends(get_db)
+):
+    """
+    Performs a safe, parameterized ILIKE search across statutory laws and provisions.
+    Delegates query building, execution, and snippet extraction to LegalSearchService.
+    
+    All database operations are strictly read-only.
+    """
+    clean_q = q.strip()
+    if not clean_q:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Search query 'q' must not be empty or whitespace only."
+        )
+
+    return LegalSearchService.search(
+        db=db,
+        query=q,
+        limit=limit,
+        offset=offset,
+        law_id=law_id,
+        jurisdiction=jurisdiction
+    )
+
+"""
+Vidhik Platform - Legal Search Service
+======================================
+Dedicated service layer for executing read-only, parameterized multi-field
+legal text searches across statutory laws and provisions with deterministic
+relevance ranking and query understanding integration.
+"""
+
+from typing import Optional, List, Any
+from psycopg2.extras import RealDictCursor
+
+from app.schemas.search import SearchResponse, SearchResultItem
+from app.services.query_service import LegalQueryService, STOPWORDS
+from app.services.ranking_service import LegalRankingService
+
+
+class LegalSearchService:
+    """
+    Service encapsulating business logic, SQL query generation, snippet
+    extraction, query understanding, and deterministic relevance ranking
+    for Indian statutory legal search.
+    """
+
+    @staticmethod
+    def extract_snippet(
+        full_text: Optional[str],
+        description: Optional[str],
+        section_title: Optional[str],
+        law_name: Optional[str],
+        query: str,
+        max_length: int = 240
+    ) -> Optional[str]:
+        """
+        Extracts a readable contextual snippet around the search query match
+        without altering, fabricating, or modifying statutory legal text.
+
+        :param full_text: Complete text of the statutory section
+        :param description: High-level section description or summary
+        :param section_title: Title or heading of the section
+        :param law_name: Title/name of the parent statutory act
+        :param query: Raw search query string
+        :param max_length: Maximum character length for fallback snippets
+        :return: Extracted snippet string with contextual ellipsis, or None
+        """
+        clean_q = query.strip()
+        if not clean_q:
+            return None
+
+        candidates = [
+            (full_text, True),
+            (description, True),
+            (section_title, False),
+            (law_name, False),
+        ]
+
+        q_lower = clean_q.lower()
+
+        # 1. Look for direct match in candidate texts (prioritizing full_text, description)
+        for text, _ in candidates:
+            if text and q_lower in text.lower():
+                text_clean = " ".join(text.split())
+                idx = text_clean.lower().find(q_lower)
+                if idx != -1:
+                    start = max(0, idx - 60)
+                    end = min(len(text_clean), idx + len(clean_q) + 160)
+
+                    # Align to nearest word boundary
+                    if start > 0:
+                        space_idx = text_clean.find(" ", start)
+                        if space_idx != -1 and space_idx < idx:
+                            start = space_idx + 1
+                    if end < len(text_clean):
+                        space_idx = text_clean.rfind(" ", idx + len(clean_q), end)
+                        if space_idx != -1:
+                            end = space_idx
+
+                    snippet = text_clean[start:end].strip()
+                    if start > 0:
+                        snippet = "... " + snippet
+                    if end < len(text_clean):
+                        snippet = snippet + " ..."
+                    return snippet
+
+        # 2. Fallback: if match was on metadata (e.g. section_number), return primary text excerpt
+        for text, _ in candidates:
+            if text:
+                text_clean = " ".join(text.split())
+                if len(text_clean) <= max_length:
+                    return text_clean
+                end = max_length
+                space_idx = text_clean.rfind(" ", 0, end)
+                if space_idx != -1 and space_idx > 50:
+                    end = space_idx
+                return text_clean[:end].strip() + " ..."
+
+        return None
+
+    @classmethod
+    def retrieve_ranked_candidates(
+        cls,
+        db: RealDictCursor,
+        query: str,
+        limit: int = 10,
+        offset: int = 0,
+        law_id: Optional[int] = None,
+        jurisdiction: Optional[str] = None
+    ) -> Tuple[List[Dict[str, Any]], int, Any]:
+        """
+        Executes query analysis via LegalQueryService, constructs parameterized
+        multi-field search conditions, retrieves statutory candidates from PostgreSQL,
+        and applies deterministic relevance ranking via LegalRankingService.
+
+        Shared core retrieval method reused across LegalSearchService and LegalRAGService.
+
+        :param db: RealDictCursor database cursor dependency
+        :param query: Required search query string
+        :param limit: Maximum candidate pool limit to retrieve
+        :param offset: Number of records to skip
+        :param law_id: Optional filter by parent Law ID
+        :param jurisdiction: Optional filter by jurisdiction name
+        :return: Tuple of (ranked_candidates_list, total_match_count, query_analysis_object)
+        """
+        clean_q = query.strip()
+        if not clean_q:
+            empty_analysis = LegalQueryService.analyze_query(db, "")
+            return [], 0, empty_analysis
+
+        # 1. Query Understanding & Statutory Terminology Analysis
+        query_analysis = LegalQueryService.analyze_query(db, clean_q)
+
+        # 2. Candidate Retrieval Conditions with Multilingual Terminology Expansion
+        search_phrases: List[str] = [clean_q]
+
+        for t in query_analysis.matched_terms:
+            if t.term_en and t.term_en.lower() != clean_q.lower() and t.term_en not in search_phrases:
+                search_phrases.append(t.term_en)
+            if t.term_mr and t.term_mr != clean_q and t.term_mr not in search_phrases:
+                search_phrases.append(t.term_mr)
+            if t.term_hi and t.term_hi != clean_q and t.term_hi not in search_phrases:
+                search_phrases.append(t.term_hi)
+
+        for syn in query_analysis.matched_synonyms:
+            for s_mr in syn.synonyms_mr:
+                if s_mr and s_mr != clean_q and s_mr not in search_phrases:
+                    search_phrases.append(s_mr)
+            for s_hi in syn.synonyms_hi:
+                if s_hi and s_hi != clean_q and s_hi not in search_phrases:
+                    search_phrases.append(s_hi)
+
+        conditions: List[str] = []
+        params: List[Any] = []
+
+        # Phrase-based multi-field matching
+        for sp in search_phrases:
+            search_param = f"%{sp}%"
+            conditions.append(
+                "(l.law_name ILIKE %s OR l.short_name ILIKE %s OR s.section_number ILIKE %s "
+                "OR s.section_title ILIKE %s OR s.description ILIKE %s OR s.full_text ILIKE %s)"
+            )
+            params.extend([search_param] * 6)
+
+        # Multi-token conjunctive fallback for multi-word queries
+        q_tokens = LegalQueryService.clean_tokens(clean_q)
+        q_sig = [t for t in q_tokens if t not in STOPWORDS]
+        if len(q_sig) > 1:
+            tok_conditions = []
+            for tok in q_sig:
+                tp = f"%{tok}%"
+                tok_conditions.append(
+                    "(l.law_name ILIKE %s OR l.short_name ILIKE %s OR s.section_title ILIKE %s "
+                    "OR s.description ILIKE %s OR s.full_text ILIKE %s)"
+                )
+                params.extend([tp] * 5)
+            conditions.append("(" + " AND ".join(tok_conditions) + ")")
+
+        # Combine text match conditions
+        base_match_clause = "(" + " OR ".join(conditions) + ")"
+        filter_conditions = [base_match_clause]
+
+        # Optional law_id filter
+        if law_id is not None:
+            filter_conditions.append("s.law_id = %s")
+            params.append(law_id)
+
+        # Optional jurisdiction filter
+        if jurisdiction and jurisdiction.strip():
+            filter_conditions.append("(s.jurisdiction ILIKE %s OR l.jurisdiction ILIKE %s)")
+            jur_param = f"%{jurisdiction.strip()}%"
+            params.extend([jur_param, jur_param])
+
+        where_clause = " WHERE " + " AND ".join(filter_conditions)
+
+        # 3. Total Matching Count Query
+        count_sql = f"""
+            SELECT COUNT(*) AS total
+            FROM sections s
+            JOIN laws l ON s.law_id = l.law_id
+            {where_clause};
+        """
+        db.execute(count_sql, tuple(params))
+        count_result = db.fetchone()
+        total_count = count_result["total"] if count_result else 0
+
+        if total_count == 0:
+            return [], 0, query_analysis
+
+        # 4. Candidate Retrieval for In-Memory Deterministic Ranking
+        candidate_pool_limit = max(limit + offset, 250)
+        candidate_sql = f"""
+            SELECT 
+                s.section_id,
+                s.law_id,
+                l.law_name,
+                l.short_name,
+                s.section_number,
+                s.section_title,
+                s.description,
+                s.full_text,
+                s.section_uid,
+                COALESCE(s.jurisdiction, l.jurisdiction) AS jurisdiction,
+                COALESCE(s.source_pdf, l.source_pdf) AS source_pdf,
+                s.source_page_start,
+                s.source_page_end,
+                COALESCE(s.manual_review_required, l.manual_review_required, false) AS manual_review_required
+            FROM sections s
+            JOIN laws l ON s.law_id = l.law_id
+            {where_clause}
+            ORDER BY s.section_id ASC
+            LIMIT %s;
+        """
+        data_params = tuple(params + [candidate_pool_limit])
+        db.execute(candidate_sql, data_params)
+        candidates = db.fetchall()
+
+        # 5. Deterministic Relevance Ranking
+        ranked_candidates = LegalRankingService.rank_candidates(
+            candidates=candidates,
+            query=clean_q,
+            query_analysis=query_analysis
+        )
+
+        return ranked_candidates, total_count, query_analysis
+
+    @classmethod
+    def search(
+        cls,
+        db: RealDictCursor,
+        query: str,
+        limit: int = 10,
+        offset: int = 0,
+        law_id: Optional[int] = None,
+        jurisdiction: Optional[str] = None
+    ) -> SearchResponse:
+        """
+        Executes a safe, parameterized multi-field legal search delegating to
+        `retrieve_ranked_candidates` and formatting results with contextual snippets.
+
+        :param db: RealDictCursor database cursor dependency
+        :param query: Required search query string
+        :param limit: Maximum number of records to return (1-50)
+        :param offset: Number of records to skip
+        :param law_id: Optional filter by parent Law ID
+        :param jurisdiction: Optional filter by jurisdiction name
+        :return: SearchResponse containing pagination metadata and deterministically ranked results
+        """
+        clean_q = query.strip()
+        if not clean_q:
+            return SearchResponse(
+                query=query,
+                total=0,
+                limit=limit,
+                offset=offset,
+                results=[]
+            )
+
+        ranked_candidates, total_count, _ = cls.retrieve_ranked_candidates(
+            db=db,
+            query=clean_q,
+            limit=limit,
+            offset=offset,
+            law_id=law_id,
+            jurisdiction=jurisdiction
+        )
+
+        if total_count == 0 or not ranked_candidates:
+            return SearchResponse(
+                query=query,
+                total=0,
+                limit=limit,
+                offset=offset,
+                results=[]
+            )
+
+        # Pagination Slice
+        paginated_candidates = ranked_candidates[offset : offset + limit]
+
+        # Response Item Serialization & Snippet Generation
+        results: List[SearchResultItem] = []
+        for row in paginated_candidates:
+            snippet = cls.extract_snippet(
+                full_text=row.get("full_text"),
+                description=row.get("description"),
+                section_title=row.get("section_title"),
+                law_name=row.get("law_name"),
+                query=clean_q
+            )
+            results.append(
+                SearchResultItem(
+                    law_id=row["law_id"],
+                    law_name=row["law_name"],
+                    section_id=row["section_id"],
+                    section_number=row["section_number"],
+                    section_title=row.get("section_title"),
+                    snippet=snippet,
+                    jurisdiction=row.get("jurisdiction"),
+                    source_pdf=row.get("source_pdf"),
+                    source_page_start=row.get("source_page_start"),
+                    source_page_end=row.get("source_page_end"),
+                    manual_review_required=row.get("manual_review_required", False)
+                )
+            )
+
+        return SearchResponse(
+            query=query,
+            total=total_count,
+            limit=limit,
+            offset=offset,
+            results=results
+        )
+"""
+Vidhik Platform - Legal Query Understanding Service
+===================================================
+Dedicated service layer for high-precision legal query normalization,
+statutory terminology detection, multilingual synonym resolution, and
+legal concept domain matching using the PostgreSQL `legal_lexicon` dataset.
+
+All database queries are read-only and strictly parameterized.
+"""
+
+import re
+from typing import Optional, List, Set, Dict, Any, Tuple
+from psycopg2.extras import RealDictCursor
+
+from app.schemas.query import (
+    LegalQueryAnalysis,
+    MatchedTerm,
+    MatchedConcept,
+    MatchedSynonym
+)
+
+# Common English and grammatical stopwords excluded from key token overlap
+STOPWORDS: Set[str] = {
+    "a", "an", "the", "and", "or", "of", "in", "for", "to", "on", "at",
+    "by", "with", "is", "it", "as", "be", "this", "that", "under", "from",
+    "vs", "versus", "etc", "what", "which", "where", "how", "who", "whom"
+}
+
+# Generic words that must NOT independently trigger a context or terminology match
+GENERIC_CONTEXT_WORDS: Set[str] = {
+    "land", "property", "contract", "contracts", "dispute", "disputes",
+    "law", "laws", "act", "acts", "court", "courts", "order", "orders",
+    "person", "persons", "right", "rights", "officer", "officers",
+    "state", "central", "government", "public", "proceedings", "proceeding",
+    "action", "actions", "rule", "rules", "power", "powers",
+    "section", "sections", "subordinate", "higher", "case", "cases",
+    "matter", "matters", "authority", "authorities", "legal", "statutory",
+    "provision", "provisions", "defined", "definition", "definitions"
+}
+
+# Confidence priority hierarchy (lower index = higher priority)
+CONFIDENCE_PRIORITY: Dict[str, int] = {
+    "exact": 1,
+    "normalized": 2,
+    "phrase": 3,
+    "multilingual": 4,
+    "context": 5,
+    "concept": 6
+}
+
+
+class LegalLexiconCandidate:
+    """
+    Helper structure caching precomputed normalized and tokenized representations
+    for a statutory legal lexicon entry.
+    """
+
+    def __init__(self, row: Dict[str, Any]):
+        self.row = row
+        self.term_id: str = row["term_id"]
+        self.term_en: str = (row.get("term_en") or "").strip()
+        self.term_mr: str = (row.get("term_mr") or "").strip()
+        self.term_hi: str = (row.get("term_hi") or "").strip()
+        self.category: str = (row.get("category") or "").strip()
+        self.context_usage: str = (row.get("context_usage") or "").strip()
+        self.grammatical_type: Optional[str] = row.get("grammatical_type")
+        self.aliases_mr: List[str] = [a.strip() for a in (row.get("aliases_mr") or []) if a and a.strip()]
+        self.aliases_hi: List[str] = [a.strip() for a in (row.get("aliases_hi") or []) if a and a.strip()]
+
+        # English tokenization and canonical forms
+        self.en_tokens = LegalQueryService.clean_tokens(self.term_en)
+        self.en_sig_tokens = [t for t in self.en_tokens if t not in STOPWORDS]
+        self.en_stem_tokens = [LegalQueryService.stem_token(t) for t in self.en_sig_tokens]
+        self.en_canonical = LegalQueryService.canonicalize(self.term_en)
+        self.id_canonical = LegalQueryService.canonicalize(self.term_id)
+
+        # Devanagari canonical forms
+        self.mr_canonical = LegalQueryService.canonicalize(self.term_mr)
+        self.hi_canonical = LegalQueryService.canonicalize(self.term_hi)
+        self.mr_aliases_canonical = [LegalQueryService.canonicalize(a) for a in self.aliases_mr]
+        self.hi_aliases_canonical = [LegalQueryService.canonicalize(a) for a in self.aliases_hi]
+
+
+class LegalQueryService:
+    """
+    Service responsible for high-precision query understanding, legal lexicon detection,
+    and statutory terminology expansion across Indian legal contexts.
+    """
+
+    @staticmethod
+    def normalize(query: str) -> str:
+        """
+        Normalizes a raw user query by trimming leading/trailing whitespace
+        and collapsing repeated internal spaces into a single space.
+
+        :param query: Raw search query string
+        :return: Cleaned, normalized query string
+        """
+        if not query:
+            return ""
+        return " ".join(query.strip().split())
+
+    @staticmethod
+    def clean_tokens(text: str) -> List[str]:
+        """
+        Extracts lowercase alphanumeric and Devanagari tokens from text,
+        replacing hyphens and underscores with spaces to handle compound legal phrases.
+
+        :param text: Input string to tokenize
+        :return: List of clean lowercase tokens
+        """
+        if not text:
+            return []
+        spaced = text.replace("-", " ").replace("_", " ")
+        return re.findall(r"[a-zA-Z0-9\u0900-\u097F]+", spaced.lower())
+
+    @staticmethod
+    def stem_token(word: str) -> str:
+        """
+        Applies lightweight heuristic suffix normalization for common English legal terms.
+
+        :param word: Single token string
+        :return: Stemmed / normalized root form
+        """
+        w = word.lower()
+        if len(w) <= 3:
+            return w
+        if w.endswith("ual") and len(w) > 5:
+            return w[:-3]  # contractual -> contract
+        if w.endswith("ies") and len(w) > 4:
+            return w[:-3] + "y"  # societies -> society, penalties -> penalty
+        if w.endswith("es") and len(w) > 4:
+            return w[:-2]  # offences -> offence
+        if w.endswith("s") and not w.endswith("ss") and len(w) > 3:
+            return w[:-1]  # contracts -> contract, provisions -> provision
+        return w
+
+    @staticmethod
+    def canonicalize(text: str) -> str:
+        """
+        Extracts a canonical alphanumeric representation stripping all whitespace,
+        punctuation, and hyphens for robust normalization matching.
+
+        :param text: Input string
+        :return: Condensed canonical lowercase string
+        """
+        if not text:
+            return ""
+        return re.sub(r"[^a-zA-Z0-9\u0900-\u097F]", "", text.lower())
+
+    @classmethod
+    def analyze_query(cls, db: RealDictCursor, query: str) -> LegalQueryAnalysis:
+        """
+        Analyzes a search query against the statutory `legal_lexicon` table using
+        a multi-tiered, precision-first matching hierarchy.
+
+        Match Priority Hierarchy:
+        1. EXACT TERM MATCH (`exact`):
+           Direct case-insensitive equality against English term or term_id.
+        2. NORMALIZED TERM MATCH (`normalized`):
+           Equality after stripping hyphens, repeated whitespace, punctuation, or applying suffix stems.
+        3. MULTILINGUAL EXACT / PHRASE MATCH (`multilingual`):
+           Exact or whole-phrase matching against Marathi / Hindi terms and registered aliases.
+        4. WHOLE PHRASE MATCH (`phrase`):
+           Complete statutory phrase containment surrounded by token boundaries within multi-word queries.
+        5. CONTEXT MATCH (`context`):
+           Multi-keyword distinctive statutory context match; generic words are explicitly disqualified.
+        6. CONCEPT DOMAIN (`concept`):
+           Category domain identification without treating generic words as terminology matches.
+
+        :param db: RealDictCursor database cursor dependency
+        :param query: Raw user search query string
+        :return: LegalQueryAnalysis containing normalization, matched terms, concepts, and synonyms
+        """
+        original_query = query or ""
+        normalized_query = cls.normalize(original_query)
+        q_tokens = cls.clean_tokens(normalized_query)
+        q_sig_tokens = [t for t in q_tokens if t not in STOPWORDS]
+        q_stem_tokens = [cls.stem_token(t) for t in q_sig_tokens]
+        q_canonical = cls.canonicalize(normalized_query)
+        q_lower = normalized_query.lower()
+
+        q_phrase_joined = " ".join(q_sig_tokens)
+        q_stem_joined = " ".join(q_stem_tokens)
+
+        # Retrieve authoritative legal lexicon entries via read-only parameterized query
+        db.execute("""
+            SELECT 
+                lexicon_id,
+                term_id,
+                category,
+                term_en,
+                term_mr,
+                term_hi,
+                grammatical_type,
+                context_usage,
+                official_source,
+                verification_status,
+                aliases_mr,
+                aliases_hi
+            FROM legal_lexicon
+            ORDER BY lexicon_id ASC;
+        """)
+        all_lexicon = db.fetchall()
+
+        matched_terms: List[MatchedTerm] = []
+        matched_concepts_map: Dict[str, List[str]] = {}
+        matched_synonyms: List[MatchedSynonym] = []
+        identified_categories: Set[str] = set()
+
+        for row in all_lexicon:
+            cand = LegalLexiconCandidate(row)
+            term_matches: List[Tuple[str, str]] = []
+
+            # -------------------------------------------------------------
+            # 1. EXACT TERM MATCH (English term_en or term_id)
+            # -------------------------------------------------------------
+            if q_lower == cand.term_en.lower() or q_lower == cand.term_id.lower():
+                term_matches.append(("exact", f"exact_term('{cand.term_en}')"))
+
+            # -------------------------------------------------------------
+            # 2. NORMALIZED TERM MATCH (Hyphen / Space / Stem Normalization)
+            # -------------------------------------------------------------
+            elif q_canonical and (q_canonical == cand.en_canonical or q_canonical == cand.id_canonical):
+                term_matches.append(("normalized", f"normalized_term('{cand.term_en}')"))
+            elif q_stem_tokens and q_stem_tokens == cand.en_stem_tokens:
+                term_matches.append(("normalized", f"normalized_stem_term('{cand.term_en}')"))
+
+            # -------------------------------------------------------------
+            # 3. MULTILINGUAL EXACT / ALIAS / PHRASE MATCH (Marathi & Hindi)
+            # -------------------------------------------------------------
+            if cand.term_mr:
+                if q_lower == cand.term_mr.lower() or q_canonical == cand.mr_canonical:
+                    term_matches.append(("multilingual", f"multilingual_exact(mr:'{cand.term_mr}')"))
+                elif len(cand.term_mr) > 2 and cand.term_mr in normalized_query:
+                    term_matches.append(("multilingual", f"multilingual_phrase(mr:'{cand.term_mr}')"))
+
+            for a, a_canon in zip(cand.aliases_mr, cand.mr_aliases_canonical):
+                if q_lower == a.lower() or q_canonical == a_canon:
+                    term_matches.append(("multilingual", f"multilingual_alias_exact(mr:'{a}')"))
+                elif len(a) > 2 and a in normalized_query:
+                    term_matches.append(("multilingual", f"multilingual_alias_phrase(mr:'{a}')"))
+
+            if cand.term_hi:
+                if q_lower == cand.term_hi.lower() or q_canonical == cand.hi_canonical:
+                    term_matches.append(("multilingual", f"multilingual_exact(hi:'{cand.term_hi}')"))
+                elif len(cand.term_hi) > 2 and cand.term_hi in normalized_query:
+                    term_matches.append(("multilingual", f"multilingual_phrase(hi:'{cand.term_hi}')"))
+
+            for a, a_canon in zip(cand.aliases_hi, cand.hi_aliases_canonical):
+                if q_lower == a.lower() or q_canonical == a_canon:
+                    term_matches.append(("multilingual", f"multilingual_alias_exact(hi:'{a}')"))
+                elif len(a) > 2 and a in normalized_query:
+                    term_matches.append(("multilingual", f"multilingual_alias_phrase(hi:'{a}')"))
+
+            # -------------------------------------------------------------
+            # 4. WHOLE PHRASE MATCH (English within larger query)
+            # -------------------------------------------------------------
+            if not term_matches and cand.en_sig_tokens:
+                if len(cand.en_sig_tokens) > 1:
+                    term_phrase_joined = " ".join(cand.en_sig_tokens)
+                    term_stem_joined = " ".join(cand.en_stem_tokens)
+                    if (re.search(r'\b' + re.escape(term_phrase_joined) + r'\b', q_phrase_joined) or
+                            re.search(r'\b' + re.escape(term_stem_joined) + r'\b', q_stem_joined)):
+                        term_matches.append(("phrase", f"whole_phrase_containment('{cand.term_en}')"))
+                elif len(cand.en_sig_tokens) == 1:
+                    # Single-word term: only matches if distinct standalone token in a multi-word query
+                    single_term = cand.en_sig_tokens[0]
+                    single_stem = cand.en_stem_tokens[0]
+                    if len(q_sig_tokens) > 1:
+                        if (re.search(r'\b' + re.escape(single_term) + r'\b', q_phrase_joined) or
+                                re.search(r'\b' + re.escape(single_stem) + r'\b', q_stem_joined)):
+                            term_matches.append(("phrase", f"single_term_containment('{cand.term_en}')"))
+
+            # -------------------------------------------------------------
+            # 5. CONTEXT MATCH (Statutory Context Usage)
+            # -------------------------------------------------------------
+            if not term_matches and cand.context_usage:
+                ctx_tokens = cls.clean_tokens(cand.context_usage)
+                ctx_sig_tokens = [
+                    t for t in ctx_tokens
+                    if t not in STOPWORDS and t not in GENERIC_CONTEXT_WORDS and len(t) > 3
+                ]
+                # Requires at least 2 distinct non-generic keywords to match
+                matched_ctx = [
+                    qt for qt in q_sig_tokens
+                    if qt not in GENERIC_CONTEXT_WORDS and qt in ctx_sig_tokens
+                ]
+                if len(matched_ctx) >= 2:
+                    term_matches.append(("context", f"context_phrase_match({','.join(matched_ctx)})"))
+
+            # If any matching criteria triggered for this term, record it
+            if term_matches:
+                best_match = min(term_matches, key=lambda m: CONFIDENCE_PRIORITY.get(m[0], 99))
+                match_types = [m[1] for m in term_matches]
+
+                matched_terms.append(
+                    MatchedTerm(
+                        term_id=cand.term_id,
+                        term_en=cand.term_en,
+                        term_mr=cand.term_mr if cand.term_mr else None,
+                        term_hi=cand.term_hi if cand.term_hi else None,
+                        category=cand.category if cand.category else None,
+                        grammatical_type=cand.grammatical_type,
+                        context_usage=cand.context_usage if cand.context_usage else None,
+                        match_types=match_types,
+                        confidence=best_match[0]
+                    )
+                )
+
+                # Concept aggregation for matched terms
+                if cand.category:
+                    if cand.category not in matched_concepts_map:
+                        matched_concepts_map[cand.category] = []
+                    matched_concepts_map[cand.category].append(cand.term_id)
+
+                # Multilingual synonyms list aggregation
+                all_mr = ([cand.term_mr] if cand.term_mr else []) + [
+                    a for a in cand.aliases_mr if a != cand.term_mr
+                ]
+                all_hi = ([cand.term_hi] if cand.term_hi else []) + [
+                    a for a in cand.aliases_hi if a != cand.term_hi
+                ]
+                matched_synonyms.append(
+                    MatchedSynonym(
+                        term_id=cand.term_id,
+                        term_en=cand.term_en,
+                        synonyms_mr=all_mr,
+                        synonyms_hi=all_hi
+                    )
+                )
+
+            # -------------------------------------------------------------
+            # 6. CONCEPT / CATEGORY DOMAIN IDENTIFICATION
+            # -------------------------------------------------------------
+            if cand.category and cand.category not in identified_categories:
+                cat_words = [
+                    w for w in cand.category.split("_")
+                    if w not in STOPWORDS and len(w) > 3
+                ]
+                for qw in q_sig_tokens:
+                    stemmed_qw = cls.stem_token(qw)
+                    for cw in cat_words:
+                        stemmed_cw = cls.stem_token(cw)
+                        if stemmed_qw == stemmed_cw:
+                            identified_categories.add(cand.category)
+
+        # Include identified category domains with empty term lists if no specific terms were matched
+        for cat in identified_categories:
+            if cat not in matched_concepts_map:
+                matched_concepts_map[cat] = []
+
+        matched_concepts = [
+            MatchedConcept(category=cat, matched_terms=terms)
+            for cat, terms in matched_concepts_map.items()
+        ]
+
+        return LegalQueryAnalysis(
+            original_query=original_query,
+            normalized_query=normalized_query,
+            matched_terms=matched_terms,
+            matched_concepts=matched_concepts,
+            matched_synonyms=matched_synonyms
+        )
+"""
+Vidhik Platform - Legal RAG Service
+===================================
+End-to-end orchestration service for Phase 9 Grounded Legal Retrieval & QA.
+
+Architecture & Flow:
+1. Reuses existing LegalSearchService.retrieve_ranked_candidates():
+   - Executes query understanding & multilingual terminology expansion via LegalQueryService
+   - Performs parameterized candidate retrieval across statutory provisions
+   - Executes 10-tier deterministic relevance ranking via LegalRankingService
+2. Deduplicated Statutory Context & Source Packaging (LegalContextBuilder)
+3. Grounded Synthesis via Modular LLM Provider (BaseLLMProvider)
+4. Robust error handling and strict state separation between retrieved context and synthesis status
+"""
+
+import os
+import logging
+from typing import Optional, List, Dict, Any, Tuple
+from psycopg2.extras import RealDictCursor
+
+from app.schemas.rag import (
+    RAGQueryRequest,
+    RAGResponse,
+    RetrievalMetadata,
+    RetrievedSectionContext,
+    LegalSourceCitation
+)
+from app.services.search_service import LegalSearchService
+from app.services.context_builder import LegalContextBuilder
+from app.services.llm_provider import BaseLLMProvider, get_llm_provider
+
+logger = logging.getLogger("vidhik.rag_service")
+
+
+SYSTEM_LEGAL_INSTRUCTION = """You are VIDHIK AI, an authoritative, high-precision legal research intelligence assistant for Indian Statutory Law.
+
+YOUR CORE MANDATES:
+1. STRICT STATUTORY GROUNDING: Base your legal explanations exclusively on the provided [STATUTORY PROVISIONS] retrieved from the official database.
+2. EXPLICIT CITATIONS: For every legal principle, duty, penalty, or rule you mention, explicitly cite the exact Act name and Section number (e.g. "Under Section 73 of the Indian Contract Act, 1872...").
+3. ZERO HALLUCINATION: Never fabricate, assume, or extrapolate legal provisions, case laws, sections, penalties, or statutory dates that are not explicitly present in the provided text.
+4. INSUFFICIENT CONTEXT: If the retrieved provisions do not directly answer the user's specific scenario or question, explicitly acknowledge this limitation. Do not attempt to guess.
+5. PROFESSIONAL CLARITY: Present legal provisions clearly, breaking down elements, conditions, and penalties where applicable.
+6. MANDATORY DISCLAIMER: Maintain neutrality; provide research guidance rather than definitive personal legal representation.
+7. TRUNCATED / EXCERPTED PROVISIONS: If a retrieved statutory provision is marked as '(EXCERPTED)' or contains a truncation disclaimer, you MUST NOT treat it as the complete statutory provision. If your answer depends on details that may fall outside the excerpt, explicitly state that the provision has been excerpted and refer to the complete primary statute.
+"""
+
+
+class LegalRAGService:
+    """
+    Orchestrates grounded legal question answering by fusing existing deterministic
+    statutory search infrastructure with modular LLM synthesis.
+    """
+
+    @classmethod
+    def query(
+        cls,
+        db: RealDictCursor,
+        request: RAGQueryRequest,
+        provider: Optional[BaseLLMProvider] = None
+    ) -> RAGResponse:
+        """
+        Executes an end-to-end grounded legal query.
+
+        :param db: RealDictCursor database cursor dependency
+        :param request: Validated RAGQueryRequest
+        :param provider: Optional LLM provider instance (defaults to get_llm_provider())
+        :return: Grounded RAGResponse containing answer, citations, and telemetry
+        """
+        clean_q = request.query.strip()
+        lang = (request.language or "en").lower().strip()
+        if lang not in ("en", "mr", "hi"):
+            lang = "en"
+
+        # -------------------------------------------------------------
+        # STEP 1: Candidate Retrieval & Ranking via Existing Search Infrastructure
+        # (Reuses LegalSearchService.retrieve_ranked_candidates which encapsulates
+        # LegalQueryService multilingual matching, search SQL, and LegalRankingService)
+        # -------------------------------------------------------------
+        candidate_pool_limit = max(request.max_sections * 5, 50)
+        ranked_candidates, total_candidates, query_analysis = LegalSearchService.retrieve_ranked_candidates(
+            db=db,
+            query=clean_q,
+            limit=candidate_pool_limit,
+            offset=0,
+            law_id=request.law_id,
+            jurisdiction=request.jurisdiction
+        )
+
+        matched_term_ids = [t.term_id for t in query_analysis.matched_terms]
+        concept_categories = [c.category for c in query_analysis.matched_concepts]
+        multilingual_synonyms: List[str] = []
+        for s in query_analysis.matched_synonyms:
+            multilingual_synonyms.extend(s.synonyms_mr + s.synonyms_hi)
+
+        # -------------------------------------------------------------
+        # STEP 2: Handle No-Result / Zero Database Matches
+        # -------------------------------------------------------------
+        if total_candidates == 0:
+            no_match_text = {
+                "en": (
+                    "No relevant statutory provisions were found in the Vidhik legal database for your query. "
+                    "To ensure strict legal accuracy and prevent hallucination, no hypothetical or speculative legal rules have been generated."
+                ),
+                "mr": (
+                    "à¤†à¤ªà¤²à¥à¤¯à¤¾ à¤ªà¥à¤°à¤¶à¥à¤¨à¤¾à¤¶à¥€ à¤¸à¤‚à¤¬à¤‚à¤§à¤¿à¤¤ à¤•à¥‹à¤£à¤¤à¥€à¤¹à¥€ à¤µà¥ˆà¤§à¤¾à¤¨à¤¿à¤• à¤•à¤²à¤®à¥‡ à¤µà¤¿à¤§à¤¿à¤• à¤¡à¥‡à¤Ÿà¤¾à¤¬à¥‡à¤¸à¤®à¤§à¥à¤¯à¥‡ à¤†à¤¢à¤³à¤²à¥€ à¤¨à¤¾à¤¹à¥€à¤¤. "
+                    "à¤•à¤¾à¤¯à¤¦à¥‡à¤¶à¥€à¤° à¤…à¤šà¥‚à¤•à¤¤à¤¾ à¤°à¤¾à¤–à¤£à¥à¤¯à¤¾à¤¸à¤¾à¤ à¥€ à¤†à¤£à¤¿ à¤•à¤²à¥à¤ªà¤¿à¤¤ à¤®à¤¾à¤¹à¤¿à¤¤à¥€ à¤Ÿà¤¾à¤³à¤£à¥à¤¯à¤¾à¤¸à¤¾à¤ à¥€, à¤•à¥‹à¤£à¤¤à¥‡à¤¹à¥€ à¤¸à¤‚à¤­à¤¾à¤µà¥à¤¯ à¤‰à¤¤à¥à¤¤à¤° à¤¤à¤¯à¤¾à¤° à¤•à¤°à¤£à¥à¤¯à¤¾à¤¤ à¤†à¤²à¥‡à¤²à¥‡ à¤¨à¤¾à¤¹à¥€."
+                ),
+                "hi": (
+                    "à¤†à¤ªà¤•à¥‡ à¤ªà¥à¤°à¤¶à¥à¤¨ à¤¸à¥‡ à¤¸à¤‚à¤¬à¤‚à¤§à¤¿à¤¤ à¤•à¥‹à¤ˆ à¤­à¥€ à¤µà¥ˆà¤§à¤¾à¤¨à¤¿à¤• à¤ªà¥à¤°à¤¾à¤µà¤§à¤¾à¤¨ à¤µà¤¿à¤§à¤¿à¤• à¤¡à¥‡à¤Ÿà¤¾à¤¬à¥‡à¤¸ à¤®à¥‡à¤‚ à¤¨à¤¹à¥€à¤‚ à¤®à¤¿à¤²à¥‡à¥¤ "
+                    "à¤•à¤¾à¤¨à¥‚à¤¨à¥€ à¤¸à¤Ÿà¥€à¤•à¤¤à¤¾ à¤¬à¤¨à¤¾à¤ à¤°à¤–à¤¨à¥‡ à¤”à¤° à¤­à¥à¤°à¤¾à¤®à¤• à¤œà¤¾à¤¨à¤•à¤¾à¤°à¥€ à¤¸à¥‡ à¤¬à¤šà¤¨à¥‡ à¤•à¥‡ à¤²à¤¿à¤, à¤•à¥‹à¤ˆ à¤•à¤¾à¤²à¥à¤ªà¤¨à¤¿à¤• à¤‰à¤¤à¥à¤¤à¤° à¤‰à¤¤à¥à¤ªà¤¨à¥à¤¨ à¤¨à¤¹à¥€à¤‚ à¤•à¤¿à¤¯à¤¾ à¤—à¤¯à¤¾ à¤¹à¥ˆà¥¤"
+                )
+            }.get(lang, "No relevant statutory provisions were found in the database.")
+
+            return RAGResponse(
+                query=clean_q,
+                language=lang,
+                answer=no_match_text,
+                confidence="no_context",
+                is_grounded=False,
+                sources=[],
+                retrieved_sections=[],
+                retrieval_metadata=RetrievalMetadata(
+                    total_candidates_found=0,
+                    sections_used=0,
+                    query_terms_matched=matched_term_ids,
+                    concept_categories=concept_categories,
+                    multilingual_synonyms_applied=multilingual_synonyms,
+                    retrieval_strategy="deterministic_lexicon_ranked"
+                )
+            )
+
+        # -------------------------------------------------------------
+        # STEP 3: Build Structured Statutory Context & Source Citations
+        # -------------------------------------------------------------
+        retrieved_sections, source_citations, prompt_context_str = LegalContextBuilder.build_context(
+            ranked_candidates=ranked_candidates,
+            max_sections=request.max_sections
+        )
+
+        if not retrieved_sections or not prompt_context_str.strip():
+            return RAGResponse(
+                query=clean_q,
+                language=lang,
+                answer="Statutory sections were located in the index, but their text content was insufficient to construct verified legal context.",
+                confidence="insufficient_context",
+                is_grounded=False,
+                sources=source_citations,
+                retrieved_sections=retrieved_sections,
+                retrieval_metadata=RetrievalMetadata(
+                    total_candidates_found=total_candidates,
+                    sections_used=0,
+                    query_terms_matched=matched_term_ids,
+                    concept_categories=concept_categories,
+                    multilingual_synonyms_applied=multilingual_synonyms,
+                    retrieval_strategy="deterministic_lexicon_ranked"
+                )
+            )
+
+        # -------------------------------------------------------------
+        # STEP 4: Execute Grounded Generation via LLM Provider
+        # -------------------------------------------------------------
+        active_provider = provider or get_llm_provider()
+
+        language_instruction = {
+            "en": "Generate the answer in clear, professional English.",
+            "mr": "à¤•à¥ƒà¤ªà¤¯à¤¾ à¤–à¤¾à¤²à¥€à¤² à¤•à¤¾à¤¯à¤¦à¥‡à¤¶à¥€à¤° à¤¸à¤‚à¤¦à¤°à¥à¤­à¤¾à¤šà¤¾ à¤†à¤§à¤¾à¤° à¤˜à¥‡à¤Šà¤¨ à¤‰à¤¤à¥à¤¤à¤° à¤¸à¥à¤ªà¤·à¥à¤Ÿ à¤®à¤°à¤¾à¤ à¥€à¤¤ à¤¦à¥à¤¯à¤¾. à¤•à¤²à¤®à¥‡ à¤†à¤£à¤¿ à¤•à¤¾à¤¯à¤¦à¥‡ à¤…à¤šà¥‚à¤• à¤¨à¤®à¥‚à¤¦ à¤•à¤°à¤¾.",
+            "hi": "à¤•à¥ƒà¤ªà¤¯à¤¾ à¤¨à¤¿à¤®à¥à¤¨à¤²à¤¿à¤–à¤¿à¤¤ à¤•à¤¾à¤¨à¥‚à¤¨à¥€ à¤¸à¤‚à¤¦à¤°à¥à¤­ à¤•à¥‡ à¤†à¤§à¤¾à¤° à¤ªà¤° à¤‰à¤¤à¥à¤¤à¤° à¤¸à¥à¤ªà¤·à¥à¤Ÿ à¤¹à¤¿à¤‚à¤¦à¥€ à¤®à¥‡à¤‚ à¤¦à¥‡à¤‚à¥¤ à¤§à¤¾à¤°à¤¾à¤“à¤‚ à¤”à¤° à¤…à¤§à¤¿à¤¨à¤¿à¤¯à¤®à¥‹à¤‚ à¤•à¤¾ à¤¸à¤Ÿà¥€à¤• à¤‰à¤²à¥à¤²à¥‡à¤– à¤•à¤°à¥‡à¤‚à¥¤"
+        }.get(lang, "Generate the answer in English.")
+
+        user_prompt = (
+            f"LEGAL QUESTION:\n{clean_q}\n\n"
+            f"LANGUAGE INSTRUCTION:\n{language_instruction}\n\n"
+            f"=== RETRIEVED STATUTORY PROVISIONS ===\n"
+            f"{prompt_context_str}\n\n"
+            f"=== INSTRUCTIONS ===\n"
+            f"Synthesize a factual, grounded explanation addressing the legal question above based strictly on these provisions. "
+            f"Cite the relevant Act and Section number for every rule mentioned."
+        )
+
+        synthesis_succeeded = True
+        try:
+            generated_answer = active_provider.generate(
+                prompt=user_prompt,
+                system_instruction=SYSTEM_LEGAL_INSTRUCTION,
+                temperature=request.temperature or 0.1
+            )
+        except Exception as e:
+            # Internal logging of technical exception details
+            logger.error("LLM synthesis provider encountered an error: %s", e, exc_info=True)
+            synthesis_succeeded = False
+            
+            # Safe generic user-facing message (no raw exception or stack trace leakage)
+            fail_text = {
+                "en": (
+                    "Authoritative statutory provisions were successfully retrieved from the Vidhik legal database; "
+                    "however, automated AI synthesis could not be completed at this time. "
+                    "The authoritative statutory provisions and official citations are provided below for direct legal review."
+                ),
+                "mr": (
+                    "à¤µà¤¿à¤§à¤¿à¤• à¤¡à¥‡à¤Ÿà¤¾à¤¬à¥‡à¤¸à¤®à¤§à¥‚à¤¨ à¤¸à¤‚à¤¬à¤‚à¤§à¤¿à¤¤ à¤•à¤¾à¤¯à¤¦à¥‡à¤¶à¥€à¤° à¤•à¤²à¤®à¥‡ à¤¯à¤¶à¤¸à¥à¤µà¥€à¤°à¥€à¤¤à¥à¤¯à¤¾ à¤¶à¥‹à¤§à¤²à¥€ à¤—à¥‡à¤²à¥€ à¤†à¤¹à¥‡à¤¤; à¤¤à¤¥à¤¾à¤ªà¤¿, à¤à¤†à¤¯ à¤¸à¤‚à¤¶à¥à¤²à¥‡à¤·à¤£ à¤ªà¥à¤°à¤•à¥à¤°à¤¿à¤¯à¤¾ à¤¸à¤§à¥à¤¯à¤¾ à¤ªà¥‚à¤°à¥à¤£ à¤¹à¥‹à¤Š à¤¶à¤•à¤²à¥€ à¤¨à¤¾à¤¹à¥€. "
+                    "à¤–à¤¾à¤²à¥€ à¤¦à¤¿à¤²à¥‡à¤²à¥€ à¤…à¤§à¤¿à¤•à¥ƒà¤¤ à¤•à¤²à¤®à¥‡ à¤†à¤£à¤¿ à¤¸à¤‚à¤¦à¤°à¥à¤­ à¤¥à¥‡à¤Ÿ à¤…à¤­à¥à¤¯à¤¾à¤¸à¤¾à¤¸à¤¾à¤ à¥€ à¤‰à¤ªà¤²à¤¬à¥à¤§ à¤†à¤¹à¥‡à¤¤."
+                ),
+                "hi": (
+                    "à¤µà¤¿à¤§à¤¿à¤• à¤¡à¥‡à¤Ÿà¤¾à¤¬à¥‡à¤¸ à¤¸à¥‡ à¤¸à¤‚à¤¬à¤‚à¤§à¤¿à¤¤ à¤•à¤¾à¤¨à¥‚à¤¨à¥€ à¤ªà¥à¤°à¤¾à¤µà¤§à¤¾à¤¨ à¤¸à¤«à¤²à¤¤à¤¾à¤ªà¥‚à¤°à¥à¤µà¤• à¤ªà¥à¤°à¤¾à¤ªà¥à¤¤ à¤•à¤¿à¤ à¤—à¤ à¤¹à¥ˆà¤‚; à¤¹à¤¾à¤²à¤¾à¤‚à¤•à¤¿, à¤à¤†à¤ˆ à¤¸à¤‚à¤¶à¥à¤²à¥‡à¤·à¤£ à¤µà¤°à¥à¤¤à¤®à¤¾à¤¨ à¤®à¥‡à¤‚ à¤ªà¥‚à¤°à¤¾ à¤¨à¤¹à¥€à¤‚ à¤¹à¥‹ à¤¸à¤•à¤¾à¥¤ "
+                    "à¤ªà¥à¤°à¤¤à¥à¤¯à¤•à¥à¤· à¤¸à¤®à¥€à¤•à¥à¤·à¤¾ à¤•à¥‡ à¤²à¤¿à¤ à¤ªà¥à¤°à¤¾à¤®à¤¾à¤£à¤¿à¤• à¤§à¤¾à¤°à¤¾à¤à¤‚ à¤”à¤° à¤¸à¤‚à¤¦à¤°à¥à¤­ à¤¨à¥€à¤šà¥‡ à¤¦à¤¿à¤ à¤—à¤ à¤¹à¥ˆà¤‚à¥¤"
+                )
+            }.get(lang, "Authoritative statutory provisions were retrieved, but automated synthesis failed.")
+            generated_answer = fail_text
+
+        # -------------------------------------------------------------
+        # STEP 5: Final Response Packaging
+        # Strict distinction between retrieved context found and synthesis status
+        # -------------------------------------------------------------
+        if synthesis_succeeded:
+            top_tier = ranked_candidates[0].get("_rank_tuple", (10,))[0] if ranked_candidates else 10
+            confidence = "grounded_high" if top_tier <= 5 else "grounded_medium"
+            is_grounded = True
+        else:
+            # AI synthesis failed: is_grounded must NOT be true, but retrieved sources remain intact
+            confidence = "synthesis_failed"
+            is_grounded = False
+
+        return RAGResponse(
+            query=clean_q,
+            language=lang,
+            answer=generated_answer,
+            confidence=confidence,
+            is_grounded=is_grounded,
+            sources=source_citations,
+            retrieved_sections=retrieved_sections,
+            retrieval_metadata=RetrievalMetadata(
+                total_candidates_found=total_candidates,
+                sections_used=len(retrieved_sections),
+                query_terms_matched=matched_term_ids,
+                concept_categories=concept_categories,
+                multilingual_synonyms_applied=multilingual_synonyms,
+                retrieval_strategy="deterministic_lexicon_ranked"
+            )
+        )

@@ -8,103 +8,402 @@
   <link rel="stylesheet" href="/static/styles.css">
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
+  <!-- Cloudflare Turnstile (Anti-Bot Verification) -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+  <!-- Google Identity Services (OAuth 2.0 / OpenID Connect) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 
 <body>
 
+
   <!-- ============================================================== -->
-  <!-- 1. LOGIN OVERLAY SCREEN (Shown if not logged in)              -->
-  <!-- ============================================================== -->
-  <!-- ============================================================== -->
-  <!-- 1. LOGIN & REGISTRATION OVERLAY SCREEN                        -->
+  <!-- 1. ENTERPRISE AUTHENTICATION & SECURITY OVERLAY SCREEN        -->
   <!-- ============================================================== -->
   <div id="login-screen" class="modal-overlay active"
     style="z-index: 999; background: radial-gradient(circle at top right, #1E1B4B 0%, #0F172A 100%);">
-    <div class="modal-dialog"
-      style="max-width: 460px; border-color: rgba(99, 102, 241, 0.3); box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
-      <div style="padding: 32px 32px 20px; text-align: center;">
+    <div class="modal-dialog auth-modal-dialog">
+      
+      <!-- Brand Header -->
+      <div style="padding: 28px 32px 16px; text-align: center;">
         <div
-          style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #4F46E5, #06B6D4); display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; font-size: 24px; box-shadow: 0 4px 16px rgba(79, 70, 229, 0.4);">
+          style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #4F46E5, #06B6D4); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; font-size: 22px; box-shadow: 0 4px 16px rgba(79, 70, 229, 0.4);">
           ⚖️
         </div>
-        <h2 style="font-size: 22px; font-weight: 700; color: #F8FAFC;">Vidhik AI</h2>
-        <p style="font-size: 13px; color: #94A3B8; margin-top: 3px;">Indian Legal Intelligence, Case Portal & Workflow Engine</p>
+        <h2 style="font-size: 22px; font-weight: 700; color: #F8FAFC; letter-spacing: 0.5px;">Vidhik AI</h2>
+        <p style="font-size: 12.5px; color: #94A3B8; margin-top: 3px;">Indian Legal Intelligence, Case Portal & Workflow Engine</p>
       </div>
 
-      <div style="padding: 0 32px 28px;">
-        <!-- Auth Role Tabs -->
-        <div class="auth-tab-bar">
-          <button type="button" class="auth-tab-btn active" id="tab-btn-login-citizen" onclick="App.switchAuthMode('citizen')">Citizen Sign In</button>
-          <button type="button" class="auth-tab-btn" id="tab-btn-login-lawyer" onclick="App.switchAuthMode('lawyer')">Lawyer Sign In</button>
-          <button type="button" class="auth-tab-btn" id="tab-btn-register-citizen" onclick="App.switchAuthMode('register')">New Citizen</button>
+      <div style="padding: 0 28px 24px;">
+
+        <!-- ========================================================== -->
+        <!-- VIEW A: SIGN IN                                            -->
+        <!-- ========================================================== -->
+        <div id="auth-signin-view">
+          <!-- Auth Tabs -->
+          <div class="auth-tab-bar">
+            <button type="button" class="auth-tab-btn active" id="tab-btn-signin" onclick="App.switchAuthScreen('signin')">Sign In</button>
+            <button type="button" class="auth-tab-btn" id="tab-btn-signup" onclick="App.switchAuthScreen('signup')">Create Account</button>
+          </div>
+
+          <form id="signin-form" onsubmit="App.handleLogin(event)">
+            <div class="form-group">
+              <label class="form-label" for="signin-email">Email Address or Mobile Number</label>
+              <input type="text" id="signin-email" class="form-control" required
+                placeholder="name@example.com or +91 9876543210" autocomplete="username">
+            </div>
+
+            <div class="form-group">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label class="form-label" for="signin-password" style="margin-bottom: 0;">Password</label>
+                <a href="#" style="font-size: 12px; color: var(--accent-cyan); text-decoration: none;" onclick="App.switchAuthScreen('forgot')">Forgot Password?</a>
+              </div>
+              <div style="position: relative;">
+                <input type="password" id="signin-password" class="form-control" required
+                  placeholder="••••••••••••" autocomplete="current-password" style="padding-right: 40px;">
+                <button type="button" onclick="App.togglePasswordVisibility('signin-password')" 
+                  style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px;">
+                  👁️
+                </button>
+              </div>
+            </div>
+
+            <!-- Cloudflare Turnstile Widget -->
+            <div id="signin-turnstile-container" class="cf-turnstile-container">
+              <div id="signin-turnstile-widget"></div>
+            </div>
+
+            <div style="margin-top: 16px;">
+              <button type="submit" id="btn-signin-submit" class="btn btn-primary"
+                style="width: 100%; justify-content: center; padding: 12px; font-size: 14px; font-weight: 600;">
+                Sign In to VIDHIK
+              </button>
+            </div>
+
+            <div class="auth-divider">
+              <span>Or Continue With</span>
+            </div>
+
+            <!-- Google Sign-In -->
+            <div id="google-signin-btn-container" style="display: flex; justify-content: center; margin-bottom: 6px;">
+              <button type="button" class="btn-google" onclick="App.triggerGoogleLogin()">
+                <svg viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                </svg>
+                Continue with Google
+              </button>
+            </div>
+            
+            <div style="text-align: center; margin-top: 14px; font-size: 11.5px; color: var(--text-muted);">
+              🔒 Protected by 256-bit encryption & Mandatory 2FA
+            </div>
+          </form>
         </div>
 
-        <!-- LOGIN FORM (Citizen & Lawyer) -->
-        <form id="login-form">
-          <div class="form-group">
-            <label class="form-label" id="login-email-label">Citizen Email Address</label>
-            <input type="email" id="login-email" class="form-control" value="sunita.sharma@example.com" required
-              placeholder="sunita.sharma@example.com">
+        <!-- ========================================================== -->
+        <!-- VIEW B: REGISTRATION / SIGN UP                             -->
+        <!-- ========================================================== -->
+        <div id="auth-signup-view" style="display: none;">
+          <!-- Auth Tabs -->
+          <div class="auth-tab-bar">
+            <button type="button" class="auth-tab-btn" onclick="App.switchAuthScreen('signin')">Sign In</button>
+            <button type="button" class="auth-tab-btn active" onclick="App.switchAuthScreen('signup')">Create Account</button>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Password</label>
-            <input type="password" id="login-password" class="form-control" value="password123" required
-              placeholder="••••••••">
+          <form id="signup-form" onsubmit="App.handleRegisterInitiate(event)">
+            <div class="form-group">
+              <label class="form-label" for="reg-fullname">Full Legal Name *</label>
+              <input type="text" id="reg-fullname" class="form-control" required
+                placeholder="e.g. Adv. Rajesh Deshmukh or Sunita Sharma" autocomplete="name">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 10px;">
+              <div class="form-group">
+                <label class="form-label" for="reg-email">Email Address *</label>
+                <input type="email" id="reg-email" class="form-control" required
+                  placeholder="name@example.com" autocomplete="email">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="reg-phone">Phone Number</label>
+                <input type="tel" id="reg-phone" class="form-control"
+                  placeholder="+91 9876543210" autocomplete="tel">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="reg-password">Create Password *</label>
+              <div style="position: relative;">
+                <input type="password" id="reg-password" class="form-control" required minlength="8"
+                  placeholder="Min 8 chars with mixed case, digit & symbol"
+                  oninput="App.checkPasswordStrength(this.value)" autocomplete="new-password" style="padding-right: 40px;">
+                <button type="button" onclick="App.togglePasswordVisibility('reg-password')" 
+                  style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px;">
+                  👁️
+                </button>
+              </div>
+              <!-- Live Password Strength Meter -->
+              <div class="pwd-strength-bar-container">
+                <div id="pwd-strength-meter" class="pwd-strength-bar"></div>
+              </div>
+              <div class="pwd-requirements-list">
+                <div class="pwd-req-item" id="req-len"><span>•</span> 8+ characters</div>
+                <div class="pwd-req-item" id="req-upper"><span>•</span> 1 uppercase (A-Z)</div>
+                <div class="pwd-req-item" id="req-lower"><span>•</span> 1 lowercase (a-z)</div>
+                <div class="pwd-req-item" id="req-digit"><span>•</span> 1 number & special char</div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="reg-confirm-password">Confirm Password *</label>
+              <input type="password" id="reg-confirm-password" class="form-control" required minlength="8"
+                placeholder="Re-enter your password" autocomplete="new-password">
+            </div>
+
+            <!-- Cloudflare Turnstile Widget -->
+            <div id="signup-turnstile-container" class="cf-turnstile-container">
+              <div id="signup-turnstile-widget"></div>
+            </div>
+
+            <div style="margin-top: 16px;">
+              <button type="submit" id="btn-signup-submit" class="btn btn-primary"
+                style="width: 100%; justify-content: center; padding: 12px; font-size: 14px; font-weight: 600;">
+                Continue to Identity Verification →
+              </button>
+            </div>
+
+            <div class="auth-divider">
+              <span>Or Register With</span>
+            </div>
+
+            <div style="display: flex; justify-content: center; margin-bottom: 6px;">
+              <button type="button" class="btn-google" onclick="App.triggerGoogleLogin()">
+                <svg viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                </svg>
+                Register with Google
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- VIEW C: OTP VERIFICATION                                   -->
+        <!-- ========================================================== -->
+        <div id="auth-otp-view" style="display: none; text-align: center;">
+          <div style="margin-bottom: 16px;">
+            <div style="font-size: 36px; margin-bottom: 8px;">📩</div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #F8FAFC;">Verify Your Identity</h3>
+            <p style="font-size: 12.5px; color: var(--text-secondary); margin-top: 4px;">
+              We sent a 6-digit verification code to<br>
+              <strong id="otp-destination-text" style="color: var(--accent-cyan);">user@example.com</strong>
+            </p>
           </div>
 
-          <div style="margin-top: 20px;">
-            <button type="submit" id="btn-login-submit" class="btn btn-primary"
-              style="width: 100%; justify-content: center; padding: 12px; font-size: 14px;">
-              Sign In to Citizen Portal
-            </button>
+          <form id="otp-form" onsubmit="App.handleVerifyOtp(event)">
+            <div class="otp-input-group">
+              <input type="text" maxlength="6" id="otp-code-input" class="form-control" required
+                style="text-align: center; font-size: 24px; letter-spacing: 8px; font-family: 'JetBrains Mono', monospace; width: 220px; font-weight: 700; color: var(--accent-cyan);"
+                placeholder="••••••" autocomplete="one-time-code" autofocus>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin: 16px 0; font-size: 12px; color: var(--text-muted);">
+              <span id="otp-expiry-timer">Expires in 10:00</span>
+              <button type="button" id="btn-resend-otp" onclick="App.handleResendOtp()" 
+                style="background: none; border: none; color: var(--accent-cyan); cursor: pointer; font-size: 12px; font-weight: 600;">
+                Resend Code
+              </button>
+            </div>
+
+            <div style="margin-top: 18px;">
+              <button type="submit" id="btn-verify-otp-submit" class="btn btn-primary"
+                style="width: 100%; justify-content: center; padding: 12px; font-size: 14px; font-weight: 600;">
+                Verify & Setup Mandatory 2FA →
+              </button>
+            </div>
+
+            <div style="margin-top: 14px;">
+              <a href="#" style="font-size: 12px; color: var(--text-muted); text-decoration: underline;" onclick="App.switchAuthScreen('signup')">
+                ← Back to Edit Details
+              </a>
+            </div>
+          </form>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- VIEW D: MANDATORY 2FA ENROLLMENT                           -->
+        <!-- ========================================================== -->
+        <div id="auth-2fa-setup-view" style="display: none; text-align: center;">
+          <div style="margin-bottom: 12px;">
+            <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(79, 70, 229, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); padding: 4px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 600; color: #818CF8; margin-bottom: 8px;">
+              🛡️ MANDATORY SECURITY
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #F8FAFC;">Set Up Authenticator (2FA)</h3>
+            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
+              Scan this QR code with Google Authenticator, Authy, or Microsoft Authenticator.
+            </p>
           </div>
 
-          <!-- Quick Fill Demo Accounts -->
-          <div style="margin-top: 18px; padding: 10px; background: rgba(15, 23, 42, 0.6); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); font-size: 11.5px; color: var(--text-muted); line-height: 1.5;">
-            <strong style="color: var(--text-secondary);">Demo Accounts (password: password123):</strong>
-            <div style="margin-top: 4px; display: flex; flex-wrap: wrap; gap: 6px;">
-              <a href="#" style="color: var(--accent-cyan); text-decoration: underline;" onclick="App.fillDemoLogin('sunita.sharma@example.com', 'citizen')">Sunita (Citizen)</a> •
-              <a href="#" style="color: var(--accent-cyan); text-decoration: underline;" onclick="App.fillDemoLogin('vikram.malhotra@example.com', 'citizen')">Vikram (Citizen)</a> •
-              <a href="#" style="color: var(--accent-cyan); text-decoration: underline;" onclick="App.fillDemoLogin('rajesh.advocate@vidhik.ai', 'lawyer')">Adv. Rajesh (Lawyer)</a>
+          <!-- QR Code Box -->
+          <div class="qr-code-wrapper">
+            <img id="totp-qr-image" src="" alt="2FA Authenticator QR Code">
+          </div>
+
+          <!-- Manual Entry Key -->
+          <div style="text-align: left; margin: 8px 0;">
+            <span style="font-size: 11px; color: var(--text-muted);">Can't scan? Enter secret key manually:</span>
+            <div class="totp-secret-box">
+              <span id="totp-secret-key-text">XXXX XXXX XXXX XXXX</span>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="App.copyTotpSecret()" style="font-size: 11px; padding: 4px 8px;">
+                Copy
+              </button>
             </div>
           </div>
-        </form>
 
-        <!-- CITIZEN REGISTRATION FORM -->
-        <form id="register-form" style="display: none;">
-          <div class="form-group">
-            <label class="form-label">Full Name *</label>
-            <input type="text" id="reg-fullname" class="form-control" required placeholder="e.g. Ramesh Kumar">
+          <form id="totp-setup-form" onsubmit="App.handleComplete2FASetup(event)">
+            <div class="form-group" style="text-align: left; margin-top: 14px;">
+              <label class="form-label" for="totp-setup-code">Enter 6-Digit Authenticator Code *</label>
+              <input type="text" maxlength="6" id="totp-setup-code" class="form-control" required
+                style="text-align: center; font-size: 20px; letter-spacing: 6px; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-cyan);"
+                placeholder="••••••" autocomplete="one-time-code">
+            </div>
+
+            <div style="margin-top: 16px;">
+              <button type="submit" id="btn-totp-setup-submit" class="btn btn-primary"
+                style="width: 100%; justify-content: center; padding: 12px; font-size: 14px; font-weight: 600;">
+                Activate 2FA & Generate Recovery Codes
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- VIEW E: RECOVERY CODES DISPLAY                             -->
+        <!-- ========================================================== -->
+        <div id="auth-recovery-codes-view" style="display: none;">
+          <div style="text-align: center; margin-bottom: 14px;">
+            <div style="font-size: 32px; margin-bottom: 6px;">🔑</div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #F8FAFC;">Save Your Recovery Codes</h3>
+            <p style="font-size: 12px; color: #FCA5A5; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); padding: 8px; border-radius: 6px; margin-top: 6px;">
+              ⚠️ Save these 8 one-time codes in a safe place. You will need them if you ever lose access to your authenticator app.
+            </p>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Email Address *</label>
-            <input type="email" id="reg-email" class="form-control" required placeholder="ramesh@example.com">
+          <div class="recovery-codes-grid" id="recovery-codes-display-grid">
+            <!-- Filled dynamically -->
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Password * (min 6 characters)</label>
-            <input type="password" id="reg-password" class="form-control" required minlength="6" placeholder="••••••••">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Phone Number (Optional)</label>
-            <input type="tel" id="reg-phone" class="form-control" placeholder="+91 98765 43210">
-          </div>
-
-          <div style="margin-top: 20px;">
-            <button type="submit" class="btn btn-primary"
-              style="width: 100%; justify-content: center; padding: 12px; font-size: 14px;">
-              Create Citizen Account & Sign In
+          <div style="display: flex; gap: 8px; margin: 14px 0;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="App.copyAllRecoveryCodes()" style="flex: 1; justify-content: center;">
+              📋 Copy All Codes
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="App.downloadRecoveryCodes()" style="flex: 1; justify-content: center;">
+              📥 Download .TXT
             </button>
           </div>
-        </form>
+
+          <div style="margin-top: 18px;">
+            <button type="button" class="btn btn-primary" onclick="App.finishRegistrationFlow()"
+              style="width: 100%; justify-content: center; padding: 12px; font-size: 14px; font-weight: 600;">
+              I Have Saved My Codes — Enter VIDHIK →
+            </button>
+          </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- VIEW F: 2FA LOGIN CHALLENGE                                -->
+        <!-- ========================================================== -->
+        <div id="auth-2fa-challenge-view" style="display: none; text-align: center;">
+          <div style="margin-bottom: 16px;">
+            <div style="font-size: 36px; margin-bottom: 6px;">🛡️</div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #F8FAFC;">Two-Factor Authentication</h3>
+            <p style="font-size: 12.5px; color: var(--text-secondary); margin-top: 2px;">
+              Enter the 6-digit code from your authenticator app
+            </p>
+          </div>
+
+          <form id="2fa-challenge-form" onsubmit="App.handle2FALogin(event)">
+            <div id="totp-input-box" class="form-group" style="margin: 20px 0;">
+              <input type="text" maxlength="6" id="login-2fa-code" class="form-control" required
+                style="text-align: center; font-size: 24px; letter-spacing: 8px; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-cyan); width: 220px; margin: 0 auto;"
+                placeholder="••••••" autocomplete="one-time-code" autofocus>
+            </div>
+
+            <!-- Recovery Code Input (Hidden by default) -->
+            <div id="recovery-input-box" class="form-group" style="display: none; margin: 20px 0; text-align: left;">
+              <label class="form-label">Enter One-Time Emergency Recovery Code (XXXXX-XXXXX)</label>
+              <input type="text" id="login-recovery-code" class="form-control"
+                style="text-align: center; font-size: 16px; letter-spacing: 2px; font-family: 'JetBrains Mono', monospace; text-transform: uppercase;"
+                placeholder="ABCDE-12345">
+            </div>
+
+            <div style="margin-top: 14px;">
+              <button type="submit" id="btn-2fa-login-submit" class="btn btn-primary"
+                style="width: 100%; justify-content: center; padding: 12px; font-size: 14px; font-weight: 600;">
+                Verify Code & Enter VIDHIK
+              </button>
+            </div>
+
+            <div style="margin-top: 16px; border-top: 1px solid var(--border-subtle); padding-top: 12px;">
+              <a href="#" id="toggle-recovery-link" style="font-size: 12px; color: var(--accent-cyan); text-decoration: none;" onclick="App.toggleRecoveryCodeLogin(event)">
+                🔑 Use an Emergency Recovery Code Instead
+              </a>
+            </div>
+
+            <div style="margin-top: 10px;">
+              <a href="#" style="font-size: 11.5px; color: var(--text-muted); text-decoration: underline;" onclick="App.switchAuthScreen('signin')">
+                ← Sign Out / Back to Login
+              </a>
+            </div>
+          </form>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- VIEW G: FORGOT / RESET PASSWORD                            -->
+        <!-- ========================================================== -->
+        <div id="auth-forgot-view" style="display: none;">
+          <div style="text-align: center; margin-bottom: 16px;">
+            <div style="font-size: 32px; margin-bottom: 6px;">🔐</div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #F8FAFC;">Reset Your Password</h3>
+            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
+              Enter your registered email address to receive password reset instructions.
+            </p>
+          </div>
+
+          <form id="forgot-password-form" onsubmit="App.handleForgotPassword(event)">
+            <div class="form-group">
+              <label class="form-label" for="forgot-email">Registered Email Address</label>
+              <input type="email" id="forgot-email" class="form-control" required
+                placeholder="name@example.com" autocomplete="email">
+            </div>
+
+            <div id="forgot-turnstile-container" class="cf-turnstile-container">
+              <div id="forgot-turnstile-widget"></div>
+            </div>
+
+            <div style="margin-top: 16px;">
+              <button type="submit" id="btn-forgot-submit" class="btn btn-primary"
+                style="width: 100%; justify-content: center; padding: 12px; font-size: 14px; font-weight: 600;">
+                Send Reset Instructions
+              </button>
+            </div>
+
+            <div style="text-align: center; margin-top: 14px;">
+              <a href="#" style="font-size: 12px; color: var(--text-secondary); text-decoration: underline;" onclick="App.switchAuthScreen('signin')">
+                ← Back to Sign In
+              </a>
+            </div>
+          </form>
+        </div>
 
       </div>
     </div>
   </div>
-
 
   <!-- ============================================================== -->
   <!-- 2. MAIN APPLICATION SHELL                                      -->
@@ -112,6 +411,7 @@
   <div class="app-container" id="app-shell" style="display: none;">
     <!-- Mobile Backdrop for sidebar drawer -->
     <div id="mobile-backdrop" class="mobile-backdrop" onclick="App.closeMobileSidebar()"></div>
+
 
     <!-- SIDEBAR NAVIGATION -->
     <aside class="sidebar">
@@ -215,6 +515,15 @@
           </svg>
           My Profile
         </a>
+
+        <a class="nav-item" data-view="security-activity">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+          Account Security
+          <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10B981; margin-left: auto; font-size: 10px;">2FA Active</span>
+        </a>
       </nav>
 
       <!-- LAWYER NAVIGATION (Shown if role === 'lawyer') -->
@@ -300,7 +609,17 @@
           </svg>
           Lawyer Profile
         </a>
+
+        <a class="nav-item" data-view="security-activity">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+          Account Security
+          <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10B981; margin-left: auto; font-size: 10px;">2FA Active</span>
+        </a>
       </nav>
+
 
       <!-- Sidebar Footer -->
       <div class="sidebar-footer">
@@ -1933,7 +2252,112 @@
                   <button type="submit" class="btn btn-primary">Save Profile Changes</button>
                 </div>
               </form>
+        <!-- ============================================================== -->
+        <!-- VIEW: ACCOUNT SECURITY, SESSIONS & ACTIVITY                   -->
+        <!-- ============================================================== -->
+        <section id="view-security-activity" class="view-panel" style="display: none;">
+          <div class="page-header">
+            <div>
+              <h2 class="page-title">Account Security & Activity</h2>
+              <p class="page-subtitle">Manage mandatory two-factor authentication, active sessions, security alerts, and login activity.</p>
             </div>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn btn-secondary btn-sm" onclick="App.loadSecurityActivity()">
+                🔄 Refresh Activity
+              </button>
+            </div>
+          </div>
+
+          <!-- SECURITY OVERVIEW CARDS -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px;">
+            <div class="card" style="border-left: 4px solid #10B981;">
+              <div style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Two-Factor Authentication</div>
+              <div style="font-size: 20px; font-weight: 700; color: #10B981; margin: 8px 0 4px; display: flex; align-items: center; gap: 8px;">
+                <span>🛡️ Mandatory Active</span>
+              </div>
+              <div style="font-size: 12px; color: var(--text-muted);">RFC 6238 TOTP Authenticator</div>
+            </div>
+
+            <div class="card" style="border-left: 4px solid var(--accent-cyan);">
+              <div style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Verified Email</div>
+              <div id="sec-verified-email-text" style="font-size: 16px; font-weight: 700; color: #F8FAFC; margin: 8px 0 4px;">
+                user@example.com
+              </div>
+              <div style="font-size: 12px; color: #10B981;">✓ Primary Verified Identity</div>
+            </div>
+
+            <div class="card" style="border-left: 4px solid var(--accent-amber);">
+              <div style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Active Sessions</div>
+              <div id="sec-active-sessions-count" style="font-size: 20px; font-weight: 700; color: #F8FAFC; margin: 8px 0 4px;">
+                1 Active
+              </div>
+              <div style="font-size: 12px; color: var(--text-muted);">Real-time device monitoring</div>
+            </div>
+          </div>
+
+          <!-- TABS FOR SECURITY SECTIONS -->
+          <div style="display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 24px;">
+            
+            <!-- LEFT COLUMN: ACTIVE SESSIONS & RECOVERY -->
+            <div>
+              <div class="card" style="margin-bottom: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px;">
+                  <div>
+                    <h3 style="font-size: 16px; font-weight: 700; color: #F8FAFC;">Active Authentication Sessions</h3>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Review active browser and device sessions logged into your account.</p>
+                  </div>
+                  <button class="btn btn-secondary btn-sm" onclick="App.revokeAllOtherSessions()" style="color: #F87171; border-color: rgba(239, 68, 68, 0.3);">
+                    Sign Out Other Sessions
+                  </button>
+                </div>
+
+                <div id="active-sessions-list-container">
+                  <div style="padding: 24px; text-align: center; color: var(--text-muted);">Loading active sessions...</div>
+                </div>
+              </div>
+
+              <!-- CREDENTIAL & 2FA RECOVERY MANAGEMENT -->
+              <div class="card">
+                <h3 style="font-size: 16px; font-weight: 700; color: #F8FAFC; margin-bottom: 12px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px;">
+                  Credential & Two-Factor Recovery Settings
+                </h3>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-subtle);">
+                  <div>
+                    <div style="font-size: 14px; font-weight: 600; color: #F8FAFC;">Account Password</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">Bcrypt hardened password.</div>
+                  </div>
+                  <button class="btn btn-secondary btn-sm" onclick="App.openChangePasswordModal()">
+                    Update Password
+                  </button>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;">
+                  <div>
+                    <div style="font-size: 14px; font-weight: 600; color: #F8FAFC;">2FA Recovery Codes</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">One-time backup codes for emergency login.</div>
+                  </div>
+                  <button class="btn btn-secondary btn-sm" onclick="App.openRegenerateRecoveryCodesModal()">
+                    Regenerate Codes
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT COLUMN: SECURITY ALERTS -->
+            <div>
+              <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">
+                  <h3 style="font-size: 15px; font-weight: 700; color: #F8FAFC;">Security Alerts & Incidents</h3>
+                  <span id="security-alerts-unread-badge" class="badge" style="background: rgba(239, 68, 68, 0.2); color: #EF4444; display: none;">0 New</span>
+                </div>
+
+                <div id="security-alerts-list-container">
+                  <div style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 12.5px;">No active security alerts</div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </section>
 
@@ -1941,6 +2365,7 @@
 
       <!-- APPLICATION FOOTER -->
       <footer class="app-footer">
+
         <div class="footer-left">
           <span class="footer-brand">⚖️ Vidhik AI</span>
           <span class="footer-desc">AI-Native Indian Statutory Knowledge & Legal Workflow Platform</span>
@@ -2628,7 +3053,6 @@
           <div class="form-group">
             <label class="form-label">Verified Official Next Hearing Date</label>
             <input type="date" id="m-ref-hearing-date" class="form-control">
-            <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">Recording an official next hearing date synchronizes with the calendar reminder system.</div>
           </div>
         </div>
         <div class="modal-footer">
@@ -2639,8 +3063,64 @@
     </div>
   </div>
 
+  <!-- MODAL: CHANGE PASSWORD -->
+  <div id="modal-change-password" class="modal-overlay">
+    <div class="modal-dialog" style="max-width: 460px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Update Account Password</h3>
+        <button class="modal-close" onclick="App.closeModals()">✕</button>
+      </div>
+      <form id="form-change-password" onsubmit="App.submitChangePassword(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="cp-current-password">Current Password *</label>
+            <input type="password" id="cp-current-password" class="form-control" required placeholder="••••••••••••">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cp-new-password">New Password * (Min 8 characters, mixed case, number, symbol)</label>
+            <input type="password" id="cp-new-password" class="form-control" required minlength="8" placeholder="••••••••••••">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cp-confirm-password">Confirm New Password *</label>
+            <input type="password" id="cp-confirm-password" class="form-control" required minlength="8" placeholder="••••••••••••">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="App.closeModals()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: REGENERATE RECOVERY CODES -->
+  <div id="modal-regenerate-recovery-codes" class="modal-overlay">
+    <div class="modal-dialog" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Regenerate 2FA Recovery Codes</h3>
+        <button class="modal-close" onclick="App.closeModals()">✕</button>
+      </div>
+      <form id="form-regenerate-recovery-codes" onsubmit="App.submitRegenerateRecoveryCodes(event)">
+        <div class="modal-body">
+          <p style="font-size: 12.5px; color: #FCA5A5; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); padding: 10px; border-radius: 6px; margin-bottom: 14px;">
+            ⚠️ Regenerating recovery codes will immediately invalidate all your existing recovery codes.
+          </p>
+          <div class="form-group">
+            <label class="form-label">Verify with Account Password OR 6-Digit 2FA Code</label>
+            <input type="password" id="regen-auth-input" class="form-control" required placeholder="Enter password or current 2FA code">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="App.closeModals()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Regenerate 8 New Codes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Toast Container -->
   <div id="toast-container" class="toast-container"></div>
+
 
   <!-- APPLICATION SCRIPTS -->
   <script src="/static/app.js"></script>

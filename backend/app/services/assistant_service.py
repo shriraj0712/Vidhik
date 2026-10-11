@@ -129,15 +129,15 @@ class ConversationContextHandler:
     """
 
     SECTION_REGEX = re.compile(
-        r'(?:section|sec\.?|कलम|धारा)\s*([0-9०-९]+[A-Za-z\-]*)',
+        r'(?:section|sec\.?|à¤•à¤²à¤®|à¤§à¤¾à¤°à¤¾)\s*([0-9à¥¦-à¥¯]+[A-Za-z\-]*)',
         re.IGNORECASE
     )
     ARTICLE_REGEX = re.compile(
-        r'(?:article|art\.?|अनुच्छेद)\s*([0-9०-९]+[A-Za-z\-]*)',
+        r'(?:article|art\.?|à¤…à¤¨à¥à¤šà¥à¤›à¥‡à¤¦)\s*([0-9à¥¦-à¥¯]+[A-Za-z\-]*)',
         re.IGNORECASE
     )
     ORDER_RULE_REGEX = re.compile(
-        r'(?:order|rule)\s*([0-9०-९]+[A-Za-z\-]*)',
+        r'(?:order|rule)\s*([0-9à¥¦-à¥¯]+[A-Za-z\-]*)',
         re.IGNORECASE
     )
 
@@ -155,10 +155,10 @@ class ConversationContextHandler:
         "Bharatiya Nyaya Sanhita",
         "Bharatiya Nagarik Suraksha Sanhita",
         "Bharatiya Sakshya Adhiniyam",
-        "भारतीय दंड संहिता",
-        "भारतीय करार कायदा",
-        "भारताचे संविधान",
-        "फौजदारी प्रक्रिया संहिता"
+        "à¤­à¤¾à¤°à¤¤à¥€à¤¯ à¤¦à¤‚à¤¡ à¤¸à¤‚à¤¹à¤¿à¤¤à¤¾",
+        "à¤­à¤¾à¤°à¤¤à¥€à¤¯ à¤•à¤°à¤¾à¤° à¤•à¤¾à¤¯à¤¦à¤¾",
+        "à¤­à¤¾à¤°à¤¤à¤¾à¤šà¥‡ à¤¸à¤‚à¤µà¤¿à¤§à¤¾à¤¨",
+        "à¤«à¥Œà¤œà¤¦à¤¾à¤°à¥€ à¤ªà¥à¤°à¤•à¥à¤°à¤¿à¤¯à¤¾ à¤¸à¤‚à¤¹à¤¿à¤¤à¤¾"
     ]
 
     FOLLOW_UP_INDICATORS = {
@@ -168,8 +168,8 @@ class ConversationContextHandler:
         "bailable", "non-bailable", "compoundable", "cognizable",
         "minor", "child", "applies to", "apply to", "exception", "exceptions",
         "procedure", "fine", "imprisonment", "appeal", "limitation",
-        "हे", "या", "तो", "ती", "ते", "याची", "त्याची", "लागू", "शिक्षा", "दंड", "जामीन", "अल्पवयीन", "अपवाद",
-        "यह", "इस", "इसकी", "सजा", "दंड", "जमानत", "नाबालिग", "लागू", "अपवाद"
+        "à¤¹à¥‡", "à¤¯à¤¾", "à¤¤à¥‹", "à¤¤à¥€", "à¤¤à¥‡", "à¤¯à¤¾à¤šà¥€", "à¤¤à¥à¤¯à¤¾à¤šà¥€", "à¤²à¤¾à¤—à¥‚", "à¤¶à¤¿à¤•à¥à¤·à¤¾", "à¤¦à¤‚à¤¡", "à¤œà¤¾à¤®à¥€à¤¨", "à¤…à¤²à¥à¤ªà¤µà¤¯à¥€à¤¨", "à¤…à¤ªà¤µà¤¾à¤¦",
+        "à¤¯à¤¹", "à¤‡à¤¸", "à¤‡à¤¸à¤•à¥€", "à¤¸à¤œà¤¾", "à¤¦à¤‚à¤¡", "à¤œà¤®à¤¾à¤¨à¤¤", "à¤¨à¤¾à¤¬à¤¾à¤²à¤¿à¤—", "à¤²à¤¾à¤—à¥‚", "à¤…à¤ªà¤µà¤¾à¤¦"
     }
 
     @classmethod
@@ -338,7 +338,7 @@ class LegalAssistantService:
         )
         emergency_prefix = ""
         if emergency_eval.is_emergency and emergency_eval.escalation_message:
-            emergency_prefix = f"⚠️ **URGENT EMERGENCY NOTICE:**\n{emergency_eval.escalation_message}\n\n---\n\n"
+            emergency_prefix = f"âš ï¸ **URGENT EMERGENCY NOTICE:**\n{emergency_eval.escalation_message}\n\n---\n\n"
 
         # -------------------------------------------------------------
         # STEP 3: History & Context Resolution
@@ -406,7 +406,6 @@ class LegalAssistantService:
             retrieval_metadata=rag_response.retrieval_metadata,
             disclaimer=cls.DEFAULT_DISCLAIMER
         )
-
     @classmethod
     def chat_stream(
         cls,
@@ -415,19 +414,18 @@ class LegalAssistantService:
         provider: Optional[BaseLLMProvider] = None,
         store: Optional[BaseConversationStore] = None
     ) -> Iterator[str]:
-        """
-        Streams assistant response tokens as SSE formatted events.
-        """
-        response = cls.chat(db=db, request=request, provider=provider, store=store)
-        
-        # Stream metadata header event
+        """Stream assistant responses as SSE events."""
+        response = cls.chat(
+            db=db,
+            request=request,
+            provider=provider,
+            store=store
+        )
+
         yield f"event: metadata\ndata: {json.dumps({'conversation_id': response.conversation_id, 'is_grounded': response.is_grounded, 'sources_count': len(response.sources)})}\n\n"
 
-        # Stream answer chunks
-        words = response.answer.split(" ")
-        for i, word in enumerate(words):
-            chunk = word + (" " if i < len(words) - 1 else "")
+        for i, word in enumerate(response.answer.split(" ")):
+            chunk = word + (" " if i < len(response.answer.split(" ")) - 1 else "")
             yield f"event: message\ndata: {json.dumps({'delta': chunk})}\n\n"
 
-        # Stream done event
-        yield f"event: done\ndata: [DONE]\n\n"
+        yield "event: done\ndata: [DONE]\n\n"

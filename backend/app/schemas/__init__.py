@@ -109,6 +109,30 @@ from .voice import (
     VoiceTranscriptionResponse
 )
 
+from .auth import (
+    RegisterInitiateRequest,
+    VerifyOtpRequest,
+    ResendOtpRequest,
+    LoginRequest,
+    GoogleLoginRequest,
+    TwoFactorSetupInitiateResponse,
+    TwoFactorSetupVerifyRequest,
+    TwoFactorLoginRequest,
+    RegenerateRecoveryCodesRequest,
+    RegenerateRecoveryCodesResponse,
+    ForgotPasswordRequest,
+    ResetPasswordRequest,
+    ChangePasswordRequest,
+    AuthUserResponse,
+    LoginChallengeResponse,
+    SessionItemResponse,
+    SessionListResponse,
+    SecurityAlertItem,
+    SecurityAlertListResponse,
+    TurnstileConfigResponse,
+    GoogleConfigResponse
+)
+
 __all__ = [
     "LawResponse",
     "LawSummaryResponse",
