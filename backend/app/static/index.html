@@ -1757,6 +1757,53 @@
 
           <!-- TAB 1: OVERVIEW & TIMELINE -->
           <div id="tab-overview" class="tab-pane active">
+            <!-- Official Court Reference Card -->
+            <div class="card" style="margin-bottom: 20px; border-left: 4px solid var(--accent-cyan); background: rgba(15, 23, 42, 0.7);">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                    <span style="font-size: 16px;">🏛️</span>
+                    <h3 class="card-title" style="margin: 0; font-size: 15px;">Official Court Reference (eCourts India)</h3>
+                    <span class="badge badge-info" id="cd-cnr-badge">CNR Reference</span>
+                  </div>
+                  <p style="font-size: 12.5px; color: var(--text-muted); margin: 0 0 12px 0;">
+                    Official eCourts portal reference layer linked via 16-character Case Number Record (CNR). User-assisted verification.
+                  </p>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <button type="button" class="btn btn-secondary btn-sm" id="btn-open-ecourts" onclick="App.openOfficialECourtsLookup()">
+                    🌐 Open Official eCourts ↗
+                  </button>
+                  <button type="button" class="btn btn-primary btn-sm" onclick="App.openUpdateCourtReferenceModal(false)">
+                    ✏️ Record Verified Status
+                  </button>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; padding-top: 14px; border-top: 1px solid var(--border-subtle);">
+                <div>
+                  <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">CNR Number</div>
+                  <div style="font-size: 13.5px; font-family: monospace; font-weight: 600; color: #818CF8; margin-top: 2px;" id="cd-cnr-number">-</div>
+                </div>
+                <div>
+                  <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Court Source</div>
+                  <div style="font-size: 13px; color: var(--text-primary); margin-top: 2px;" id="cd-court-source">eCourts India</div>
+                </div>
+                <div>
+                  <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Verified Court Status</div>
+                  <div style="font-size: 13px; color: var(--text-primary); font-weight: 500; margin-top: 2px;" id="cd-external-status">Not verified yet</div>
+                </div>
+                <div>
+                  <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Next Hearing Date (Official)</div>
+                  <div style="font-size: 13px; color: var(--accent-cyan); font-weight: 600; margin-top: 2px;" id="cd-external-hearing-date">None recorded</div>
+                </div>
+                <div>
+                  <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Last Verified</div>
+                  <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;" id="cd-last-verified-at">Never</div>
+                </div>
+              </div>
+            </div>
+
             <div class="dashboard-grid">
               <div class="card">
                 <h3 class="card-title" style="margin-bottom: 14px;">Case Summary & Pleadings Background</h3>
@@ -2880,6 +2927,53 @@
 
           <!-- Tab Content -->
           <div id="tab-c-overview" class="citizen-tab-pane active">
+            <!-- Official Court Reference Card -->
+            <div class="card" style="margin-bottom: 20px; border-left: 4px solid var(--accent-cyan); background: rgba(15, 23, 42, 0.7);">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                    <span style="font-size: 16px;">🏛️</span>
+                    <h3 class="card-title" style="margin: 0; font-size: 15px;">Official Court Reference (eCourts India)</h3>
+                    <span class="badge badge-info" id="c-detail-cnr-badge">CNR Reference</span>
+                  </div>
+                  <p style="font-size: 12.5px; color: var(--text-muted); margin: 0 0 12px 0;">
+                    Official eCourts reference layer linked via 16-character Case Number Record (CNR). User-assisted verification.
+                  </p>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <button type="button" class="btn btn-secondary btn-sm" id="btn-c-open-ecourts" onclick="App.openOfficialECourtsLookup(App.currentCitizenCaseCNR)">
+                    🌐 Open Official eCourts ↗
+                  </button>
+                  <button type="button" class="btn btn-primary btn-sm" onclick="App.openUpdateCourtReferenceModal(true)">
+                    ✏️ Record Verified Status
+                  </button>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; padding-top: 14px; border-top: 1px solid var(--border-subtle);">
+                <div>
+                  <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">CNR Number</div>
+                  <div style="font-size: 13.5px; font-family: monospace; font-weight: 600; color: #818CF8; margin-top: 2px;" id="c-detail-cnr">-</div>
+                </div>
+                <div>
+                  <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Court Source</div>
+                  <div style="font-size: 13px; color: var(--text-primary); margin-top: 2px;" id="c-detail-court-source">eCourts India</div>
+                </div>
+                <div>
+                  <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Verified Court Status</div>
+                  <div style="font-size: 13px; color: var(--text-primary); font-weight: 500; margin-top: 2px;" id="c-detail-external-status">Not verified yet</div>
+                </div>
+                <div>
+                  <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Next Hearing Date (Official)</div>
+                  <div style="font-size: 13px; color: var(--accent-cyan); font-weight: 600; margin-top: 2px;" id="c-detail-external-hearing-date">None recorded</div>
+                </div>
+                <div>
+                  <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Last Verified</div>
+                  <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;" id="c-detail-last-verified-at">Never</div>
+                </div>
+              </div>
+            </div>
+
             <div class="card">
               <h3 class="card-title" style="margin-bottom: 12px;">Case Description & Facts</h3>
               <p id="c-detail-description" style="font-size: 14px; color: var(--text-secondary); line-height: 1.7;">-</p>
@@ -3178,10 +3272,10 @@
           </div>
 
           <!-- Chat Outer Workspace -->
-          <div class="card" style="padding: 0; display: flex; flex-direction: column; height: calc(100vh - 240px); min-height: 600px; overflow: hidden; border: 1px solid var(--border-subtle);">
+          <div id="ai-chat-workspace" class="card ai-chat-workspace">
             
             <!-- Conversation Thread Container -->
-            <div id="ai-chat-thread" style="flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 18px; background: var(--bg-primary);">
+            <div id="ai-chat-thread" class="ai-chat-thread">
               
               <!-- Landing State (Shown when thread is empty) -->
               <div id="ai-chat-landing" style="margin: auto; max-width: 720px; text-align: center; padding: 20px 10px;">
@@ -3239,7 +3333,7 @@
             </div>
 
             <!-- Input Dock -->
-            <div style="padding: 16px 20px; background: var(--bg-secondary); border-top: 1px solid var(--border-subtle);">
+            <div id="ai-chat-dock" class="ai-chat-dock">
 
               <!-- Voice Recording Live Status Bar -->
               <div id="ai-voice-status-bar" style="display: none; align-items: center; justify-content: space-between; padding: 8px 14px; background: rgba(6, 182, 212, 0.1); border-radius: 8px; margin-bottom: 10px; border: 1px solid rgba(6, 182, 212, 0.3);">
@@ -3345,47 +3439,52 @@
                 </div>
               </div>
 
-              <form id="form-ai-chat" onsubmit="App.handleAiChatSubmit(event)" style="display: flex; gap: 8px; align-items: flex-end;">
+              <form id="form-ai-chat" onsubmit="App.handleAiChatSubmit(event)" class="ai-chat-form">
                 
-                <!-- Voice button -->
-                <button type="button" class="btn btn-secondary" id="btn-ai-voice" onclick="App.toggleSpeechInputForChat()" title="Tap to Speak (English / Hindi / Marathi)" style="padding: 10px 14px; height: 42px; font-size: 16px;">
-                  🎙️
-                </button>
+                <!-- Auxiliary Composer Toolbar -->
+                <div class="ai-composer-toolbar">
+                  <!-- Voice button -->
+                  <button type="button" class="btn btn-secondary ai-tool-btn" id="btn-ai-voice" onclick="App.toggleSpeechInputForChat()" title="Tap to Speak (English / Hindi / Marathi)">
+                    🎙️
+                  </button>
 
-                <!-- Document context toggle button -->
-                <button type="button" class="btn btn-secondary" id="btn-ai-doc-toggle" onclick="App.toggleAiDocumentContext()" title="Attach legal notice or contract context for analysis" style="padding: 10px 12px; height: 42px; font-size: 15px;">
-                  📎
-                </button>
+                  <!-- Document context toggle button -->
+                  <button type="button" class="btn btn-secondary ai-tool-btn" id="btn-ai-doc-toggle" onclick="App.toggleAiDocumentContext()" title="Attach legal notice or contract context for analysis">
+                    📎
+                  </button>
 
-                <!-- Video evidence toggle button -->
-                <button type="button" class="btn btn-secondary" id="btn-ai-video-toggle" onclick="App.toggleAiVideoContext()" title="Attach & analyze video evidence recording" style="padding: 10px 12px; height: 42px; font-size: 15px;">
-                  🎥
-                </button>
+                  <!-- Video evidence toggle button -->
+                  <button type="button" class="btn btn-secondary ai-tool-btn" id="btn-ai-video-toggle" onclick="App.toggleAiVideoContext()" title="Attach & analyze video evidence recording">
+                    🎥
+                  </button>
 
-
-                <!-- Language Pill Dropdown -->
-                <select id="ai-chat-lang" class="form-control" style="width: auto; height: 42px; font-size: 12.5px; padding: 0 10px; font-weight: 600;" title="Select Response Language" onchange="App.handleAiChatLangChange()">
-                  <option value="en">English</option>
-                  <option value="hi">हिंदी (Hindi)</option>
-                  <option value="mr">मराठी (Marathi)</option>
-                </select>
-
-                <!-- Textarea -->
-                <div style="flex: 1; position: relative;">
-                  <textarea id="ai-chat-input" class="form-control" placeholder="Ask Vidhik anything about Indian law (type or tap 🎙️ to speak)..." rows="1" style="resize: none; min-height: 42px; max-height: 120px; padding: 10px 14px; font-size: 14px; line-height: 1.4;" onkeydown="App.handleAiInputKey(event)"></textarea>
+                  <!-- Language Pill Dropdown -->
+                  <select id="ai-chat-lang" class="form-control ai-lang-select" title="Select Response Language" onchange="App.handleAiChatLangChange()">
+                    <option value="en">English</option>
+                    <option value="hi">हिंदी (Hindi)</option>
+                    <option value="mr">मराठी (Marathi)</option>
+                  </select>
                 </div>
 
-                <!-- Send Button -->
-                <button type="submit" id="btn-ai-chat-submit" class="btn btn-primary" style="height: 42px; padding: 0 20px; font-weight: 600;">
-                  <span>Send</span>
-                  <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
-                </button>
+                <!-- Main Composer Input & Send Row -->
+                <div class="ai-composer-input-row">
+                  <!-- Textarea -->
+                  <div class="ai-input-wrapper">
+                    <textarea id="ai-chat-input" class="form-control ai-chat-textarea" placeholder="Ask Vidhik anything about Indian law (type or tap 🎙️ to speak)..." rows="1" onkeydown="App.handleAiInputKey(event)"></textarea>
+                  </div>
+
+                  <!-- Send Button -->
+                  <button type="submit" id="btn-ai-chat-submit" class="btn btn-primary ai-chat-send-btn">
+                    <span>Send</span>
+                    <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                  </button>
+                </div>
               </form>
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 11px; color: var(--text-muted);">
+              <div class="ai-composer-hint">
                 <span>Press <strong>Enter</strong> to send, <strong>Shift + Enter</strong> for new line • Tap 🎙️ to speak</span>
-                <span>Unified Legal Intelligence • Zero Fabrication Guarantee</span>
+                <span class="ai-guarantee-badge">Unified Legal Intelligence • Zero Fabrication Guarantee</span>
               </div>
             </div>
 
@@ -4665,6 +4764,11 @@
             <input type="date" id="m-case-filing-date" class="form-control">
           </div>
           <div class="form-group">
+            <label class="form-label" for="m-case-cnr">eCourts CNR Number (Optional)</label>
+            <input type="text" id="m-case-cnr" class="form-control" maxlength="16" placeholder="e.g. MHAU010123452023" style="font-family: monospace; text-transform: uppercase;">
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">16-character alphanumeric CNR for official court tracking.</div>
+          </div>
+          <div class="form-group">
             <label class="form-label" for="m-case-description">Case Description & Pleadings Summary</label>
             <textarea id="m-case-description" class="form-control" rows="3"
               placeholder="Brief facts and prayer..."></textarea>
@@ -5172,6 +5276,11 @@
             </div>
           </div>
           <div class="form-group">
+            <label class="form-label" for="m-c-case-cnr">eCourts CNR Number (Optional)</label>
+            <input type="text" id="m-c-case-cnr" class="form-control" maxlength="16" placeholder="e.g. MHPU020054322024" style="font-family: monospace; text-transform: uppercase;">
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">16-character alphanumeric CNR for official court tracking.</div>
+          </div>
+          <div class="form-group">
             <label class="form-label" for="m-c-case-description">Summary of Facts & Relief Sought *</label>
             <textarea id="m-c-case-description" class="form-control" rows="3" required
               placeholder="Describe the factual background, grievance, and relief requested..."></textarea>
@@ -5433,6 +5542,58 @@
     </div>
   </div>
 
+  <!-- MODAL: UPDATE OFFICIAL COURT REFERENCE -->
+  <div id="modal-update-court-reference" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-update-court-ref-title">
+    <div class="modal-dialog" style="max-width: 580px;">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="modal-update-court-ref-title">Record Official Court Reference</h3>
+          <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">User-verified eCourts CNR reference information</p>
+        </div>
+        <button type="button" class="modal-close" onclick="App.closeModals()" aria-label="Close dialog">✕</button>
+      </div>
+      <form id="form-update-court-reference" onsubmit="App.submitUpdateCourtReference(event)">
+        <div class="modal-body">
+          <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 16px; font-size: 12.5px; color: #CBD5E1; line-height: 1.5;">
+            ℹ️ <strong>User-Assisted Reference:</strong> VIDHIK records user-verified court reference data. Solve the CAPTCHA directly on the official portal, then record the verified status and next hearing date below.
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="m-ref-cnr">CNR Number (16-Character Alphanumeric) *</label>
+            <input type="text" id="m-ref-cnr" class="form-control" maxlength="16" placeholder="e.g. MHAU010123452023" style="font-family: monospace; text-transform: uppercase;" required>
+            <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">Example: <code>MHAU010123452023</code> (State: MH, District/Court: AU01, Case: 012345, Year: 2023)</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="m-ref-status">Verified Official Court Status / Stage</label>
+            <input type="text" id="m-ref-status" class="form-control" placeholder="e.g. Listed for Admission / Arguments / Evidence Stage">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="m-ref-hearing-date">Verified Official Next Hearing Date</label>
+            <input type="date" id="m-ref-hearing-date" class="form-control">
+            <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">Verified next hearing date from official court cause list or portal.</div>
+          </div>
+
+          <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+            <input type="checkbox" id="m-ref-sync-reminder" checked style="width: 16px; height: 16px; accent-color: var(--accent-primary);">
+            <label for="m-ref-sync-reminder" style="font-size: 13px; color: var(--text-primary); cursor: pointer; margin: 0;">Synchronize next hearing date with case reminders calendar</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="App.closeModals()">Cancel</button>
+          <button type="submit" id="btn-save-court-ref" class="btn btn-primary">Save Court Reference</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- APPLICATION SCRIPTS -->
+  <script src="/static/i18n.js"></script>
+  <script src="/static/app.js"></script>
 </body>
 
 </html>

@@ -304,7 +304,8 @@ class LegalAssistantService:
         db: RealDictCursor,
         request: AssistantChatRequest,
         provider: Optional[BaseLLMProvider] = None,
-        store: Optional[BaseConversationStore] = None
+        store: Optional[BaseConversationStore] = None,
+        current_user: Optional[dict] = None
     ) -> AssistantChatResponse:
         """
         Processes a conversational legal question from the user.
@@ -351,6 +352,7 @@ class LegalAssistantService:
         )
 
         # -------------------------------------------------------------
+        # -------------------------------------------------------------
         # STEP 2.5: Video Evidence Context Resolution
         # -------------------------------------------------------------
         evidence_observations: Optional[List[Dict[str, Any]]] = None
@@ -358,14 +360,39 @@ class LegalAssistantService:
         evidence_context_text = ""
         evidence_title: Optional[str] = None
 
-        if request.evidence_id:
+        # Resolve evidence_id directly or via conversation history continuity
+        effective_evidence_id = request.evidence_id
+        if not effective_evidence_id and effective_history:
+            for turn in reversed(effective_history):
+                ev_match = re.search(r'(?:EVD-|evidence_id[:=]\s*|Evidence\s*#)(\d+)', turn.content, re.IGNORECASE)
+                if ev_match:
+                    try:
+                        effective_evidence_id = int(ev_match.group(1))
+                        logger.info(f"Resolved contextual evidence #{effective_evidence_id} from conversation history.")
+                        break
+                    except ValueError:
+                        pass
+
+        if effective_evidence_id:
             try:
-                db.execute("SELECT * FROM video_evidence WHERE evidence_id = %s;", (request.evidence_id,))
+                if current_user:
+                    user_id = current_user.get("user_id")
+                    is_admin = bool(current_user.get("role") == "admin")
+                    if is_admin:
+                        db.execute("SELECT * FROM video_evidence WHERE evidence_id = %s;", (effective_evidence_id,))
+                    else:
+                        db.execute(
+                            "SELECT * FROM video_evidence WHERE evidence_id = %s AND user_id = %s;",
+                            (effective_evidence_id, user_id)
+                        )
+                else:
+                    # Unauthenticated / guest session: allowed to access the specified evidence
+                    db.execute("SELECT * FROM video_evidence WHERE evidence_id = %s;", (effective_evidence_id,))
                 ev_row = db.fetchone()
                 if ev_row:
-                    evidence_title = f"Video Evidence #{request.evidence_id} ({ev_row['original_filename']})"
+                    evidence_title = f"Video Evidence #{effective_evidence_id} ({ev_row['original_filename']})"
 
-                    db.execute("SELECT * FROM video_visual_observations WHERE evidence_id = %s ORDER BY timestamp_seconds ASC;", (request.evidence_id,))
+                    db.execute("SELECT * FROM video_visual_observations WHERE evidence_id = %s ORDER BY timestamp_seconds ASC;", (effective_evidence_id,))
                     obs_rows = db.fetchall()
                     evidence_observations = [
                         {
@@ -379,7 +406,7 @@ class LegalAssistantService:
                         for o in obs_rows
                     ]
 
-                    db.execute("SELECT * FROM video_transcripts WHERE evidence_id = %s ORDER BY start_time ASC;", (request.evidence_id,))
+                    db.execute("SELECT * FROM video_transcripts WHERE evidence_id = %s ORDER BY start_time ASC;", (effective_evidence_id,))
                     tr_rows = db.fetchall()
                     evidence_transcripts = [
                         {
@@ -394,7 +421,7 @@ class LegalAssistantService:
 
                     # Build structured evidence context
                     lines = [
-                        f"=== VERIFIED DIGITAL VIDEO EVIDENCE CONTEXT (EVD-{request.evidence_id}) ===",
+                        f"=== VERIFIED DIGITAL VIDEO EVIDENCE CONTEXT (EVD-{effective_evidence_id}) ===",
                         f"File: {ev_row['original_filename']} | Duration: {float(ev_row.get('duration_seconds') or 0):.1f}s | SHA-256: {ev_row.get('file_hash_sha256')}",
                         f"Format: {str(ev_row.get('media_container', '')).upper()} | Resolution: {ev_row.get('resolution')} | Audio Present: {ev_row.get('has_audio')}",
                         "\n--- OBSERVED VISUAL EVENTS (SAMPLED FRAMES) ---"
@@ -423,8 +450,13 @@ class LegalAssistantService:
                     lines.append("[End of Video Evidence Context]\n")
 
                     evidence_context_text = "\n".join(lines)
+
+                    # Enrich contextualized query for video inquiry
+                    if any(k in clean_message.lower() for k in ["video", "recording", "what happened", "00:", "timestamp", "clip", "evidence", "explain", "who is", "incident"]):
+                        contextualized_query += " Section 63 Bharatiya Sakshya Adhiniyam electronic evidence"
+
             except Exception as e:
-                logger.warning(f"Could not load evidence context for evidence_id={request.evidence_id}: {e}")
+                logger.warning(f"Could not load evidence context for evidence_id={effective_evidence_id}: {e}")
 
         # Combine document / evidence context
         effective_doc_text = request.document_text or ""
@@ -485,8 +517,8 @@ class LegalAssistantService:
             sources=rag_response.sources,
             retrieved_sections=rag_response.retrieved_sections,
             retrieval_metadata=rag_response.retrieval_metadata,
-            evidence_id=request.evidence_id,
-            evidence_observations=evidence_observations,
-            evidence_transcripts=evidence_transcripts,
+            evidence_id=effective_evidence_id if evidence_context_text else None,
+            evidence_observations=evidence_observations if evidence_context_text else None,
+            evidence_transcripts=evidence_transcripts if evidence_context_text else None,
             disclaimer=cls.DEFAULT_DISCLAIMER
         )

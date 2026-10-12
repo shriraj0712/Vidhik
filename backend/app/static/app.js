@@ -379,6 +379,7 @@ const App = {
     document.getElementById('form-link-provision')?.addEventListener('submit', (e) => this.submitLinkProvision(e));
     document.getElementById('form-edit-profile')?.addEventListener('submit', (e) => this.submitEditProfile(e));
     document.getElementById('form-citizen-profile')?.addEventListener('submit', (e) => this.submitCitizenProfile(e));
+    document.getElementById('form-update-court-reference')?.addEventListener('submit', (e) => this.submitUpdateCourtReference(e));
     document.getElementById('research-search-form')?.addEventListener('submit', (e) => {
       e.preventDefault();
       this.handleLegalSearch();
@@ -1545,6 +1546,7 @@ const App = {
       opposite_party: document.getElementById('m-case-opposite').value || null,
       filing_date: document.getElementById('m-case-filing-date').value || null,
       case_description: document.getElementById('m-case-description').value || null,
+      cnr_number: document.getElementById('m-case-cnr')?.value.trim() || null,
       status: 'active'
     };
 
@@ -1591,6 +1593,32 @@ const App = {
       document.getElementById('cd-incident-date').innerText = data.incident_date || 'N/A';
       document.getElementById('cd-location').innerText = data.location || 'N/A';
       document.getElementById('cd-police-station').innerText = data.police_station || 'N/A';
+
+      // Official Court Reference (eCourts)
+      const cnrVal = data.cnr_number || (data.court_reference ? data.court_reference.cnr_number : null);
+      const courtSrc = data.court_source || (data.court_reference ? data.court_reference.court_source : 'eCourts India (services.ecourts.gov.in)');
+      const extStatus = data.external_status || (data.court_reference ? data.court_reference.external_status : null);
+      const extHearing = data.external_next_hearing_date || (data.court_reference ? data.court_reference.external_next_hearing_date : null);
+      const lastVer = data.last_verified_at || (data.court_reference ? data.court_reference.last_verified_at : null);
+
+      const elCnr = document.getElementById('cd-cnr-number');
+      if (elCnr) elCnr.innerText = cnrVal || 'Not Linked';
+      const elSrc = document.getElementById('cd-court-source');
+      if (elSrc) elSrc.innerText = courtSrc || 'eCourts India (services.ecourts.gov.in)';
+      const elExtSt = document.getElementById('cd-external-status');
+      if (elExtSt) elExtSt.innerText = extStatus || 'Unverified / Self-reported';
+      const elExtH = document.getElementById('cd-external-hearing-date');
+      if (elExtH) elExtH.innerText = extHearing || 'None Scheduled';
+      const elLastV = document.getElementById('cd-last-verified-at');
+      if (elLastV) elLastV.innerText = lastVer ? new Date(lastVer).toLocaleString() : 'Never';
+
+      this.currentCaseCourtReference = {
+        cnr_number: cnrVal,
+        court_source: courtSrc,
+        external_status: extStatus,
+        external_next_hearing_date: extHearing,
+        official_case_url: data.official_case_url || (data.court_reference ? data.court_reference.official_case_url : null)
+      };
 
       // Updates Timeline
       const tList = document.getElementById('cd-timeline-list');
@@ -3957,6 +3985,32 @@ const App = {
       document.getElementById('c-detail-incident-date').innerText = c.incident_date || 'N/A';
       document.getElementById('c-detail-police').innerText = `${c.police_station || ''} ${c.location ? `(${c.location})` : ''}`.trim() || 'N/A';
 
+      // Official Court Reference (eCourts)
+      const cnrVal = c.cnr_number || (c.court_reference ? c.court_reference.cnr_number : null);
+      const courtSrc = c.court_source || (c.court_reference ? c.court_reference.court_source : 'eCourts India (services.ecourts.gov.in)');
+      const extStatus = c.external_status || (c.court_reference ? c.court_reference.external_status : null);
+      const extHearing = c.external_next_hearing_date || (c.court_reference ? c.court_reference.external_next_hearing_date : null);
+      const lastVer = c.last_verified_at || (c.court_reference ? c.court_reference.last_verified_at : null);
+
+      const elCnr = document.getElementById('c-detail-cnr');
+      if (elCnr) elCnr.innerText = cnrVal || 'Not Linked';
+      const elSrc = document.getElementById('c-detail-court-source');
+      if (elSrc) elSrc.innerText = courtSrc || 'eCourts India (services.ecourts.gov.in)';
+      const elExtSt = document.getElementById('c-detail-external-status');
+      if (elExtSt) elExtSt.innerText = extStatus || 'Unverified / Self-reported';
+      const elExtH = document.getElementById('c-detail-external-hearing-date');
+      if (elExtH) elExtH.innerText = extHearing || 'None Scheduled';
+      const elLastV = document.getElementById('c-detail-last-verified-at');
+      if (elLastV) elLastV.innerText = lastVer ? new Date(lastVer).toLocaleString() : 'Never';
+
+      this.currentCitizenCaseCourtReference = {
+        cnr_number: cnrVal,
+        court_source: courtSrc,
+        external_status: extStatus,
+        external_next_hearing_date: extHearing,
+        official_case_url: c.official_case_url || (c.court_reference ? c.court_reference.official_case_url : null)
+      };
+
       // Save current case detail for document lookup
       this.currentCaseDetail = c;
 
@@ -4084,7 +4138,8 @@ const App = {
       incident_date: document.getElementById('m-c-case-incident-date').value || null,
       police_station: document.getElementById('m-c-case-police').value.trim() || null,
       location: document.getElementById('m-c-case-location').value.trim() || null,
-      description: document.getElementById('m-c-case-description').value.trim()
+      description: document.getElementById('m-c-case-description').value.trim(),
+      cnr_number: document.getElementById('m-c-case-cnr')?.value.trim() || null
     };
 
     try {
@@ -6253,18 +6308,65 @@ const App = {
     if (metaEl) metaEl.textContent = `Duration: ${dur} | Size: ${mb} | Format: ${(data.media_container || 'video').toUpperCase()}`;
     if (hashEl) hashEl.textContent = `SHA-256: ${data.file_hash_sha256 ? data.file_hash_sha256.substring(0, 24) + '...' : 'Calculating...'}`;
 
+    const status = data.processing_status || 'queued';
     if (badgeEl) {
-      badgeEl.textContent = (data.processing_status || 'queued').toUpperCase();
-      if (data.processing_status === 'completed') {
+      badgeEl.textContent = status.replace('_', ' ').toUpperCase();
+      if (status === 'completed') {
         badgeEl.style.background = 'rgba(16, 185, 129, 0.15)';
         badgeEl.style.color = 'var(--accent-emerald)';
-      } else if (data.processing_status === 'failed') {
+      } else if (status === 'partially_completed') {
+        badgeEl.style.background = 'rgba(245, 158, 11, 0.15)';
+        badgeEl.style.color = 'var(--accent-amber)';
+      } else if (status === 'failed') {
         badgeEl.style.background = 'rgba(239, 68, 68, 0.15)';
         badgeEl.style.color = 'var(--accent-rose)';
       } else {
         badgeEl.style.background = 'rgba(99, 102, 241, 0.15)';
         badgeEl.style.color = 'var(--accent-primary)';
       }
+    }
+
+    // Dynamic actions container inside active card
+    let actionsContainer = document.getElementById('ai-active-ev-actions');
+    if (!actionsContainer) {
+      actionsContainer = document.createElement('div');
+      actionsContainer.id = 'ai-active-ev-actions';
+      actionsContainer.className = 'evidence-quick-actions';
+      card.appendChild(actionsContainer);
+    }
+
+    const evId = data.evidence_id || this.activeEvidenceId;
+    if (status === 'completed' || status === 'partially_completed') {
+      actionsContainer.innerHTML = `
+        <button type="button" class="evidence-quick-btn" onclick="App.askAiAboutEvidence('Provide a comprehensive legal summary of this video recording, key visible parties, and timeline.')">
+          🔍 Summarize Video
+        </button>
+        <button type="button" class="evidence-quick-btn" onclick="App.askAiAboutEvidence('Detail all observed actions across sampled timestamps in this video evidence.')">
+          ⏱️ Key Timestamps
+        </button>
+        <button type="button" class="evidence-quick-btn" onclick="App.askAiAboutEvidence('Evaluate the admissibility of this electronic video evidence under Section 63 of Bharatiya Sakshya Adhiniyam, 2023.')">
+          ⚖️ BSA Sec 63 Admissibility
+        </button>
+        <button type="button" class="evidence-quick-btn" onclick="App.downloadActiveEvidenceReport()" style="color: var(--accent-emerald); border-color: rgba(16, 185, 129, 0.3);">
+          📥 Word Report (.docx)
+        </button>
+      `;
+    } else if (status === 'failed') {
+      const errMsg = this.escape(data.error_message || 'Video analysis encountered an error.');
+      actionsContainer.innerHTML = `
+        <div style="width: 100%; font-size: 11.5px; color: var(--accent-rose); margin-bottom: 6px;">
+          ⚠️ ${errMsg}
+        </div>
+        <button type="button" class="evidence-quick-btn" onclick="App.retryEvidenceProcessing(${evId})" style="color: var(--accent-primary); border-color: var(--accent-primary);">
+          🔄 Retry Processing
+        </button>
+      `;
+    } else {
+      actionsContainer.innerHTML = `
+        <span style="font-size: 11.5px; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px;">
+          ⚙️ Processing pipeline: Audio Extraction ➔ Speech Transcription ➔ Visual Frame Analysis...
+        </span>
+      `;
     }
   },
 
@@ -6314,6 +6416,33 @@ const App = {
     poll(); // Initial call
   },
 
+  async retryEvidenceProcessing(evidenceId) {
+    const id = evidenceId || this.activeEvidenceId;
+    if (!id) return;
+    try {
+      this.showToast('Re-queuing video evidence processing...', 'info');
+      const progressWrap = document.getElementById('ai-video-progress-wrap');
+      const progressLabel = document.getElementById('ai-video-progress-label');
+      if (progressWrap) progressWrap.style.display = 'block';
+      if (progressLabel) progressLabel.textContent = 'Retrying evidence processing...';
+
+      await this.api(`/api/evidence/${id}/retry`, 'POST');
+      this.showToast('Evidence processing re-queued successfully.', 'success');
+      this.startEvidencePolling(id);
+    } catch (err) {
+      console.error('Evidence retry error:', err);
+      this.showToast('Failed to retry evidence processing: ' + (err.message || 'Unknown error'), 'error');
+    }
+  },
+
+  askAiAboutEvidence(promptText) {
+    const input = document.getElementById('ai-chat-input');
+    if (input) {
+      input.value = promptText;
+      input.focus();
+    }
+  },
+
   downloadActiveEvidenceReport() {
     if (!this.activeEvidenceId) {
       this.showToast('No active video evidence loaded.', 'warning');
@@ -6337,6 +6466,14 @@ const App = {
       const sec = Math.floor(seconds % 60);
       const formatted = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
       input.value = `Explain what happens at ${formatted} in the video evidence.`;
+      input.focus();
+    }
+  },
+
+  jumpToEvidenceTimestampFormatted(timeFormatted) {
+    const input = document.getElementById('ai-chat-input');
+    if (input) {
+      input.value = `Explain what happens at ${timeFormatted} in the video evidence.`;
       input.focus();
     }
   },
@@ -6465,6 +6602,14 @@ const App = {
       const aiCard = document.createElement('div');
       aiCard.className = 'chat-msg-assistant';
 
+      const msgId = 'ai-msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6);
+      this.aiMessages = this.aiMessages || {};
+      this.aiMessages[msgId] = {
+        answer: res.answer,
+        message: message,
+        res: res
+      };
+
       const groundingBadgeText = res.is_grounded ? '✓ Grounded in Indian Law' : 'Informational Notice';
       const groundingColor = res.is_grounded ? 'var(--accent-emerald)' : 'var(--accent-amber)';
 
@@ -6489,7 +6634,7 @@ const App = {
               <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
                 <strong>Sampled Frame Observations:</strong>
                 <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;">
-                  ${obs.slice(0, 4).map(o => `
+                  ${obs.slice(0, 5).map(o => `
                     <div style="display: flex; align-items: baseline; gap: 6px;">
                       <button type="button" class="timestamp-jump-btn" onclick="App.jumpToEvidenceTimestamp(${o.timestamp_seconds})">
                         ⏱️ ${this.escape(o.time_formatted || '00:00')}
@@ -6504,7 +6649,7 @@ const App = {
               <div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
                 <strong>Transcript Segments:</strong>
                 <div style="display: flex; flex-direction: column; gap: 3px; margin-top: 3px;">
-                  ${trans.slice(0, 3).map(t => `
+                  ${trans.slice(0, 4).map(t => `
                     <div style="display: flex; align-items: baseline; gap: 6px;">
                       <span class="badge" style="font-size: 10px;">${this.escape(t.time_formatted || '00:00')}</span>
                       <span>"${this.escape(t.text)}"${t.speaker ? ` (${this.escape(t.speaker)})` : ''}</span>
@@ -6567,7 +6712,7 @@ const App = {
 
         ${evidenceCardHtml}
 
-        <div style="white-space: pre-wrap; font-size: 15px; line-height: 1.75; color: var(--text-primary);">
+        <div class="ai-response-body">
           ${this.formatLegalMarkdown(res.answer)}
         </div>
 
@@ -6579,27 +6724,29 @@ const App = {
         </div>
 
         <div style="margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end;">
-          <button type="button" class="btn btn-secondary btn-sm" onclick="App.copyText('${this.escapeForJs(res.answer)}')">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.copyAiMessage('${msgId}')">
             📋 Copy Answer
           </button>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="App.toggleSpeakText('${this.escapeForJs(res.answer)}', this)">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.speakAiMessage('${msgId}', this)">
             🔊 Listen
           </button>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="App.prefillComplaintFromAi('${this.escapeForJs(message)}')">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.prefillComplaintFromMsgId('${msgId}')">
             📝 Draft Complaint
           </button>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="App.prefillResolutionFromAi('${this.escapeForJs(message)}')">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.prefillResolutionFromMsgId('${msgId}')">
             ⚖️ Evaluate Dispute
           </button>
         </div>
       `;
 
       thread.appendChild(aiCard);
-      thread.scrollTop = thread.scrollHeight;
+      setTimeout(() => {
+        aiCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
 
       // In continuous voice mode: speak answer automatically and resume listening
       if (this.isContinuousVoiceActive) {
-        this.toggleSpeakText(res.answer, null);
+        this.speakAiMessage(msgId, null);
       }
 
     } catch (err) {
@@ -6621,20 +6768,128 @@ const App = {
         </button>
       `;
       thread.appendChild(errCard);
-      thread.scrollTop = thread.scrollHeight;
+      setTimeout(() => {
+        errCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
     }
   },
 
-  formatLegalMarkdown(text) {
-    if (!text) return '';
-    let escaped = this.escape(text);
-    // Bold **text**
-    escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    // Bullet points
-    escaped = escaped.replace(/^\s*[-•]\s+(.*)$/gm, '<li style="margin-left: 20px;">$1</li>');
-    // Numbered points
-    escaped = escaped.replace(/^\s*(\d+)\.\s+(.*)$/gm, '<li style="margin-left: 20px;"><strong>$1.</strong> $2</li>');
-    return escaped;
+  formatLegalMarkdown(rawText) {
+    if (!rawText) return '';
+    let text = String(rawText);
+
+    // 1. Extract fenced code blocks
+    const codeBlocks = [];
+    text = text.replace(/```([a-zA-Z0-9_-]*)\n?([\s\S]*?)```/g, (match, lang, code) => {
+      const idx = codeBlocks.length;
+      codeBlocks.push(`<pre class="legal-code-block"><code>${this.escape(code.trim())}</code></pre>`);
+      return `\n\n__CODE_BLOCK_${idx}__\n\n`;
+    });
+
+    // 2. Escape general HTML entities to prevent XSS
+    text = this.escape(text);
+
+    // 3. Inline code
+    text = text.replace(/`([^`\n]+)`/g, '<code class="inline-code">$1</code>');
+
+    // 4. Bold and Italic formatting
+    text = text.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+
+    // 5. Headings
+    text = text.replace(/^###\s+(.*)$/gm, '<h4 class="ai-heading-3">$1</h4>');
+    text = text.replace(/^##\s+(.*)$/gm, '<h3 class="ai-heading-2">$1</h3>');
+    text = text.replace(/^#\s+(.*)$/gm, '<h2 class="ai-heading-1">$1</h2>');
+
+    // 6. Blockquotes
+    text = text.replace(/^>\s+(.*)$/gm, '<blockquote class="ai-blockquote">$1</blockquote>');
+
+    // 7. Interactive Timestamp Chips: ⏱️ 00:12, [00:12], (00:12), etc.
+    text = text.replace(/(?:⏱️\s*|\[|\()(\d{1,2}:\d{2})(?:\]|\))?/g, (match, timeStr) => {
+      return `<button type="button" class="timestamp-jump-btn" onclick="App.jumpToEvidenceTimestampFormatted('${timeStr}')" title="Ask assistant about timestamp ${timeStr}">⏱️ ${timeStr}</button>`;
+    });
+
+    // 8. Process lists & paragraphs
+    const lines = text.split('\n');
+    const out = [];
+    let inUl = false;
+    let inOl = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const trimmed = line.trim();
+
+      // Check unordered list item
+      const ulMatch = line.match(/^\s*[-•*]\s+(.*)$/);
+      if (ulMatch) {
+        if (inOl) { out.push('</ol>'); inOl = false; }
+        if (!inUl) { out.push('<ul class="ai-list">'); inUl = true; }
+        out.push(`<li>${ulMatch[1]}</li>`);
+        continue;
+      }
+
+      // Check ordered list item
+      const olMatch = line.match(/^\s*(\d+)\.\s+(.*)$/);
+      if (olMatch) {
+        if (inUl) { out.push('</ul>'); inUl = false; }
+        if (!inOl) { out.push('<ol class="ai-list-ol">'); inOl = true; }
+        out.push(`<li>${olMatch[2]}</li>`);
+        continue;
+      }
+
+      // Non-list line: close any open list tags
+      if (inUl) { out.push('</ul>'); inUl = false; }
+      if (inOl) { out.push('</ol>'); inOl = false; }
+
+      if (!trimmed) {
+        continue;
+      }
+
+      // If heading, blockquote, or placeholder, add directly
+      if (trimmed.startsWith('<h2') || trimmed.startsWith('<h3') || trimmed.startsWith('<h4') ||
+          trimmed.startsWith('<blockquote') || trimmed.startsWith('__CODE_BLOCK_')) {
+        out.push(trimmed);
+      } else {
+        out.push(`<p class="ai-p">${trimmed}</p>`);
+      }
+    }
+
+    if (inUl) out.push('</ul>');
+    if (inOl) out.push('</ol>');
+
+    let result = out.join('\n');
+
+    // 9. Restore code blocks
+    for (let idx = 0; idx < codeBlocks.length; idx++) {
+      result = result.replace(`__CODE_BLOCK_${idx}__`, codeBlocks[idx]);
+    }
+
+    return result;
+  },
+
+  copyAiMessage(msgId) {
+    if (this.aiMessages && this.aiMessages[msgId]) {
+      this.copyText(this.aiMessages[msgId].answer);
+    }
+  },
+
+  speakAiMessage(msgId, btnElement) {
+    if (this.aiMessages && this.aiMessages[msgId]) {
+      this.toggleSpeakText(this.aiMessages[msgId].answer, btnElement);
+    }
+  },
+
+  prefillComplaintFromMsgId(msgId) {
+    if (this.aiMessages && this.aiMessages[msgId]) {
+      this.prefillComplaintFromAi(this.aiMessages[msgId].message || this.aiMessages[msgId].answer);
+    }
+  },
+
+  prefillResolutionFromMsgId(msgId) {
+    if (this.aiMessages && this.aiMessages[msgId]) {
+      this.prefillResolutionFromAi(this.aiMessages[msgId].message || this.aiMessages[msgId].answer);
+    }
   },
 
   escapeForJs(str) {
@@ -7808,11 +8063,13 @@ const App = {
   // =============================================================
   loadCaseTrackingModule() {
     const cnrInput = document.getElementById('track-cnr-input');
-    if (cnrInput && !cnrInput.value) {
-      cnrInput.value = 'MHPU01-004523-2024';
+    if (cnrInput) {
+      const activeCnr = (this.currentCaseCourtReference && this.currentCaseCourtReference.cnr_number) ||
+                        (this.currentCitizenCaseCourtReference && this.currentCitizenCaseCourtReference.cnr_number);
+      if (activeCnr && !cnrInput.value) {
+        cnrInput.value = activeCnr;
+      }
     }
-    // Auto-search default demo CNR
-    this.handleTrackCnrSubmit(new Event('submit'));
   },
 
   switchTrackingMode(mode) {
@@ -7824,190 +8081,194 @@ const App = {
 
   handleTrackCnrSubmit(e) {
     if (e && e.preventDefault) e.preventDefault();
-    const cnr = document.getElementById('track-cnr-input')?.value.trim();
-    if (!cnr) {
+    const rawCnr = document.getElementById('track-cnr-input')?.value;
+    if (!rawCnr || !rawCnr.trim()) {
       this.showToast('Please enter a 16-character CNR number.', 'error');
       return;
     }
-    this.renderCaseTrackingResult({
-      cnr: cnr,
-      case_type: 'Special Civil Suit (SCS)',
-      case_number: '4523 / 2024',
-      filing_date: '14-03-2024',
-      registration_date: '18-03-2024',
-      court_name: 'Court of Civil Judge Senior Division, Pune',
-      court_hall: 'Court Hall No. 04',
-      presiding_judge: 'Shri A. S. Kulkarni, CJSD',
-      status: 'Hearing Scheduled',
-      next_hearing_date: '28-10-2026',
-      hearing_purpose: 'Arguments on Application for Interim Injunction (Order 39 Rule 1 CPC)',
-      petitioner: 'Sunita Sharma & Anr.',
-      petitioner_advocate: 'Adv. Rajesh Deshmukh',
-      respondent: 'Municipal Corporation of Pune & 2 Ors.',
-      respondent_advocate: 'Adv. P. M. Gokhale (Standing Counsel)',
-      stages: [
-        { name: 'Filing', status: 'completed' },
-        { name: 'Scrutiny', status: 'completed' },
-        { name: 'Summons', status: 'completed' },
-        { name: 'Written Statement', status: 'completed' },
-        { name: 'Interim Hearing', status: 'current' },
-        { name: 'Evidence', status: 'pending' },
-        { name: 'Arguments', status: 'pending' },
-        { name: 'Judgment', status: 'pending' }
-      ],
-      history: [
-        { date: '18-03-2024', purpose: 'Case Registration & Scrutiny', order: 'Plaint admitted. Issue notice to defendants returnable by 22-04-2024.' },
-        { date: '22-04-2024', purpose: 'Appearance of Defendants', order: 'Adv. Gokhale filed appearance memo for D-1. Granted 30 days for Written Statement.' },
-        { date: '28-06-2024', purpose: 'Filing of Written Statement', order: 'WS taken on record. Matter posted for arguments on interim injunction application.' },
-        { date: '12-09-2024', purpose: 'Hearing on Interim Relief', order: 'Part-heard. Adjourned for concluding arguments.' }
-      ]
-    });
-  },
+    const cleanCnr = rawCnr.replace(/[\s\-_]/g, '').toUpperCase();
+    const cnrRegex = /^[A-Z]{4}[0-9]{8}[0-9]{4}$/;
+    if (!cnrRegex.test(cleanCnr)) {
+      this.showToast('Invalid CNR format. Must be 16 alphanumeric characters (e.g. MHPU010045232024).', 'error');
+      return;
+    }
 
-  handleTrackDetailsSubmit(e) {
-    if (e && e.preventDefault) e.preventDefault();
-    const court = document.getElementById('track-court-name')?.value || 'District Court, Pune';
-    const ctype = document.getElementById('track-case-type')?.value || 'Regular Civil Suit';
-    const cnum = document.getElementById('track-case-num')?.value || '1042';
-    const cyear = document.getElementById('track-case-year')?.value || '2024';
+    const stateCode = cleanCnr.substring(0, 2);
+    const courtCode = cleanCnr.substring(2, 6);
+    const caseNumber = cleanCnr.substring(6, 12);
+    const filingYear = cleanCnr.substring(12, 16);
 
-    this.renderCaseTrackingResult({
-      cnr: `MHPU01-${cnum.padStart(6, '0')}-${cyear}`,
-      case_type: ctype,
-      case_number: `${cnum} / ${cyear}`,
-      filing_date: `10-01-${cyear}`,
-      registration_date: `14-01-${cyear}`,
-      court_name: court,
-      court_hall: 'Court Hall No. 02',
-      presiding_judge: 'Judicial Magistrate First Class, Pune',
-      status: 'Active Proceedings',
-      next_hearing_date: '04-11-2026',
-      hearing_purpose: 'Framing of Issues / Charges',
-      petitioner: 'State of Maharashtra',
-      petitioner_advocate: 'Public Prosecutor',
-      respondent: 'Accused Person',
-      respondent_advocate: 'Adv. Vikramaditya Shinde',
-      stages: [
-        { name: 'Filing', status: 'completed' },
-        { name: 'Registration', status: 'completed' },
-        { name: 'Process', status: 'completed' },
-        { name: 'Framing Issues', status: 'current' },
-        { name: 'Evidence', status: 'pending' },
-        { name: 'Judgment', status: 'pending' }
-      ],
-      history: [
-        { date: `14-01-${cyear}`, purpose: 'Registration', order: 'Matter registered on file.' },
-        { date: `20-04-${cyear}`, purpose: 'Appearance', order: 'Bail bond furnished and accepted.' }
-      ]
-    });
-  },
-
-  renderCaseTrackingResult(data) {
     const container = document.getElementById('case-tracking-result-card');
     if (!container) return;
 
     container.innerHTML = `
       <div class="card" style="border-left: 4px solid var(--accent-primary); padding: 28px; margin-bottom: 24px;">
-        
-        <!-- Header Row -->
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px;">
           <div>
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-              <span class="badge" style="background: rgba(2, 132, 199, 0.15); color: var(--accent-cyan); font-family: monospace; font-size: 13px; font-weight: 700;">CNR: ${this.escape(data.cnr)}</span>
-              <span class="badge badge-active">${this.escape(data.status)}</span>
+              <span class="badge" style="background: rgba(2, 132, 199, 0.15); color: var(--accent-cyan); font-family: monospace; font-size: 14px; font-weight: 700;">CNR: ${this.escape(cleanCnr)}</span>
+              <span class="badge badge-completed">Valid Format</span>
             </div>
-            <h3 style="font-size: 19px; font-weight: 700; color: var(--text-primary); margin-top: 6px;">
-              ${this.escape(data.case_type)} — No. ${this.escape(data.case_number)}
+            <h3 style="font-size: 18px; font-weight: 700; color: var(--text-primary); margin-top: 6px;">
+              Official eCourts National Judicial Data Grid (NJDG) Reference
             </h3>
-            <div style="font-size: 13.5px; color: var(--text-secondary); margin-top: 2px;">
-              🏛️ ${this.escape(data.court_name)} • ${this.escape(data.court_hall)} • ${this.escape(data.presiding_judge)}
+            <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">
+              State Code: <strong>${this.escape(stateCode)}</strong> • Court Code: <strong>${this.escape(courtCode)}</strong> • Filing: <strong>${parseInt(caseNumber, 10)} / ${this.escape(filingYear)}</strong>
             </div>
-          </div>
-          <div style="text-align: right;">
-            <div style="font-size: 12px; color: var(--text-muted);">Filed on: <strong style="color: var(--text-secondary);">${this.escape(data.filing_date)}</strong></div>
-            <div style="font-size: 12px; color: var(--text-muted);">Registered on: <strong style="color: var(--text-secondary);">${this.escape(data.registration_date)}</strong></div>
           </div>
         </div>
 
-        <!-- Next Hearing Highlight Box -->
-        <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: var(--radius-sm); padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-          <div>
-            <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--accent-primary); letter-spacing: 0.06em;">Next Court Hearing:</div>
-            <div style="font-size: 22px; font-weight: 800; color: var(--text-primary); margin-top: 2px;">
-              📅 ${this.escape(data.next_hearing_date)}
-            </div>
-            <div style="font-size: 14px; color: var(--text-secondary); margin-top: 4px;">
-              <strong>Purpose:</strong> ${this.escape(data.hearing_purpose)}
-            </div>
+        <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: var(--radius-sm); padding: 16px 20px; margin-bottom: 20px;">
+          <div style="font-weight: 700; color: var(--accent-primary); font-size: 14px; margin-bottom: 6px;">
+            ℹ️ Authoritative Portal Verification
           </div>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="App.showToast('Reminder added to calendar for ${this.escape(data.next_hearing_date)}', 'success')">
-            🔔 Set Hearing Reminder
+          <p style="font-size: 13px; color: var(--text-secondary); margin: 0; line-height: 1.5;">
+            In compliance with Supreme Court e-Committee data policies and National Judicial Data Grid security protocols, official real-time case proceedings and certified cause lists must be verified directly on the eCourts Services portal. Click below to copy this validated CNR and launch the official verification screen.
+          </p>
+        </div>
+
+        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+          <button type="button" class="btn btn-primary" onclick="App.openOfficialECourtsLookup('${this.escape(cleanCnr)}')">
+            🏛️ Copy CNR & Launch Official eCourts Portal ↗
           </button>
+          ${this.currentCaseId ? `
+            <button type="button" class="btn btn-secondary" onclick="App.openUpdateCourtReferenceModal(${this.authMode === 'citizen'})">
+              📝 Save Verified Details to Current Matter
+            </button>
+          ` : ''}
         </div>
-
-        <!-- Parties Information -->
-        <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
-          <div style="background: var(--bg-elevated); padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
-            <div style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.04em;">Petitioner / Complainant</div>
-            <div style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-top: 4px;">${this.escape(data.petitioner)}</div>
-            <div style="font-size: 13px; color: var(--accent-primary); font-weight: 500; margin-top: 4px;">Advocate: ${this.escape(data.petitioner_advocate)}</div>
-          </div>
-          <div style="background: var(--bg-elevated); padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
-            <div style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.04em;">Respondent / Accused</div>
-            <div style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-top: 4px;">${this.escape(data.respondent)}</div>
-            <div style="font-size: 13px; color: var(--accent-primary); font-weight: 500; margin-top: 4px;">Advocate: ${this.escape(data.respondent_advocate)}</div>
-          </div>
-        </div>
-
-        <!-- Case Lifecycle Progress Track -->
-        <div style="margin-bottom: 24px;">
-          <div style="font-size: 12.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 10px;">Case Lifecycle Progress</div>
-          <div class="case-progress-track">
-            ${data.stages.map((st, i) => `
-              <div class="case-stage-node ${st.status}">
-                <div class="stage-dot">${st.status === 'completed' ? '✓' : (i + 1)}</div>
-                <span>${this.escape(st.name)}</span>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-
-        <!-- Business Transacted / Hearing History Table -->
-        <div style="margin-bottom: 20px;">
-          <div style="font-size: 12.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 10px;">Hearing History & Daily Business</div>
-          <div class="table-responsive" style="width: 100%; overflow-x: auto; margin-bottom: 12px;">
-            <table style="width: 100%; min-width: 500px; border-collapse: collapse; font-size: 13.5px;">
-              <thead>
-                <tr style="background: var(--bg-elevated); border-bottom: 2px solid var(--border-subtle);">
-                  <th style="padding: 10px 14px; text-align: left; color: var(--text-primary);">Hearing Date</th>
-                  <th style="padding: 10px 14px; text-align: left; color: var(--text-primary);">Business Transacted</th>
-                  <th style="padding: 10px 14px; text-align: left; color: var(--text-primary);">Order / Direction</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${data.history.map(h => `
-                  <tr style="border-bottom: 1px solid var(--border-subtle);">
-                    <td style="padding: 10px 14px; font-weight: 600; white-space: nowrap; color: var(--text-primary);">${this.escape(h.date)}</td>
-                    <td style="padding: 10px 14px; color: var(--text-primary);">${this.escape(h.purpose)}</td>
-                    <td style="padding: 10px 14px; color: var(--text-secondary);">${this.escape(h.order)}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Official External eCourts Action Button -->
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-          <span style="font-size: 11.5px; color: var(--text-muted);">Synced from National Judicial Data Grid (NJDG) Standards</span>
-          <a href="https://services.ecourts.gov.in" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">
-            🏛️ Verify on Official eCourts Portal (services.ecourts.gov.in) ↗
-          </a>
-        </div>
-
       </div>
     `;
     this.applyLocalization(container);
+  },
+
+  handleTrackDetailsSubmit(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const court = document.getElementById('track-court-name')?.value || 'District Court';
+    const ctype = document.getElementById('track-case-type')?.value || 'Case Type';
+    const cnum = document.getElementById('track-case-num')?.value || '';
+    const cyear = document.getElementById('track-case-year')?.value || '';
+
+    const container = document.getElementById('case-tracking-result-card');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="card" style="border-left: 4px solid var(--accent-cyan); padding: 24px; margin-bottom: 24px;">
+        <h3 style="font-size: 17px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">
+          Case Details Search: ${this.escape(court)}
+        </h3>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+          Matter: <strong>${this.escape(ctype)} ${this.escape(cnum)} / ${this.escape(cyear)}</strong>. Official search is performed on the designated District / High Court portal.
+        </p>
+        <button type="button" class="btn btn-primary btn-sm" onclick="App.openOfficialECourtsLookup('')">
+          🏛️ Open Official Court Search Portal ↗
+        </button>
+      </div>
+    `;
+    this.applyLocalization(container);
+  },
+
+  openOfficialECourtsLookup(cnrOverride) {
+    let cnr = cnrOverride;
+    if (!cnr) {
+      const refData = this.isEditingCitizenCourtRef ? this.currentCitizenCaseCourtReference : this.currentCaseCourtReference;
+      cnr = (refData && refData.cnr_number) ? refData.cnr_number : (document.getElementById('track-cnr-input')?.value.trim() || '');
+    }
+
+    const officialUrl = 'https://services.ecourts.gov.in/ecourtindia_v6/';
+
+    if (cnr) {
+      const cleanCnr = cnr.replace(/[\s\-_]/g, '').toUpperCase();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(cleanCnr).then(() => {
+          this.showToast(`CNR (${cleanCnr}) copied to clipboard. Redirecting to official eCourts Services portal...`, 'info');
+        }).catch(() => {
+          this.showToast('Redirecting to official eCourts Services portal...', 'info');
+        });
+      } else {
+        this.showToast('Redirecting to official eCourts Services portal...', 'info');
+      }
+    } else {
+      this.showToast('Opening official eCourts Services portal...', 'info');
+    }
+
+    window.open(officialUrl, '_blank', 'noopener,noreferrer');
+  },
+
+  openUpdateCourtReferenceModal(isCitizen = false) {
+    this.isEditingCitizenCourtRef = isCitizen;
+    const refData = isCitizen ? this.currentCitizenCaseCourtReference : this.currentCaseCourtReference;
+    const cnrInput = document.getElementById('m-ref-cnr');
+    const statusInput = document.getElementById('m-ref-status');
+    const dateInput = document.getElementById('m-ref-hearing-date');
+    const syncCheckbox = document.getElementById('m-ref-sync-reminder');
+
+    if (cnrInput) cnrInput.value = (refData && refData.cnr_number) ? refData.cnr_number : '';
+    if (statusInput) statusInput.value = (refData && refData.external_status) ? refData.external_status : '';
+    if (dateInput) dateInput.value = (refData && refData.external_next_hearing_date) ? refData.external_next_hearing_date : '';
+    if (syncCheckbox) syncCheckbox.checked = true;
+
+    document.getElementById('modal-update-court-reference')?.classList.add('active');
+  },
+
+  async submitUpdateCourtReference(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const caseId = this.currentCaseId;
+    if (!caseId) {
+      this.showToast('No active case selected.', 'error');
+      return;
+    }
+
+    const cnr = document.getElementById('m-ref-cnr')?.value.trim() || null;
+    const status = document.getElementById('m-ref-status')?.value.trim() || null;
+    const hearingDate = document.getElementById('m-ref-hearing-date')?.value || null;
+    const syncReminder = document.getElementById('m-ref-sync-reminder')?.checked ?? true;
+
+    if (cnr) {
+      const cleanCnr = cnr.replace(/[\s\-_]/g, '').toUpperCase();
+      const cnrRegex = /^[A-Z]{4}[0-9]{8}[0-9]{4}$/;
+      if (!cnrRegex.test(cleanCnr)) {
+        this.showToast('Invalid CNR format. Must be 16 alphanumeric characters (e.g. MHPU010045232024).', 'error');
+        return;
+      }
+    }
+
+    const payload = {
+      cnr_number: cnr,
+      external_status: status,
+      external_next_hearing_date: hearingDate,
+      sync_hearing_reminder: syncReminder
+    };
+
+    const submitBtn = e?.target?.querySelector ? e.target.querySelector('button[type="submit"]') : null;
+    const origBtnText = submitBtn ? submitBtn.innerText : '';
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Saving...';
+    }
+
+    try {
+      const endpoint = this.isEditingCitizenCourtRef
+        ? `/api/citizen/cases/${caseId}/court-reference`
+        : `/api/lawyer/cases/${caseId}/court-reference`;
+
+      await this.api(endpoint, 'PATCH', payload);
+      this.showToast('Official court reference saved successfully!', 'success');
+      this.closeModals();
+
+      if (this.isEditingCitizenCourtRef) {
+        await this.loadCitizenCaseDetail(caseId);
+      } else {
+        await this.openCaseDetail(caseId);
+      }
+    } catch (err) {
+      this.showToast('Failed to update court reference: ' + err.message, 'error');
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerText = origBtnText;
+      }
+    }
   },
 
   // =============================================================

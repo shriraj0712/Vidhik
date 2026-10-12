@@ -671,6 +671,17 @@ def get_authenticated_user(
                     pass
 
         # Return standardized session payload
+        # Resolve lawyer_id from JWT claims or lookup by user_id in lawyers table
+        resolved_lawyer_id = jwt_payload.get("lawyer_id")
+        if resolved_lawyer_id is None and user_row["role"] == "lawyer":
+            try:
+                db.execute("SELECT lawyer_id FROM lawyers WHERE user_id = %s;", (user_row["user_id"],))
+                l_row = db.fetchone()
+                if l_row:
+                    resolved_lawyer_id = l_row["lawyer_id"]
+            except Exception:
+                pass
+
         return {
             "user_id": user_row["user_id"],
             "username": user_row["username"],
@@ -678,7 +689,7 @@ def get_authenticated_user(
             "full_name": user_row["full_name"],
             "phone": user_row["phone"],
             "role": user_row["role"],
-            "lawyer_id": jwt_payload.get("lawyer_id") or (1 if user_row["role"] == "lawyer" else None),
+            "lawyer_id": resolved_lawyer_id,
             "is_active": user_row["is_active"],
             "token": token
         }

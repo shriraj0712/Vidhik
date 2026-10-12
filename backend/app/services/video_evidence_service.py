@@ -304,7 +304,192 @@ class VideoEvidenceService:
             })
 
         cap.release()
+
+        # Attempt semantic visual intelligence if external multimodal vision provider is configured
+        gemini_api_key = os.getenv("GEMINI_API_KEY") or os.getenv("LLM_API_KEY")
+        openai_api_key = os.getenv("OPENAI_API_KEY")
+        if (gemini_api_key or openai_api_key) and observations:
+            try:
+                cls._enrich_observations_with_multimodal_vision(
+                    observations=observations,
+                    gemini_api_key=gemini_api_key,
+                    openai_api_key=openai_api_key
+                )
+            except Exception as e:
+                logger.warning(f"Semantic visual analysis failed or unavailable: {e}")
+        elif observations:
+            # Explicitly annotate that automated semantic visual AI is unconfigured
+            for o in observations:
+                lim = o.get("uncertainty_or_limitation") or ""
+                if "Automated semantic visual AI not configured" not in lim:
+                    o["uncertainty_or_limitation"] = (lim + "; " if lim else "") + "Automated semantic visual AI not configured (API credentials absent); physical metrics and frame thumbnail preserved for manual review."
+
         return observations
+
+    @classmethod
+    def _enrich_observations_with_multimodal_vision(
+        cls,
+        observations: List[Dict[str, Any]],
+        gemini_api_key: Optional[str] = None,
+        openai_api_key: Optional[str] = None
+    ) -> None:
+        """
+        Enriches OpenCV sampled frame records with genuine multimodal vision analysis
+        (Gemini Vision or OpenAI Vision) for semantic scene understanding under BSA 2023.
+        """
+        import base64
+        import urllib.request
+        import urllib.error
+
+        # Select up to 4 key representative frames across the video
+        if not observations:
+            return
+
+        stride = max(1, len(observations) // 4)
+        sample_indices = list(range(0, len(observations), stride))[:4]
+        if (len(observations) - 1) not in sample_indices:
+            sample_indices.append(len(observations) - 1)
+
+        key_frames = [observations[i] for i in sample_indices]
+
+        # 1. Try Gemini Vision if api key present
+        if gemini_api_key:
+            model = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={gemini_api_key}"
+
+            parts: List[Dict[str, Any]] = [
+                {
+                    "text": (
+                        "You are VIDHIK AI's objective forensic visual evidence inspector under the Bharatiya Sakshya Adhiniyam, 2023. "
+                        "Analyze these timestamped frames sampled from a video recording. "
+                        "For each frame, describe ONLY what is directly, objectively visible: "
+                        "the setting/surroundings, visible persons, visible objects, visible movements/actions, visible signage/text, "
+                        "and any visible physical surface marks. "
+                        "Do not speculate on legal guilt, inner intentions, psychological states, or unobserved events. "
+                        "Output strictly a JSON list of objects: "
+                        "[{\"timestamp_seconds\": float, \"category\": \"observation\", \"description\": \"Short summary\", "
+                        "\"neutral_observation\": \"Detailed objective description\", \"visible_physical_marks\": null, "
+                        "\"uncertainty_or_limitation\": \"Lighting or blur note or null\", \"confidence\": 0.9}]."
+                    )
+                }
+            ]
+
+            for kf in key_frames:
+                frame_ref = kf.get("frame_reference")
+                if frame_ref:
+                    frame_path = STORAGE_BASE / frame_ref
+                    if frame_path.exists():
+                        with open(frame_path, "rb") as img_f:
+                            b64_img = base64.b64encode(img_f.read()).decode("utf-8")
+                        parts.append({"text": f"Frame at timestamp {kf['timestamp_seconds']}s:"})
+                        parts.append({"inline_data": {"mime_type": "image/jpeg", "data": b64_img}})
+
+            payload = {
+                "contents": [{"role": "user", "parts": parts}],
+                "generationConfig": {"temperature": 0.1, "responseMimeType": "application/json"}
+            }
+
+            try:
+                req = urllib.request.Request(
+                    url,
+                    data=json.dumps(payload).encode("utf-8"),
+                    headers={"Content-Type": "application/json"}
+                )
+                with urllib.request.urlopen(req, timeout=30) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                    text_out = data["candidates"][0]["content"]["parts"][0]["text"]
+                    parsed = json.loads(text_out)
+                    if isinstance(parsed, list):
+                        obs_by_time = {round(float(item.get("timestamp_seconds", -1)), 1): item for item in parsed}
+                        for o in observations:
+                            t_key = round(float(o["timestamp_seconds"]), 1)
+                            # Match closest within 1.0s
+                            match = obs_by_time.get(t_key)
+                            if not match:
+                                for mk, mv in obs_by_time.items():
+                                    if abs(mk - t_key) <= 1.0:
+                                        match = mv
+                                        break
+                            if match:
+                                if match.get("neutral_observation"):
+                                    o["neutral_observation"] = match["neutral_observation"]
+                                if match.get("description"):
+                                    o["description"] = match["description"]
+                                if match.get("category"):
+                                    o["category"] = match["category"]
+                                if match.get("visible_physical_marks"):
+                                    o["visible_physical_marks"] = match["visible_physical_marks"]
+                                if match.get("uncertainty_or_limitation"):
+                                    o["uncertainty_or_limitation"] = match["uncertainty_or_limitation"]
+                                if match.get("confidence"):
+                                    o["confidence"] = float(match["confidence"])
+                        return
+            except Exception as e:
+                logger.warning(f"Gemini vision call failed: {e}")
+
+        # 2. Try OpenAI Vision if api key present
+        if openai_api_key:
+            model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+            url = f"{os.getenv('OPENAI_BASE_URL', 'https://api.openai.com/v1').rstrip('/')}/chat/completions"
+
+            content_parts: List[Dict[str, Any]] = [
+                {
+                    "type": "text",
+                    "text": (
+                        "You are VIDHIK AI's objective forensic visual evidence inspector under the Bharatiya Sakshya Adhiniyam, 2023. "
+                        "Analyze these timestamped frames from a video. "
+                        "Output strictly a JSON list of objects: "
+                        "[{\"timestamp_seconds\": float, \"category\": \"observation\", \"description\": \"Short summary\", "
+                        "\"neutral_observation\": \"Detailed objective description\", \"visible_physical_marks\": null, "
+                        "\"uncertainty_or_limitation\": null, \"confidence\": 0.9}]."
+                    )
+                }
+            ]
+
+            for kf in key_frames:
+                frame_ref = kf.get("frame_reference")
+                if frame_ref:
+                    frame_path = STORAGE_BASE / frame_ref
+                    if frame_path.exists():
+                        with open(frame_path, "rb") as img_f:
+                            b64_img = base64.b64encode(img_f.read()).decode("utf-8")
+                        content_parts.append({"type": "text", "text": f"Frame timestamp {kf['timestamp_seconds']}s:"})
+                        content_parts.append({"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64_img}"}})
+
+            payload = {
+                "model": model,
+                "messages": [{"role": "user", "content": content_parts}],
+                "temperature": 0.1,
+                "response_format": {"type": "json_object"}
+            }
+
+            try:
+                req = urllib.request.Request(
+                    url,
+                    data=json.dumps(payload).encode("utf-8"),
+                    headers={"Content-Type": "application/json", "Authorization": f"Bearer {openai_api_key}"}
+                )
+                with urllib.request.urlopen(req, timeout=30) as resp:
+                    res_data = json.loads(resp.read().decode("utf-8"))
+                    raw_content = res_data["choices"][0]["message"]["content"]
+                    parsed = json.loads(raw_content)
+                    items = parsed.get("frames", parsed.get("observations", parsed if isinstance(parsed, list) else []))
+                    if isinstance(items, list):
+                        obs_by_time = {round(float(item.get("timestamp_seconds", -1)), 1): item for item in items}
+                        for o in observations:
+                            t_key = round(float(o["timestamp_seconds"]), 1)
+                            match = obs_by_time.get(t_key)
+                            if match:
+                                if match.get("neutral_observation"):
+                                    o["neutral_observation"] = match["neutral_observation"]
+                                if match.get("description"):
+                                    o["description"] = match["description"]
+                                if match.get("visible_physical_marks"):
+                                    o["visible_physical_marks"] = match["visible_physical_marks"]
+                                if match.get("uncertainty_or_limitation"):
+                                    o["uncertainty_or_limitation"] = match["uncertainty_or_limitation"]
+            except Exception as e:
+                logger.warning(f"OpenAI vision call failed: {e}")
 
     # -------------------------------------------------------------
     # 5. MACHINE TRANSCRIPTION (REAL RECOGNITION OR UNAVAILABLE STATE)
@@ -324,7 +509,7 @@ class VideoEvidenceService:
             (transcript_segments, transcript_status, notes)
         """
         if not audio_path.exists() or audio_path.stat().st_size < 1024:
-            return [], "no_audio", "No audio stream available in recorded file."
+            return [], "no_audio", "Video recording contains no audio stream."
 
         gemini_api_key = os.getenv("GEMINI_API_KEY") or os.getenv("LLM_API_KEY")
         openai_api_key = os.getenv("OPENAI_API_KEY")
@@ -332,8 +517,6 @@ class VideoEvidenceService:
         # Provider 1: Gemini Multimodal Audio Transcription
         if gemini_api_key:
             try:
-                # Transcribe via Gemini audio upload or raw bytes prompt
-                # If API call succeeds, parse JSON segments
                 segments = cls._transcribe_with_gemini(audio_path, gemini_api_key)
                 if segments:
                     return segments, "completed", None
@@ -359,15 +542,23 @@ class VideoEvidenceService:
 
     @classmethod
     def _transcribe_with_gemini(cls, audio_path: Path, api_key: str) -> List[Dict[str, Any]]:
-        """Transcribes audio using Google Gemini multimodal REST endpoint."""
+        """Transcribes audio using Google Gemini multimodal REST endpoint with fallback."""
         import base64
         import urllib.request
+        import urllib.error
 
         with open(audio_path, "rb") as f:
             audio_bytes = f.read()
 
         b64_audio = base64.b64encode(audio_bytes).decode("utf-8")
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+        models_to_try = [
+            os.getenv("GEMINI_MODEL", "gemini-1.5-flash"),
+            "gemini-1.5-flash",
+            "gemini-2.0-flash"
+        ]
+        # Deduplicate while preserving order
+        seen = set()
+        models = [m for m in models_to_try if not (m in seen or seen.add(m))]
 
         prompt = (
             "Listen to this audio track and generate a strict verbatim transcription with timestamps. "
@@ -393,28 +584,37 @@ class VideoEvidenceService:
             "generationConfig": {"temperature": 0.1, "responseMimeType": "application/json"}
         }
 
-        req = urllib.request.Request(
-            url,
-            data=json.dumps(payload).encode("utf-8"),
-            headers={"Content-Type": "application/json"}
-        )
+        for model in models:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+            req = urllib.request.Request(
+                url,
+                data=json.dumps(payload).encode("utf-8"),
+                headers={"Content-Type": "application/json"}
+            )
+            try:
+                with urllib.request.urlopen(req, timeout=45) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                    text_out = data["candidates"][0]["content"]["parts"][0]["text"]
+                    parsed = json.loads(text_out)
+                    if isinstance(parsed, list):
+                        res: List[Dict[str, Any]] = []
+                        for idx, item in enumerate(parsed):
+                            res.append({
+                                "segment_index": idx + 1,
+                                "start_time": float(item.get("start_time", 0.0)),
+                                "end_time": float(item.get("end_time", 0.0)),
+                                "text": str(item.get("text", "")).strip(),
+                                "speaker": item.get("speaker"),
+                                "confidence": 0.92
+                            })
+                        return res
+            except urllib.error.HTTPError as e:
+                logger.warning(f"Gemini speech model {model} returned HTTP {e.code}, attempting next...")
+                continue
+            except Exception as e:
+                logger.warning(f"Gemini speech recognition failed on {model}: {e}")
+                break
 
-        with urllib.request.urlopen(req, timeout=45) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            text_out = data["candidates"][0]["content"]["parts"][0]["text"]
-            parsed = json.loads(text_out)
-            if isinstance(parsed, list):
-                res: List[Dict[str, Any]] = []
-                for idx, item in enumerate(parsed):
-                    res.append({
-                        "segment_index": idx + 1,
-                        "start_time": float(item.get("start_time", 0.0)),
-                        "end_time": float(item.get("end_time", 0.0)),
-                        "text": str(item.get("text", "")).strip(),
-                        "speaker": item.get("speaker"),
-                        "confidence": 0.92
-                    })
-                return res
         return []
 
     @classmethod

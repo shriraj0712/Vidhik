@@ -117,6 +117,16 @@ class OfflineMockLLMProvider(BaseLLMProvider):
             re.DOTALL
         )
 
+        # Specialized synthesis for verified digital video evidence
+        if "VERIFIED DIGITAL VIDEO EVIDENCE CONTEXT" in doc_text:
+            return self._generate_video_evidence_synthesis(
+                q=q,
+                lang=lang,
+                doc_title=doc_title,
+                doc_text=doc_text,
+                prov_blocks=prov_blocks
+            )
+
         if not prov_blocks:
             return (
                 "[DETERMINISTIC FALLBACK SYNTHESIS - TEST/OFFLINE MODE]\n\n"
@@ -293,10 +303,132 @@ class OfflineMockLLMProvider(BaseLLMProvider):
         lines.append("\n---\n*Note: Compiled by the Vidhik offline deterministic synthesis fallback engine grounded in statutory records.* [DETERMINISTIC FALLBACK SYNTHESIS - TEST/OFFLINE MODE]")
         return "\n".join(lines)
 
+    def _generate_video_evidence_synthesis(
+        self,
+        q: str,
+        lang: str,
+        doc_title: str,
+        doc_text: str,
+        prov_blocks: list
+    ) -> str:
+        """
+        Synthesizes a grounded, objective legal analysis for verified digital video evidence
+        under the Bharatiya Sakshya Adhiniyam, 2023, BNSS 2023, and BNS 2023.
+        """
+        # 1. Parse file details
+        meta_match = re.search(r"File:\s*(.*?)\s*\|\s*Duration:\s*(.*?)\s*\|\s*SHA-256:\s*(.*?)\n", doc_text)
+        filename = meta_match.group(1).strip() if meta_match else "recording.mp4"
+        duration = meta_match.group(2).strip() if meta_match else "N/A"
+        sha256 = meta_match.group(3).strip() if meta_match else "N/A"
+
+        # 2. Extract observed visual events
+        observations = []
+        obs_matches = re.finditer(r"-\s*\[(\d{1,2}:\d{2})\]\s*(.*?)(?=\n-|\n---|\n===|\Z)", doc_text, re.DOTALL)
+        for m in obs_matches:
+            ts_str = m.group(1)
+            content = m.group(2).strip()
+            mark_match = re.search(r"\*\s*Observable Mark:\s*(.*)", content)
+            mark = mark_match.group(1).strip() if mark_match else None
+            obs_text = content.split("* Observable Mark:")[0].strip()
+            observations.append({"time": ts_str, "text": obs_text, "mark": mark})
+
+        # 3. Extract transcripts
+        transcripts = []
+        tr_matches = re.finditer(r"-\s*\[(\d{1,2}:\d{2})\]\s*\"(.*?)\"(?:\s*\((.*?)\))?", doc_text)
+        for tm in tr_matches:
+            transcripts.append({
+                "time": tm.group(1),
+                "text": tm.group(2),
+                "speaker": tm.group(3)
+            })
+
+        # Check if user asked about a specific timestamp, e.g. 00:12 or 00:35
+        ts_query_match = re.search(r"(\d{1,2}:\d{2})", q)
+        target_ts = ts_query_match.group(1) if ts_query_match else None
+
+        lines = []
+
+        # --- SECTION 1: DIRECT ANSWER FIRST ---
+        lines.append("### Direct Answer (Video Evidence Assessment)")
+        if target_ts:
+            matching_obs = [o for o in observations if o["time"] == target_ts or abs(int(o["time"].split(":")[0])*60 + int(o["time"].split(":")[1]) - (int(target_ts.split(":")[0])*60 + int(target_ts.split(":")[1]))) <= 2]
+            matching_tr = [t for t in transcripts if t["time"] == target_ts or abs(int(t["time"].split(":")[0])*60 + int(t["time"].split(":")[1]) - (int(target_ts.split(":")[0])*60 + int(target_ts.split(":")[1]))) <= 2]
+            if matching_obs or matching_tr:
+                lines.append(f"At timestamp **[{target_ts}]** in the uploaded video (*{filename}*):")
+                for mo in matching_obs:
+                    lines.append(f"- **Visual Observation:** {mo['text']}")
+                    if mo.get("mark"):
+                        lines.append(f"- **Observable Surface Artifact:** {mo['mark']}")
+                for mt in matching_tr:
+                    spk_text = f" ({mt['speaker']})" if mt.get("speaker") else ""
+                    lines.append(f"- **Spoken Statement (Transcript):** \"{mt['text']}\"{spk_text}")
+            else:
+                lines.append(f"At requested timestamp **[{target_ts}]**, no abrupt scene change or spoken statement was recorded; the video maintains chronological continuity with observations recorded at: {', '.join('[' + o['time'] + ']' for o in observations[:3])}.")
+        else:
+            lines.append(
+                f"Based on the verified digital recording (*{filename}*, duration {duration}, SHA-256 `{sha256[:16]}...`), "
+                f"the footage documents {len(observations)} sampled visual frame events and {len(transcripts)} transcribed speech segments. "
+                f"Under Indian Evidence Law, this electronic recording provides objective contemporaneous evidence of the recorded scene and speech."
+            )
+
+        # --- SECTION 2: CHRONOLOGICAL EVIDENCE TIMELINE ---
+        lines.append("\n### Chronological Evidence Timeline (Audio & Visual)")
+        if observations or transcripts:
+            combined_timeline = []
+            for o in observations:
+                parts = o["time"].split(":")
+                sec = int(parts[0]) * 60 + int(parts[1])
+                combined_timeline.append((sec, f"- **[{o['time']}] Visual Event:** {o['text']}"))
+                if o.get("mark"):
+                    combined_timeline.append((sec + 0.1, f"  * *Visible Surface Mark:* {o['mark']}"))
+            for t in transcripts:
+                parts = t["time"].split(":")
+                sec = int(parts[0]) * 60 + int(parts[1])
+                spk = f" ({t['speaker']})" if t.get("speaker") else ""
+                combined_timeline.append((sec, f"- **[{t['time']}] Spoken Transcript:** \"{t['text']}\"{spk}"))
+            combined_timeline.sort(key=lambda x: x[0])
+            for _, item_str in combined_timeline:
+                lines.append(item_str)
+        else:
+            lines.append("No specific frame events or spoken transcripts isolated.")
+
+        # --- SECTION 3: GOVERNING INDIAN LEGAL PROVISIONS ---
+        lines.append("\n### Applicable Indian Statutory Provisions")
+        lines.append("- **Bharatiya Sakshya Adhiniyam, 2023 (BSA) — Section 63:** Governs admissibility of electronic records and digital video recordings in Indian courts. Mandates production of original device or an electronic record certificate signed by the lawful custodian (formerly Sec 65B of Indian Evidence Act, 1872).")
+        lines.append("- **Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS) — Section 173:** Registration of First Information Report (FIR) for cognizable offences. Mandates police recording of information and supports electronic transmission with signature provided within three days.")
+        if any(o.get("mark") for o in observations):
+            lines.append("- **Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS) — Section 51 & 53:** Mandatory medical examination of injured victims by a registered medical practitioner to establish independent forensic corroboration of physical marks.")
+
+        # If penal provisions were retrieved in prov_blocks, list them
+        if prov_blocks:
+            for act, jur, prov, title, text in prov_blocks[:2]:
+                act_clean = act.strip()
+                prov_clean = prov.strip().split(" [Source:")[0].strip()
+                title_clean = f" — {title.strip()}" if title else ""
+                lines.append(f"- **{act_clean} — {prov_clean}{title_clean}:** {' '.join(text.strip().split())[:180]}...")
+
+        # --- SECTION 4: EVIDENTIARY CONDITIONS & SAFEGUARDS ---
+        lines.append("\n### Evidentiary Conditions & Custody Safeguards")
+        lines.append("- **Zero Alteration Principle:** Do not edit, trim, filter, or re-encode the original video file. Any modification alters the SHA-256 hash fingerprint, jeopardizing Section 63 BSA compliance.")
+        lines.append("- **Separation of Fact from Allegation:** Video footage records visible movements and audible statements, but does not prove subjective intent, guilt, or identity of unknown participants without corroborative evidence.")
+        lines.append("- **Non-Diagnostic Notice:** Observable surface artifacts or skin marks are noted neutrally as optical phenomena and do not constitute a medical forensic diagnosis.")
+
+        # --- SECTION 5: ACTIONABLE NEXT STEPS ---
+        lines.append("\n### Actionable Next Steps")
+        lines.append("1. **Preserve Original Hardware:** Retain the smartphone, camera, or SD card on which this recording was captured.")
+        lines.append("2. **Prepare Section 63 BSA Certificate:** Draft the required certificate stating the device make, model, custody, and hash value.")
+        lines.append("3. **Lodge Formal Complaint / FIR:** Submit a written complaint under BNSS Section 173 to the jurisdictional police station or online police portal.")
+        if any(o.get("mark") for o in observations):
+            lines.append("4. **Undergo Medical Examination:** Visit a government or registered hospital immediately to document injuries under Medico-Legal Case (MLC) protocol.")
+        lines.append("5. **Engage an Advocate:** Consult a qualified legal practitioner to submit this evidence formally before court.")
+
+        lines.append("\n---\n*Note: Compiled by the Vidhik offline deterministic synthesis fallback engine grounded in statutory records.* [DETERMINISTIC FALLBACK SYNTHESIS - TEST/OFFLINE MODE]")
+        return "\n".join(lines)
+
 
 class GeminiLLMProvider(BaseLLMProvider):
     """
-    Google Gemini API Provider using Gemini 2.5 Flash / Gemini 1.5.
+    Google Gemini API Provider using Gemini 1.5 / 2.0 Flash.
     Connects to the official Google Gemini REST API with zero external dependencies.
     """
 
@@ -306,7 +438,7 @@ class GeminiLLMProvider(BaseLLMProvider):
         model: Optional[str] = None
     ):
         self.api_key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("LLM_API_KEY") or ""
-        self.model = model or os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+        self.model = model or os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
 
     @property
     def provider_name(self) -> str:
@@ -323,10 +455,61 @@ class GeminiLLMProvider(BaseLLMProvider):
             logger.warning("Gemini API key missing. Falling back to offline deterministic fallback engine.")
             return OfflineMockLLMProvider().generate(prompt, system_instruction, temperature, max_output_tokens)
 
-        endpoint_url = (
-            f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
-            f"?key={self.api_key}"
-        )
+        # Try configured model, fallback to gemini-1.5-flash or gemini-2.0-flash on 404
+        models_to_try = [self.model, "gemini-1.5-flash", "gemini-2.0-flash"]
+        seen = set()
+        models = [m for m in models_to_try if not (m in seen or seen.add(m))]
+
+        payload = {
+            "system_instruction": {
+                "parts": [{"text": system_instruction}]
+            },
+            "contents": [
+                {
+                    "role": "user",
+                    "parts": [{"text": prompt}]
+                }
+            ],
+            "generationConfig": {
+                "temperature": temperature,
+                "maxOutputTokens": max_output_tokens,
+                "topP": 0.95
+            }
+        }
+
+        req_data = json.dumps(payload).encode("utf-8")
+
+        for m_name in models:
+            endpoint_url = (
+                f"https://generativelanguage.googleapis.com/v1beta/models/{m_name}:generateContent"
+                f"?key={self.api_key}"
+            )
+            req = urllib.request.Request(
+                endpoint_url,
+                data=req_data,
+                headers={"Content-Type": "application/json"}
+            )
+            try:
+                with urllib.request.urlopen(req, timeout=30) as resp:
+                    result = json.loads(resp.read().decode("utf-8"))
+                    candidates = result.get("candidates", [])
+                    if candidates and "content" in candidates[0]:
+                        parts = candidates[0]["content"].get("parts", [])
+                        if parts and "text" in parts[0]:
+                            return parts[0]["text"].strip()
+                    return "Unable to parse valid completion text from Gemini response."
+            except urllib.error.HTTPError as e:
+                if e.code == 404 and m_name != models[-1]:
+                    logger.warning(f"Gemini model {m_name} returned 404, falling back to next model...")
+                    continue
+                err_msg = e.read().decode("utf-8", errors="replace")
+                logger.error(f"Gemini API HTTP Error {e.code}: {err_msg}")
+                raise RuntimeError("Upstream Gemini API error encountered during legal synthesis.")
+            except Exception as e:
+                logger.error(f"Gemini API request failed: {e}", exc_info=True)
+                raise RuntimeError("Upstream Gemini API request failed.")
+
+        return "Unable to generate response from Gemini API."
 
         payload = {
             "system_instruction": {

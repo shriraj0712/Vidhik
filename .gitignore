@@ -46,3 +46,4 @@ temp/
 
 # Keep the video evidence database migration in version control
 !/database/migrations/010_video_evidence_analysis.sql
+!database/migrations/011_ecourts_case_tracking_schema.sql

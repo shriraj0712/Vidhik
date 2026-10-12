@@ -1,0 +1,12 @@
+﻿BEGIN;
+
+ALTER TABLE cases ADD COLUMN IF NOT EXISTS cnr_number VARCHAR(16);
+ALTER TABLE cases ADD COLUMN IF NOT EXISTS court_source VARCHAR(100) DEFAULT 'eCourts India';
+ALTER TABLE cases ADD COLUMN IF NOT EXISTS official_case_url TEXT;
+ALTER TABLE cases ADD COLUMN IF NOT EXISTS last_verified_at TIMESTAMP;
+ALTER TABLE cases ADD COLUMN IF NOT EXISTS external_status VARCHAR(150);
+ALTER TABLE cases ADD COLUMN IF NOT EXISTS external_next_hearing_date DATE;
+
+CREATE INDEX IF NOT EXISTS idx_cases_cnr_number ON cases(cnr_number);
+
+COMMIT;

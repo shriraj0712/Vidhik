@@ -371,3 +371,190 @@ def test_assistant_chat_with_evidence_id_integration():
     assert len(resp.evidence_transcripts) == 1
     assert "Step away" in resp.evidence_transcripts[0]["text"]
     assert resp.is_grounded is True
+    # Verify the answer synthesizes the video evidence observations
+    assert "00:12" in resp.answer or "Individual in blue shirt" in resp.answer
+
+
+def test_timestamp_specific_inquiry_synthesis():
+    """Validates that a direct question about timestamp 00:12 targets and synthesizes the exact observation."""
+    mock_db = MagicMock()
+    mock_db.fetchone.side_effect = [
+        {
+            "evidence_id": 92,
+            "original_filename": "traffic_stop.mp4",
+            "duration_seconds": 60.0,
+            "media_container": "mp4",
+            "resolution": "1920x1080",
+            "file_hash_sha256": "hash92",
+            "has_audio": True
+        },
+        {"total": 1}
+    ]
+
+    mock_db.fetchall.side_effect = [
+        [
+            {
+                "timestamp_seconds": 12.0,
+                "category": "movement",
+                "neutral_observation": "Driver shows vehicle documents on smartphone screen to officer.",
+                "visible_physical_marks": "None",
+                "uncertainty_or_limitation": "Clear daylight"
+            },
+            {
+                "timestamp_seconds": 35.0,
+                "category": "action",
+                "neutral_observation": "Officer inspects digital document and nods.",
+                "visible_physical_marks": "None",
+                "uncertainty_or_limitation": "Clear daylight"
+            }
+        ],
+        [
+            {
+                "start_time": 11.0,
+                "end_time": 15.0,
+                "text": "Here is my mParivahan digital driving license, officer.",
+                "speaker": "Driver"
+            }
+        ],
+        [],
+        [
+            {
+                "section_id": 130,
+                "law_id": 5,
+                "law_name": "Motor Vehicles Act, 1988",
+                "short_name": "MVA",
+                "section_number": "130",
+                "section_title": "Duty to produce licence and certificate of registration",
+                "description": "Duty of driver of motor vehicle to produce licence on demand.",
+                "full_text": "Production of licence and certificates in digital form via Digilocker/mParivahan is valid.",
+                "section_uid": "mva-1988-sec-130",
+                "jurisdiction": "Central",
+                "source_pdf": "MVA.pdf",
+                "source_page_start": 20,
+                "source_page_end": 21,
+                "manual_review_required": False
+            }
+        ]
+    ]
+
+    req = AssistantChatRequest(
+        message="Explain what happens at 00:12 in the video evidence.",
+        evidence_id=92
+    )
+
+    resp = LegalAssistantService.chat(
+        db=mock_db,
+        request=req
+    )
+
+    assert resp.evidence_id == 92
+    assert resp.is_grounded is True
+    # The answer should explicitly highlight the 00:12 observation and transcript
+    assert "00:12" in resp.answer
+    assert "Driver" in resp.answer or "smartphone" in resp.answer
+
+
+def test_conversational_continuity_evidence_id_retention():
+    """Validates that a follow-up question in the same conversation retains the evidence_id context."""
+    mock_db = MagicMock()
+
+    def fake_execute(query, params=None):
+        mock_db._last_query = str(query)
+
+    def fake_fetchone():
+        q = getattr(mock_db, "_last_query", "")
+        if "video_evidence" in q:
+            return {
+                "evidence_id": 77,
+                "original_filename": "incident_77.mp4",
+                "duration_seconds": 30.0,
+                "media_container": "mp4",
+                "resolution": "1280x720",
+                "file_hash_sha256": "hash77",
+                "has_audio": False
+            }
+        return {"total": 1}
+
+    def fake_fetchall():
+        q = getattr(mock_db, "_last_query", "")
+        if "video_visual_observations" in q:
+            return [{"timestamp_seconds": 5.0, "category": "visual", "neutral_observation": "Shop shutter damaged.", "visible_physical_marks": "Dent", "uncertainty_or_limitation": "Low light"}]
+        if "video_transcripts" in q:
+            return []
+        if "lexicon" in q.lower():
+            return []
+        return [{"section_id": 425, "law_id": 1, "law_name": "BNS", "short_name": "BNS", "section_number": "324", "section_title": "Mischief", "description": "Damage to property", "full_text": "Mischief definition and penalty", "section_uid": "bns-324", "jurisdiction": "Central", "manual_review_required": False}]
+
+    mock_db.execute.side_effect = fake_execute
+    mock_db.fetchone.side_effect = fake_fetchone
+    mock_db.fetchall.side_effect = fake_fetchall
+
+    # Turn 1: with explicit evidence_id
+    req1 = AssistantChatRequest(
+        message="What happened in the video?",
+        evidence_id=77,
+        conversation_id="conv-ev-continuity-test"
+    )
+    resp1 = LegalAssistantService.chat(db=mock_db, request=req1)
+    assert resp1.evidence_id == 77
+
+    # Turn 2: WITHOUT evidence_id in request, but with conversation_id and history
+    req2 = AssistantChatRequest(
+        message="What steps should I take next based on this evidence?",
+        evidence_id=None,
+        conversation_id="conv-ev-continuity-test",
+        history=[
+            {"role": "user", "content": "What happened in the video?"},
+            {"role": "assistant", "content": "The video shows shop shutter damage at 00:05 (EVD-77)."}
+        ]
+    )
+    resp2 = LegalAssistantService.chat(db=mock_db, request=req2)
+    # The evidence_id must be resolved continuously from conversational history
+    assert resp2.evidence_id == 77
+
+
+def test_evidence_authorization_idor_prevention():
+    """Validates that a user cannot access another user's video evidence."""
+    mock_db = MagicMock()
+    # Database returns None because user_id does not match
+    mock_db.fetchone.return_value = None
+
+    req = AssistantChatRequest(
+        message="Summarize this private video",
+        evidence_id=999
+    )
+
+    resp = LegalAssistantService.chat(
+        db=mock_db,
+        request=req,
+        current_user={"user_id": 42, "role": "citizen"}
+    )
+
+    # Since user 42 doesn't own evidence 999, it should not inject unauthorized evidence
+    assert resp.evidence_id is None
+    assert resp.evidence_observations is None
+
+
+def test_retry_evidence_endpoint():
+    """Validates POST /api/evidence/{id}/retry marks status queued and re-dispatches."""
+    client = TestClient(app)
+
+    mock_db = MagicMock()
+    mock_db.fetchone.return_value = {
+        "evidence_id": 101,
+        "user_id": 1,
+        "processing_status": "failed",
+        "file_path": "some/path.mp4"
+    }
+
+    app.dependency_overrides[get_db] = lambda: mock_db
+    try:
+        with patch("app.routers.evidence._background_process_evidence") as mock_bg:
+            resp = client.post("/api/evidence/101/retry")
+            assert resp.status_code == 200
+            data = resp.json()
+            assert data["status"] == "queued"
+            assert data["evidence_id"] == 101
+    finally:
+        app.dependency_overrides.pop(get_db, None)
+

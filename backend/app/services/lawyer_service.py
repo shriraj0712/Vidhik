@@ -20,12 +20,18 @@ from psycopg2.extras import RealDictCursor
 from app.schemas.lawyer import (
     DashboardMetricsResponse,
     ClientCreate, ClientUpdate, ClientResponse, ClientListResponse,
-    CaseCreate, CaseUpdate, CaseSummaryResponse, CaseDetailResponse, CaseListResponse,
+    CaseCreate, CaseUpdate, CaseCourtReferenceUpdate, CaseSummaryResponse, CaseDetailResponse, CaseListResponse,
     HearingCreate, HearingUpdate, HearingResponse, HearingListResponse,
     DocumentCreate, DocumentResponse, DocumentListResponse,
     NoteCreate, NoteUpdate, NoteResponse,
     LawyerProfileResponse, LawyerProfileUpdate,
     CaseSectionLinkRequest, CaseSectionLinkResponse
+)
+from app.core.cnr_validator import (
+    validate_cnr,
+    normalize_cnr,
+    get_official_ecourts_portal_url,
+    validate_official_case_url
 )
 
 
@@ -272,9 +278,9 @@ class LawyerService:
             params.append(f"%{case_type.strip()}%")
 
         if search:
-            conditions.append("(c.case_title ILIKE %s OR c.case_number ILIKE %s OR u.full_name ILIKE %s OR c.court_name ILIKE %s)")
+            conditions.append("(c.case_title ILIKE %s OR c.case_number ILIKE %s OR u.full_name ILIKE %s OR c.court_name ILIKE %s OR c.cnr_number ILIKE %s)")
             pattern = f"%{search.strip()}%"
-            params.extend([pattern, pattern, pattern, pattern])
+            params.extend([pattern, pattern, pattern, pattern, pattern])
 
         where_clause = " WHERE " + " AND ".join(conditions)
 
@@ -283,7 +289,10 @@ class LawyerService:
                 c.case_id, c.user_id, c.assigned_lawyer_id,
                 c.case_title, c.case_number, c.case_type,
                 c.court_name, c.opposite_party, c.status,
-                c.filing_date, c.created_at, c.updated_at,
+                c.filing_date, c.cnr_number, c.court_source,
+                c.official_case_url, c.last_verified_at,
+                c.external_status, c.external_next_hearing_date,
+                c.created_at, c.updated_at,
                 u.full_name AS client_name, u.phone AS client_phone,
                 l.full_name AS lawyer_name
             FROM cases c
@@ -294,9 +303,21 @@ class LawyerService:
         """
         db.execute(query, tuple(params))
         rows = db.fetchall()
+        cases = []
+        for r in rows:
+            cd = dict(r)
+            cd["court_reference"] = {
+                "cnr_number": cd.get("cnr_number"),
+                "court_source": cd.get("court_source") or "eCourts India",
+                "official_case_url": cd.get("official_case_url"),
+                "last_verified_at": cd.get("last_verified_at"),
+                "external_status": cd.get("external_status"),
+                "external_next_hearing_date": cd.get("external_next_hearing_date")
+            }
+            cases.append(CaseSummaryResponse(**cd))
         return CaseListResponse(
             total=len(rows),
-            cases=[CaseSummaryResponse(**r) for r in rows]
+            cases=cases
         )
 
     @staticmethod
@@ -308,6 +329,8 @@ class LawyerService:
                 c.court_name, c.opposite_party, c.status,
                 c.filing_date, c.incident_date, c.location,
                 c.police_station, c.case_description,
+                c.cnr_number, c.court_source, c.official_case_url,
+                c.last_verified_at, c.external_status, c.external_next_hearing_date,
                 c.created_at, c.updated_at,
                 u.full_name AS client_name, u.phone AS client_phone, u.email AS client_email,
                 l.full_name AS lawyer_name
@@ -380,24 +403,75 @@ class LawyerService:
         case_data["legal_sections"] = [dict(ls) for ls in legal_sections]
         case_data["updates"] = [dict(u) for u in updates]
 
+        # Structured Official Court Reference Block
+        court_ref = {
+            "cnr_number": base.get("cnr_number"),
+            "court_source": base.get("court_source") or "eCourts India",
+            "official_case_url": base.get("official_case_url") or (get_official_ecourts_portal_url() if base.get("cnr_number") else None),
+            "last_verified_at": base.get("last_verified_at"),
+            "external_status": base.get("external_status"),
+            "external_next_hearing_date": base.get("external_next_hearing_date"),
+            "is_verified": base.get("last_verified_at") is not None,
+            "portal_url": get_official_ecourts_portal_url()
+        }
+        case_data["court_reference"] = court_ref
+
         return CaseDetailResponse(**case_data)
 
     @staticmethod
-    def create_case(db: RealDictCursor, lawyer_id: int, data: CaseCreate) -> CaseSummaryResponse:
+    def create_case(
+        db: RealDictCursor,
+        lawyer_id: int,
+        data: Optional[CaseCreate] = None,
+        payload: Optional[CaseCreate] = None
+    ) -> CaseSummaryResponse:
+        data = data or payload
+        if not data:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing case data.")
+
+        validated_cnr = None
+        if data.cnr_number and str(data.cnr_number).strip():
+            is_valid, normalized, err = validate_cnr(data.cnr_number)
+            if not is_valid:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=err or "Invalid CNR Number format."
+                )
+            validated_cnr = normalized
+
+        if data.official_case_url and str(data.official_case_url).strip():
+            is_valid_url, cleaned_url, url_err = validate_official_case_url(data.official_case_url)
+            if not is_valid_url:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=url_err or "Invalid official case URL."
+                )
+            official_url = cleaned_url
+        else:
+            official_url = get_official_ecourts_portal_url() if validated_cnr else None
+
+        court_src = data.court_source or "eCourts India"
+
         db.execute("""
             INSERT INTO cases (
                 user_id, assigned_lawyer_id, case_title, case_number, case_type,
                 court_name, opposite_party, status, filing_date, incident_date,
-                location, police_station, case_description
+                location, police_station, case_description,
+                cnr_number, court_source, official_case_url,
+                external_status, external_next_hearing_date
             ) VALUES (
                 %s, %s, %s, %s, %s,
                 %s, %s, %s, %s, %s,
-                %s, %s, %s
+                %s, %s, %s,
+                %s, %s, %s,
+                %s, %s
             ) RETURNING case_id, created_at, updated_at;
         """, (
             data.user_id, lawyer_id, data.case_title.strip(), data.case_number, data.case_type,
             data.court_name, data.opposite_party, data.status or 'active', data.filing_date, data.incident_date,
-            data.location, data.police_station, data.case_description
+            data.location, data.police_station, data.case_description,
+            validated_cnr, court_src, official_url,
+            data.external_status, data.external_next_hearing_date
         ))
         res = db.fetchone()
         if not res:
@@ -408,12 +482,35 @@ class LawyerService:
         case_id = res["case_id"]
 
         # Insert initial activity record
+        activity_msg = f"Case '{data.case_title}' opened in system."
+        if validated_cnr:
+            activity_msg += f" Linked with eCourts CNR: {validated_cnr}."
+
         db.execute("""
             INSERT INTO case_updates (case_id, update_type, update_title, update_description, status, updated_by)
             VALUES (%s, 'Creation', 'Case Initiated', %s, %s, 'Lawyer');
-        """, (case_id, f"Case '{data.case_title}' opened in system.", data.status or 'active'))
+        """, (case_id, activity_msg, data.status or 'active'))
 
-        db.connection.commit()
+        # If an official next hearing date is provided, create initial hearing reminder
+        if data.external_next_hearing_date:
+            db.execute("""
+                INSERT INTO reminders (
+                    case_id, user_id, lawyer_id, title, description, reminder_type,
+                    reminder_date, reminder_time, court_name, status, priority, notes
+                ) VALUES (
+                    %s, %s, %s, %s, %s, 'hearing',
+                    %s, '10:30:00', %s, 'scheduled', 'high', 'Initial court hearing date.'
+                );
+            """, (
+                case_id, data.user_id, lawyer_id,
+                f"Court Hearing: {data.case_title}",
+                f"Scheduled court appearance for case '{data.case_title}'.",
+                data.external_next_hearing_date,
+                data.court_name
+            ))
+
+        if hasattr(db, "connection") and db.connection:
+            db.connection.commit()
 
         # Return full summary
         return LawyerService.list_cases(db, lawyer_id, search=data.case_title).cases[0]
@@ -422,8 +519,32 @@ class LawyerService:
     def update_case(db: RealDictCursor, case_id: int, lawyer_id: int, data: CaseUpdate) -> Optional[CaseDetailResponse]:
         fields = []
         params = []
-        for key, val in data.model_dump(exclude_unset=True).items():
+        dumped = data.model_dump(exclude_unset=True)
+
+        for key, val in dumped.items():
             if val is not None:
+                if key == "cnr_number":
+                    if str(val).strip():
+                        is_valid, normalized, err = validate_cnr(val)
+                        if not is_valid:
+                            raise HTTPException(
+                                status_code=status.HTTP_400_BAD_REQUEST,
+                                detail=err or "Invalid CNR Number format."
+                            )
+                        val = normalized
+                    else:
+                        val = None
+                elif key == "official_case_url":
+                    if str(val).strip():
+                        is_valid_url, cleaned_url, url_err = validate_official_case_url(val)
+                        if not is_valid_url:
+                            raise HTTPException(
+                                status_code=status.HTTP_400_BAD_REQUEST,
+                                detail=url_err or "Invalid official case URL."
+                            )
+                        val = cleaned_url
+                    else:
+                        val = None
                 fields.append(f"{key} = %s")
                 params.append(val)
 
@@ -435,8 +556,167 @@ class LawyerService:
         sql = f"UPDATE cases SET {', '.join(fields)} WHERE case_id = %s AND assigned_lawyer_id = %s RETURNING case_id;"
         db.execute(sql, tuple(params))
         if db.fetchone():
-            db.connection.commit()
+            if hasattr(db, "connection") and db.connection:
+                db.connection.commit()
             return LawyerService.get_case_detail(db, case_id, lawyer_id)
+        return None
+
+    @staticmethod
+    def update_court_reference(
+        db: RealDictCursor,
+        case_id: int,
+        lawyer_id: int,
+        data: Optional[CaseCourtReferenceUpdate] = None,
+        payload: Optional[CaseCourtReferenceUpdate] = None
+    ) -> CaseDetailResponse:
+        """
+        Records user-verified official court reference information (CNR, official status, hearing date).
+        Strictly verifies that the case is assigned to the authenticated lawyer.
+        """
+        data = data or payload
+        if not data:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing court reference data.")
+
+        db.execute("""
+            SELECT case_id, user_id, case_title, court_name, cnr_number,
+                   court_source, official_case_url, external_status, external_next_hearing_date
+            FROM cases
+            WHERE case_id = %s AND assigned_lawyer_id = %s;
+        """, (case_id, lawyer_id))
+        c_row = db.fetchone()
+        if not c_row:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Case #{case_id} not found or not assigned to you."
+            )
+
+        # Validate CNR or preserve existing value if omitted
+        if data.cnr_number is not None:
+            raw_cnr = str(data.cnr_number).strip()
+            if raw_cnr:
+                is_valid, normalized, err = validate_cnr(raw_cnr)
+                if not is_valid:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=err or "Invalid CNR Number format."
+                    )
+                validated_cnr = normalized
+            else:
+                validated_cnr = None
+        else:
+            validated_cnr = c_row.get("cnr_number")
+
+        court_src = data.court_source if data.court_source is not None else (c_row.get("court_source") or "eCourts India")
+
+        if data.official_case_url is not None:
+            raw_url = str(data.official_case_url).strip()
+            if raw_url:
+                is_valid_url, cleaned_url, url_err = validate_official_case_url(raw_url)
+                if not is_valid_url:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=url_err or "Invalid official case URL."
+                    )
+                official_url = cleaned_url
+            else:
+                official_url = None
+        else:
+            official_url = c_row.get("official_case_url") or (get_official_ecourts_portal_url() if validated_cnr else None)
+
+        ext_status = data.external_status if data.external_status is not None else c_row.get("external_status")
+        ext_hearing_date = data.external_next_hearing_date if data.external_next_hearing_date is not None else c_row.get("external_next_hearing_date")
+
+        now = datetime.now()
+
+        try:
+            # Update official reference columns
+            db.execute("""
+                UPDATE cases
+                SET cnr_number = %s,
+                    court_source = %s,
+                    official_case_url = %s,
+                    last_verified_at = %s,
+                    external_status = %s,
+                    external_next_hearing_date = %s,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE case_id = %s AND assigned_lawyer_id = %s
+                RETURNING case_id;
+            """, (
+                validated_cnr, court_src, official_url, now,
+                ext_status, ext_hearing_date,
+                case_id, lawyer_id
+            ))
+
+            # Record audit update in case_updates
+            desc = f"Verified on official eCourts portal: CNR {validated_cnr or 'N/A'}"
+            if ext_status:
+                desc += f", Stage: {ext_status}"
+            if ext_hearing_date:
+                desc += f", Next Hearing: {ext_hearing_date}"
+
+            db.execute("""
+                INSERT INTO case_updates (
+                    case_id, update_type, update_title, update_description, status, updated_by
+                ) VALUES (
+                    %s, 'Court Reference Update', 'Official Court Reference Verified', %s, 'active', 'Lawyer'
+                );
+            """, (case_id, desc))
+
+            # Synchronize hearing reminder if requested
+            if data.sync_hearing_reminder and ext_hearing_date:
+                db.execute("""
+                    SELECT reminder_id FROM reminders
+                    WHERE case_id = %s AND reminder_date = %s AND reminder_type = 'hearing';
+                """, (case_id, ext_hearing_date))
+                existing_hearing = db.fetchone()
+
+                if not existing_hearing:
+                    db.execute("""
+                        INSERT INTO reminders (
+                            case_id, user_id, lawyer_id, title, description, reminder_type,
+                            reminder_date, reminder_time, court_name, status, priority, notes
+                        ) VALUES (
+                            %s, %s, %s, %s, %s, 'hearing',
+                            %s, '10:30:00', %s, 'scheduled', 'high', 'Synchronized from verified eCourts record.'
+                        );
+                    """, (
+                        case_id, c_row["user_id"], lawyer_id,
+                        f"Official Hearing: {ext_status or 'Court Listing'}",
+                        f"Verified hearing for case '{c_row['case_title']}'.",
+                        ext_hearing_date,
+                        c_row.get("court_name")
+                    ))
+
+            # Notification to client
+            if c_row.get("user_id"):
+                db.execute("""
+                    INSERT INTO notifications (
+                        user_id, title, message, notification_type
+                    ) VALUES (
+                        %s, 'Court Reference Updated by Counsel',
+                        %s, 'case_update'
+                    );
+                """, (
+                    c_row["user_id"],
+                    f"Counsel updated verified court reference for '{c_row['case_title']}' (CNR: {validated_cnr or 'N/A'})."
+                ))
+
+            if hasattr(db, "connection") and db.connection:
+                db.connection.commit()
+
+        except Exception as exc:
+            if hasattr(db, "connection") and db.connection:
+                try:
+                    db.connection.rollback()
+                except Exception:
+                    pass
+            raise exc
+
+        detail = LawyerService.get_case_detail(db, case_id, lawyer_id)
+        if not detail:
+            raise HTTPException(status_code=500, detail="Failed to retrieve updated case.")
+        return detail
+
         return None
 
     # -------------------------------------------------------------
