@@ -210,4 +210,19 @@ __all__ = [
     "AuthorityRecommendationResponse",
     "VoiceTranscriptionRequest",
     "VoiceTranscriptionResponse"
+    "TranscriptSegment",
+    "VisualObservation",
+    "EvidenceReportSummary",
+    "EvidenceUploadResponse",
+    "EvidenceDetailResponse",
+    "EvidenceListResponse"
 ]
+
+from .evidence import (
+    TranscriptSegment,
+    VisualObservation,
+    EvidenceReportSummary,
+    EvidenceUploadResponse,
+    EvidenceDetailResponse,
+    EvidenceListResponse
+)

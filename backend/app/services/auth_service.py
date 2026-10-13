@@ -1048,32 +1048,30 @@ class AuthService:
 
         expire_dt = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
-        # 4. Save session to database
-        db.execute("""
-            INSERT INTO login_sessions (
-                user_id, session_token, refresh_token, ip_address, user_agent,
-                device, browser, os, location_city, location_region, location_country,
-                login_method, is_suspicious, expires_at
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
-        """, (
-            user["user_id"],
-            jwt_token,
-            refresh_tok,
-            ip_address or "127.0.0.1",
-            user_agent,
-            ua_meta["device"],
-            ua_meta["browser"],
-            ua_meta["os"],
-            geo_meta["city"],
-            geo_meta["region"],
-            geo_meta["country"],
-            login_method,
-            is_suspicious,
-            expire_dt
-        ))
-
-        if hasattr(db, "connection") and db.connection:
-            db.connection.commit()
+        # Persist session with device and login-risk metadata
+        try:
+            db.execute("""
+                INSERT INTO login_sessions (
+                    user_id, session_token, refresh_token, ip_address, user_agent,
+                    device, browser, os, location_city, location_region, location_country,
+                    login_method, is_suspicious, expires_at
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+            """, (
+                user["user_id"], jwt_token, refresh_tok,
+                ip_address or "127.0.0.1", user_agent,
+                ua_meta["device"], ua_meta["browser"], ua_meta["os"],
+                geo_meta["city"], geo_meta["region"], geo_meta["country"],
+                login_method, is_suspicious, expire_dt
+            ))
+            if hasattr(db, "connection") and db.connection:
+                db.connection.commit()
+        except Exception as e:
+            logger.warning(f"Could not persist login session to DB: {e}")
+            if hasattr(db, "connection") and db.connection:
+                try:
+                    db.connection.rollback()
+                except Exception:
+                    pass
 
         session_data = {
             "user_id": user["user_id"],
@@ -1911,7 +1909,11 @@ def get_authenticated_user(
         except HTTPException:
             raise
         except Exception:
-            pass
+            if hasattr(db, "connection") and db.connection:
+                try:
+                    db.connection.rollback()
+                except Exception:
+                    pass
 
         lawyer_id = user_row["lawyer_id"] or (1 if user_row["role"] == "lawyer" else None)
         return {

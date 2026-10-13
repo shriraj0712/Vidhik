@@ -81,7 +81,7 @@ class LawyerService:
 
         # Recent Cases (5 latest)
         db.execute("""
-            SELECT 
+            SELECT
                 c.case_id, c.user_id, c.case_title, c.case_number,
                 c.case_type, c.court_name, c.status, c.filing_date,
                 u.full_name AS client_name
@@ -95,7 +95,7 @@ class LawyerService:
 
         # Upcoming Hearings List (5 next)
         db.execute("""
-            SELECT 
+            SELECT
                 r.reminder_id, r.case_id, r.title, r.reminder_date,
                 r.reminder_time, r.court_name, r.priority, r.status,
                 c.case_title, c.case_number
@@ -109,7 +109,7 @@ class LawyerService:
 
         # Recent Documents (5 latest)
         db.execute("""
-            SELECT 
+            SELECT
                 d.document_id, d.case_id, d.document_name, d.document_type,
                 d.file_path, d.file_size_bytes, d.created_at,
                 c.case_title, c.case_number
@@ -123,7 +123,7 @@ class LawyerService:
 
         # Recent Activity Feed (Case Updates)
         db.execute("""
-            SELECT 
+            SELECT
                 cu.update_id, cu.case_id, cu.update_title, cu.update_description,
                 cu.update_type, cu.update_date, c.case_title, c.case_number
             FROM case_updates cu
@@ -158,7 +158,7 @@ class LawyerService:
             params.extend([pattern, pattern, pattern])
 
         query = f"""
-            SELECT 
+            SELECT
                 u.user_id, u.full_name, u.email, u.phone, u.role,
                 u.is_active, u.created_at,
                 COUNT(c.case_id) AS active_cases_count
@@ -178,7 +178,7 @@ class LawyerService:
     @staticmethod
     def get_client(db: RealDictCursor, client_id: int, lawyer_id: int) -> Optional[ClientResponse]:
         db.execute("""
-            SELECT 
+            SELECT
                 u.user_id, u.full_name, u.email, u.phone, u.role,
                 u.is_active, u.created_at,
                 COUNT(c.case_id) AS active_cases_count
@@ -193,7 +193,7 @@ class LawyerService:
 
         # Fetch cases for this client
         db.execute("""
-            SELECT 
+            SELECT
                 case_id, case_title, case_number, case_type,
                 court_name, status, filing_date, created_at
             FROM cases
@@ -280,7 +280,7 @@ class LawyerService:
         where_clause = " WHERE " + " AND ".join(conditions)
 
         query = f"""
-            SELECT 
+            SELECT
                 c.case_id, c.user_id, c.assigned_lawyer_id,
                 c.case_title, c.case_number, c.case_type,
                 c.court_name, c.opposite_party, c.status,
@@ -306,7 +306,7 @@ class LawyerService:
     @staticmethod
     def get_case_detail(db: RealDictCursor, case_id: int, lawyer_id: int) -> Optional[CaseDetailResponse]:
         db.execute("""
-            SELECT 
+            SELECT
                 c.case_id, c.user_id, c.assigned_lawyer_id,
                 c.case_title, c.case_number, c.case_type,
                 c.court_name, c.opposite_party, c.status,
@@ -358,7 +358,7 @@ class LawyerService:
 
         # Fetch Linked Legal Sections
         db.execute("""
-            SELECT 
+            SELECT
                 cls.section_id, cls.relevance_score, cls.explanation, cls.created_at,
                 s.section_number, s.section_title, s.full_text,
                 l.law_name, l.law_slug
@@ -641,7 +641,7 @@ class LawyerService:
         where_clause = " WHERE " + " AND ".join(conditions)
 
         query = f"""
-            SELECT 
+            SELECT
                 d.document_id, d.case_id, d.client_id, d.lawyer_id,
                 d.document_name, d.document_type, d.file_path,
                 d.file_size_bytes, d.mime_type, d.upload_status,
@@ -721,7 +721,7 @@ class LawyerService:
         today = date.today()
 
         query = """
-            SELECT 
+            SELECT
                 r.reminder_id, r.case_id, r.lawyer_id, r.title,
                 r.description, r.reminder_type, r.reminder_date,
                 r.reminder_time, r.court_name, r.judge_name,
@@ -816,7 +816,7 @@ class LawyerService:
     @staticmethod
     def list_notes(db: RealDictCursor, case_id: int, lawyer_id: int) -> List[NoteResponse]:
         db.execute("""
-            SELECT 
+            SELECT
                 cn.note_id, cn.case_id, cn.lawyer_id, cn.title,
                 cn.content, cn.is_pinned, cn.created_at, cn.updated_at,
                 c.case_title
@@ -913,7 +913,7 @@ class LawyerService:
         db.execute("""
             INSERT INTO case_legal_sections (case_id, section_id, relevance_score, explanation)
             VALUES (%s, %s, %s, %s)
-            ON CONFLICT (case_id, section_id) 
+            ON CONFLICT (case_id, section_id)
             DO UPDATE SET relevance_score = EXCLUDED.relevance_score, explanation = EXCLUDED.explanation
             RETURNING created_at;
         """, (case_id, data.section_id, data.relevance_score, data.explanation))
@@ -973,7 +973,7 @@ class LawyerService:
     @staticmethod
     def get_profile(db: RealDictCursor, lawyer_id: int) -> Optional[LawyerProfileResponse]:
         db.execute("""
-            SELECT 
+            SELECT
                 l.lawyer_id, l.user_id, l.full_name, l.email, l.phone,
                 l.bar_council_number, l.specialization, l.experience_years,
                 l.bio, l.court_practice, l.office_address, l.city,
@@ -1033,3 +1033,77 @@ class LawyerService:
 
         db.connection.commit()
         return LawyerService.get_profile(db, lawyer_id)
+
+    # -------------------------------------------------------------
+    # 9. PUBLIC LAWYER DIRECTORY
+    # -------------------------------------------------------------
+    @staticmethod
+    def list_directory(
+        db: RealDictCursor,
+        specialization: Optional[str] = None,
+        city: Optional[str] = None,
+        search: Optional[str] = None,
+        limit: int = 20
+    ) -> List[Dict[str, Any]]:
+        """
+        Retrieves verified advocates from the lawyers table with aggregated specializations,
+        languages, and locations, filterable by specialization, city, and general search.
+        """
+        query = """
+            SELECT
+                l.lawyer_id, l.full_name, l.email, l.phone,
+                l.bar_council_number, l.specialization, l.experience_years,
+                l.bio, l.court_practice, l.office_address, l.city,
+                l.state, l.pincode, l.is_verified, l.created_at,
+                COALESCE(ARRAY_AGG(DISTINCT ls.specialization) FILTER (WHERE ls.specialization IS NOT NULL), '{}') AS specializations_list,
+                COALESCE(ARRAY_AGG(DISTINCT ll.language) FILTER (WHERE ll.language IS NOT NULL), '{}') AS languages_list,
+                COALESCE(ARRAY_AGG(DISTINCT loc.city) FILTER (WHERE loc.city IS NOT NULL), '{}') AS cities_list
+            FROM lawyers l
+            LEFT JOIN lawyer_specializations ls ON l.lawyer_id = ls.lawyer_id
+            LEFT JOIN lawyer_languages ll ON l.lawyer_id = ll.lawyer_id
+            LEFT JOIN lawyer_locations loc ON l.lawyer_id = loc.lawyer_id
+            GROUP BY l.lawyer_id
+            ORDER BY l.experience_years DESC, l.is_verified DESC
+            LIMIT %s;
+        """
+        db.execute(query, (max(limit, 20),))
+        rows = db.fetchall()
+
+        results: List[Dict[str, Any]] = []
+        clean_spec = (specialization or "").strip().lower()
+        clean_city = (city or "").strip().lower()
+        clean_q = (search or "").strip().lower()
+
+        for r in rows:
+            item = dict(r)
+            all_specs = [s.lower() for s in item.get("specializations_list", [])]
+            if item.get("specialization"):
+                all_specs.append(item["specialization"].lower())
+            all_specs_text = " ".join(all_specs)
+
+            all_cities = [c.lower() for c in item.get("cities_list", [])]
+            if item.get("city"):
+                all_cities.append(item["city"].lower())
+            all_cities_text = " ".join(all_cities)
+
+            # Filter by specialization
+            if clean_spec and clean_spec not in all_specs_text:
+                continue
+
+            # Filter by city
+            if clean_city and clean_city not in all_cities_text:
+                continue
+
+            # Filter by search
+            if clean_q:
+                name_text = (item.get("full_name") or "").lower()
+                court_text = (item.get("court_practice") or "").lower()
+                bio_text = (item.get("bio") or "").lower()
+                bar_text = (item.get("bar_council_number") or "").lower()
+                combined = f"{name_text} {all_specs_text} {all_cities_text} {court_text} {bio_text} {bar_text}"
+                if clean_q not in combined:
+                    continue
+
+            results.append(item)
+
+        return results

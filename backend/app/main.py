@@ -5,7 +5,6 @@ Provides RESTful APIs for querying Indian statutory laws, legal sections,
 terminology, constitutional provisions, legal AI assistant, grounded RAG,
 and the advanced legal knowledge base from the Vidhik legal platform.
 """
-
 import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
@@ -40,8 +39,13 @@ from app.routers import (
     traffic_router,
     authority_router,
     voice_router,
-    ai_evaluation_router
+    ai_evaluation_router,
+    authorities_router,
+    case_intelligence_router,
+    admin_router,
+    evidence_router
 )
+
 
 
 @asynccontextmanager
@@ -135,6 +139,10 @@ app.include_router(traffic_router)
 app.include_router(authority_router)
 app.include_router(voice_router)
 app.include_router(ai_evaluation_router)
+app.include_router(authorities_router)
+app.include_router(case_intelligence_router)
+app.include_router(admin_router)
+app.include_router(evidence_router)
 
 # Mount Static UI directory
 STATIC_DIR = Path(__file__).resolve().parent / "static"
@@ -175,6 +183,9 @@ def root():
         "description": "Comprehensive Indian Legal Knowledge Base, Citizen & Lawyer Workspaces, and Grounded AI Legal Assistant",
         "documentation": "/docs",
         "health": "/api/health",
+        "health_check": "/health",
+        "lawyer_workspace": "/lawyer",
+        "citizen_portal": "/citizen",
         "modules": {
             "health": "/api/health",
             "laws": "/api/laws",
@@ -200,6 +211,18 @@ def root():
             "traffic": "/api/traffic/analyze",
             "authority": "/api/authority/recommend",
             "voice": "/api/voice/transcribe",
-            "ai_evaluation": "/api/ai-evaluation/run-suite"
+            "ai_evaluation": "/api/ai-evaluation/run-suite",
+            "authorities": "/api/authorities",
+            "case_intelligence": "/api/cases/active",
+            "admin": "/api/admin",
+            "evidence": "/api/evidence"
+        },
+        "endpoints": {
+            "auth_login": "POST /api/auth/login",
+            "auth_register": "POST /api/auth/register",
+            "auth_logout": "POST /api/auth/logout",
+            "assistant_chat": "POST /api/assistant/chat",
+            "case_active": "GET /api/cases/active",
+            "case_create_and_analyze": "POST /api/cases/create-and-analyze"
         }
     }

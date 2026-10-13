@@ -19,7 +19,9 @@ from pathlib import Path
 from datetime import datetime
 
 if sys.platform == "win32":
-    sys.stdout.reconfigure(encoding="utf-8")
+    reconf = getattr(sys.stdout, "reconfigure", None)
+    if callable(reconf):
+        reconf(encoding="utf-8")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 KB_DATA_DIR = BASE_DIR / "data" / "knowledge_base"
@@ -133,7 +135,9 @@ def run_ingestion():
                 ON CONFLICT (law_name) DO UPDATE SET short_name = EXCLUDED.short_name
                 RETURNING law_id;
             """, (l_name, s_name, l_type, jur, en_dt, ef_dt))
-            law_ids[s_name] = cur.fetchone()[0]
+            ret_law = cur.fetchone()
+            if ret_law:
+                law_ids[s_name] = ret_law[0]
 
         print(f"  ✓ Registered Laws: BNS (ID: {law_ids.get('BNS')}), BNSS (ID: {law_ids.get('BNSS')}), BSA (ID: {law_ids.get('BSA')})")
 
@@ -145,7 +149,10 @@ def run_ingestion():
                 ON CONFLICT (law_id, section_number) DO UPDATE SET full_text = EXCLUDED.full_text
                 RETURNING section_id;
             """, (law_ids["BNS"], s["section_number"], s["section_title"], s["full_text"], s.get("chapter")))
-            sec_id = cur.fetchone()[0]
+            ret_sec = cur.fetchone()
+            if not ret_sec:
+                continue
+            sec_id = ret_sec[0]
 
             if s.get("is_offence") and s.get("offence"):
                 off = s["offence"]
@@ -182,11 +189,14 @@ def run_ingestion():
                 ON CONFLICT (law_id, section_number) DO UPDATE SET full_text = EXCLUDED.full_text
                 RETURNING section_id;
             """, (law_ids["BNSS"], s["section_number"], s["section_title"], s["full_text"], s.get("chapter")))
-            sec_id = cur.fetchone()[0]
+            ret_sec = cur.fetchone()
+            if not ret_sec:
+                continue
+            sec_id = ret_sec[0]
 
             proc = s.get("procedure", {})
             cur.execute("""
-                INSERT INTO statutory_procedures (law_id, section_id, procedure_category, title, description, statutory_steps, safeguards, timeline_days)
+                INSERT INTO legal_procedures (law_id, section_id, procedure_category, title, description, statutory_steps, safeguards, timeline_days)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT DO NOTHING;
             """, (
@@ -204,7 +214,10 @@ def run_ingestion():
                 ON CONFLICT (law_id, section_number) DO UPDATE SET full_text = EXCLUDED.full_text
                 RETURNING section_id;
             """, (law_ids["BSA"], s["section_number"], s["section_title"], s["full_text"], s.get("chapter")))
-            sec_id = cur.fetchone()[0]
+            ret_sec = cur.fetchone()
+            if not ret_sec:
+                continue
+            sec_id = ret_sec[0]
 
             ep = s.get("evidence_provision", {})
             cur.execute("""

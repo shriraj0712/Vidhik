@@ -1,7 +1,8 @@
 """
 Vidhik Platform - API Routers
 """
-
+from .resolution import router as resolution_router
+from .complaint_generator import router as complaint_generator_router
 from .health import router as health_router
 from .laws import router as laws_router
 from .sections import router as sections_router
@@ -26,6 +27,10 @@ from .traffic import router as traffic_router
 from .authority import router as authority_router
 from .voice import router as voice_router
 from .ai_evaluation import router as ai_evaluation_router
+from .authorities import router as authorities_router
+from .case_intelligence import router as case_intelligence_router
+from .admin import router as admin_router
+from .evidence import router as evidence_router
 
 __all__ = [
     "health_router",
@@ -52,4 +57,10 @@ __all__ = [
     "authority_router",
     "voice_router",
     "ai_evaluation_router",
+    "authorities_router",
+    "case_intelligence_router",
+    "resolution_router",
+    "complaint_generator_router",
+    "admin_router",
+    "evidence_router",
 ]

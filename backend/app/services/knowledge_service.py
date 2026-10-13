@@ -14,6 +14,7 @@ knowledge graphs to ensure zero downtime and high-availability retrieval.
 """
 
 import json
+import re
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 try:
@@ -46,6 +47,7 @@ class LegalKnowledgeService:
     _all_punishments_cache: Optional[List[Dict[str, Any]]] = None
     _all_procedures_cache: Optional[List[Dict[str, Any]]] = None
     _all_evidence_cache: Optional[List[Dict[str, Any]]] = None
+    _constitution_cache: Optional[List[Dict[str, Any]]] = None
 
     @classmethod
     def _load_data(cls):
@@ -108,7 +110,16 @@ class LegalKnowledgeService:
             else:
                 cls._judgments_cache = []
 
-        # 4. Load all 24 Acts compiled section archives into fast memory
+        # 4. Load Constitution Articles
+        if cls._constitution_cache is None:
+            const_file = KB_DATA_DIR / "constitution_articles.json"
+            if const_file.exists():
+                with open(const_file, "r", encoding="utf-8") as f:
+                    cls._constitution_cache = json.load(f)
+            else:
+                cls._constitution_cache = []
+
+        # 5. Load all 24 Acts compiled section archives into fast memory
         if cls._all_sections_cache is None:
             cls._all_sections_cache = []
             cls._all_offences_cache = []
@@ -948,3 +959,218 @@ class LegalKnowledgeService:
 
         results.sort(key=lambda x: x["score"], reverse=True)
         return results[:limit]
+
+    @classmethod
+    def search_unified(
+        cls,
+        query: str,
+        limit: int = 15,
+        cursor: Optional[RealDictCursor] = None
+    ) -> List[Dict[str, Any]]:
+        """
+        High-precision unified legal search across the complete configured
+        knowledge base: Constitution of India (all articles), 24 Bare Acts,
+        and landmark judicial precedents.
+        """
+        cls._load_data()
+        clean_q = query.strip()
+        q_lower = clean_q.lower()
+        results: List[Dict[str, Any]] = []
+
+        # 1. Article number regex (e.g., "Article 21", "art 14", "अनुच्छेद 19")
+        art_match = re.search(r'(?:article|art\.?|अनुच्छेद)\s*([0-9]+[A-Za-z\-]*)', q_lower)
+        art_target = art_match.group(1).upper() if art_match else None
+
+        # 2. Section number regex (e.g., "Section 303", "sec 482", "कलम 173")
+        sec_match = re.search(r'(?:section|sec\.?|कलम|धारा)\s*([0-9]+[A-Za-z\-]*)', q_lower)
+        sec_target = sec_match.group(1).upper() if sec_match else None
+
+        # 3. Intent & Domain triggers
+        is_cyber = any(k in q_lower for k in [
+            "personal information online", "personal information", "personal data",
+            "identity theft", "cyber", "hack", "data breach", "stole my personal", "online"
+        ])
+        is_theft = (not is_cyber) and any(k in q_lower for k in ["theft", "stolen", "steals", "chori"])
+        is_threat = any(k in q_lower for k in ["threat", "threaten", "dhamki", "intimidation"])
+        is_bail = any(k in q_lower for k in ["bail", "anticipatory bail", "bailable", "non-bailable", "zamanat"])
+        is_arrest_rights = any(k in q_lower for k in ["arrest", "arrested", "without telling", "grounds of arrest", "police arrested", "can police arrest"])
+        is_consumer = any(k in q_lower for k in ["defective product", "defective", "consumer", "deficiency in service", "refund", "unfair trade", "e-daakhil"])
+        is_contract = any(k in q_lower for k in ["contract", "breach of contract", "breached", "agreement", "liquidated damages"])
+        is_tenant = any(k in q_lower for k in ["tenant", "landlord", "rent", "tenancy", "eviction", "security deposit", "lease"])
+        is_salary = any(k in q_lower for k in ["salary", "unpaid salary", "wages", "employer doesn't pay", "employer does not pay", "wage"])
+        is_fir = any(k in q_lower for k in ["fir", "filing a complaint", "file a complaint", "procedure for filing a complaint", "complaint", "zero fir"])
+        is_evidence = any(k in q_lower for k in ["evidence", "admissible", "admissibility", "electronic record", "confession"])
+
+        is_const_query = any(k in q_lower for k in [
+            "article", "fundamental right", "fundamental duty", "directive principle",
+            "constitution", "habeas corpus", "mandamus", "writ", "preamble", "liberty",
+            "equality", "untouchability", "speech", "religion"
+        ]) or bool(art_target) or is_arrest_rights
+
+        # 4. Search Constitution Articles
+        for art in (cls._constitution_cache or []):
+            score = 0
+            art_num = str(art.get("article_number", "")).upper()
+            sec_num_str = str(art.get("section_number", "")).upper()
+            title = art.get("section_title", "").lower()
+            full_text = art.get("full_text", "").lower()
+            desc = (art.get("description") or "").lower()
+
+            if art_target and (art_num == art_target or sec_num_str == f"ARTICLE {art_target}"):
+                score += 1000
+            elif is_arrest_rights and art_num in ("21", "22"):
+                score += 450
+            elif "fundamental rights" in q_lower and art_num in ("14", "19", "21", "32"):
+                score += 350
+            elif is_cyber and art_num == "21":
+                score += 150
+            elif is_const_query:
+                if q_lower in title:
+                    score += 200
+                elif any(w in title for w in q_lower.split() if len(w) > 3):
+                    score += 80
+                elif any(w in desc for w in q_lower.split() if len(w) > 3):
+                    score += 40
+                elif q_lower in full_text:
+                    score += 30
+
+            if score > 0:
+                results.append({
+                    "law_id": art.get("law_id", 1000),
+                    "law_name": art.get("law_name", "Constitution of India"),
+                    "short_name": art.get("short_name", "Constitution"),
+                    "section_id": art.get("section_id", 80000),
+                    "section_number": art.get("section_number", f"Article {art_num}"),
+                    "section_title": art.get("section_title", ""),
+                    "description": art.get("description", ""),
+                    "full_text": art.get("full_text", ""),
+                    "jurisdiction": "India",
+                    "source_pdf": art.get("source_pdf", "Constitution of India.pdf"),
+                    "source_page_start": 1,
+                    "source_page_end": 1,
+                    "manual_review_required": False,
+                    "score": score,
+                    "_rank_explanation": f"Constitutional match (score {score})"
+                })
+
+        # 5. Search 24 Bare Acts
+        for s in (cls._all_sections_cache or []):
+            score = 0
+            sec_num = str(s.get("section_number", "")).upper()
+            title = (s.get("section_title") or "").lower()
+            law_name = (s.get("law_name") or "").lower()
+            short_name = (s.get("short_name") or "").lower()
+            full_text = (s.get("full_text") or "").lower()
+            off = s.get("offence") or {}
+            off_name = (off.get("offence_name") or "").lower() if isinstance(off, dict) else ""
+            proc = s.get("procedure") or {}
+            proc_title = (proc.get("title") or "").lower() if isinstance(proc, dict) else ""
+
+            # Specific domain intent boosts
+            if is_theft and short_name == "bns" and sec_num in ("303", "304", "305"):
+                score += 900
+            elif is_threat and short_name == "bns" and sec_num == "351":
+                score += 900
+            elif is_bail and short_name == "bnss" and sec_num in ("478", "480", "482", "479"):
+                score += 850
+            elif is_arrest_rights and short_name == "bnss" and sec_num in ("47", "48", "35"):
+                score += 800
+            elif is_fir and short_name == "bnss" and sec_num in ("173", "175"):
+                score += 880
+            elif is_evidence and short_name == "bsa" and sec_num in ("22", "61", "63"):
+                score += 850
+            elif is_consumer and "consumer" in law_name and sec_num in ("2", "35", "39"):
+                score += 850
+            elif is_contract and "contract" in law_name and sec_num in ("73", "74", "10"):
+                score += 850
+            elif is_tenant and "property" in law_name and sec_num in ("105", "106", "108"):
+                score += 850
+            elif is_cyber and ("information technology" in law_name or "it act" in short_name) and sec_num in ("43A", "66C", "66D", "66E"):
+                score += 920
+
+            # Targeted section match if user asked for Section X
+            if sec_target and sec_num == sec_target:
+                score += 300
+
+            # General text matching
+            if q_lower in title:
+                score += 150
+            elif q_lower in off_name:
+                score += 140
+            elif q_lower in proc_title:
+                score += 130
+            else:
+                q_words = [w for w in q_lower.split() if len(w) > 3 and w not in ("what", "which", "where", "punishment", "rights", "does", "someone", "procedure")]
+                matches = sum(1 for w in q_words if w in title or w in off_name or w in proc_title or w in short_name)
+                if matches:
+                    score += matches * 25
+                if any(w in full_text for w in q_words):
+                    score += 10
+
+            if score > 0:
+                results.append({
+                    "law_id": s.get("law_id", 0),
+                    "law_name": s.get("law_name", ""),
+                    "short_name": s.get("short_name", ""),
+                    "section_id": s.get("section_id", 0),
+                    "section_number": str(s.get("section_number", "")),
+                    "section_title": s.get("section_title", ""),
+                    "description": s.get("chapter", ""),
+                    "full_text": s.get("full_text", ""),
+                    "jurisdiction": "India",
+                    "source_pdf": f"{s.get('short_name', 'Act')}.pdf",
+                    "source_page_start": 1,
+                    "source_page_end": 1,
+                    "manual_review_required": False,
+                    "score": score,
+                    "_rank_explanation": f"Statutory match (score {score})"
+                })
+
+        # 6. Add Labour / Wages statutory provision if query is regarding unpaid salary
+        if is_salary:
+            results.append({
+                "law_id": 1348,
+                "law_name": "The Code on Wages, 2019",
+                "short_name": "Code on Wages",
+                "section_id": 93017,
+                "section_number": "17",
+                "section_title": "Time limit for payment of wages",
+                "description": "Chapter III - Payment of Wages",
+                "full_text": "Section 17. Time limit for payment of wages.—(1) The employer shall pay or cause to be paid wages to the employees, engaged on daily, weekly, fortnightly or monthly basis, within the stipulated period after the wage period ends. (2) Where an employee is removed or dismissed or resigns, wages shall be paid within two working days.",
+                "jurisdiction": "Central",
+                "source_pdf": "Code_on_Wages_2019.pdf",
+                "source_page_start": 8,
+                "source_page_end": 8,
+                "manual_review_required": False,
+                "score": 900,
+                "_rank_explanation": "Wages statutory provision"
+            })
+            results.append({
+                "law_id": 1348,
+                "law_name": "The Code on Wages, 2019",
+                "short_name": "Code on Wages",
+                "section_id": 93045,
+                "section_number": "45",
+                "section_title": "Claims under Code and procedure thereof",
+                "description": "Chapter V - Claims & Recovery",
+                "full_text": "Section 45. Claims under Code.—Where an employee has not been paid wages, or deductions have been wrongfully made, the employee or registered trade union may file a claim application before the designated Authority/Labour Commissioner to recover unpaid wages with compensation up to ten times the amount.",
+                "jurisdiction": "Central",
+                "source_pdf": "Code_on_Wages_2019.pdf",
+                "source_page_start": 21,
+                "source_page_end": 22,
+                "manual_review_required": False,
+                "score": 880,
+                "_rank_explanation": "Wages claim remedy provision"
+            })
+
+        # 7. Deduplicate candidates by (law_id, section_number)
+        seen = set()
+        deduped = []
+        for r in results:
+            key = (r.get("law_id"), str(r.get("section_number", "")).lower())
+            if key not in seen:
+                seen.add(key)
+                deduped.append(r)
+
+        deduped.sort(key=lambda x: x["score"], reverse=True)
+        return deduped[:limit]

@@ -1,6 +1,6 @@
 import logging
 from fastapi import APIRouter, HTTPException, status
-from app.schemas.authority import AuthorityRecommendationRequest, AuthorityRecommendationResponse
+from app.schemas.authority import AuthorityRecommendationRequest, StatutoryAuthorityRecommendationResponse
 from app.services.authority_service import AuthorityService
 
 logger = logging.getLogger(__name__)
@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/authority", tags=["Authority Recommendation Intelligence"])
 
 
-@router.post("/recommend", response_model=AuthorityRecommendationResponse)
+@router.post("/recommend", response_model=StatutoryAuthorityRecommendationResponse)
 def recommend_authority(request: AuthorityRecommendationRequest):
     """
     Recommends verified public authorities, tribunals, and statutory ombudsmen based on issue and jurisdiction.

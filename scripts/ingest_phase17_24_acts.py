@@ -25,7 +25,9 @@ from pathlib import Path
 from datetime import datetime
 
 if sys.platform == "win32":
-    sys.stdout.reconfigure(encoding="utf-8")
+    reconf = getattr(sys.stdout, "reconfigure", None)
+    if callable(reconf):
+        reconf(encoding="utf-8")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 KB_DATA_DIR = BASE_DIR / "data" / "knowledge_base"
@@ -165,7 +167,8 @@ def run_pipeline(args):
         for tbl in ["laws", "sections", "legal_lexicon", "section_alignments"]:
             try:
                 cur.execute(f"SELECT count(*) FROM {tbl};")
-                cnt = cur.fetchone()["count"]
+                cnt_row = cur.fetchone()
+                cnt = cnt_row["count"] if cnt_row else 0
                 print(f"    - {tbl:<20}: {cnt:>6} records (Preserved)")
             except Exception:
                 print(f"    - {tbl:<20}: table not yet initialized")
@@ -201,8 +204,12 @@ def run_pipeline(args):
                             VALUES (%s, %s, %s, %s, %s, %s)
                             RETURNING law_id;
                         """, (m["act_name"], m["short_name"], m["category"], m["jurisdiction"], m["enactment_date"], m["effective_date"]))
-                        resolved_law_id = cur.fetchone()["law_id"]
+                        ins_law = cur.fetchone()
+                        resolved_law_id = ins_law["law_id"] if ins_law else None
                         inserted_laws += 1
+
+                    if not resolved_law_id:
+                        continue
 
                     # Process Sections for this law
                     for s in p["sections"]:
@@ -229,8 +236,12 @@ def run_pipeline(args):
                                 VALUES (%s, %s, %s, %s, %s)
                                 RETURNING section_id;
                             """, (resolved_law_id, sec_num, sec_title, full_txt, chap))
-                            sec_id = cur.fetchone()["section_id"]
+                            ins_sec = cur.fetchone()
+                            sec_id = ins_sec["section_id"] if ins_sec else None
                             inserted_sections += 1
+
+                        if not sec_id:
+                            continue
 
                         # Ingest Offence if present
                         if s.get("is_offence") and s.get("offence"):
@@ -256,7 +267,7 @@ def run_pipeline(args):
                         if s.get("procedure"):
                             proc = s["procedure"]
                             cur.execute("""
-                                INSERT INTO statutory_procedures (law_id, section_id, procedure_category, title, description, statutory_steps, safeguards, timeline_days)
+                                INSERT INTO legal_procedures (law_id, section_id, procedure_category, title, description, statutory_steps, safeguards, timeline_days)
                                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                                 ON CONFLICT DO NOTHING;
                             """, (resolved_law_id, sec_id, proc["procedure_category"], proc["title"], proc["description"], json.dumps(proc["statutory_steps"]), json.dumps(proc["safeguards"]), proc.get("timeline_days")))

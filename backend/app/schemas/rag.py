@@ -95,6 +95,14 @@ class RAGQueryRequest(BaseModel):
         le=1.0,
         description="Generation temperature (low value ensures deterministic, factual adherence)"
     )
+    document_text: Optional[str] = Field(
+        default=None,
+        description="Optional text of an uploaded document, contract, notice, or evidence"
+    )
+    document_title: Optional[str] = Field(
+        default=None,
+        description="Optional title or filename of the uploaded document"
+    )
 
 
 class RAGResponse(BaseModel):

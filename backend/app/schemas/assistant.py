@@ -5,7 +5,7 @@ Pydantic models for natural-language legal assistant interactions,
 conversation history, follow-up context management, and grounded responses.
 """
 
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.schemas.rag import (
@@ -78,6 +78,19 @@ class AssistantChatRequest(BaseModel):
         le=1.0,
         description="Generation temperature (low value ensures deterministic, factual adherence)"
     )
+    document_text: Optional[str] = Field(
+        default=None,
+        description="Optional full text of uploaded legal notice, contract, or evidence document to analyze"
+    )
+    document_title: Optional[str] = Field(
+        default=None,
+        description="Optional title or file name of the uploaded document"
+    )
+    evidence_id: Optional[int] = Field(
+        default=None,
+        gt=0,
+        description="Optional attached video evidence ID for evidence-aware legal assistant"
+    )
 
 
 class AssistantChatResponse(BaseModel):
@@ -118,6 +131,18 @@ class AssistantChatResponse(BaseModel):
     retrieval_metadata: Optional[RetrievalMetadata] = Field(
         default=None,
         description="Audit telemetry of query analysis, lexicon matching, and ranking"
+    )
+    evidence_id: Optional[int] = Field(
+        default=None,
+        description="Associated video evidence ID if context was incorporated"
+    )
+    evidence_observations: Optional[List[Dict[str, Any]]] = Field(
+        default=None,
+        description="Key observable facts retrieved from the video evidence"
+    )
+    evidence_transcripts: Optional[List[Dict[str, Any]]] = Field(
+        default=None,
+        description="Relevant machine-generated transcript segments retrieved"
     )
     disclaimer: str = Field(
         default=(

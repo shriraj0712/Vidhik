@@ -1,7 +1,6 @@
 """
 Vidhik Platform - Complaint / FIR Generator API Router
-=======================================================
-FastAPI endpoints for generating factual citizen complaints, requests for
+================================================FastAPI endpoints for generating factual citizen complaints, requests for
 registration of FIR (BNSS Sec 173), non-cognizable reports, and Word (.docx) exports.
 """
 
@@ -30,6 +29,7 @@ router = APIRouter(prefix="/api/v1/complaint-generator", tags=["Complaint / FIR 
     description="""
     Generates a structured, non-assertive written complaint / FIR registration request:
     
+
     1. Validates and sanitizes user factual inputs (dates, location, description).
     2. Runs anti-fabrication and prompt-injection safety filters.
     3. Runs upstream Resolution Decision Engine triage for emergency risks.

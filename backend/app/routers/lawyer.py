@@ -464,3 +464,27 @@ def update_lawyer_profile(
             detail="Lawyer profile not found or update failed."
         )
     return updated
+
+
+# -------------------------------------------------------------
+# 9. PUBLIC LAWYER DIRECTORY
+# -------------------------------------------------------------
+@router.get("/directory", summary="Browse Verified Lawyer Directory")
+def get_lawyer_directory(
+    specialization: Optional[str] = Query(None, description="Filter by legal specialization"),
+    city: Optional[str] = Query(None, description="Filter by city"),
+    q: Optional[str] = Query(None, description="Search lawyer name or practice area"),
+    limit: int = Query(20, ge=1, le=50, description="Max lawyers to return"),
+    db: RealDictCursor = Depends(get_db)
+):
+    """
+    Publicly browsable directory of verified advocates in Maharashtra and India.
+    Accessible to citizens, litigants, and fellow legal practitioners.
+    """
+    return LawyerService.list_directory(
+        db=db,
+        specialization=specialization,
+        city=city,
+        search=q,
+        limit=limit
+    )

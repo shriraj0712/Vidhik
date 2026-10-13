@@ -167,14 +167,30 @@ class LegalRAGService:
             "hi": "कृपया निम्नलिखित कानूनी संदर्भ के आधार पर उत्तर स्पष्ट हिंदी में दें। धाराओं और अधिनियमों का सटीक उल्लेख करें।"
         }.get(lang, "Generate the answer in English.")
 
+        doc_context_str = ""
+        if request.document_text and request.document_text.strip():
+            doc_title = request.document_title or "Uploaded Legal Document / Notice / Evidence"
+            doc_context_str = (
+                f"\n=== USER UPLOADED DOCUMENT CONTEXT ({doc_title}) ===\n"
+                f"{request.document_text.strip()[:6000]}\n"
+                f"[End of Uploaded Document Context]\n\n"
+            )
+
         user_prompt = (
             f"LEGAL QUESTION:\n{clean_q}\n\n"
             f"LANGUAGE INSTRUCTION:\n{language_instruction}\n\n"
+            f"{doc_context_str}"
             f"=== RETRIEVED STATUTORY PROVISIONS ===\n"
             f"{prompt_context_str}\n\n"
             f"=== INSTRUCTIONS ===\n"
-            f"Synthesize a factual, grounded explanation addressing the legal question above based strictly on these provisions. "
-            f"Cite the relevant Act and Section number for every rule mentioned."
+            f"Synthesize a factual, grounded explanation addressing the legal question above based strictly on these statutory provisions and any uploaded document context.\n"
+            f"Structure your response logically:\n"
+            f"1. Direct Answer First: Give a clear, straightforward answer to the user's situation.\n"
+            f"2. Applicable Law & Sections: Explicitly cite the governing Act and Section / Article numbers.\n"
+            f"3. Plain Legal Explanation: Break down the legal rights, remedies, procedures, or offences in plain language.\n"
+            f"4. Important Conditions & Safeguards: Mention key exceptions, prerequisites, or procedural conditions.\n"
+            f"5. Actionable Next Steps: Provide practical guidance on what the person should do.\n"
+            f"Never hallucinate or fabricate sections, articles, penalties, or procedures."
         )
 
         synthesis_succeeded = True

@@ -1,7 +1,6 @@
 """
 Vidhik Platform - AI Legal Assistant Service
-=============================================
-Orchestrates natural-language legal interactions:
+======================================Orchestrates natural-language legal interactions:
 - Sits on top of the Phase 9 Legal RAG engine (`LegalRAGService`)
 - Manages conversational history and session continuity
 - Resolves contextual follow-up inquiries deterministically
@@ -46,10 +45,8 @@ logger = logging.getLogger("vidhik.assistant_service")
 DEVANAGARI_DIGIT_MAP = str.maketrans("०१२३४५६७८९", "0123456789")
 
 
-# ==============================================================================
-# CONVERSATION STORE ABSTRACTION
-# ==============================================================================
-
+# =======================================================================# CONVERSATION STORE ABSTRACTION
+# =======================================================================
 class BaseConversationStore(ABC):
     """
     Abstract contract for storing and retrieving conversation histories.
@@ -117,10 +114,8 @@ def get_conversation_store() -> BaseConversationStore:
     return _global_conversation_store
 
 
-# ==============================================================================
-# CONTEXTUAL FOLLOW-UP HANDLER
-# ==============================================================================
-
+# =======================================================================# CONTEXTUAL FOLLOW-UP HANDLER
+# =======================================================================
 class ConversationContextHandler:
     """
     Resolves conversational follow-up questions by extracting statutory anchors
@@ -129,15 +124,15 @@ class ConversationContextHandler:
     """
 
     SECTION_REGEX = re.compile(
-        r'(?:section|sec\.?|à¤•à¤²à¤®|à¤§à¤¾à¤°à¤¾)\s*([0-9à¥¦-à¥¯]+[A-Za-z\-]*)',
+        r'(?:section|sec\.?|कलम|धारा)\s*([0-9०-९]+[A-Za-z\-]*)',
         re.IGNORECASE
     )
     ARTICLE_REGEX = re.compile(
-        r'(?:article|art\.?|à¤…à¤¨à¥à¤šà¥à¤›à¥‡à¤¦)\s*([0-9à¥¦-à¥¯]+[A-Za-z\-]*)',
+        r'(?:article|art\.?|अनुच्छेद)\s*([0-9०-९]+[A-Za-z\-]*)',
         re.IGNORECASE
     )
     ORDER_RULE_REGEX = re.compile(
-        r'(?:order|rule)\s*([0-9à¥¦-à¥¯]+[A-Za-z\-]*)',
+        r'(?:order|rule)\s*([0-9०-९]+[A-Za-z\-]*)',
         re.IGNORECASE
     )
 
@@ -155,10 +150,10 @@ class ConversationContextHandler:
         "Bharatiya Nyaya Sanhita",
         "Bharatiya Nagarik Suraksha Sanhita",
         "Bharatiya Sakshya Adhiniyam",
-        "à¤­à¤¾à¤°à¤¤à¥€à¤¯ à¤¦à¤‚à¤¡ à¤¸à¤‚à¤¹à¤¿à¤¤à¤¾",
-        "à¤­à¤¾à¤°à¤¤à¥€à¤¯ à¤•à¤°à¤¾à¤° à¤•à¤¾à¤¯à¤¦à¤¾",
-        "à¤­à¤¾à¤°à¤¤à¤¾à¤šà¥‡ à¤¸à¤‚à¤µà¤¿à¤§à¤¾à¤¨",
-        "à¤«à¥Œà¤œà¤¦à¤¾à¤°à¥€ à¤ªà¥à¤°à¤•à¥à¤°à¤¿à¤¯à¤¾ à¤¸à¤‚à¤¹à¤¿à¤¤à¤¾"
+        "भारतीय दंड संहिता",
+        "भारतीय करार कायदा",
+        "भारताचे संविधान",
+        "फौजदारी प्रक्रिया संहिता"
     ]
 
     FOLLOW_UP_INDICATORS = {
@@ -168,8 +163,8 @@ class ConversationContextHandler:
         "bailable", "non-bailable", "compoundable", "cognizable",
         "minor", "child", "applies to", "apply to", "exception", "exceptions",
         "procedure", "fine", "imprisonment", "appeal", "limitation",
-        "à¤¹à¥‡", "à¤¯à¤¾", "à¤¤à¥‹", "à¤¤à¥€", "à¤¤à¥‡", "à¤¯à¤¾à¤šà¥€", "à¤¤à¥à¤¯à¤¾à¤šà¥€", "à¤²à¤¾à¤—à¥‚", "à¤¶à¤¿à¤•à¥à¤·à¤¾", "à¤¦à¤‚à¤¡", "à¤œà¤¾à¤®à¥€à¤¨", "à¤…à¤²à¥à¤ªà¤µà¤¯à¥€à¤¨", "à¤…à¤ªà¤µà¤¾à¤¦",
-        "à¤¯à¤¹", "à¤‡à¤¸", "à¤‡à¤¸à¤•à¥€", "à¤¸à¤œà¤¾", "à¤¦à¤‚à¤¡", "à¤œà¤®à¤¾à¤¨à¤¤", "à¤¨à¤¾à¤¬à¤¾à¤²à¤¿à¤—", "à¤²à¤¾à¤—à¥‚", "à¤…à¤ªà¤µà¤¾à¤¦"
+        "हे", "या", "तो", "ती", "ते", "याची", "त्याची", "लागू", "शिक्षा", "दंड", "जामीन", "अल्पवयीन", "अपवाद",
+        "यह", "इस", "इसकी", "सजा", "दंड", "जमानत", "नाबालिग", "लागू", "अपवाद"
     }
 
     @classmethod
@@ -266,10 +261,8 @@ class ConversationContextHandler:
         return clean_msg
 
 
-# ==============================================================================
-# LEGAL ASSISTANT SERVICE
-# ==============================================================================
-
+# =======================================================================# LEGAL ASSISTANT SERVICE
+# =======================================================================
 class LegalAssistantService:
     """
     Core AI Legal Assistant service orchestrating conversational legal questions
@@ -357,6 +350,93 @@ class LegalAssistantService:
 
         # -------------------------------------------------------------
         # STEP 4: Delegate to Phase 9 Legal RAG Service
+        # STEP 2.5: Video Evidence Context Resolution
+        # -------------------------------------------------------------
+        evidence_observations: Optional[List[Dict[str, Any]]] = None
+        evidence_transcripts: Optional[List[Dict[str, Any]]] = None
+        evidence_context_text = ""
+        evidence_title: Optional[str] = None
+
+        if request.evidence_id:
+            try:
+                db.execute("SELECT * FROM video_evidence WHERE evidence_id = %s;", (request.evidence_id,))
+                ev_row = db.fetchone()
+                if ev_row:
+                    evidence_title = f"Video Evidence #{request.evidence_id} ({ev_row['original_filename']})"
+
+                    db.execute("SELECT * FROM video_visual_observations WHERE evidence_id = %s ORDER BY timestamp_seconds ASC;", (request.evidence_id,))
+                    obs_rows = db.fetchall()
+                    evidence_observations = [
+                        {
+                            "timestamp_seconds": float(o["timestamp_seconds"]),
+                            "time_formatted": f"{int(float(o['timestamp_seconds']) // 60):02d}:{int(float(o['timestamp_seconds']) % 60):02d}",
+                            "category": o["category"],
+                            "observation": o["neutral_observation"],
+                            "visible_marks": o.get("visible_physical_marks"),
+                            "limitations": o.get("uncertainty_or_limitation")
+                        }
+                        for o in obs_rows
+                    ]
+
+                    db.execute("SELECT * FROM video_transcripts WHERE evidence_id = %s ORDER BY start_time ASC;", (request.evidence_id,))
+                    tr_rows = db.fetchall()
+                    evidence_transcripts = [
+                        {
+                            "start_time": float(t["start_time"]),
+                            "end_time": float(t["end_time"]),
+                            "time_formatted": f"{int(float(t['start_time']) // 60):02d}:{int(float(t['start_time']) % 60):02d}",
+                            "text": t["text"],
+                            "speaker": t.get("speaker")
+                        }
+                        for t in tr_rows
+                    ]
+
+                    # Build structured evidence context
+                    lines = [
+                        f"=== VERIFIED DIGITAL VIDEO EVIDENCE CONTEXT (EVD-{request.evidence_id}) ===",
+                        f"File: {ev_row['original_filename']} | Duration: {float(ev_row.get('duration_seconds') or 0):.1f}s | SHA-256: {ev_row.get('file_hash_sha256')}",
+                        f"Format: {str(ev_row.get('media_container', '')).upper()} | Resolution: {ev_row.get('resolution')} | Audio Present: {ev_row.get('has_audio')}",
+                        "\n--- OBSERVED VISUAL EVENTS (SAMPLED FRAMES) ---"
+                    ]
+                    if evidence_observations:
+                        for o in evidence_observations:
+                            lines.append(f"- [{o['time_formatted']}] {o['observation']}")
+                            if o.get("visible_marks"):
+                                lines.append(f"  * Observable Mark: {o['visible_marks']}")
+                    else:
+                        lines.append("No sampled visual events recorded.")
+
+                    lines.append("\n--- MACHINE-GENERATED AUDIO TRANSCRIPT ---")
+                    if evidence_transcripts:
+                        for t in evidence_transcripts:
+                            spk = f" ({t['speaker']})" if t.get("speaker") else ""
+                            lines.append(f"- [{t['time_formatted']}] \"{t['text']}\"{spk}")
+                    else:
+                        if not ev_row.get("has_audio"):
+                            lines.append("Recording contains no audio stream.")
+                        else:
+                            lines.append("No machine transcript available.")
+
+                    lines.append("\n=== STATUTORY EVIDENTIARY GUIDANCE ===")
+                    lines.append("Under Bharatiya Sakshya Adhiniyam, 2023 (BSA Section 63), electronic evidence requires preservation of original media and section 63 certification.")
+                    lines.append("[End of Video Evidence Context]\n")
+
+                    evidence_context_text = "\n".join(lines)
+            except Exception as e:
+                logger.warning(f"Could not load evidence context for evidence_id={request.evidence_id}: {e}")
+
+        # Combine document / evidence context
+        effective_doc_text = request.document_text or ""
+        if evidence_context_text:
+            effective_doc_text = (
+                f"{evidence_context_text}\n\n{effective_doc_text}".strip()
+                if effective_doc_text
+                else evidence_context_text
+            )
+        effective_doc_title = request.document_title or evidence_title
+
+        # -------------------------------------------------------------
+        # STEP 3: Delegate to Existing Phase 9 Legal RAG Service
         # -------------------------------------------------------------
         rag_request = RAGQueryRequest(
             query=contextualized_query,
@@ -368,7 +448,9 @@ class LegalAssistantService:
                 request.temperature
                 if request.temperature is not None
                 else 0.1
-            )
+            ),
+            document_text=effective_doc_text if effective_doc_text else None,
+            document_title=effective_doc_title
         )
 
         rag_response: RAGResponse = LegalRAGService.query(
@@ -404,6 +486,9 @@ class LegalAssistantService:
             sources=rag_response.sources,
             retrieved_sections=rag_response.retrieved_sections,
             retrieval_metadata=rag_response.retrieval_metadata,
+            evidence_id=request.evidence_id,
+            evidence_observations=evidence_observations,
+            evidence_transcripts=evidence_transcripts,
             disclaimer=cls.DEFAULT_DISCLAIMER
         )
     @classmethod

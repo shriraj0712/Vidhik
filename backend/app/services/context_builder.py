@@ -84,7 +84,11 @@ class LegalContextBuilder:
 
             # 5. Extract metadata fields
             law_name = str(cand.get("law_name") or "Unknown Act").strip()
-            sec_id = int(cand.get("section_id") or 0)
+            raw_sec_id = cand.get("section_id")
+            try:
+                sec_id = int(raw_sec_id) if raw_sec_id is not None else 0
+            except (ValueError, TypeError):
+                sec_id = abs(hash(str(raw_sec_id))) % 1000000
             sec_title = (cand.get("section_title") or "").strip() or None
             sec_uid = (cand.get("section_uid") or "").strip() or None
             source_pdf = (cand.get("source_pdf") or "").strip() or None
@@ -132,10 +136,14 @@ class LegalContextBuilder:
             title_info = f" — {sec_title}" if sec_title else ""
             status_line = "\nStatus: [EXCERPTED PROVISION - DO NOT ASSUME EXHAUSTIVE]" if is_truncated else ""
 
+            is_constitution = "constitution" in law_name.lower() or sec_num.lower().startswith("article")
+            clean_num = sec_num.replace("Article", "").strip() if is_constitution else sec_num.replace("Section", "").strip()
+            provision_label = f"Article {clean_num}" if is_constitution else f"Section {clean_num}"
+
             block = (
                 f"[STATUTORY PROVISION #{rank_counter}{' (EXCERPTED)' if is_truncated else ''}]\n"
                 f"Act: {law_name} ({jurisdiction})\n"
-                f"Section: Section {sec_num}{title_info}{pdf_info}{status_line}\n"
+                f"Section: {provision_label}{title_info}{pdf_info}{status_line}\n"
                 f"Text:\n{trimmed_text}"
             )
             prompt_blocks.append(block)

@@ -42,3 +42,8 @@ build/
 # Temporary files
 tmp/
 temp/
+# User-uploaded legal evidence and generated analysis artifacts
+/backend/data/evidence/
+
+# Keep the video evidence database migration in version control
+!/database/migrations/010_video_evidence_analysis.sql

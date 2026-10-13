@@ -1,7 +1,6 @@
 """
 Vidhik Platform - Legal Resolution Decision Engine API Router
-==============================================================
-FastAPI route controllers for evaluating citizen legal disputes,
+=======================================================FastAPI route controllers for evaluating citizen legal disputes,
 assessing risk levels, and recommending self-resolution vs lawyer consultation.
 """
 
@@ -30,6 +29,7 @@ router = APIRouter(prefix="/api/resolution", tags=["Resolution Decision Engine"]
     description="""
     Deterministic legal triage engine for citizen inquiries:
     
+
     1. Evaluates user situation against verified statutory risk matrices.
     2. Identifies urgent safety/custodial threats (Critical Risk).
     3. Identifies court/penal proceedings requiring professional counsel (High/Medium Risk).
