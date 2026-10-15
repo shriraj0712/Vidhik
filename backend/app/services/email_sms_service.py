@@ -211,6 +211,18 @@ If this was NOT you, please log in immediately to sign out unauthorized sessions
                            EmailSmsService._mask_email(to_email), subject)
             return False
 
+        # In non-production environments, synthetic internal domains (such as vidhik.ai, example.com, test)
+        # do not have public DNS MX records and cause external SMTP relays (like Gmail SMTP) to bounce with NXDOMAIN.
+        recipient_domain = to_email.split("@")[-1].strip().lower() if "@" in to_email else ""
+        internal_mock_domains = {
+            "vidhik.ai", "example.com", "example.org", "example.net",
+            "test.local", "invalid", "localhost"
+        }
+        if recipient_domain in internal_mock_domains and not EmailSmsService._is_production():
+            logger.info("Internal test recipient domain '%s' recognized for %s. Simulating successful local delivery without external SMTP relay.",
+                        recipient_domain, EmailSmsService._mask_email(to_email))
+            return True
+
         if provider == "smtp":
             host = os.getenv("SMTP_HOST", "").strip()
             user = os.getenv("SMTP_USER", "").strip()

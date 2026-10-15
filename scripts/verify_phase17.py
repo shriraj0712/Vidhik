@@ -33,7 +33,7 @@ print("=" * 70)
 print("\n[TEST 1/8] Verifying Knowledge Base Overview...")
 overview = LegalKnowledgeService.get_overview()
 assert overview["status"] == "active", "Expected active status"
-assert overview["total_new_statutes"] == 3, "Expected 3 new statutes"
+assert overview["total_new_statutes"] == 24, "Expected 24 statutes (original 3 criminal-law statutes + 21 specialised Acts)"
 assert overview["total_offences"] > 0, "Expected non-zero offences"
 assert overview["total_procedures"] > 0, "Expected non-zero procedures"
 assert overview["total_evidence_provisions"] > 0, "Expected non-zero evidence rules"
@@ -71,20 +71,20 @@ print("\n[TEST 3/8] Verifying Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS)...
 procedures = LegalKnowledgeService.get_procedures()
 assert len(procedures) >= 5, "Expected at least 5 structured procedures"
 
-# Check e-FIR & Zero FIR (Sec 173)
-fir_proc = [p for p in procedures if p["section_number"] == "173"]
+# Check e-FIR & Zero FIR (Sec 173) - constrained to BNSS to avoid cross-statute section collisions
+fir_proc = [p for p in procedures if p["section_number"] == "173" and "Nagarik Suraksha" in p["law_name"]]
 assert len(fir_proc) == 1, "Section 173 FIR procedure not found"
 assert "Zero FIR" in fir_proc[0]["title"], "Zero FIR not documented in Sec 173"
 assert fir_proc[0]["timeline_days"] == 14, "Preliminary enquiry should be 14 days"
 print(f"  ✓ Section 173 BNSS verified: {fir_proc[0]['title']} (Timeline: {fir_proc[0]['timeline_days']} days)")
 
 # Check Audio-Video Recording of Search and Seizure (Sec 105)
-search_proc = [p for p in procedures if p["section_number"] == "105"]
+search_proc = [p for p in procedures if p["section_number"] == "105" and "Nagarik Suraksha" in p["law_name"]]
 assert len(search_proc) == 1, "Section 105 Search/Seizure videography not found"
 print(f"  ✓ Section 105 BNSS verified: {search_proc[0]['title']}")
 
 # Check Undertrial Bail 1/3rd rule (Sec 479)
-bail_proc = [p for p in procedures if p["section_number"] == "479"]
+bail_proc = [p for p in procedures if p["section_number"] == "479" and "Nagarik Suraksha" in p["law_name"]]
 assert len(bail_proc) == 1, "Section 479 Bail procedure not found"
 print(f"  ✓ Section 479 BNSS verified: {bail_proc[0]['title']}")
 

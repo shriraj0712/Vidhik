@@ -46,8 +46,32 @@ TURNSTILE_SECRET_KEY = os.getenv("TURNSTILE_SECRET_KEY", "1x00000000000000000000
 TURNSTILE_EXPECTED_HOSTNAME = os.getenv("TURNSTILE_EXPECTED_HOSTNAME", "")
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
 
+# Cloudflare official dummy test keys (strictly restricted to local development / test environments)
+TEST_TURNSTILE_TOKENS = {
+    "1x0000000000000000000000000000000AA",
+    "2x0000000000000000000000000000000AA",
+    "3x0000000000000000000000000000000AA"
+}
+TEST_TURNSTILE_SITE_KEYS = {
+    "1x00000000000000000000AA",
+    "2x00000000000000000000AB",
+    "3x00000000000000000000AA"
+}
+TEST_TURNSTILE_SECRET_KEYS = {
+    "1x0000000000000000000000000000000AA",
+    "2x0000000000000000000000000000000AA",
+    "3x0000000000000000000000000000000AA"
+}
+
+
+def is_production_environment() -> bool:
+    """Detects whether the application is running under production mode."""
+    env = os.getenv("APP_ENV", os.getenv("ENV", os.getenv("ENVIRONMENT", "development"))).strip().lower()
+    return env in ("production", "prod")
+
 # In-memory GeoIP cache to minimize external network lookups
 _GEOIP_CACHE: Dict[str, Dict[str, str]] = {}
+
 
 
 # ==============================================================================
@@ -355,11 +379,16 @@ def generate_reset_token() -> str:
 
 def _process_turnstile_response(data: Dict[str, Any], expected_hostname: Optional[str] = None) -> Tuple[bool, Optional[str]]:
     """Evaluates Cloudflare Turnstile Siteverify API JSON payload."""
+    is_prod = is_production_environment()
     if data.get("success") is True:
         # If strict hostname verification is configured in production
         exp_host = expected_hostname or os.getenv("TURNSTILE_EXPECTED_HOSTNAME", TURNSTILE_EXPECTED_HOSTNAME)
         actual_host = data.get("hostname")
         is_test_mode = data.get("metadata", {}).get("result_with_testing_key") is True
+
+        if is_prod and is_test_mode:
+            logger.warning("Turnstile response indicates result_with_testing_key, but environment is production.")
+            return False, "CAPTCHA verification failed. Test keys are not permitted in production."
 
         if exp_host and actual_host and not is_test_mode:
             if actual_host.lower() != exp_host.lower():
@@ -390,10 +419,24 @@ async def verify_turnstile_token(token: Optional[str], remote_ip: Optional[str] 
         return False, "CAPTCHA verification is required. Please complete the challenge."
 
     token_str = token.strip()
+    is_prod = is_production_environment()
+
+    # In production, Cloudflare dummy test tokens are strictly prohibited
+    if is_prod and token_str in TEST_TURNSTILE_TOKENS:
+        logger.warning("Cloudflare Turnstile test dummy token was rejected in production environment.")
+        return False, "CAPTCHA verification failed. Test tokens are not permitted in production."
+
     secret_key = os.getenv("TURNSTILE_SECRET_KEY", TURNSTILE_SECRET_KEY)
-    # If using Cloudflare's standard testing dummy tokens, pair with the standard test secret key
-    if token_str in ("1x0000000000000000000000000000000AA", "2x0000000000000000000000000000000AA", "3x0000000000000000000000000000000AA"):
-        secret_key = token_str
+
+    if not is_prod:
+        # In development/test mode, Cloudflare standard test tokens pair with standard test secret key
+        if token_str in TEST_TURNSTILE_TOKENS:
+            secret_key = token_str
+    else:
+        # In production mode, dummy test secret keys are rejected
+        if not secret_key or secret_key in TEST_TURNSTILE_SECRET_KEYS:
+            logger.error("Cloudflare Turnstile secret key is misconfigured with test key in production environment.")
+            return False, "Anti-bot verification service is not properly configured for production."
 
     if not secret_key:
         logger.error("TURNSTILE_SECRET_KEY is missing.")
@@ -425,10 +468,24 @@ def verify_turnstile_token_sync(token: Optional[str], remote_ip: Optional[str] =
         return False, "CAPTCHA verification is required. Please complete the challenge."
 
     token_str = token.strip()
+    is_prod = is_production_environment()
+
+    # In production, Cloudflare dummy test tokens are strictly prohibited
+    if is_prod and token_str in TEST_TURNSTILE_TOKENS:
+        logger.warning("Cloudflare Turnstile test dummy token was rejected in production environment.")
+        return False, "CAPTCHA verification failed. Test tokens are not permitted in production."
+
     secret_key = os.getenv("TURNSTILE_SECRET_KEY", TURNSTILE_SECRET_KEY)
-    # If using Cloudflare's standard testing dummy tokens, pair with the standard test secret key
-    if token_str in ("1x0000000000000000000000000000000AA", "2x0000000000000000000000000000000AA", "3x0000000000000000000000000000000AA"):
-        secret_key = token_str
+
+    if not is_prod:
+        # In development/test mode, Cloudflare standard test tokens pair with standard test secret key
+        if token_str in TEST_TURNSTILE_TOKENS:
+            secret_key = token_str
+    else:
+        # In production mode, dummy test secret keys are rejected
+        if not secret_key or secret_key in TEST_TURNSTILE_SECRET_KEYS:
+            logger.error("Cloudflare Turnstile secret key is misconfigured with test key in production environment.")
+            return False, "Anti-bot verification service is not properly configured for production."
 
     if not secret_key:
         logger.error("TURNSTILE_SECRET_KEY is missing.")

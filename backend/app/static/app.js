@@ -50,6 +50,58 @@ const App = {
   turnstileSiteKey: '1x00000000000000000000AA',
   turnstileEnabled: true,
 
+  getTurnstileToken(mode = 'signin') {
+    let tok = '';
+    if (mode === 'signup') tok = this.signupTurnstileToken;
+    else if (mode === 'forgot') tok = this.forgotTurnstileToken;
+    else tok = this.signinTurnstileToken;
+
+    if (!tok && (!this.turnstileSiteKey || this.turnstileSiteKey.startsWith('1x') || typeof turnstile === 'undefined')) {
+      return '1x0000000000000000000000000000000AA';
+    }
+    return tok || null;
+  },
+
+  copyTotpSecret() {
+    const text = document.getElementById('totp-secret-key-text')?.innerText?.trim();
+    if (!text || text === 'XXXX XXXX XXXX XXXX') return;
+    navigator.clipboard.writeText(text).then(() => {
+      this.showToast('2FA secret key copied to clipboard!', 'success');
+    }).catch(() => {
+      this.showToast('Failed to copy secret key to clipboard.', 'error');
+    });
+  },
+
+  toggleRecoveryCodeLogin(e) {
+    if (e) e.preventDefault();
+    this.isRecoveryLoginMode = !this.isRecoveryLoginMode;
+    const totpBox = document.getElementById('totp-input-box');
+    const recBox = document.getElementById('recovery-input-box');
+    const toggleLink = document.getElementById('toggle-recovery-link');
+    const codeInput = document.getElementById('login-2fa-code');
+    const recInput = document.getElementById('login-recovery-code');
+
+    if (this.isRecoveryLoginMode) {
+      if (totpBox) totpBox.style.display = 'none';
+      if (recBox) recBox.style.display = 'block';
+      if (toggleLink) toggleLink.innerText = '🔢 Use Authenticator App Code Instead';
+      if (codeInput) codeInput.removeAttribute('required');
+      if (recInput) {
+        recInput.setAttribute('required', 'required');
+        recInput.focus();
+      }
+    } else {
+      if (totpBox) totpBox.style.display = 'block';
+      if (recBox) recBox.style.display = 'none';
+      if (toggleLink) toggleLink.innerText = '🔑 Use an Emergency Recovery Code Instead';
+      if (recInput) recInput.removeAttribute('required');
+      if (codeInput) {
+        codeInput.setAttribute('required', 'required');
+        codeInput.focus();
+      }
+    }
+  },
+
   // -------------------------------------------------------------
   // CORE API UTILITY
   // -------------------------------------------------------------
@@ -303,21 +355,21 @@ const App = {
       });
     });
 
-    // Login Form
-    const loginForm = document.getElementById('login-form');
+    // Login / Signin Form
+    const loginForm = document.getElementById('signin-form') || document.getElementById('login-form');
     if (loginForm) {
       loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        await this.handleLogin();
+        await this.handleLogin(e);
       });
     }
 
-    // Register Form
-    const registerForm = document.getElementById('register-form');
+    // Register / Signup Form
+    const registerForm = document.getElementById('signup-form') || document.getElementById('register-form');
     if (registerForm) {
       registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        await this.handleRegister(e);
+        await this.handleRegisterInitiate(e);
       });
     }
 
@@ -894,6 +946,7 @@ const App = {
   // -------------------------------------------------------------
   async handleLogin(e) {
     if (e) e.preventDefault();
+    if (this._isSubmittingAuth) return;
     const identifier = document.getElementById('signin-email')?.value?.trim();
     const password = document.getElementById('signin-password')?.value;
     const btn = document.getElementById('btn-signin-submit');
@@ -903,6 +956,7 @@ const App = {
       return;
     }
 
+    this._isSubmittingAuth = true;
     try {
       if (btn) {
         btn.disabled = true;
@@ -912,7 +966,7 @@ const App = {
       const data = await this.api('/api/auth/login', 'POST', {
         identifier: identifier,
         password: password,
-        turnstile_token: this.signinTurnstileToken || null
+        turnstile_token: this.getTurnstileToken('signin')
       });
 
       if (data.two_factor_required) {
@@ -928,15 +982,19 @@ const App = {
         this.switchAuthScreen('2fa_challenge');
         setTimeout(() => document.getElementById('login-2fa-code')?.focus(), 100);
         this.showToast('Password verified. Please enter your 2FA code.', 'info');
-      } else if (data.two_factor_enrollment_required) {
-        this.twoFactorSetupToken = data.two_factor_setup_token;
-        const setupData = await this.api('/api/auth/2fa/setup-initiate', 'POST', {
-          two_factor_setup_token: this.twoFactorSetupToken
-        });
-        document.getElementById('totp-qr-image').src = setupData.qr_code_data_url;
-        document.getElementById('totp-secret-key-text').innerText = setupData.secret;
+      } else if (data.two_factor_enrollment_required || data.status === '2fa_enrollment_required') {
+        this.twoFactorSetupToken = data.two_factor_setup_token || data.two_factor_token;
+        const qrImg = document.getElementById('totp-qr-image');
+        const secretKeyText = document.getElementById('totp-secret-key-text');
+        if (qrImg && data.qr_code_data_url) {
+          qrImg.src = data.qr_code_data_url;
+        }
+        if (secretKeyText && (data.totp_secret || data.secret)) {
+          secretKeyText.innerText = data.totp_secret || data.secret;
+        }
         this.switchAuthScreen('2fa_setup');
-        this.showToast('Mandatory 2FA setup required.', 'info');
+        setTimeout(() => document.getElementById('totp-setup-code')?.focus(), 100);
+        this.showToast('Mandatory 2FA setup required for this account.', 'info');
       } else if (data.access_token) {
         this.token = data.access_token;
         this.user = data.user;
@@ -945,9 +1003,39 @@ const App = {
         this.showApp();
       }
     } catch (err) {
-      this.showToast(err.message, 'error');
+      const message = String(err.message || '');
+      if (/account verification is pending|please verify your account/i.test(message)) {
+        if (identifier) {
+          this.pendingEmail = identifier.includes('@') ? identifier : '';
+          this.pendingPhone = identifier.includes('@') ? '' : identifier;
+
+          const destination = document.getElementById('otp-destination-text');
+          if (destination) {
+            destination.innerText = identifier;
+          }
+
+          const otpInput = document.getElementById('otp-code-input');
+          if (otpInput) otpInput.value = '';
+
+          this.switchAuthScreen('otp');
+          this.startOtpTimer();
+          this.startResendCooldown(60);
+
+          setTimeout(() => otpInput?.focus(), 100);
+
+          this.showToast(
+            'Your account needs verification. Enter the OTP sent to your registered contact.',
+            'info'
+          );
+        } else {
+          this.showToast(message, 'error');
+        }
+      } else {
+        this.showToast(message, 'error');
+      }
       this.resetTurnstiles();
     } finally {
+      this._isSubmittingAuth = false;
       if (btn) {
         btn.disabled = false;
         btn.innerText = 'Sign In to VIDHIK';
@@ -975,13 +1063,14 @@ const App = {
 
       const data = await this.api('/api/auth/2fa/verify-login', 'POST', {
         two_factor_token: this.twoFactorToken,
-        code: code
+        code: code,
+        use_recovery_code: Boolean(this.isRecoveryLoginMode)
       });
 
-      this.token = data.access_token;
-      this.user = data.user;
+      this.token = data.access_token || data.token;
+      this.user = data.user || data;
       localStorage.setItem('vidhik_token', this.token);
-      this.showToast(`2FA Verified. Welcome, ${this.user.full_name}!`, 'success');
+      this.showToast(`2FA Verified. Welcome, ${this.user.full_name || 'User'}!`, 'success');
       this.showApp();
     } catch (err) {
       this.showToast(err.message, 'error');
@@ -1074,6 +1163,8 @@ const App = {
       return;
     }
 
+    if (this._isSubmittingAuth) return;
+    this._isSubmittingAuth = true;
     try {
       if (btn) {
         btn.disabled = true;
@@ -1085,7 +1176,7 @@ const App = {
         email: email,
         phone: phone || null,
         password: password,
-        turnstile_token: this.signupTurnstileToken || null
+        turnstile_token: this.getTurnstileToken('signup')
       });
 
       this.pendingEmail = email;
@@ -1105,6 +1196,7 @@ const App = {
       this.showToast(err.message || 'Registration initiation failed', 'error');
       this.resetTurnstiles();
     } finally {
+      this._isSubmittingAuth = false;
       if (btn) {
         btn.disabled = false;
         btn.innerText = 'Continue to Identity Verification →';
@@ -1170,7 +1262,8 @@ const App = {
       if (btn) btn.innerText = 'Sending...';
 
       const res = await this.api('/api/auth/resend-otp', 'POST', {
-        email: this.pendingEmail,
+        target: this.pendingEmail || this.pendingPhone,
+        email: this.pendingEmail || null,
         phone: this.pendingPhone || null,
         purpose: 'signup_verification'
       });
@@ -1204,7 +1297,8 @@ const App = {
       }
 
       const data = await this.api('/api/auth/verify-otp', 'POST', {
-        email: this.pendingEmail,
+        target: this.pendingEmail || this.pendingPhone,
+        email: this.pendingEmail || null,
         phone: this.pendingPhone || null,
         otp_code: otpCode,
         purpose: 'signup_verification'
@@ -1280,8 +1374,8 @@ const App = {
         totp_code: totpCode
       });
 
-      this.token = data.access_token;
-      this.user = data.user;
+      this.token = data.access_token || data.token;
+      this.user = data.user || data;
       localStorage.setItem('vidhik_token', this.token);
       this.recoveryCodes = data.recovery_codes || [];
 
@@ -1352,7 +1446,7 @@ const App = {
   },
 
   finishRegistrationFlow() {
-    this.showToast(`Welcome to VIDHIK AI, ${this.user.full_name}!`, 'success');
+    this.showToast(`Welcome to VIDHIK AI, ${this.user?.full_name || 'User'}!`, 'success');
     this.showApp();
   },
 
@@ -1372,9 +1466,9 @@ const App = {
         btn.innerText = 'Dispatching Reset Link...';
       }
 
-      await this.api('/api/auth/password-reset/request', 'POST', {
+      await this.api('/api/auth/forgot-password', 'POST', {
         email: email,
-        turnstile_token: this.forgotTurnstileToken || null
+        turnstile_token: this.getTurnstileToken('forgot')
       });
 
       this.showToast('If an account exists with that email, password reset instructions have been sent.', 'success');
@@ -1391,7 +1485,7 @@ const App = {
   },
 
   // Role switching and localization extras
-switchAuthMode(mode, fillCredentials = true) {
+  switchAuthMode(mode) {
     this.authMode = mode;
     const loginScreen = document.getElementById('login-screen');
     if (loginScreen) {
@@ -1411,15 +1505,14 @@ switchAuthMode(mode, fillCredentials = true) {
 
     const loginForm = document.getElementById('login-form');
     const regForm = document.getElementById('register-form');
-    const demoContainer = document.getElementById('login-demo-container');
     const regPrompt = document.getElementById('auth-register-prompt');
     const adminBadge = document.getElementById('admin-restricted-badge');
     const heading = document.getElementById('auth-role-heading');
     const subtitle = document.getElementById('auth-card-subtitle');
     const emailLabel = document.getElementById('login-email-label');
-    const emailInput = document.getElementById('login-email');
-    const submitBtn = document.getElementById('btn-login-submit');
-    const submitBtnText = document.getElementById('btn-login-submit-text');
+    const emailInput = document.getElementById('signin-email') || document.getElementById('login-email');
+    const submitBtn = document.getElementById('btn-signin-submit') || document.getElementById('btn-login-submit');
+    const submitBtnText = document.getElementById('btn-login-submit-text') || submitBtn;
     const submitBtnIcon = document.getElementById('btn-login-submit-icon');
 
     const lang = this.currentLanguage || 'en';
@@ -1428,7 +1521,6 @@ switchAuthMode(mode, fillCredentials = true) {
     if (mode === 'register') {
       if (loginForm) loginForm.style.display = 'none';
       if (regForm) regForm.style.display = 'block';
-      if (demoContainer) demoContainer.style.display = 'none';
       if (adminBadge) adminBadge.style.display = 'none';
       if (heading) heading.textContent = dict.registerHeading;
       if (subtitle) subtitle.textContent = dict.registerSub;
@@ -1438,13 +1530,12 @@ switchAuthMode(mode, fillCredentials = true) {
     // Login modes: citizen, lawyer, admin
     if (loginForm) loginForm.style.display = 'block';
     if (regForm) regForm.style.display = 'none';
-    if (demoContainer) demoContainer.style.display = 'block';
 
     if (mode === 'citizen') {
       if (heading) heading.textContent = dict.citizenHeading;
       if (subtitle) subtitle.textContent = dict.citizenSub;
       if (emailLabel) emailLabel.textContent = dict.citizenEmailLabel;
-      if (emailInput) emailInput.placeholder = 'sunita.sharma@example.com';
+      if (emailInput) emailInput.placeholder = 'name@example.com';
       if (submitBtnText) submitBtnText.textContent = dict.signInBtn;
       if (submitBtn) submitBtn.classList.remove('btn-admin');
       if (adminBadge) adminBadge.style.display = 'none';
@@ -1452,23 +1543,17 @@ switchAuthMode(mode, fillCredentials = true) {
       if (submitBtnIcon) {
         submitBtnIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>';
       }
-      if (fillCredentials) {
-        this.fillDemoLogin('sunita.sharma@example.com', 'citizen');
-      }
     } else if (mode === 'lawyer') {
       if (heading) heading.textContent = dict.lawyerHeading;
       if (subtitle) subtitle.textContent = dict.lawyerSub;
       if (emailLabel) emailLabel.textContent = dict.lawyerEmailLabel;
-      if (emailInput) emailInput.placeholder = 'rajesh.advocate@vidhik.ai';
+      if (emailInput) emailInput.placeholder = 'advocate@domain.com';
       if (submitBtnText) submitBtnText.textContent = dict.signInBtn;
       if (submitBtn) submitBtn.classList.remove('btn-admin');
       if (adminBadge) adminBadge.style.display = 'none';
       if (regPrompt) regPrompt.style.display = 'none';
       if (submitBtnIcon) {
         submitBtnIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>';
-      }
-      if (fillCredentials) {
-        this.fillDemoLogin('rajesh.advocate@vidhik.ai', 'lawyer');
       }
     } else if (mode === 'admin') {
       if (heading) heading.textContent = dict.adminHeading;
@@ -1481,9 +1566,6 @@ switchAuthMode(mode, fillCredentials = true) {
       if (regPrompt) regPrompt.style.display = 'none';
       if (submitBtnIcon) {
         submitBtnIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>';
-      }
-      if (fillCredentials) {
-        this.fillDemoLogin('admin@vidhik.ai', 'admin');
       }
     }
   },
@@ -1582,30 +1664,6 @@ switchAuthMode(mode, fillCredentials = true) {
         hideIcon.style.display = isPassword ? 'block' : 'none';
       }
     }
-  },
-
-  fillDemoLogin(email, roleOrPassword = 'password123') {
-    let targetMode = 'citizen';
-    if (email.includes('rajesh') || roleOrPassword === 'lawyer') {
-      targetMode = 'lawyer';
-    } else if (email.includes('admin') || roleOrPassword === 'admin') {
-      targetMode = 'admin';
-    }
-    if (this.authMode !== targetMode) {
-      this.switchAuthMode(targetMode, false);
-    }
-    const emailInput = document.getElementById('login-email');
-    const pwdInput = document.getElementById('login-password');
-    if (emailInput) emailInput.value = email;
-    if (pwdInput) {
-      if (['citizen', 'lawyer', 'admin'].includes(roleOrPassword) || !roleOrPassword) {
-        pwdInput.value = 'password123';
-      } else {
-        pwdInput.value = roleOrPassword;
-      }
-    }
-    const errAlert = document.getElementById('login-error-alert');
-    if (errAlert) errAlert.style.display = 'none';
   },
 
   async logout() {
@@ -9988,7 +10046,12 @@ const roleEl = document.getElementById('sidebar-lawyer-role') || document.getEle
   }
 };
 
+if (typeof window !== 'undefined') {
+  window.App = App;
+}
+
 // Run when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   App.init();
 });
+

@@ -19,8 +19,17 @@ import urllib.request
 import urllib.error
 from abc import ABC, abstractmethod
 from typing import Optional, Dict, Any, Iterator
+from pathlib import Path
+from dotenv import load_dotenv
 
 logger = logging.getLogger("vidhik.llm_provider")
+
+# Load environment variables from backend/.env if available
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+if (BASE_DIR / ".env").is_file():
+    load_dotenv(BASE_DIR / ".env")
+else:
+    load_dotenv()
 
 
 class BaseLLMProvider(ABC):
@@ -458,16 +467,109 @@ class OpenAILLMProvider(BaseLLMProvider):
             raise RuntimeError("Upstream OpenAI API request failed.")
 
 
+class OllamaLLMProvider(BaseLLMProvider):
+    """Local Ollama LLM provider."""
+
+    def __init__(
+        self,
+        model: Optional[str] = None,
+        base_url: Optional[str] = None
+    ):
+        self.model = model or os.getenv(
+            "OLLAMA_MODEL", "llama3.2:3b"
+        )
+        self.base_url = (
+            base_url or os.getenv(
+                "OLLAMA_BASE_URL", "http://localhost:11434"
+            )
+        ).rstrip("/")
+
+    @property
+    def provider_name(self) -> str:
+        return f"ollama ({self.model})"
+
+    def generate(
+        self,
+        prompt: str,
+        system_instruction: str,
+        temperature: float = 0.1,
+        max_output_tokens: int = 1500
+    ) -> str:
+        endpoint_url = f"{self.base_url}/api/chat"
+
+        token_limit = int(os.getenv("OLLAMA_MAX_TOKENS", "450"))
+        effective_tokens = min(max_output_tokens, token_limit) if max_output_tokens else token_limit
+
+        payload = {
+            "model": self.model,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": system_instruction
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            "stream": False,
+            "options": {
+                "temperature": temperature,
+                "num_predict": effective_tokens
+            }
+        }
+
+        try:
+            req_data = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(
+                endpoint_url,
+                data=req_data,
+                headers={"Content-Type": "application/json"}
+            )
+
+            timeout_sec = int(os.getenv("OLLAMA_TIMEOUT", "180"))
+            with urllib.request.urlopen(
+                req, timeout=timeout_sec
+            ) as resp:
+                result = json.loads(
+                    resp.read().decode("utf-8")
+                )
+
+            message = result.get("message", {})
+            content = message.get("content", "").strip()
+
+            if content:
+                return content
+
+            raise RuntimeError(
+                "Ollama returned an empty response."
+            )
+
+        except Exception as e:
+            logger.error(
+                "Ollama request failed: %s", e,
+                exc_info=True
+            )
+            raise RuntimeError(
+                "Ollama request failed. Check that Ollama "
+                "is running and the configured model exists."
+            ) from e
+
 def get_llm_provider(provider_type: Optional[str] = None) -> BaseLLMProvider:
     """
     Factory creating an LLM provider based on environment configuration or explicit request.
     Defaults to Gemini if API key is present, otherwise falls back gracefully to Offline Mock.
     """
+    if (BASE_DIR / ".env").is_file():
+        load_dotenv(BASE_DIR / ".env")
+    else:
+        load_dotenv()
+
     selected_type = (provider_type or os.getenv("LLM_PROVIDER", "gemini")).lower().strip()
 
     if selected_type == "gemini":
         api_key = os.getenv("GEMINI_API_KEY") or os.getenv("LLM_API_KEY")
-        if api_key:
+        if api_key: 
             return GeminiLLMProvider(api_key=api_key)
         logger.info("LLM_PROVIDER is 'gemini' but GEMINI_API_KEY is not set. Using OfflineMockLLMProvider.")
         return OfflineMockLLMProvider()
@@ -479,4 +581,8 @@ def get_llm_provider(provider_type: Optional[str] = None) -> BaseLLMProvider:
         logger.info("LLM_PROVIDER is 'openai' but OPENAI_API_KEY is not set. Using OfflineMockLLMProvider.")
         return OfflineMockLLMProvider()
 
+    if selected_type == "ollama":
+        return OllamaLLMProvider()
+
+    logger.info(f"Unknown LLM provider '{selected_type}'. Falling back to OfflineMockLLMProvider.")
     return OfflineMockLLMProvider()

@@ -447,7 +447,7 @@ class AuthService:
 
         # Find latest OTP record
         db.execute("""
-            SELECT id, user_id, resend_count, last_resend_at, verified_at, expires_at,
+            SELECT id, user_id, target, target_type, resend_count, last_resend_at, verified_at, expires_at,
                    EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - COALESCE(last_resend_at, created_at))) AS seconds_since_resend
             FROM otp_verifications
             WHERE LOWER(target) = %s AND (purpose = %s OR purpose = %s)
@@ -482,19 +482,22 @@ class AuthService:
         now_dt = datetime.now(timezone.utc)
         expires_at = now_dt + timedelta(minutes=10)
 
-        # Fetch user name if available.
+        # Fetch user name and registered email if available.
         user_name = None
+        recipient_target = clean_target
         if record["user_id"]:
-            db.execute("SELECT full_name FROM users WHERE user_id = %s;", (record["user_id"],))
+            db.execute("SELECT full_name, email FROM users WHERE user_id = %s;", (record["user_id"],))
             u_row = db.fetchone()
             if u_row:
-                user_name = u_row["full_name"]
+                user_name = u_row.get("full_name")
+                if (record.get("target_type") == "email" or "@" in (u_row.get("email") or "")) and u_row.get("email"):
+                    recipient_target = u_row["email"]
 
         # Do not invalidate the current code unless the replacement is accepted.
-        if "@" in clean_target:
-            delivered = EmailSmsService.send_otp_email(clean_target, new_otp, norm_purpose, user_name)
+        if "@" in recipient_target:
+            delivered = EmailSmsService.send_otp_email(recipient_target, new_otp, norm_purpose, user_name)
         else:
-            delivered = EmailSmsService.send_otp_sms(clean_target, new_otp, norm_purpose)
+            delivered = EmailSmsService.send_otp_sms(recipient_target, new_otp, norm_purpose)
 
         if not delivered:
             raise HTTPException(
@@ -782,6 +785,23 @@ class AuthService:
                     user_agent=user_agent
                 )
 
+                # Dispatch lockout notification to the registered user's verified email
+                registered_email = user.get("email")
+                if registered_email and "@" in registered_email:
+                    try:
+                        EmailSmsService.send_security_alert_email(
+                            to_email=registered_email,
+                            user_name=user.get("full_name") or user.get("username") or "Vidhik User",
+                            alert_type="ACCOUNT_LOCKED",
+                            title="Account Temporarily Locked",
+                            description=f"Your Vidhik AI account has been temporarily locked for {LOCKOUT_MINUTES} minutes due to {new_failed} consecutive failed login attempts.",
+                            device=f"{ua_meta['browser']} on {ua_meta['device']} ({ua_meta['os']})",
+                            location=geo_meta["formatted"],
+                            ip_address=ip_address or "127.0.0.1"
+                        )
+                    except Exception as alert_err:
+                        logger.error(f"Failed to dispatch account lockout alert email: {alert_err}")
+
             db.execute("""
                 UPDATE users
                 SET failed_login_attempts = %s, locked_until = %s, updated_at = CURRENT_TIMESTAMP
@@ -851,10 +871,14 @@ class AuthService:
             setup_tok = create_two_factor_setup_token(user["user_id"], user["email"], totp_secret)
             return {
                 "status": "2fa_enrollment_required",
+                "two_factor_required": False,
+                "two_factor_enrollment_required": True,
                 "two_factor_token": setup_tok,
+                "two_factor_setup_token": setup_tok,
                 "qr_uri": qr_uri,
                 "qr_code_data_url": qr_data_url,
                 "totp_secret": totp_secret,
+                "secret": totp_secret,
                 "message": "Mandatory Two-Factor Authentication (2FA) setup is required for this account."
             }
 
@@ -1263,7 +1287,7 @@ class AuthService:
                 detail="CAPTCHA verification failed. Please complete the security check."
             )
 
-        db.execute("SELECT user_id, full_name, is_active FROM users WHERE LOWER(email) = %s;", (clean_email,))
+        db.execute("SELECT user_id, email, full_name, is_active FROM users WHERE LOWER(email) = %s;", (clean_email,))
         user = db.fetchone()
 
         if not user or not user["is_active"]:
@@ -1288,8 +1312,9 @@ class AuthService:
         exp_otp = now_dt + timedelta(minutes=15)
 
         # Dispatch first; don't store a reset code that was not delivered.
+        registered_email = user.get("email") if user and user.get("email") else clean_email
         email_sent = EmailSmsService.send_otp_email(
-            clean_email, otp_code, "password_reset", user["full_name"]
+            registered_email, otp_code, "password_reset", user["full_name"]
         )
         if not email_sent:
             logger.warning("Password reset email was not delivered by the configured provider.")

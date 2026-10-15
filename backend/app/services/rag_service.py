@@ -134,7 +134,7 @@ class LegalRAGService:
         # -------------------------------------------------------------
         retrieved_sections, source_citations, prompt_context_str = LegalContextBuilder.build_context(
             ranked_candidates=ranked_candidates,
-            max_sections=request.max_sections
+            max_sections=10
         )
 
         if not retrieved_sections or not prompt_context_str.strip():

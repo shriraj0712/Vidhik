@@ -478,3 +478,88 @@ class TestOTPSecurityLifecycle:
             with get_db_cursor() as cur:
                 cur.execute("DELETE FROM users WHERE email = %s;", (unverified_email.lower(),))
                 cur.connection.commit()
+
+
+# =============================================================================
+# 4. REGRESSION: LOCKOUT RECIPIENT & MOCK DOMAIN DISPATCH
+# =============================================================================
+
+class TestLockoutAndNotificationRecipient:
+    """Regression tests ensuring lockout alerts and OTPs use registered user email and avoid NXDOMAIN."""
+
+    def test_mock_domain_prevents_smtp_nxdomain_bounce(self):
+        """Synthetic test domains like vidhik.ai should not be forwarded to live SMTP relay."""
+        with patch.dict(os.environ, {"APP_ENV": "development", "EMAIL_PROVIDER": "smtp"}):
+            with patch("smtplib.SMTP") as mock_smtp:
+                delivered = EmailSmsService.send_otp_email("lockout.otp.1792062455@vidhik.ai", "123456")
+                assert delivered is True
+                mock_smtp.assert_not_called()
+
+    def test_account_lockout_dispatches_alert_to_registered_user_email(self, client):
+        """Account lockout alert email must always target user's registered email."""
+        test_email = f"target.user.{int(datetime.now().timestamp())}@vidhik.ai"
+        pwd = "StrongPassword@2026!"
+        try:
+            with get_db_cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO users (username, email, password_hash, full_name, role, email_verified, two_factor_enabled, failed_login_attempts)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    RETURNING user_id;
+                    """,
+                    (test_email.split('@')[0], test_email.lower(), hash_password(pwd), "Real Registered User", "user", True, True, 4)
+                )
+                cur.connection.commit()
+
+            with patch("app.services.email_sms_service.EmailSmsService.send_security_alert_email") as mock_alert:
+                # 5th failed attempt triggers lockout
+                resp = client.post("/api/auth/login", json={
+                    "identifier": test_email,
+                    "password": "WrongPassword999!",
+                    "turnstile_token": "1x0000000000000000000000000000000AA"
+                })
+                assert resp.status_code == 401
+                mock_alert.assert_called_once()
+                assert mock_alert.call_args.kwargs.get("to_email") == test_email.lower()
+                assert mock_alert.call_args.kwargs.get("alert_type") == "ACCOUNT_LOCKED"
+        finally:
+            with get_db_cursor() as cur:
+                cur.execute("DELETE FROM security_alerts WHERE user_id IN (SELECT user_id FROM users WHERE email = %s);", (test_email.lower(),))
+                cur.execute("DELETE FROM users WHERE email = %s;", (test_email.lower(),))
+                cur.connection.commit()
+
+    def test_resend_otp_targets_registered_user_email(self):
+        """resend_otp must use registered user's email if linked to user_id."""
+        test_email = f"resend.reg.{int(datetime.now().timestamp())}@vidhik.ai"
+        user_id = None
+        try:
+            with get_db_cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO users (username, email, password_hash, full_name, role, email_verified, is_verified)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    RETURNING user_id;
+                    """,
+                    (test_email.split('@')[0], test_email.lower(), "hash", "Registered User", "user", True, True)
+                )
+                user_id = cur.fetchone()["user_id"]
+                cur.execute(
+                    """
+                    INSERT INTO otp_verifications (user_id, target, target_type, otp_hash, purpose, expires_at, attempts, max_attempts, resend_count, last_resend_at)
+                    VALUES (%s, %s, 'email', %s, 'signup_verification', CURRENT_TIMESTAMP + INTERVAL '10 minutes', 0, 5, 0, CURRENT_TIMESTAMP - INTERVAL '120 seconds');
+                    """,
+                    (user_id, "some_internal_identifier", hash_otp("111222"))
+                )
+                cur.connection.commit()
+
+                with patch("app.services.email_sms_service.EmailSmsService.send_otp_email", return_value=True) as mock_send:
+                    res = AuthService.resend_otp(cur, "some_internal_identifier", "signup_verification")
+                    assert res["status"] == "otp_sent"
+                    mock_send.assert_called_once()
+                    assert mock_send.call_args[0][0] == test_email.lower()
+        finally:
+            if user_id:
+                with get_db_cursor() as cur:
+                    cur.execute("DELETE FROM otp_verifications WHERE user_id = %s;", (user_id,))
+                    cur.execute("DELETE FROM users WHERE email = %s;", (test_email.lower(),))
+                    cur.connection.commit()

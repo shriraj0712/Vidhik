@@ -105,7 +105,7 @@ def run_full_verification():
     assert overview["total_procedures"] >= 500
     assert overview["total_evidence_provisions"] >= 50
     assert overview["total_predecessor_mappings"] == 22
-    assert overview["total_verified_judgments"] == 5
+    assert overview["total_verified_judgments"] == 8
 
     # Validate Pydantic schema
     ov_obj = KnowledgeOverviewResponse(**overview)
@@ -260,16 +260,19 @@ def run_full_verification():
     # 9. JUDGMENTS VERIFICATION & STRICT 'NOT IN SOURCE' FOR ACTS 4-24
     # ----------------------------------------------------------------------
     print("\n[9/11] VERIFY JUDICIAL INTERPRETATIONS & STRICT 'NOT IN SOURCE' GUARDRAIL")
-    # Verified Supreme Court decisions for Acts 1-3
+    # Verified Supreme Court decisions (original Acts 1-3 set + intelligence-layer additions)
     sc_judgments = LegalKnowledgeService.get_judgments()
-    assert len(sc_judgments) == 5, f"Expected 5 verified SC judgments, got {len(sc_judgments)}"
+    assert len(sc_judgments) == 8, f"Expected 8 verified SC judgments, got {len(sc_judgments)}"
     citations = [j["citation"] for j in sc_judgments]
     assert "(2020) 7 SCC 1" in citations  # Arjun Panditrao Khotkar
     assert "(2014) 2 SCC 1" in citations  # Lalita Kumari
     assert "(2022) 10 SCC 51" in citations  # Satender Kumar Antil
     assert "(1980) 2 SCC 684" in citations  # Bachan Singh
     assert "(2018) 2 SCC 801" in citations  # Shafhi Mohammad
-    print(f"  ✓ Supreme Court Landmark Decisions (Acts 1-3) Verified: 5 Decisions")
+    assert "(1997) 1 SCC 416" in citations  # D.K. Basu (custodial arrest guidelines)
+    assert "(2017) 10 SCC 1" in citations  # Justice K.S. Puttaswamy (right to privacy)
+    assert "(2014) 8 SCC 273" in citations  # Arnesh Kumar (arrest safeguards)
+    print(f"  ✓ Supreme Court Landmark Decisions Verified: 8 Decisions")
 
 
     # Zero hallucination guarantee for Acts 4-24

@@ -38,7 +38,12 @@ from app.schemas.auth import (
     GoogleConfigResponse
 )
 from app.services.auth_service import AuthService, get_authenticated_user
-from app.core.security import TURNSTILE_SITE_KEY, GOOGLE_CLIENT_ID
+from app.core.security import (
+    TURNSTILE_SITE_KEY,
+    GOOGLE_CLIENT_ID,
+    is_production_environment,
+    TEST_TURNSTILE_SITE_KEYS
+)
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication & Security"])
 
@@ -59,6 +64,11 @@ def _get_client_ip(request: Request) -> str:
 def get_turnstile_config():
     """Returns the Cloudflare Turnstile public site key for frontend widget mounting."""
     site_key = os.getenv("TURNSTILE_SITE_KEY", TURNSTILE_SITE_KEY)
+    if is_production_environment() and site_key in TEST_TURNSTILE_SITE_KEYS:
+        return TurnstileConfigResponse(
+            site_key="",
+            enabled=False
+        )
     return TurnstileConfigResponse(
         site_key=site_key,
         enabled=bool(site_key)

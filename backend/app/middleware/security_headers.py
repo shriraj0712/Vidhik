@@ -1,10 +1,9 @@
+
 """
 Vidhik Platform - Security Headers Middleware
 ==============================================
-Applies OWASP-recommended HTTP security headers to all outgoing responses,
-protecting against MIME sniffing, clickjacking, cross-site scripting (XSS),
-and insecure referrer leakage while preserving full compatibility with the
-single-page static application.
+Applies security headers to outgoing responses while allowing
+FastAPI documentation assets on documentation routes only.
 """
 
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -13,33 +12,38 @@ from starlette.responses import Response
 
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
-    """
-    Injects standard security headers onto every HTTP response.
-    """
+    """Inject standard security headers into HTTP responses."""
 
     async def dispatch(self, request: Request, call_next) -> Response:
         response = await call_next(request)
 
-        # 1. Prevent MIME-type sniffing
         response.headers["X-Content-Type-Options"] = "nosniff"
-
-        # 2. Prevent clickjacking (SAMEORIGIN allows embedded SPA if needed)
         response.headers["X-Frame-Options"] = "SAMEORIGIN"
-
-        # 3. Referrer leakage prevention
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-
-        # 4. Cross-site scripting legacy filter
         response.headers["X-XSS-Protection"] = "1; mode=block"
 
-        # 5. Content Security Policy compatible with static UI, fonts, and inline styles
+        is_docs = request.url.path in {"/docs", "/redoc"}
+
         csp = (
             "default-src 'self'; "
             "script-src 'self' 'unsafe-inline' "
             "https://challenges.cloudflare.com "
-            "https://accounts.google.com; "
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-            "font-src 'self' https://fonts.gstatic.com data:; "
+            "https://accounts.google.com"
+        )
+
+        if is_docs:
+            csp += " https://cdn.jsdelivr.net"
+
+        csp += (
+            "; style-src 'self' 'unsafe-inline' "
+            "https://fonts.googleapis.com"
+        )
+
+        if is_docs:
+            csp += " https://cdn.jsdelivr.net"
+
+        csp += (
+            "; font-src 'self' https://fonts.gstatic.com data:; "
             "img-src 'self' data: https:; "
             "connect-src 'self' "
             "http://localhost:* "
@@ -53,6 +57,6 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "object-src 'none'; "
             "base-uri 'self';"
         )
-        response.headers["Content-Security-Policy"] = csp
 
+        response.headers["Content-Security-Policy"] = csp
         return response

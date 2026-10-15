@@ -189,6 +189,22 @@ class TestTurnstileAndDeviceParsing:
         assert valid is True
         assert err is None
 
+    def test_turnstile_test_token_rejected_in_production(self, monkeypatch):
+        """Test dummy tokens must be rejected when running in production."""
+        monkeypatch.setenv("APP_ENV", "production")
+        monkeypatch.setenv("TURNSTILE_SECRET_KEY", "real_production_secret_key_1234567890")
+        valid, err = verify_turnstile_token_sync("1x0000000000000000000000000000000AA", "127.0.0.1")
+        assert valid is False
+        assert "not permitted in production" in err.lower()
+
+    def test_turnstile_dummy_secret_rejected_in_production(self, monkeypatch):
+        """Dummy test secrets must be rejected when running in production."""
+        monkeypatch.setenv("APP_ENV", "production")
+        monkeypatch.setenv("TURNSTILE_SECRET_KEY", "1x0000000000000000000000000000000AA")
+        valid, err = verify_turnstile_token_sync("some_real_user_token", "127.0.0.1")
+        assert valid is False
+        assert "not properly configured for production" in err.lower()
+
     def test_user_agent_parsing(self):
         ua_chrome = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         info = parse_user_agent(ua_chrome)
