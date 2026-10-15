@@ -14,6 +14,8 @@ from psycopg2.extras import RealDictCursor
 from app.database import get_db
 from app.schemas.assistant import AssistantChatRequest, AssistantChatResponse
 from app.services.assistant_service import LegalAssistantService
+from typing import Optional
+from app.services.auth_service import get_optional_user
 from app.services.llm_provider import get_llm_provider
 
 logger = logging.getLogger("vidhik.assistant_router")
@@ -37,7 +39,8 @@ router = APIRouter(prefix="/api/assistant", tags=["Assistant"])
 )
 def chat_with_assistant(
     request: AssistantChatRequest,
-    db: RealDictCursor = Depends(get_db)
+    db: RealDictCursor = Depends(get_db),
+    current_user: Optional[dict] = Depends(get_optional_user)
 ):
     """
     Primary chat endpoint for the AI Legal Assistant.
@@ -59,7 +62,8 @@ def chat_with_assistant(
     try:
         response = LegalAssistantService.chat(
             db=db,
-            request=request
+            request=request,
+            current_user=current_user
         )
         return response
     except ValueError as ve:
