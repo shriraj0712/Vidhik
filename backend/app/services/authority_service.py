@@ -216,7 +216,7 @@ class AuthorityService:
     }
 
     @classmethod
-    def recommend_authority(cls, request: AuthorityRecommendationRequest) -> AuthorityRecommendationResponse:
+    def recommend_authority(cls, request: AuthorityRecommendationRequest) -> StatutoryAuthorityRecommendationResponse:
         start_time = time.time()
         issue_clean = request.issue_description.lower()
         category = request.category.lower() if request.category else ""

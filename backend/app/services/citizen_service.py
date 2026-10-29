@@ -743,7 +743,8 @@ class CitizenService:
             SELECT
                 u.user_id, u.username, u.email, u.full_name, u.phone, u.role, u.created_at,
                 up.date_of_birth, up.address, up.city, up.state, up.pincode,
-                up.preferred_language, up.profile_image_url, up.occupation,
+                COALESCE(up.preferred_language, 'en') AS preferred_language,
+                up.profile_image_url, up.occupation,
                 up.emergency_contact, up.updated_at
             FROM users u
             LEFT JOIN user_profiles up ON u.user_id = up.user_id

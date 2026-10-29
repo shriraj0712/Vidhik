@@ -1,50 +1,91 @@
-# Python
-__pycache__/
-*.py[cod]
-.venv/
-venv/
-env/
+# Local probe/backup/temp artifacts generated during development and packaging work
+backend/aiv2_ollama_probe.py
+backend/ollama_chat_probe.py
+backend/ollama_http_probe.py
+backend/run_live_probe.py
+backend/aiv2_selfcheck.py
+backend/recovery_audit_20261013/
+backend/recovery_snapshot/
+backend/merge_repair_sources/
+backend/index_versions_diff.txt
+backend/merge_conflict_report.txt
+backend/data/
+backend/.env
+backend/app_static_appjs_conflict_backup.tmp
+backend/app_static_remote_review.tmp
+backend/appjs_current_branch.tmp
+backend/authority_service_head.tmp
+backend/authority_service_remote.tmp
+backend/styles_conflict_backup.tmp
+backend/index_before_first_resolution.tmp
+backend/index_before_first_targeted_edit.tmp
+backend/index_before_nav_merge.tmp
+backend/index_before_safe_resolution.tmp
+backend/index_conflict_backup.tmp
+backend/index_conflict_full.txt
+backend/index_remote_review.tmp
 
-# Environment variables
+backend/app/static/backup_20261012_0220_app.js
+backend/app/static/backup_20261012_0220_index.html
+backend/app/static/backup_20261012_0220_styles.css
+backend/app/static/index_before_safe_resolution.tmp
+backend/app/static/*.bak
+
+scratch/
+extracted_text.py
+search_audit.txt
+admin_phase15.txt
+vidhik-*-changes.patch
+all_acts.txt
+section_import_errors.txt
+docs copy/
+
+# Python caches and local pytest caches
+scripts/__pycache__/
+data/__pycache__/
+backend/tests/__pycache__/
+backend/app/__pycache__/
+backend/app/core/__pycache__/
+backend/app/middleware/__pycache__/
+backend/app/models/__pycache__/
+backend/app/routers/__pycache__/
+backend/app/schemas/__pycache__/
+backend/app/services/__pycache__/
+backend/__pycache__/
+__pycache__/
+.pytest_cache/
+backend/.pytest_cache/
+data/.pytest_cache/
+
+# Database artifacts that are not part of the committed schema
+database/backups/
+database/validation/
+
+# Local database backups and temporary files
+backend/app/database.py.pre_neon.bak
+*.pre_neon.bak
+
+# Local migration backups and scratch artifacts
+.freebuff/
+.dockerignore.txt
+backend/app/routers/assistant.py.bak_mobile_migration
+vidhik_unsaved_changes.patch
+
+# Never track environment files; keep only example templates
 .env
 .env.*
 !.env.example
 
-# PostgreSQL
+# Ignore SQL snapshots and local exports, while tracking schema migrations
 *.sql
-*.dump
-*.backup
-!database/migrations/008_expand_legal_procedures_phase12.sql
-!database/migrations/010_ecourts_case_tracking_schema.sql
+!database/migrations/*.sql
 
-# IDE
-.vscode/
-.idea/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Node
+# Generated dependencies, builds, caches, and logs
 node_modules/
-
-# Build
-dist/
+**/node_modules/
 build/
-
-# Logs
+dist/
 *.log
-
-# Python cache
-.pytest_cache/
-.mypy_cache/
-
-# Temporary files
 tmp/
 temp/
-# User-uploaded legal evidence and generated analysis artifacts
-/backend/data/evidence/
-
-# Keep the video evidence database migration in version control
-!/database/migrations/010_video_evidence_analysis.sql
-!database/migrations/011_ecourts_case_tracking_schema.sql
+.mypy_cache/

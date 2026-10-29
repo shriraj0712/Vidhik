@@ -491,13 +491,16 @@ def test_api_resolution_health_endpoint():
     assert data["deterministic_classification"] is True
 
 
-def test_backward_compatibility_existing_endpoints():
+def test_backward_compatibility_existing_endpoints(monkeypatch):
     """Asserts that new resolution engine registration did not break existing platform endpoints."""
     # Health check
     resp_health = client.get("/health")
     assert resp_health.status_code == 200
 
-    # Assistant health
+    # Assistant and RAG health with an available configured provider.
+    ready_provider = {"provider": "test (model)", "ready": True, "status": "ready"}
+    monkeypatch.setattr("app.routers.assistant.check_llm_provider_readiness", lambda: ready_provider)
+    monkeypatch.setattr("app.routers.rag.check_llm_provider_readiness", lambda: ready_provider)
     resp_asst = client.get("/api/assistant/health")
     assert resp_asst.status_code == 200
 

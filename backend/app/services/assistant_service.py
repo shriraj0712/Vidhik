@@ -255,7 +255,11 @@ class ConversationContextHandler:
             context_prefix = " ".join(anchor_parts)
             if context_prefix.lower() not in clean_msg.lower():
                 enriched_query = f"{context_prefix} {clean_msg}"
-                logger.info(f"Contextualized follow-up query: '{clean_msg}' -> '{enriched_query}'")
+                logger.info(
+                    "Resolved contextual follow-up query (original_length=%d, resolved_length=%d).",
+                    len(clean_msg),
+                    len(enriched_query)
+                )
                 return enriched_query
 
         return clean_msg
@@ -281,7 +285,8 @@ class LegalAssistantService:
         db: RealDictCursor,
         request: AssistantChatRequest,
         provider: Optional[BaseLLMProvider] = None,
-        store: Optional[BaseConversationStore] = None
+        store: Optional[BaseConversationStore] = None,
+        current_user: Optional[Dict[str, Any]] = None
     ) -> AssistantChatResponse:
         """
         Processes a conversational legal question from the user.
@@ -356,15 +361,34 @@ class LegalAssistantService:
         evidence_transcripts: Optional[List[Dict[str, Any]]] = None
         evidence_context_text = ""
         evidence_title: Optional[str] = None
+        authorized_evidence_id: Optional[int] = None
+        ev_row = None
+        evidence_id_for_context = request.evidence_id
+        if evidence_id_for_context is None and effective_history:
+            for turn in reversed(effective_history):
+                match = re.search(r"\bEVD-(\d+)\b", turn.content, re.IGNORECASE)
+                if match:
+                    evidence_id_for_context = int(match.group(1))
+                    break
 
-        if request.evidence_id:
+        if evidence_id_for_context and current_user:
             try:
-                db.execute("SELECT * FROM video_evidence WHERE evidence_id = %s;", (request.evidence_id,))
-                ev_row = db.fetchone()
+                is_admin = current_user.get("role") == "admin"
+                user_id = current_user.get("user_id")
+                if is_admin or user_id:
+                    evidence_query = "SELECT * FROM video_evidence WHERE evidence_id = %s"
+                    evidence_params: List[Any] = [evidence_id_for_context]
+                    if not is_admin:
+                        evidence_query += " AND user_id = %s"
+                        evidence_params.append(user_id)
+                    evidence_query += ";"
+                    db.execute(evidence_query, tuple(evidence_params))
+                    ev_row = db.fetchone()
                 if ev_row:
-                    evidence_title = f"Video Evidence #{request.evidence_id} ({ev_row['original_filename']})"
+                    authorized_evidence_id = evidence_id_for_context
+                    evidence_title = f"Video Evidence #{evidence_id_for_context} ({ev_row['original_filename']})"
 
-                    db.execute("SELECT * FROM video_visual_observations WHERE evidence_id = %s ORDER BY timestamp_seconds ASC;", (request.evidence_id,))
+                    db.execute("SELECT * FROM video_visual_observations WHERE evidence_id = %s ORDER BY timestamp_seconds ASC;", (evidence_id_for_context,))
                     obs_rows = db.fetchall()
                     evidence_observations = [
                         {
@@ -378,7 +402,7 @@ class LegalAssistantService:
                         for o in obs_rows
                     ]
 
-                    db.execute("SELECT * FROM video_transcripts WHERE evidence_id = %s ORDER BY start_time ASC;", (request.evidence_id,))
+                    db.execute("SELECT * FROM video_transcripts WHERE evidence_id = %s ORDER BY start_time ASC;", (evidence_id_for_context,))
                     tr_rows = db.fetchall()
                     evidence_transcripts = [
                         {
@@ -393,7 +417,7 @@ class LegalAssistantService:
 
                     # Build structured evidence context
                     lines = [
-                        f"=== VERIFIED DIGITAL VIDEO EVIDENCE CONTEXT (EVD-{request.evidence_id}) ===",
+                        f"=== VERIFIED DIGITAL VIDEO EVIDENCE CONTEXT (EVD-{evidence_id_for_context}) ===",
                         f"File: {ev_row['original_filename']} | Duration: {float(ev_row.get('duration_seconds') or 0):.1f}s | SHA-256: {ev_row.get('file_hash_sha256')}",
                         f"Format: {str(ev_row.get('media_container', '')).upper()} | Resolution: {ev_row.get('resolution')} | Audio Present: {ev_row.get('has_audio')}",
                         "\n--- OBSERVED VISUAL EVENTS (SAMPLED FRAMES) ---"
@@ -443,7 +467,7 @@ class LegalAssistantService:
             language=request.language or "en",
             jurisdiction=request.jurisdiction,
             law_id=request.law_id,
-            max_sections=request.max_sections or 5,
+            max_sections=request.max_sections or 8,
             temperature=(
                 request.temperature
                 if request.temperature is not None
@@ -486,7 +510,7 @@ class LegalAssistantService:
             sources=rag_response.sources,
             retrieved_sections=rag_response.retrieved_sections,
             retrieval_metadata=rag_response.retrieval_metadata,
-            evidence_id=request.evidence_id,
+            evidence_id=authorized_evidence_id,
             evidence_observations=evidence_observations,
             evidence_transcripts=evidence_transcripts,
             disclaimer=cls.DEFAULT_DISCLAIMER

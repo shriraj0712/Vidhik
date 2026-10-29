@@ -292,6 +292,28 @@ def test_api_evidence_download_report():
 # 7. INTEGRATION: EVIDENCE-AWARE ASSISTANT CHAT
 # ==============================================================================
 
+def _grounded_evidence_test_response(query: str, answer: str):
+    from app.schemas.rag import RAGResponse, RetrievalMetadata
+
+    return RAGResponse(
+        query=query,
+        language="en",
+        answer=answer,
+        confidence="grounded_medium",
+        is_grounded=True,
+        sources=[],
+        retrieved_sections=[],
+        retrieval_metadata=RetrievalMetadata(
+            total_candidates_found=1,
+            sections_used=1,
+            query_terms_matched=[],
+            concept_categories=[],
+            multilingual_synonyms_applied=[],
+            retrieval_strategy="test",
+        ),
+    )
+
+
 def test_assistant_chat_with_evidence_id_integration():
     """Asserts that LegalAssistantService incorporates video evidence into grounded RAG synthesis."""
     mock_db = MagicMock()
@@ -299,6 +321,7 @@ def test_assistant_chat_with_evidence_id_integration():
         # 1. Fetch video_evidence
         {
             "evidence_id": 88,
+            "user_id": 42,
             "original_filename": "altercation_at_gate.mp4",
             "duration_seconds": 42.0,
             "media_container": "mp4",
@@ -358,10 +381,17 @@ def test_assistant_chat_with_evidence_id_integration():
         evidence_id=88
     )
 
-    resp = LegalAssistantService.chat(
-        db=mock_db,
-        request=req
-    )
+    with patch(
+        "app.services.assistant_service.LegalRAGService.query",
+        return_value=_grounded_evidence_test_response(
+            req.message, "At 00:12 the recording shows the described movement."
+        ),
+    ) as rag_query:
+        resp = LegalAssistantService.chat(
+            db=mock_db,
+            request=req,
+            current_user={"user_id": 42, "role": "citizen"}
+        )
 
     assert resp.evidence_id == 88
     assert resp.evidence_observations is not None
@@ -371,6 +401,11 @@ def test_assistant_chat_with_evidence_id_integration():
     assert len(resp.evidence_transcripts) == 1
     assert "Step away" in resp.evidence_transcripts[0]["text"]
     assert resp.is_grounded is True
+    evidence_query, evidence_params = mock_db.execute.call_args_list[0].args
+    assert "WHERE evidence_id = %s AND user_id = %s" in evidence_query
+    assert evidence_params == (88, 42)
+    rag_query.assert_called_once()
+    assert "EVD-88" in str(rag_query.call_args.kwargs)
     # Verify the answer synthesizes the video evidence observations
     assert "00:12" in resp.answer or "Individual in blue shirt" in resp.answer
 
@@ -381,6 +416,7 @@ def test_timestamp_specific_inquiry_synthesis():
     mock_db.fetchone.side_effect = [
         {
             "evidence_id": 92,
+            "user_id": 42,
             "original_filename": "traffic_stop.mp4",
             "duration_seconds": 60.0,
             "media_container": "mp4",
@@ -442,10 +478,17 @@ def test_timestamp_specific_inquiry_synthesis():
         evidence_id=92
     )
 
-    resp = LegalAssistantService.chat(
-        db=mock_db,
-        request=req
-    )
+    with patch(
+        "app.services.assistant_service.LegalRAGService.query",
+        return_value=_grounded_evidence_test_response(
+            req.message, "At 00:12 the driver shows a smartphone to the officer."
+        ),
+    ):
+        resp = LegalAssistantService.chat(
+            db=mock_db,
+            request=req,
+            current_user={"user_id": 42, "role": "citizen"}
+        )
 
     assert resp.evidence_id == 92
     assert resp.is_grounded is True
@@ -466,6 +509,7 @@ def test_conversational_continuity_evidence_id_retention():
         if "video_evidence" in q:
             return {
                 "evidence_id": 77,
+                "user_id": 42,
                 "original_filename": "incident_77.mp4",
                 "duration_seconds": 30.0,
                 "media_container": "mp4",
@@ -495,7 +539,8 @@ def test_conversational_continuity_evidence_id_retention():
         evidence_id=77,
         conversation_id="conv-ev-continuity-test"
     )
-    resp1 = LegalAssistantService.chat(db=mock_db, request=req1)
+    user = {"user_id": 42, "role": "citizen"}
+    resp1 = LegalAssistantService.chat(db=mock_db, request=req1, current_user=user)
     assert resp1.evidence_id == 77
 
     # Turn 2: WITHOUT evidence_id in request, but with conversation_id and history
@@ -508,7 +553,7 @@ def test_conversational_continuity_evidence_id_retention():
             {"role": "assistant", "content": "The video shows shop shutter damage at 00:05 (EVD-77)."}
         ]
     )
-    resp2 = LegalAssistantService.chat(db=mock_db, request=req2)
+    resp2 = LegalAssistantService.chat(db=mock_db, request=req2, current_user=user)
     # The evidence_id must be resolved continuously from conversational history
     assert resp2.evidence_id == 77
 
@@ -518,21 +563,96 @@ def test_evidence_authorization_idor_prevention():
     mock_db = MagicMock()
     # Database returns None because user_id does not match
     mock_db.fetchone.return_value = None
+    mock_db.fetchall.return_value = []
 
     req = AssistantChatRequest(
         message="Summarize this private video",
         evidence_id=999
     )
 
-    resp = LegalAssistantService.chat(
-        db=mock_db,
-        request=req,
-        current_user={"user_id": 42, "role": "citizen"}
+    from app.schemas.rag import RAGResponse, RetrievalMetadata
+    no_context = RAGResponse(
+        query=req.message,
+        language="en",
+        answer="No matching provisions were found.",
+        confidence="no_context",
+        is_grounded=False,
+        sources=[],
+        retrieved_sections=[],
+        retrieval_metadata=RetrievalMetadata(
+            total_candidates_found=0,
+            sections_used=0,
+            query_terms_matched=[],
+            concept_categories=[],
+            multilingual_synonyms_applied=[],
+            retrieval_strategy="test",
+        ),
     )
+    with patch("app.services.assistant_service.LegalRAGService.query", return_value=no_context):
+        resp = LegalAssistantService.chat(
+            db=mock_db,
+            request=req,
+            current_user={"user_id": 42, "role": "citizen"}
+        )
 
     # Since user 42 doesn't own evidence 999, it should not inject unauthorized evidence
     assert resp.evidence_id is None
     assert resp.evidence_observations is None
+    evidence_query, evidence_params = mock_db.execute.call_args_list[0].args
+    assert "WHERE evidence_id = %s AND user_id = %s" in evidence_query
+    assert evidence_params == (999, 42)
+
+
+def test_assistant_chat_reads_owned_evidence_and_admin_can_read_any_owner():
+    """Owned evidence remains available; admins use the established bypass."""
+    from app.schemas.rag import RAGResponse, RetrievalMetadata
+
+    request = AssistantChatRequest(message="Summarize my evidence", evidence_id=123)
+    evidence = {
+        "evidence_id": 123,
+        "user_id": 42,
+        "original_filename": "owned.mp4",
+        "duration_seconds": 10,
+        "media_container": "mp4",
+        "resolution": "1280x720",
+        "file_hash_sha256": "hash",
+        "has_audio": False,
+    }
+    rag_response = RAGResponse(
+        query=request.message,
+        language="en",
+        answer="Grounded response.",
+        confidence="grounded_medium",
+        is_grounded=True,
+        sources=[],
+        retrieved_sections=[],
+        retrieval_metadata=RetrievalMetadata(
+            total_candidates_found=1,
+            sections_used=1,
+            query_terms_matched=[],
+            concept_categories=[],
+            multilingual_synonyms_applied=[],
+            retrieval_strategy="test",
+        ),
+    )
+
+    for user, expected_sql, expected_params in (
+        ({"user_id": 42, "role": "citizen"}, "AND user_id = %s", (123, 42)),
+        ({"user_id": 1, "role": "admin"}, "WHERE evidence_id = %s;", (123,)),
+    ):
+        mock_db = MagicMock()
+        mock_db.fetchone.return_value = evidence
+        mock_db.fetchall.return_value = []
+        with patch("app.services.assistant_service.LegalRAGService.query", return_value=rag_response):
+            result = LegalAssistantService.chat(
+                db=mock_db,
+                request=request,
+                current_user=user,
+            )
+        assert result.evidence_id == 123
+        sql, params = mock_db.execute.call_args_list[0].args
+        assert expected_sql in sql
+        assert params == expected_params
 
 
 def test_retry_evidence_endpoint():

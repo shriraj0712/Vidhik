@@ -67,10 +67,10 @@ class AssistantChatRequest(BaseModel):
         description="Optional parent statute filter"
     )
     max_sections: Optional[int] = Field(
-        default=5,
+        default=8,
         ge=1,
         le=20,
-        description="Maximum number of authoritative statutory sections to include in retrieval context"
+        description="Maximum number of authoritative statutory sections to include; broad Fundamental Rights overviews retrieve at least eight representative Articles"
     )
     temperature: Optional[float] = Field(
         default=0.1,

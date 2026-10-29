@@ -6,6 +6,7 @@ legal text searches across statutory laws and provisions with deterministic
 relevance ranking and query understanding integration.
 """
 
+import logging
 from typing import Optional, List, Any, Tuple, Dict
 try:
     from psycopg2.extras import RealDictCursor
@@ -16,6 +17,12 @@ from app.schemas.search import SearchResponse, SearchResultItem
 from app.services.query_service import LegalQueryService, STOPWORDS
 from app.services.ranking_service import LegalRankingService
 
+logger = logging.getLogger("vidhik.search_service")
+
+
+class CandidateRetrievalError(RuntimeError):
+    """Raised when PostgreSQL candidate retrieval fails."""
+
 
 class LegalSearchService:
     """
@@ -23,6 +30,27 @@ class LegalSearchService:
     extraction, query understanding, and deterministic relevance ranking
     for Indian statutory legal search.
     """
+
+    @staticmethod
+    def _matches_candidate_filters(
+        candidate: Dict[str, Any],
+        law_id: Optional[int],
+        jurisdiction: Optional[str]
+    ) -> bool:
+        """Apply request filters consistently to in-memory knowledge candidates."""
+        if law_id is not None:
+            try:
+                if int(candidate.get("law_id")) != int(law_id):
+                    return False
+            except (TypeError, ValueError):
+                return False
+
+        if jurisdiction and jurisdiction.strip():
+            candidate_jurisdiction = str(candidate.get("jurisdiction") or "").lower()
+            if jurisdiction.strip().lower() not in candidate_jurisdiction:
+                return False
+
+        return True
 
     @staticmethod
     def extract_snippet(
@@ -235,17 +263,29 @@ class LegalSearchService:
                             existing_keys.add(key)
                             candidates.append(item)
                             total_count += 1
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.error(
+                    "Legal section candidate query failed (error_type=%s).",
+                    type(exc).__name__
+                )
+                raise CandidateRetrievalError(
+                    "Legal candidate retrieval failed."
+                ) from None
         else:
             # Production: Complete Knowledge Base (Constitution + 24 Bare Acts + Landmark Precedents)
-            from app.services.knowledge_service import LegalKnowledgeService
-            kb_candidates = LegalKnowledgeService.search_unified(
-                query=clean_q,
-                limit=max(limit + offset, 25),
-                cursor=db
-            )
+            from app.services.knowledge_service import LegalKnowledgeService, KnowledgeAssetUnavailable
+            try:
+                kb_candidates = LegalKnowledgeService.search_unified(
+                    query=clean_q,
+                    limit=max(limit + offset, 25),
+                    cursor=db
+                )
+            except KnowledgeAssetUnavailable:
+                logger.error("Unified legal retrieval unavailable because a required knowledge asset could not be loaded.")
+                raise CandidateRetrievalError("Legal candidate retrieval failed.") from None
             for c in kb_candidates:
+                if not cls._matches_candidate_filters(c, law_id, jurisdiction):
+                    continue
                 key = (c.get("law_id"), str(c.get("section_number", "")).lower())
                 if key not in existing_keys:
                     existing_keys.add(key)
@@ -289,8 +329,22 @@ class LegalSearchService:
                                 existing_keys.add(key)
                                 candidates.append(item)
                                 total_count += 1
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.error(
+                        "Legal section enrichment query failed (error_type=%s).",
+                        type(exc).__name__
+                    )
+                    raise CandidateRetrievalError(
+                        "Legal candidate retrieval failed."
+                    ) from None
+
+            if not candidates:
+                logger.info(
+                    "Unified legal retrieval returned no candidates (knowledge_candidates=%d, law_filter=%s, jurisdiction_filter=%s).",
+                    len(kb_candidates),
+                    law_id is not None,
+                    bool(jurisdiction and jurisdiction.strip())
+                )
 
         if not candidates:
             return [], 0, query_analysis

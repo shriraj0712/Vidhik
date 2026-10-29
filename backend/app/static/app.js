@@ -47,7 +47,7 @@ const App = {
   signinTurnstileToken: '',
   signupTurnstileToken: '',
   forgotTurnstileToken: '',
-  turnstileSiteKey: '1x00000000000000000000AA',
+  turnstileSiteKey: '0x4AAAAAAFRqp7Pnxaklfb2a',
   turnstileEnabled: true,
 
   getTurnstileToken(mode = 'signin') {
@@ -57,7 +57,7 @@ const App = {
     else tok = this.signinTurnstileToken;
 
     if (!tok && (!this.turnstileSiteKey || this.turnstileSiteKey.startsWith('1x') || typeof turnstile === 'undefined')) {
-      return '1x0000000000000000000000000000000AA';
+      return '0x4AAAAAAFRqp7Pnxaklfb2a';
     }
     return tok || null;
   },
@@ -437,7 +437,7 @@ const App = {
           modalObserver.observe(m, { attributes: true, attributeFilter: ['class'] });
         }
       });
-    } catch (e) {}
+    } catch (e) { }
 
     // Auto-close drawer ONLY when resizing from mobile width to desktop width (> 768px)
     let prevWidth = window.innerWidth;
@@ -563,7 +563,7 @@ const App = {
   // =============================================================
   // MOBILE NAVIGATION & HEADER HELPERS
   // =============================================================
-// -------------------------------------------------------------
+  // -------------------------------------------------------------
   // MOBILE NAVIGATION & HEADER HELPERS
   // -------------------------------------------------------------
   toggleMobileSidebar() {
@@ -718,7 +718,7 @@ const App = {
       try {
         const errJson = await res.json();
         errorMsg = errJson.detail || errorMsg;
-      } catch (err) {}
+      } catch (err) { }
       throw new Error(errorMsg);
     }
     return await res.json();
@@ -727,7 +727,7 @@ const App = {
   // =============================================================
   // ENTERPRISE PRODUCTION AUTHENTICATION & SECURITY
   // =============================================================
-// -------------------------------------------------------------
+  // -------------------------------------------------------------
   // CLOUDFLARE TURNSTILE & GOOGLE OAUTH
   // -------------------------------------------------------------
   initTurnstile() {
@@ -747,7 +747,7 @@ const App = {
           'expired-callback': () => { this.signinTurnstileToken = ''; },
           'error-callback': () => { this.signinTurnstileToken = ''; }
         });
-      } catch (e) {}
+      } catch (e) { }
     }
 
     const signupEl = document.getElementById('signup-turnstile-widget');
@@ -760,7 +760,7 @@ const App = {
           'expired-callback': () => { this.signupTurnstileToken = ''; },
           'error-callback': () => { this.signupTurnstileToken = ''; }
         });
-      } catch (e) {}
+      } catch (e) { }
     }
 
     const forgotEl = document.getElementById('forgot-turnstile-widget');
@@ -773,7 +773,7 @@ const App = {
           'expired-callback': () => { this.forgotTurnstileToken = ''; },
           'error-callback': () => { this.forgotTurnstileToken = ''; }
         });
-      } catch (e) {}
+      } catch (e) { }
     }
   },
 
@@ -783,7 +783,7 @@ const App = {
       if (this.signinTurnstileWidgetId) turnstile.reset(this.signinTurnstileWidgetId);
       if (this.signupTurnstileWidgetId) turnstile.reset(this.signupTurnstileWidgetId);
       if (this.forgotTurnstileWidgetId) turnstile.reset(this.forgotTurnstileWidgetId);
-    } catch (e) {}
+    } catch (e) { }
     this.signinTurnstileToken = '';
     this.signupTurnstileToken = '';
     this.forgotTurnstileToken = '';
@@ -797,7 +797,7 @@ const App = {
           callback: (response) => this.handleGoogleCredentialResponse(response),
           auto_select: false
         });
-      } catch (e) {}
+      } catch (e) { }
     }
   },
 
@@ -810,7 +810,7 @@ const App = {
           }
         });
         return;
-      } catch (e) {}
+      } catch (e) { }
     }
     this.showToast('Google Sign-In is initializing. Configure GOOGLE_CLIENT_ID for live OAuth.', 'info');
   },
@@ -1716,9 +1716,9 @@ const App = {
   async handleLogout() {
     try {
       if (this.token) {
-        await this.api('/api/auth/logout', 'POST', {}).catch(() => {});
+        await this.api('/api/auth/logout', 'POST', {}).catch(() => { });
       }
-    } catch (e) {}
+    } catch (e) { }
     this.token = null;
     this.user = null;
     this.activeCaseId = null;
@@ -1812,7 +1812,7 @@ const App = {
     const initials = this.user.full_name ? this.user.full_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'U';
     const avatar = document.getElementById('sidebar-lawyer-avatar');
     const nameEl = document.getElementById('sidebar-lawyer-name');
-const roleEl = document.getElementById('sidebar-lawyer-role') || document.getElementById('sidebar-lawyer-bar');
+    const roleEl = document.getElementById('sidebar-lawyer-role') || document.getElementById('sidebar-lawyer-bar');
 
     let displayRole = 'Citizen Account';
     if (this.user.role === 'admin') displayRole = 'System Administrator';
@@ -2463,7 +2463,7 @@ const roleEl = document.getElementById('sidebar-lawyer-role') || document.getEle
         external_status: data.external_status,
         external_next_hearing_date: data.external_next_hearing_date
       };
-      
+
       const cnrElem = document.getElementById('cd-cnr-number');
       if (cnrElem) cnrElem.innerText = cnr || 'Not Linked';
       const cSourceElem = document.getElementById('cd-court-source');
@@ -3112,9 +3112,9 @@ const roleEl = document.getElementById('sidebar-lawyer-role') || document.getEle
 
     try {
       const graph = await this.api(`/api/knowledge/sections/${encodeURIComponent(sectionNumber)}/context?law=${encodeURIComponent(lawCode)}`);
-      
+
       let html = '';
-      
+
       // Predecessor mapping
       if (graph.predecessors && graph.predecessors.length > 0) {
         html += `
@@ -3215,7 +3215,7 @@ const roleEl = document.getElementById('sidebar-lawyer-role') || document.getEle
       else if (ln.includes('sakshya') || ln.includes('bsa')) lawCode = 'BSA';
 
       const graph = await this.api(`/api/knowledge/sections/${encodeURIComponent(sectionNumber)}/context?law=${encodeURIComponent(lawCode)}`);
-      
+
       document.getElementById('m-prov-fulltext').innerText = graph.full_text || graph.section_title || 'Statutory enactment active under Gazette of India notification.';
 
       let html = '';
@@ -4804,8 +4804,8 @@ const roleEl = document.getElementById('sidebar-lawyer-role') || document.getEle
 
     const filtered = (this.citizenCases || []).filter(c => {
       const matchQ = !q || (c.title && c.title.toLowerCase().includes(q)) ||
-                     (c.court && c.court.toLowerCase().includes(q)) ||
-                     (c.opposite_party && c.opposite_party.toLowerCase().includes(q));
+        (c.court && c.court.toLowerCase().includes(q)) ||
+        (c.opposite_party && c.opposite_party.toLowerCase().includes(q));
       const matchStatus = !status || c.status === status;
       return matchQ && matchStatus;
     });
@@ -5340,9 +5340,9 @@ const roleEl = document.getElementById('sidebar-lawyer-role') || document.getEle
     const q = (document.getElementById('citizen-bm-search')?.value || '').toLowerCase();
     const filtered = (this.citizenBookmarks || []).filter(b => {
       return !q || (b.section_number && b.section_number.toLowerCase().includes(q)) ||
-                   (b.section_title && b.section_title.toLowerCase().includes(q)) ||
-                   (b.law_name && b.law_name.toLowerCase().includes(q)) ||
-                   (b.notes && b.notes.toLowerCase().includes(q));
+        (b.section_title && b.section_title.toLowerCase().includes(q)) ||
+        (b.law_name && b.law_name.toLowerCase().includes(q)) ||
+        (b.notes && b.notes.toLowerCase().includes(q));
     });
     this.renderCitizenBookmarksList(filtered);
   },
@@ -7219,7 +7219,7 @@ const roleEl = document.getElementById('sidebar-lawyer-role') || document.getEle
       return;
     }
     if (this.aiSpeechRecognition) {
-      try { this.aiSpeechRecognition.abort(); } catch (e) {}
+      try { this.aiSpeechRecognition.abort(); } catch (e) { }
       this.aiSpeechRecognition = null;
     }
 
@@ -7240,8 +7240,8 @@ const roleEl = document.getElementById('sidebar-lawyer-role') || document.getEle
       if (statusBar) statusBar.style.display = 'flex';
       if (statusLabel) {
         statusLabel.textContent = selectedLang === 'hi' ? 'सुन रहा हूँ... अपना कानूनी सवाल बोलें।' :
-                                  (selectedLang === 'mr' ? 'ऐकत आहे... तुमचा कायदेशीर प्रश्न विचारा.' :
-                                  'Listening... Speak your legal query now.');
+          (selectedLang === 'mr' ? 'ऐकत आहे... तुमचा कायदेशीर प्रश्न विचारा.' :
+            'Listening... Speak your legal query now.');
       }
     };
 
@@ -7307,7 +7307,7 @@ const roleEl = document.getElementById('sidebar-lawyer-role') || document.getEle
       contBtn.innerHTML = '🔄 Continuous Mode';
     }
     if (this.aiSpeechRecognition) {
-      try { this.aiSpeechRecognition.stop(); } catch (e) {}
+      try { this.aiSpeechRecognition.stop(); } catch (e) { }
       this.aiSpeechRecognition = null;
     }
     const btn = document.getElementById('btn-ai-voice');
@@ -7415,7 +7415,7 @@ const roleEl = document.getElementById('sidebar-lawyer-role') || document.getEle
           try {
             const errJson = JSON.parse(xhr.responseText);
             errDetail = errJson.detail || errDetail;
-          } catch (e) {}
+          } catch (e) { }
           this.showToast(errDetail, 'error');
           if (progressWrap) progressWrap.style.display = 'none';
         }
@@ -7725,17 +7725,17 @@ const roleEl = document.getElementById('sidebar-lawyer-role') || document.getEle
             </div>
             <div style="display: flex; flex-wrap: wrap; gap: 8px;">
               ${res.sources.map(s => {
-                const law = s.law_name || '';
-                const isConst = s.is_constitutional || law.toLowerCase().includes('constitution') || (s.article_number != null);
-                const prefix = isConst ? 'Art ' : 'Sec ';
-                const num = s.article_number || s.section_number || '';
-                const shortLaw = s.short_name || s.law_name;
-                return `
+          const law = s.law_name || '';
+          const isConst = s.is_constitutional || law.toLowerCase().includes('constitution') || (s.article_number != null);
+          const prefix = isConst ? 'Art ' : 'Sec ';
+          const num = s.article_number || s.section_number || '';
+          const shortLaw = s.short_name || s.law_name;
+          return `
                 <span class="citation-badge" title="${this.escape(law)}: ${this.escape(s.section_title || '')}">
                   ⚖️ ${this.escape(shortLaw)} ${this.escape(prefix + num)}
                 </span>
                 `;
-              }).join('')}
+        }).join('')}
             </div>
           </div>
         `;
@@ -8320,10 +8320,10 @@ const roleEl = document.getElementById('sidebar-lawyer-role') || document.getEle
     const steps = (res.self_help_checklist && res.self_help_checklist.length > 0)
       ? res.self_help_checklist
       : (res.next_steps && res.next_steps.length > 0 ? res.next_steps : [
-          'Issue a formal written demand notice specifying 15 days cure period.',
-          'Preserve registered agreement, rent receipts, and bank statements.',
-          'Approach District Legal Services Authority (DLSA) for pre-litigation mediation.'
-        ]);
+        'Issue a formal written demand notice specifying 15 days cure period.',
+        'Preserve registered agreement, rent receipts, and bank statements.',
+        'Approach District Legal Services Authority (DLSA) for pre-litigation mediation.'
+      ]);
 
     const summary = res.primary_reason || res.situation_summary || rawReq.situation;
     const recType = res.recommendation_type ? res.recommendation_type.replace(/_/g, ' ').toUpperCase() : 'TRIAGE EVALUATION COMPLETED';
@@ -9293,7 +9293,7 @@ const roleEl = document.getElementById('sidebar-lawyer-role') || document.getEle
     if (micBtn) micBtn.classList.remove('mic-recording-active');
     if (waveBox) waveBox.style.visibility = 'hidden';
     if (this.voiceRecognitionInstance) {
-      try { this.voiceRecognitionInstance.stop(); } catch (e) {}
+      try { this.voiceRecognitionInstance.stop(); } catch (e) { }
     }
   },
 

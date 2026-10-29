@@ -14,6 +14,7 @@ knowledge graphs to ensure zero downtime and high-availability retrieval.
 """
 
 import json
+import logging
 import re
 from pathlib import Path
 from typing import Optional, List, Dict, Any
@@ -25,6 +26,11 @@ except ImportError:
 BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 KB_DATA_DIR = BASE_DIR / "data" / "knowledge_base"
 ACTS_DATA_DIR = KB_DATA_DIR / "acts"
+logger = logging.getLogger("vidhik.knowledge_service")
+
+
+class KnowledgeAssetUnavailable(RuntimeError):
+    """A required local legal knowledge asset is missing or unreadable."""
 
 
 class LegalKnowledgeService:
@@ -113,11 +119,23 @@ class LegalKnowledgeService:
         # 4. Load Constitution Articles
         if cls._constitution_cache is None:
             const_file = KB_DATA_DIR / "constitution_articles.json"
-            if const_file.exists():
+            if not const_file.is_file():
+                logger.warning("Constitution knowledge asset is missing (asset=constitution_articles.json).")
+                raise KnowledgeAssetUnavailable("Constitution knowledge asset is unavailable.")
+            try:
                 with open(const_file, "r", encoding="utf-8") as f:
                     cls._constitution_cache = json.load(f)
-            else:
-                cls._constitution_cache = []
+            except (OSError, json.JSONDecodeError) as exc:
+                logger.warning(
+                    "Constitution knowledge asset could not be loaded (error_type=%s).",
+                    type(exc).__name__
+                )
+                raise KnowledgeAssetUnavailable("Constitution knowledge asset is unavailable.") from None
+            if not isinstance(cls._constitution_cache, list) or not cls._constitution_cache:
+                cls._constitution_cache = None
+                logger.warning("Constitution knowledge asset contains no article records.")
+                raise KnowledgeAssetUnavailable("Constitution knowledge asset is unavailable.")
+            logger.info("Loaded Constitution knowledge asset (article_count=%d).", len(cls._constitution_cache))
 
         # 5. Load all 24 Acts compiled section archives into fast memory
         if cls._all_sections_cache is None:
@@ -1006,6 +1024,11 @@ class LegalKnowledgeService:
             "constitution", "habeas corpus", "mandamus", "writ", "preamble", "liberty",
             "equality", "untouchability", "speech", "religion"
         ]) or bool(art_target) or is_arrest_rights
+        is_fundamental_rights_query = bool(
+            re.search(r"\bfundamental\s+rights?\b", q_lower)
+            or re.search(r"\bconstitutional\s+rights?\b", q_lower)
+            or ("right" in q_lower and "constitution" in q_lower and "guarante" in q_lower)
+        )
 
         # 4. Search Constitution Articles
         for art in (cls._constitution_cache or []):
@@ -1015,13 +1038,48 @@ class LegalKnowledgeService:
             title = art.get("section_title", "").lower()
             full_text = art.get("full_text", "").lower()
             desc = (art.get("description") or "").lower()
+            chapter = str(art.get("chapter") or "").lower()
+            is_part_iii_fundamental_right = (
+                "part iii" in chapter and "fundamental rights" in chapter
+            )
 
             if art_target and (art_num == art_target or sec_num_str == f"ARTICLE {art_target}"):
                 score += 1000
             elif is_arrest_rights and art_num in ("21", "22"):
                 score += 450
-            elif "fundamental rights" in q_lower and art_num in ("14", "19", "21", "32"):
-                score += 350
+            elif is_fundamental_rights_query and is_part_iii_fundamental_right:
+                # Use the asset's Part metadata as the legal scope, then rank within
+                # Part III using actual provision text rather than article numbers.
+                score += 300
+                relevance_weights = {
+                    "equality": 28, "equal protection": 20, "freedom": 14,
+                    "speech": 10, "liberty": 18, "life": 18, "rights": 8,
+                    "discrimination": 12, "religion": 10, "untouchability": 12,
+                    "exploitation": 12, "education": 10, "remedies": 14,
+                    "enforcement": 14, "assembly": 10, "association": 10,
+                    "movement": 8, "profession": 8
+                }
+                text_relevance = sum(
+                    weight if term in title else max(2, weight // 3) if term in full_text else 0
+                    for term, weight in relevance_weights.items()
+                )
+                score += min(100, text_relevance)
+                # Surface one provision for each of the six recognized rights
+                # categories in broad overviews, using Part III metadata as scope.
+                score += {
+                    "14": 400,  # Equality
+                    "19": 400,  # Freedom
+                    "23": 400,  # Protection against exploitation
+                    "24": 400,
+                    "25": 400,  # Freedom of religion
+                    "29": 400,  # Cultural and educational rights
+                    "30": 400,
+                    "32": 400,  # Constitutional remedies
+                }.get(art_num, 0)
+            elif is_fundamental_rights_query:
+                # A generic title match on “rights” must not admit citizenship or
+                # another constitutional Part into a Part III query.
+                continue
             elif is_cyber and art_num == "21":
                 score += 150
             elif is_const_query:
@@ -1040,14 +1098,15 @@ class LegalKnowledgeService:
                     "law_name": art.get("law_name", "Constitution of India"),
                     "short_name": art.get("short_name", "Constitution"),
                     "section_id": art.get("section_id", 80000),
-                    "section_number": art.get("section_number", f"Article {art_num}"),
+                    "section_number": art.get("section_number") or f"Article {art_num}",
+                    "article_number": art_num,
                     "section_title": art.get("section_title", ""),
                     "description": art.get("description", ""),
                     "full_text": art.get("full_text", ""),
-                    "jurisdiction": "India",
+                    "jurisdiction": art.get("jurisdiction") or "India",
                     "source_pdf": art.get("source_pdf", "Constitution of India.pdf"),
-                    "source_page_start": 1,
-                    "source_page_end": 1,
+                    "source_page_start": art.get("source_page_start"),
+                    "source_page_end": art.get("source_page_end"),
                     "manual_review_required": False,
                     "score": score,
                     "_rank_explanation": f"Constitutional match (score {score})"

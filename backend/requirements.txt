@@ -13,3 +13,6 @@ pyotp>=2.9.0
 qrcode>=7.4.0
 email-validator>=2.0.0
 httpx>=0.24.0
+opencv-python-headless
+imageio-ffmpeg
+certifi==2025.8.3

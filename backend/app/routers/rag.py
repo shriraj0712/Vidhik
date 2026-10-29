@@ -8,12 +8,13 @@ retrieval, and AI synthesis with verified citations.
 import logging
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import JSONResponse
 from psycopg2.extras import RealDictCursor
 
 from app.database import get_db
 from app.schemas.rag import RAGQueryRequest, RAGResponse
 from app.services.rag_service import LegalRAGService
-from app.services.llm_provider import get_llm_provider
+from app.services.llm_provider import check_llm_provider_readiness, get_llm_provider
 
 logger = logging.getLogger("vidhik.rag_router")
 
@@ -73,11 +74,13 @@ def rag_health():
     """
     Returns diagnostics on RAG subsystem and configured LLM provider.
     """
-    provider = get_llm_provider()
-    return {
-        "status": "operational",
+    provider = check_llm_provider_readiness()
+    ready = provider.get("ready") is True
+    payload = {
+        "status": "operational" if ready else "degraded",
         "subsystem": "Vidhik Legal RAG Engine",
-        "llm_provider": provider.provider_name,
+        "llm_provider": provider,
         "retrieval_backend": "PostgreSQL (vidhik_db) + Deterministic Ranking",
         "grounding_enforced": True
     }
+    return JSONResponse(status_code=200 if ready else 503, content=payload)

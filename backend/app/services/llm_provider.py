@@ -17,12 +17,110 @@ import re
 import logging
 import urllib.request
 import urllib.error
+from urllib.parse import quote, urlsplit
+import socket
+import ipaddress
 from abc import ABC, abstractmethod
 from typing import Optional, Dict, Any, Iterator
 from pathlib import Path
 from dotenv import load_dotenv
 
 logger = logging.getLogger("vidhik.llm_provider")
+
+
+class LLMProviderError(RuntimeError):
+    """Safe provider failure metadata for operational diagnostics."""
+
+    def __init__(self, failure_category: str, http_status: Optional[int] = None):
+        self.failure_category = failure_category
+        self.http_status = http_status
+        super().__init__("LLM provider request failed.")
+
+
+class LLMProviderConfigurationError(RuntimeError):
+    """Safe configuration failure that never includes environment values."""
+
+    def __init__(self, failure_category: str):
+        self.failure_category = failure_category
+        super().__init__(f"LLM provider configuration error ({failure_category}).")
+
+
+def _validate_provider_url(value: str, failure_category: str) -> str:
+    """Validate an HTTP(S) endpoint while rejecting embedded credentials."""
+    try:
+        parsed = urlsplit(value.strip())
+        valid = (
+            parsed.scheme in ("http", "https")
+            and bool(parsed.hostname)
+            and parsed.username is None
+            and parsed.password is None
+            and not parsed.query
+            and not parsed.fragment
+        )
+    except (AttributeError, ValueError):
+        valid = False
+    if not valid:
+        raise LLMProviderConfigurationError(failure_category)
+    return value.strip().rstrip("/")
+
+
+def _is_render_runtime() -> bool:
+    return os.getenv("RENDER", "").strip().lower() == "true"
+
+
+def _http_failure_category(status: int) -> str:
+    if status in (401, 403):
+        return "authentication_or_permission"
+    if status == 429:
+        return "quota_or_rate_limit"
+    if status in (408, 504):
+        return "timeout"
+    if status == 404:
+        return "model_or_api_incompatibility"
+    if status == 400:
+        return "invalid_request_or_api_incompatibility"
+    if status >= 500:
+        return "upstream_server"
+    return "upstream_http_error"
+
+
+def _network_failure_category(exc: Exception) -> str:
+    if isinstance(exc, (TimeoutError, socket.timeout)):
+        return "timeout"
+    if isinstance(exc, urllib.error.URLError):
+        if isinstance(exc.reason, (TimeoutError, socket.timeout)):
+            return "timeout"
+        return "transport"
+    if isinstance(exc, (json.JSONDecodeError, UnicodeDecodeError, KeyError, TypeError, AttributeError)):
+        return "malformed_response"
+    return "provider_error"
+
+
+def _probe_json(url: str, headers: Optional[Dict[str, str]] = None) -> tuple[Optional[dict], str]:
+    """Perform a short JSON readiness probe without logging provider responses."""
+    try:
+        request = urllib.request.Request(url, headers=headers or {})
+        with urllib.request.urlopen(request, timeout=3) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+        if not isinstance(payload, dict):
+            return None, "malformed_response"
+        return payload, ""
+    except urllib.error.HTTPError as exc:
+        return None, _http_failure_category(exc.code)
+    except Exception as exc:
+        return None, _network_failure_category(exc)
+
+
+def _gemini_uses_default_sampling(model: str) -> bool:
+    """Gemini 3.6+ and Gemini 4 ignore custom sampling values and may reject them."""
+    normalized_model = model.lower()
+    if normalized_model.startswith("gemini-4"):
+        return True
+    match = re.match(r"^gemini-(\d+)\.(\d+)", normalized_model)
+    if not match:
+        return False
+    major, minor = (int(part) for part in match.groups())
+    return major >= 4 or (major == 3 and minor >= 6)
 
 # Load environment variables from backend/.env if available
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -80,6 +178,10 @@ class BaseLLMProvider(ABC):
                 yield word + " "
             else:
                 yield word
+
+    def health_check(self) -> Dict[str, Any]:
+        """Return provider readiness; remote providers override with a bounded probe."""
+        return {"status": "ready", "ready": True, "failure_category": None}
 
 
 class OfflineMockLLMProvider(BaseLLMProvider):
@@ -467,11 +569,20 @@ class GeminiLLMProvider(BaseLLMProvider):
         model: Optional[str] = None
     ):
         self.api_key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("LLM_API_KEY") or ""
-        self.model = model or os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+        self.model = model or os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
 
     @property
     def provider_name(self) -> str:
         return f"gemini ({self.model})"
+
+    def health_check(self) -> Dict[str, Any]:
+        if not self.api_key:
+            return {"status": "configuration_error", "ready": False, "failure_category": "missing_gemini_api_key"}
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{quote(self.model, safe='')}?key={self.api_key}"
+        payload, failure = _probe_json(url)
+        if failure:
+            return {"status": "not_ready", "ready": False, "failure_category": failure}
+        return {"status": "ready", "ready": True, "failure_category": None}
 
     def generate(
         self,
@@ -481,34 +592,34 @@ class GeminiLLMProvider(BaseLLMProvider):
         max_output_tokens: int = 1500
     ) -> str:
         if not self.api_key:
-            logger.warning("Gemini API key missing. Falling back to offline deterministic fallback engine.")
-            return OfflineMockLLMProvider().generate(prompt, system_instruction, temperature, max_output_tokens)
+            raise LLMProviderConfigurationError("missing_gemini_api_key")
 
-        # Try configured model, fallback to gemini-1.5-flash or gemini-2.0-flash on 404
-        models_to_try = [self.model, "gemini-1.5-flash", "gemini-2.0-flash"]
+        # Keep current supported models available when a configured model retires.
+        models_to_try = [self.model, "gemini-3.8-flash", "gemini-3.6-flash"]
         seen = set()
         models = [m for m in models_to_try if not (m in seen or seen.add(m))]
 
-        payload = {
-            "system_instruction": {
-                "parts": [{"text": system_instruction}]
-            },
-            "contents": [
-                {
-                    "role": "user",
-                    "parts": [{"text": prompt}]
-                }
-            ],
-            "generationConfig": {
-                "temperature": temperature,
-                "maxOutputTokens": max_output_tokens,
-                "topP": 0.95
-            }
-        }
-
-        req_data = json.dumps(payload).encode("utf-8")
-
         for m_name in models:
+            generation_config = {"maxOutputTokens": max_output_tokens}
+            if not _gemini_uses_default_sampling(m_name):
+                generation_config.update({
+                    "temperature": temperature,
+                    "topP": 0.95
+                })
+
+            payload = {
+                "system_instruction": {
+                    "parts": [{"text": system_instruction}]
+                },
+                "contents": [
+                    {
+                        "role": "user",
+                        "parts": [{"text": prompt}]
+                    }
+                ],
+                "generationConfig": generation_config
+            }
+            req_data = json.dumps(payload).encode("utf-8")
             endpoint_url = (
                 f"https://generativelanguage.googleapis.com/v1beta/models/{m_name}:generateContent"
                 f"?key={self.api_key}"
@@ -525,63 +636,20 @@ class GeminiLLMProvider(BaseLLMProvider):
                     if candidates and "content" in candidates[0]:
                         parts = candidates[0]["content"].get("parts", [])
                         if parts and "text" in parts[0]:
-                            return parts[0]["text"].strip()
-                    return "Unable to parse valid completion text from Gemini response."
+                            text = parts[0]["text"].strip()
+                            if text:
+                                return text
+                    raise LLMProviderError("malformed_response")
             except urllib.error.HTTPError as e:
                 if e.code == 404 and m_name != models[-1]:
-                    logger.warning(f"Gemini model {m_name} returned 404, falling back to next model...")
                     continue
-                err_msg = e.read().decode("utf-8", errors="replace")
-                logger.error(f"Gemini API HTTP Error {e.code}: {err_msg}")
-                raise RuntimeError("Upstream Gemini API error encountered during legal synthesis.")
+                raise LLMProviderError(_http_failure_category(e.code), e.code) from None
+            except LLMProviderError:
+                raise
             except Exception as e:
-                logger.error(f"Gemini API request failed: {e}", exc_info=True)
-                raise RuntimeError("Upstream Gemini API request failed.")
+                raise LLMProviderError(_network_failure_category(e)) from None
 
-        return "Unable to generate response from Gemini API."
-
-        payload = {
-            "system_instruction": {
-                "parts": [{"text": system_instruction}]
-            },
-            "contents": [
-                {
-                    "role": "user",
-                    "parts": [{"text": prompt}]
-                }
-            ],
-            "generationConfig": {
-                "temperature": temperature,
-                "maxOutputTokens": max_output_tokens,
-                "topP": 0.95
-            }
-        }
-
-        try:
-            req_data = json.dumps(payload).encode("utf-8")
-            req = urllib.request.Request(
-                endpoint_url,
-                data=req_data,
-                headers={"Content-Type": "application/json"}
-            )
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                result = json.loads(resp.read().decode("utf-8"))
-
-            candidates = result.get("candidates", [])
-            if candidates and "content" in candidates[0]:
-                parts = candidates[0]["content"].get("parts", [])
-                if parts and "text" in parts[0]:
-                    return parts[0]["text"].strip()
-
-            return "Unable to parse valid completion text from Gemini response."
-
-        except urllib.error.HTTPError as e:
-            err_msg = e.read().decode("utf-8", errors="replace")
-            logger.error(f"Gemini API HTTP Error {e.code}: {err_msg}")
-            raise RuntimeError("Upstream Gemini API error encountered during legal synthesis.")
-        except Exception as e:
-            logger.error(f"Gemini API request failed: {e}", exc_info=True)
-            raise RuntimeError("Upstream Gemini API request failed.")
+        raise LLMProviderError("model_or_api_incompatibility", 404)
 
 
 class OpenAILLMProvider(BaseLLMProvider):
@@ -597,11 +665,23 @@ class OpenAILLMProvider(BaseLLMProvider):
     ):
         self.api_key = api_key or os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY") or ""
         self.model = model or os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-        self.base_url = (base_url or os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")).rstrip("/")
+        self.base_url = _validate_provider_url(
+            base_url or os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1"),
+            "invalid_openai_base_url",
+        )
 
     @property
     def provider_name(self) -> str:
         return f"openai ({self.model})"
+
+    def health_check(self) -> Dict[str, Any]:
+        if not self.api_key:
+            return {"status": "configuration_error", "ready": False, "failure_category": "missing_openai_api_key"}
+        url = f"{self.base_url}/models/{quote(self.model, safe='')}"
+        payload, failure = _probe_json(url, {"Authorization": f"Bearer {self.api_key}"})
+        if failure:
+            return {"status": "not_ready", "ready": False, "failure_category": failure}
+        return {"status": "ready", "ready": True, "failure_category": None}
 
     def generate(
         self,
@@ -611,8 +691,7 @@ class OpenAILLMProvider(BaseLLMProvider):
         max_output_tokens: int = 1500
     ) -> str:
         if not self.api_key:
-            logger.warning("OpenAI API key missing. Falling back to offline deterministic fallback engine.")
-            return OfflineMockLLMProvider().generate(prompt, system_instruction, temperature, max_output_tokens)
+            raise LLMProviderConfigurationError("missing_openai_api_key")
 
         endpoint_url = f"{self.base_url}/chat/completions"
 
@@ -641,13 +720,18 @@ class OpenAILLMProvider(BaseLLMProvider):
 
             choices = result.get("choices", [])
             if choices and "message" in choices[0]:
-                return choices[0]["message"].get("content", "").strip()
+                text = choices[0]["message"].get("content", "").strip()
+                if text:
+                    return text
 
-            return "Unable to parse valid completion text from OpenAI response."
+            raise LLMProviderError("malformed_response")
 
+        except urllib.error.HTTPError as e:
+            raise LLMProviderError(_http_failure_category(e.code), e.code) from None
+        except LLMProviderError:
+            raise
         except Exception as e:
-            logger.error(f"OpenAI API request failed: {e}", exc_info=True)
-            raise RuntimeError("Upstream OpenAI API request failed.")
+            raise LLMProviderError(_network_failure_category(e)) from None
 
 
 class OllamaLLMProvider(BaseLLMProvider):
@@ -658,18 +742,33 @@ class OllamaLLMProvider(BaseLLMProvider):
         model: Optional[str] = None,
         base_url: Optional[str] = None
     ):
-        self.model = model or os.getenv(
-            "OLLAMA_MODEL", "llama3.2:3b"
-        )
-        self.base_url = (
-            base_url or os.getenv(
-                "OLLAMA_BASE_URL", "http://localhost:11434"
-            )
-        ).rstrip("/")
+        self.model = (model if model is not None else os.getenv("OLLAMA_MODEL", "")).strip()
+        if not self.model:
+            raise LLMProviderConfigurationError("missing_ollama_model")
+        configured_url = base_url if base_url is not None else os.getenv("OLLAMA_BASE_URL", "")
+        if not configured_url.strip():
+            raise LLMProviderConfigurationError("missing_ollama_base_url")
+        self.base_url = _validate_provider_url(configured_url, "invalid_ollama_base_url")
+        host = urlsplit(self.base_url).hostname or ""
+        try:
+            is_loopback = ipaddress.ip_address(host).is_loopback
+        except ValueError:
+            is_loopback = host.lower() == "localhost"
+        if _is_render_runtime() and is_loopback:
+            raise LLMProviderConfigurationError("ollama_loopback_url_on_render")
 
     @property
     def provider_name(self) -> str:
         return f"ollama ({self.model})"
+
+    def health_check(self) -> Dict[str, Any]:
+        payload, failure = _probe_json(f"{self.base_url}/api/tags")
+        if failure:
+            return {"status": "not_ready", "ready": False, "failure_category": failure}
+        available_models = payload.get("models", []) if payload else []
+        if not any(isinstance(item, dict) and item.get("name") == self.model for item in available_models):
+            return {"status": "not_ready", "ready": False, "failure_category": "model_not_available"}
+        return {"status": "ready", "ready": True, "failure_category": None}
 
     def generate(
         self,
@@ -724,24 +823,20 @@ class OllamaLLMProvider(BaseLLMProvider):
             if content:
                 return content
 
-            raise RuntimeError(
-                "Ollama returned an empty response."
-            )
+            raise LLMProviderError("malformed_response")
 
+        except urllib.error.HTTPError as e:
+            raise LLMProviderError(_http_failure_category(e.code), e.code) from None
+        except LLMProviderError:
+            raise
         except Exception as e:
-            logger.error(
-                "Ollama request failed: %s", e,
-                exc_info=True
-            )
-            raise RuntimeError(
-                "Ollama request failed. Check that Ollama "
-                "is running and the configured model exists."
-            ) from e
+            raise LLMProviderError(_network_failure_category(e)) from None
 
 def get_llm_provider(provider_type: Optional[str] = None) -> BaseLLMProvider:
     """
-    Factory creating an LLM provider based on environment configuration or explicit request.
-    Defaults to Gemini if API key is present, otherwise falls back gracefully to Offline Mock.
+    Factory creating an LLM provider from explicit environment configuration.
+    Offline synthesis is selected explicitly with LLM_PROVIDER=mock; missing
+    production credentials and unsupported providers raise safe config errors.
     """
     if (BASE_DIR / ".env").is_file():
         load_dotenv(BASE_DIR / ".env")
@@ -749,23 +844,50 @@ def get_llm_provider(provider_type: Optional[str] = None) -> BaseLLMProvider:
         load_dotenv()
 
     selected_type = (provider_type or os.getenv("LLM_PROVIDER", "gemini")).lower().strip()
+    production_runtime = _is_render_runtime()
+
+    if selected_type == "mock":
+        return OfflineMockLLMProvider()
 
     if selected_type == "gemini":
         api_key = os.getenv("GEMINI_API_KEY") or os.getenv("LLM_API_KEY")
         if api_key: 
             return GeminiLLMProvider(api_key=api_key)
-        logger.info("LLM_PROVIDER is 'gemini' but GEMINI_API_KEY is not set. Using OfflineMockLLMProvider.")
+        if production_runtime:
+            raise LLMProviderConfigurationError("missing_gemini_api_key")
+        logger.info("Gemini credentials are absent in a non-Render environment; using the explicit offline development provider.")
         return OfflineMockLLMProvider()
 
     if selected_type in ("openai", "azure"):
         api_key = os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY")
         if api_key:
             return OpenAILLMProvider(api_key=api_key)
-        logger.info("LLM_PROVIDER is 'openai' but OPENAI_API_KEY is not set. Using OfflineMockLLMProvider.")
+        if production_runtime:
+            raise LLMProviderConfigurationError("missing_openai_api_key")
+        logger.info("OpenAI credentials are absent in a non-Render environment; using the offline development provider.")
         return OfflineMockLLMProvider()
 
     if selected_type == "ollama":
         return OllamaLLMProvider()
 
-    logger.info(f"Unknown LLM provider '{selected_type}'. Falling back to OfflineMockLLMProvider.")
-    return OfflineMockLLMProvider()
+    raise LLMProviderConfigurationError("unsupported_provider")
+
+
+def check_llm_provider_readiness() -> Dict[str, Any]:
+    """Probe the selected provider and return sanitized readiness metadata."""
+    try:
+        provider = get_llm_provider()
+    except LLMProviderConfigurationError as exc:
+        return {
+            "status": "configuration_error",
+            "ready": False,
+            "provider": None,
+            "failure_category": exc.failure_category,
+        }
+
+    try:
+        result = provider.health_check()
+    except Exception as exc:
+        logger.warning("LLM readiness probe failed (error_type=%s).", type(exc).__name__)
+        result = {"status": "not_ready", "ready": False, "failure_category": "provider_error"}
+    return {"provider": provider.provider_name, **result}

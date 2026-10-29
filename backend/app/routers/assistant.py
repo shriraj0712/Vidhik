@@ -7,7 +7,7 @@ the Phase 9 Legal RAG engine.
 
 import logging
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 import json
 from psycopg2.extras import RealDictCursor
 
@@ -16,7 +16,8 @@ from app.schemas.assistant import AssistantChatRequest, AssistantChatResponse
 from app.services.assistant_service import LegalAssistantService
 from typing import Optional
 from app.services.auth_service import get_optional_user
-from app.services.llm_provider import get_llm_provider
+from app.services.llm_provider import check_llm_provider_readiness, get_llm_provider
+from app.services.search_service import CandidateRetrievalError
 
 logger = logging.getLogger("vidhik.assistant_router")
 
@@ -60,12 +61,18 @@ def chat_with_assistant(
         )
 
     try:
-        response = LegalAssistantService.chat(
-            db=db,
-            request=request,
-            current_user=current_user
+       response = LegalAssistantService.chat(
+           db=db,
+           request=request,
+           current_user=current_user
+       )
+
+    except CandidateRetrievalError:
+        logger.error("Assistant legal retrieval failed.")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Legal retrieval is temporarily unavailable. Please try again."
         )
-        return response
     except ValueError as ve:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -74,11 +81,13 @@ def chat_with_assistant(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error processing assistant chat '{clean_msg}': {e}", exc_info=True)
+        logger.error("Assistant request failed (error_type=%s).", type(e).__name__)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An internal error occurred while processing the assistant request. Please try again later."
         )
+
+    return response
 
 
 @router.post(
@@ -88,7 +97,8 @@ def chat_with_assistant(
 )
 def stream_chat_with_assistant(
     request: AssistantChatRequest,
-    db: RealDictCursor = Depends(get_db)
+    db: RealDictCursor = Depends(get_db),
+    current_user: Optional[dict] = Depends(get_optional_user)
 ):
     """
     Streaming chat endpoint for the AI Legal Assistant.
@@ -101,7 +111,11 @@ def stream_chat_with_assistant(
         )
 
     try:
-        response = LegalAssistantService.chat(db=db, request=request)
+        response = LegalAssistantService.chat(
+            db=db,
+            request=request,
+            current_user=current_user
+        )
 
         def event_stream():
             metadata = {"conversation_id": response.conversation_id, "is_grounded": response.is_grounded, "sources_count": len(response.sources)}
@@ -130,14 +144,16 @@ def assistant_health():
     """
     Returns diagnostics on the Assistant subsystem and configured LLM provider.
     """
-    provider = get_llm_provider()
-    return {
-        "status": "operational",
+    provider = check_llm_provider_readiness()
+    ready = provider.get("ready") is True
+    payload = {
+        "status": "operational" if ready else "degraded",
         "subsystem": "Vidhik AI Legal Assistant",
         "underlying_rag_engine": "Phase 9 Grounded Statutory RAG",
-        "llm_provider": provider.provider_name,
+        "llm_provider": provider,
         "conversation_store": "InMemoryConversationStore (Bounded)",
         "multilingual_support": ["en", "mr", "hi"],
         "streaming_supported": True,
         "grounding_enforced": True
     }
+    return JSONResponse(status_code=200 if ready else 503, content=payload)

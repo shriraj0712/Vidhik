@@ -49,6 +49,40 @@ from app.core.security import (
 from app.services.auth_service import AuthService
 
 
+def test_jwt_configuration_fails_closed_in_production_without_secret():
+    from app.core.security import _validate_jwt_secret_configuration
+
+    with pytest.raises(RuntimeError, match="JWT_SECRET_KEY must be configured in production"):
+        _validate_jwt_secret_configuration(
+            configured_secret="",
+            runtime_environment="production",
+        )
+
+
+def test_jwt_configuration_fails_closed_on_render_without_secret(monkeypatch):
+    from app.core.security import _validate_jwt_secret_configuration, is_production_environment
+
+    monkeypatch.delenv("APP_ENV", raising=False)
+    monkeypatch.delenv("ENV", raising=False)
+    monkeypatch.delenv("ENVIRONMENT", raising=False)
+    monkeypatch.setenv("RENDER", "true")
+    assert is_production_environment() is True
+    with pytest.raises(RuntimeError, match="JWT_SECRET_KEY must be configured in production"):
+        _validate_jwt_secret_configuration(configured_secret="")
+
+
+def test_jwt_configuration_preserves_local_development_fallback(monkeypatch):
+    from app.core.security import JWT_SECRET_KEY, _validate_jwt_secret_configuration
+
+    # Existing local fallback remains unchanged; only production is fail-closed.
+    monkeypatch.delenv("RENDER", raising=False)
+    _validate_jwt_secret_configuration(
+        configured_secret=None,
+        runtime_environment="development",
+    )
+    assert isinstance(JWT_SECRET_KEY, str) and JWT_SECRET_KEY
+
+
 # =============================================================================
 # 1. PASSWORD SECURITY & BCRYPT HARDENING TESTS
 # =============================================================================

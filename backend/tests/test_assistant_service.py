@@ -43,6 +43,7 @@ from app.services.assistant_service import (
     InMemoryConversationStore,
     ConversationContextHandler
 )
+from app.services.search_service import CandidateRetrievalError
 
 
 class MockAssistantSuccessLLM(BaseLLMProvider):
@@ -57,6 +58,8 @@ class MockAssistantSuccessLLM(BaseLLMProvider):
                 "Under Section 304 of the Indian Penal Code, punishment for culpable homicide not amounting to murder "
                 "is imprisonment for life or imprisonment of either description for a term which may extend to ten years, and fine."
             )
+        if "Section: Section 54" in prompt:
+            return "Under Section 54 of the Transfer of Property Act, a sale transfers ownership for a price."
         return (
             "Under Section 73 of the Indian Contract Act, 1872, the injured party is entitled to compensation "
             "for any loss or damage naturally arising in the usual course of things from a breach of contract."
@@ -71,6 +74,29 @@ class MockAssistantFailingLLM(BaseLLMProvider):
 
     def generate(self, prompt: str, system_instruction: str, temperature: float = 0.1, max_output_tokens: int = 1500) -> str:
         raise RuntimeError("SIMULATED_UPSTREAM_LLM_TIMEOUT_503")
+
+
+class OfflineConstitutionCursor:
+    """Cursor double that uses local unified knowledge without a database."""
+
+    def execute(self, _sql, _params=None):
+        return None
+
+    def fetchall(self):
+        return []
+
+
+class ConstitutionReferenceProvider(BaseLLMProvider):
+    @property
+    def provider_name(self) -> str:
+        return "constitution_reference_test_provider"
+
+    def generate(self, prompt: str, system_instruction: str, temperature: float = 0.1, max_output_tokens: int = 1500) -> str:
+        return (
+            "The six Fundamental Rights categories are equality under Article 14, freedom under Article 19, "
+            "protection against exploitation under Articles 23 and 24, freedom of religion under Article 25, "
+            "cultural and educational rights under Articles 29 and 30, and constitutional remedies under Article 32."
+        )
 
 
 # ==============================================================================
@@ -218,6 +244,61 @@ def test_assistant_no_relevant_context():
     assert len(resp.sources) == 0
     assert len(resp.retrieved_sections) == 0
     assert "No relevant statutory provisions were found in the Vidhik legal database" in resp.answer
+
+
+def test_assistant_retrieves_real_constitutional_rights_articles(monkeypatch):
+    """The actual Assistant service grounds the exact question in local Constitution text."""
+    from app.services.knowledge_service import LegalKnowledgeService
+
+    monkeypatch.setattr(LegalKnowledgeService, "_constitution_cache", None)
+    response = LegalAssistantService.chat(
+        db=OfflineConstitutionCursor(),
+        request=AssistantChatRequest(
+            message="What are the fundamental rights guaranteed by the Constitution of India?",
+            language="en",
+        ),
+        provider=ConstitutionReferenceProvider(),
+    )
+
+    assert response.is_grounded is True
+    assert response.grounding_status in {"grounded_high", "grounded_medium"}
+    assert response.retrieval_metadata.total_candidates_found > 0
+    assert response.retrieval_metadata.sections_used > 0
+    assert any(
+        source.law_name == "Constitution of India"
+        and source.section_number == "Article 14"
+        and source.source_pdf == "Constitution of India.pdf"
+        and source.source_page_start is None
+        for source in response.sources
+    )
+    assert any(
+        section.section_number == "Article 14"
+        and "equality before the law" in section.section_text.lower()
+        for section in response.retrieved_sections
+    )
+
+
+def test_assistant_retrieval_failure_returns_service_unavailable():
+    """Assistant reports retrieval infrastructure failure separately from no_context."""
+    client = TestClient(app)
+    mock_db = MagicMock()
+    app.dependency_overrides[get_db] = lambda: mock_db
+
+    try:
+        with patch.object(
+            LegalAssistantService,
+            "chat",
+            side_effect=CandidateRetrievalError("Legal candidate retrieval failed."),
+        ):
+            response = client.post(
+                "/api/assistant/chat",
+                json={"message": "A legal question", "language": "en"},
+            )
+    finally:
+        app.dependency_overrides.pop(get_db, None)
+
+    assert response.status_code == 503
+    assert response.json()["detail"] == "Legal retrieval is temporarily unavailable. Please try again."
 
 
 # ==============================================================================
@@ -639,18 +720,23 @@ def test_api_assistant_chat_endpoint_success():
     app.dependency_overrides[get_db] = lambda: mock_db
 
     try:
-        response = client.post(
-            "/api/assistant/chat",
-            json={
-                "message": "How is sale defined under Indian law?",
-                "language": "en"
-            }
-        )
+        with patch(
+            "app.services.rag_service.get_llm_provider",
+            return_value=MockAssistantSuccessLLM(),
+        ):
+            response = client.post(
+                "/api/assistant/chat",
+                json={
+                    "message": "How is sale defined under Indian law?",
+                    "language": "en"
+                }
+            )
 
         assert response.status_code == 200
         data = response.json()
         assert data["message"] == "How is sale defined under Indian law?"
         assert data["is_grounded"] is True
+        assert "Under Section 54" in data["answer"]
         assert data["conversation_id"] is not None
         assert len(data["sources"]) == 1
         assert data["sources"][0]["section_number"] == "54"
@@ -660,6 +746,50 @@ def test_api_assistant_chat_endpoint_success():
 
     finally:
         app.dependency_overrides.clear()
+
+
+def test_assistant_route_passes_authenticated_user_to_service():
+    from app.routers.assistant import chat_with_assistant
+
+    request = AssistantChatRequest(message="Summarize my uploaded evidence.")
+    current_user = {"user_id": 42, "role": "citizen"}
+    db = MagicMock()
+    service_response = object()
+
+    with patch(
+        "app.routers.assistant.LegalAssistantService.chat",
+        return_value=service_response,
+    ) as chat:
+        response = chat_with_assistant(
+            request=request,
+            db=db,
+            current_user=current_user,
+        )
+
+    assert response is service_response
+    chat.assert_called_once_with(db=db, request=request, current_user=current_user)
+
+
+def test_assistant_stream_route_passes_authenticated_user_to_service():
+    from app.routers.assistant import stream_chat_with_assistant
+
+    request = AssistantChatRequest(message="Summarize my uploaded evidence.")
+    current_user = {"user_id": 42, "role": "citizen"}
+    db = MagicMock()
+    service_response = object()
+
+    with patch(
+        "app.routers.assistant.LegalAssistantService.chat",
+        return_value=service_response,
+    ) as chat:
+        response = stream_chat_with_assistant(
+            request=request,
+            db=db,
+            current_user=current_user,
+        )
+
+    assert response.media_type == "text/event-stream"
+    chat.assert_called_once_with(db=db, request=request, current_user=current_user)
 
 
 def test_api_assistant_chat_validation_empty_and_invalid():
@@ -694,7 +824,8 @@ def test_api_assistant_chat_validation_empty_and_invalid():
 def test_api_assistant_health_endpoint():
     """Asserts that GET /api/assistant/health returns operational status and provider details."""
     client = TestClient(app)
-    response = client.get("/api/assistant/health")
+    with patch("app.routers.assistant.check_llm_provider_readiness", return_value={"provider": "test (model)", "ready": True, "status": "ready"}):
+        response = client.get("/api/assistant/health")
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "operational"
@@ -770,7 +901,7 @@ def test_backward_compatibility_existing_endpoints_with_assistant():
             # 1. Health
             res_health = client.get("/health")
             assert res_health.status_code == 200
-            assert res_health.json()["status"] == "healthy"
+            assert res_health.json()["status"] == "alive"
 
             # 2. Root SPA / Application Entry Point
             res_root = client.get("/")
@@ -795,11 +926,13 @@ def test_backward_compatibility_existing_endpoints_with_assistant():
             assert res_rag.status_code == 200
 
             # 7. RAG Health
-            res_rag_health = client.get("/api/rag/health")
+            with patch("app.routers.rag.check_llm_provider_readiness", return_value={"provider": "test (model)", "ready": True, "status": "ready"}):
+                res_rag_health = client.get("/api/rag/health")
             assert res_rag_health.status_code == 200
 
             # 8. Assistant Health
-            res_asst_health = client.get("/api/assistant/health")
+            with patch("app.routers.assistant.check_llm_provider_readiness", return_value={"provider": "test (model)", "ready": True, "status": "ready"}):
+                res_asst_health = client.get("/api/assistant/health")
             assert res_asst_health.status_code == 200
 
         finally:

@@ -35,13 +35,33 @@ logger = logging.getLogger("vidhik.security.core")
 # ==============================================================================
 # CONFIGURATION
 # ==============================================================================
+def _validate_jwt_secret_configuration(
+    configured_secret: Optional[str] = None,
+    runtime_environment: Optional[str] = None,
+) -> None:
+    """Fail closed in production when no JWT signing secret is configured."""
+    if configured_secret is None:
+        configured_secret = os.getenv("JWT_SECRET_KEY")
+    if runtime_environment is None:
+        runtime_environment = os.getenv(
+            "APP_ENV", os.getenv("ENV", os.getenv("ENVIRONMENT", "development"))
+        )
+    is_render = os.getenv("RENDER", "").strip().lower() == "true"
+    is_production = runtime_environment.strip().lower() in ("production", "prod") or is_render
+    if is_production and not (
+        configured_secret and configured_secret.strip()
+    ):
+        raise RuntimeError("JWT_SECRET_KEY must be configured in production.")
+
+
+_validate_jwt_secret_configuration()
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "vidhik-production-jwt-signed-token-secret-2026-secure-key")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
 REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
 TWO_FACTOR_TOKEN_EXPIRE_MINUTES = 5
 
-TURNSTILE_SITE_KEY = os.getenv("TURNSTILE_SITE_KEY", "1x00000000000000000000AA")
+TURNSTILE_SITE_KEY = os.getenv("TURNSTILE_SITE_KEY", "0x4AAAAAAFRqp7Pnxaklfb2a")
 TURNSTILE_SECRET_KEY = os.getenv("TURNSTILE_SECRET_KEY", "1x0000000000000000000000000000000AA")
 TURNSTILE_EXPECTED_HOSTNAME = os.getenv("TURNSTILE_EXPECTED_HOSTNAME", "")
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
@@ -67,7 +87,8 @@ TEST_TURNSTILE_SECRET_KEYS = {
 def is_production_environment() -> bool:
     """Detects whether the application is running under production mode."""
     env = os.getenv("APP_ENV", os.getenv("ENV", os.getenv("ENVIRONMENT", "development"))).strip().lower()
-    return env in ("production", "prod")
+    is_render = os.getenv("RENDER", "").strip().lower() == "true"
+    return env in ("production", "prod") or is_render
 
 # In-memory GeoIP cache to minimize external network lookups
 _GEOIP_CACHE: Dict[str, Dict[str, str]] = {}

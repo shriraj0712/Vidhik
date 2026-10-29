@@ -32,10 +32,12 @@ from app.services.llm_provider import (
     BaseLLMProvider,
     OfflineMockLLMProvider,
     GeminiLLMProvider,
+    LLMProviderError,
     get_llm_provider
 )
 from app.services.rag_service import LegalRAGService
 from app.services.query_service import LegalQueryService
+from app.services.search_service import LegalSearchService, CandidateRetrievalError
 
 
 class MockSuccessLLMProvider(BaseLLMProvider):
@@ -45,6 +47,8 @@ class MockSuccessLLMProvider(BaseLLMProvider):
         return "test_success_provider"
 
     def generate(self, prompt: str, system_instruction: str, temperature: float = 0.1, max_output_tokens: int = 1500) -> str:
+        if "Section: Section 54" in prompt:
+            return "Under Section 54 of the Transfer of Property Act, a sale transfers ownership for a price."
         return (
             "Under Section 73 of the Indian Contract Act, 1872, the party suffering from a breach of contract "
             "is entitled to receive compensation for any loss or damage naturally arising from such breach."
@@ -59,6 +63,31 @@ class MockFailingLLMProvider(BaseLLMProvider):
 
     def generate(self, prompt: str, system_instruction: str, temperature: float = 0.1, max_output_tokens: int = 1500) -> str:
         raise RuntimeError("CRITICAL_INTERNAL_MODEL_PROVIDER_TIMEOUT_503")
+
+
+class OfflineConstitutionCursor:
+    """Small cursor double that exercises the non-mock unified knowledge path."""
+
+    def execute(self, _sql, _params=None):
+        return None
+
+    def fetchall(self):
+        return []
+
+
+class ConstitutionReferenceProvider(BaseLLMProvider):
+    """Returns a restrained response so tests focus on retrieved authority."""
+
+    @property
+    def provider_name(self) -> str:
+        return "constitution_reference_test_provider"
+
+    def generate(self, prompt: str, system_instruction: str, temperature: float = 0.1, max_output_tokens: int = 1500) -> str:
+        return (
+            "The six Fundamental Rights categories are equality under Article 14, freedom under Article 19, "
+            "protection against exploitation under Articles 23 and 24, freedom of religion under Article 25, "
+            "cultural and educational rights under Articles 29 and 30, and constitutional remedies under Article 32."
+        )
 
 
 # ==============================================================================
@@ -278,7 +307,7 @@ def test_rag_service_successful_retrieval_and_llm_success():
     assert "breach-of-contract" in response.retrieval_metadata.query_terms_matched
 
 
-def test_rag_service_llm_failure_state():
+def test_rag_service_llm_failure_state(caplog):
     """
     CRITICAL TEST: When LLM provider fails, asserts that:
     1. is_grounded is FALSE (must NOT falsely claim AI synthesis succeeded).
@@ -337,6 +366,49 @@ def test_rag_service_llm_failure_state():
     assert "CRITICAL_INTERNAL_MODEL_PROVIDER_TIMEOUT_503" not in response.answer
     assert "automated AI synthesis could not be completed at this time" in response.answer
     assert "authoritative statutory provisions and official citations are provided below" in response.answer
+    assert "provider=test_failing_provider" in caplog.text
+    assert "failure_category=provider_error" in caplog.text
+    assert "correlation_id=" in caplog.text
+    assert "CRITICAL_INTERNAL_MODEL_PROVIDER_TIMEOUT_503" not in caplog.text
+
+
+def test_provider_configuration_failure_returns_sources_and_sanitized_fallback(monkeypatch, caplog):
+    from app.services.llm_provider import LLMProviderConfigurationError
+
+    mock_cursor = MagicMock()
+    mock_cursor.fetchall.side_effect = [[], [{
+        "section_id": 101,
+        "law_id": 1,
+        "law_name": "The Indian Contract Act, 1872",
+        "short_name": "Contract Act",
+        "section_number": "73",
+        "section_title": "Compensation for breach",
+        "description": "Compensation for breach",
+        "full_text": "When a contract has been broken, the party who suffers by such breach is entitled to receive compensation.",
+        "section_uid": "indian-contract-act-1872-sec-73",
+        "jurisdiction": "Central",
+        "source_pdf": "A1872-09.pdf",
+        "source_page_start": 25,
+        "source_page_end": 26,
+        "manual_review_required": False,
+    }]]
+    mock_cursor.fetchone.return_value = {"total": 1}
+    monkeypatch.setattr(
+        "app.services.rag_service.get_llm_provider",
+        lambda: (_ for _ in ()).throw(LLMProviderConfigurationError("missing_gemini_api_key")),
+    )
+
+    response = LegalRAGService.query(
+        db=mock_cursor,
+        request=RAGQueryRequest(query="breach of contract", language="en"),
+    )
+
+    assert response.confidence == "synthesis_failed"
+    assert response.is_grounded is False
+    assert response.sources and response.sources[0].section_number == "73"
+    assert "automated AI synthesis could not be completed" in response.answer
+    assert "Article 73" not in response.answer
+    assert "failure_category=missing_gemini_api_key" in caplog.text
 
 
 def test_rag_service_zero_database_results():
@@ -357,6 +429,388 @@ def test_rag_service_zero_database_results():
     assert len(response.sources) == 0
     assert len(response.retrieved_sections) == 0
     assert response.retrieval_metadata.total_candidates_found == 0
+
+
+def test_rag_retrieves_real_constitution_articles_for_fundamental_rights_question(monkeypatch):
+    """Exercises real Constitution JSON through unified search, ranking, and RAG context."""
+    from app.services.knowledge_service import LegalKnowledgeService
+
+    monkeypatch.setattr(LegalKnowledgeService, "_constitution_cache", None)
+    request = RAGQueryRequest(
+        query="What are the fundamental rights guaranteed by the Constitution of India?",
+        language="en",
+        max_sections=5,
+    )
+
+    response = LegalRAGService.query(
+        db=OfflineConstitutionCursor(),
+        request=request,
+        provider=ConstitutionReferenceProvider(),
+    )
+
+    assert response.is_grounded is True
+    assert response.confidence in {"grounded_high", "grounded_medium"}
+    assert response.retrieval_metadata.total_candidates_found > 0
+    assert response.retrieval_metadata.sections_used == 8
+    constitution_sources = [s for s in response.sources if s.law_name == "Constitution of India"]
+    assert constitution_sources
+    assert any(s.section_number == "Article 14" for s in constitution_sources)
+    assert all(s.source_pdf == "Constitution of India.pdf" for s in constitution_sources)
+    assert all(s.source_page_start is None and s.source_page_end is None for s in constitution_sources)
+    assert any(
+        section.section_number == "Article 14"
+        and "equality before the law" in section.section_text.lower()
+        for section in response.retrieved_sections
+    )
+    assert "equality under Article 14" in response.answer
+    assert "constitutional remedies under Article 32" in response.answer
+    assert {f"Article {number}" for number in ("14", "19", "23", "24", "25", "29", "30", "32")} <= {
+        section.section_number for section in response.retrieved_sections
+    }
+
+
+def test_grounding_validator_rejects_empty_and_unretrieved_citations():
+    from app.services.rag_service import (
+        GroundingValidationError,
+        _validate_fundamental_rights_overview,
+        _validate_generated_citations,
+    )
+
+    source = LegalSourceCitation(
+        law_id=1000,
+        law_name="Constitution of India",
+        section_id=80014,
+        section_number="Article 14",
+    )
+    section = RetrievedSectionContext(
+        law_id=1000,
+        law_name="Constitution of India",
+        section_id=80014,
+        section_number="Article 14",
+        section_title="Equality before law",
+        section_text="The State shall not deny to any person equality before the law.",
+        relevance_rank=1,
+        source=source,
+    )
+
+    with pytest.raises(GroundingValidationError, match="empty_output"):
+        _validate_generated_citations("  ", [section])
+    with pytest.raises(GroundingValidationError, match="citation_not_retrieved"):
+        _validate_generated_citations("The freedom is protected by Article 19.", [section])
+    with pytest.raises(GroundingValidationError, match="citation_not_retrieved"):
+        _validate_generated_citations("Equality and freedom are in Articles 14 and 19.", [section])
+    citations = _validate_generated_citations("Equality is protected by Article 14.", [section])
+    assert citations == {("article", "14")}
+    with pytest.raises(GroundingValidationError, match="non_exhaustive_claim"):
+        _validate_fundamental_rights_overview("A comprehensive list of rights.", citations)
+    with pytest.raises(GroundingValidationError, match="non_exhaustive_claim"):
+        _validate_fundamental_rights_overview("This is a complete overview of the rights.", citations)
+    with pytest.raises(GroundingValidationError, match="fundamental_rights_category_omitted"):
+        _validate_fundamental_rights_overview("Equality is protected by Article 14.", citations)
+
+
+def test_fundamental_rights_ranking_uses_part_metadata_and_text_not_article_numbers(monkeypatch):
+    """Part III and provision text rank above out-of-scope Article 6 without ID boosts."""
+    from app.services.knowledge_service import LegalKnowledgeService
+
+    monkeypatch.setattr(LegalKnowledgeService, "_constitution_cache", None)
+    results = LegalKnowledgeService.search_unified(
+        "What are the fundamental rights guaranteed by the Constitution of India?",
+        limit=20,
+    )
+    top_article_numbers = [str(result.get("article_number")) for result in results[:8]]
+    chapter_by_article = {
+        str(article.get("article_number")): article.get("chapter", "")
+        for article in LegalKnowledgeService._constitution_cache or []
+    }
+
+    assert "6" not in top_article_numbers
+    assert {"14", "19", "23", "24", "25", "29", "30", "32"}.issubset(set(top_article_numbers))
+    assert all("Part III - Fundamental Rights" in chapter_by_article[number] for number in top_article_numbers)
+
+
+@pytest.mark.parametrize(
+    ("question", "supporting_articles", "text_evidence"),
+    [
+        ("Which Fundamental Rights protect equality before the law?", {"14"}, "equality before the law"),
+        ("Which Fundamental Rights protect freedom of speech and movement?", {"19"}, "freedom of speech"),
+        ("Which Fundamental Rights prohibit exploitation and child labour?", {"23", "24"}, "forced labour"),
+        ("Which Fundamental Rights protect freedom of religion?", {"25"}, "religion"),
+        ("Which Fundamental Rights protect culture and education?", {"29", "30"}, "educational institutions"),
+        ("Which Fundamental Rights provide constitutional remedies?", {"32"}, "remedies for enforcement"),
+    ],
+)
+def test_category_specific_fundamental_rights_questions_retrieve_supporting_articles(
+    monkeypatch, question, supporting_articles, text_evidence
+):
+    from app.services.knowledge_service import LegalKnowledgeService
+
+    monkeypatch.setattr(LegalKnowledgeService, "_constitution_cache", None)
+    results = LegalKnowledgeService.search_unified(question, limit=25)
+    article_numbers = {str(result.get("article_number")) for result in results[:8]}
+    part_three_numbers = {
+        str(article.get("article_number"))
+        for article in LegalKnowledgeService._constitution_cache or []
+        if "part iii - fundamental rights" in str(article.get("chapter", "")).lower()
+    }
+
+    assert supporting_articles <= article_numbers
+    assert article_numbers <= part_three_numbers
+    assert any(
+        str(result.get("article_number")) in supporting_articles
+        and text_evidence in (str(result.get("section_title", "")) + " " + str(result.get("full_text", ""))).lower()
+        for result in results[:8]
+    )
+
+
+def test_gemini_http_failure_has_safe_category_and_status(monkeypatch, caplog):
+    """Provider diagnostics classify HTTP failure without logging body or key."""
+    import io
+    import urllib.error
+    from app.services import llm_provider
+
+    secret_key = "test-only-secret-key"
+    private_body = b"private provider error payload"
+
+    def fail_request(req, timeout):
+        raise urllib.error.HTTPError(req.full_url, 403, "forbidden", None, io.BytesIO(private_body))
+
+    monkeypatch.setattr(llm_provider.urllib.request, "urlopen", fail_request)
+    provider = GeminiLLMProvider(api_key=secret_key, model="gemini-1.5-flash")
+
+    with pytest.raises(LLMProviderError) as exc_info:
+        provider.generate("private question", "private instruction")
+
+    assert exc_info.value.failure_category == "authentication_or_permission"
+    assert exc_info.value.http_status == 403
+    assert str(exc_info.value) == "LLM provider request failed."
+    assert secret_key not in caplog.text
+    assert "private provider error payload" not in caplog.text
+
+
+def test_gemini_retired_configured_model_falls_back_to_supported_model(monkeypatch):
+    """A retired configured model can recover through the current supported fallback."""
+    import io
+    import urllib.error
+    from app.services import llm_provider
+
+    attempted_models = []
+
+    class CompletionResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def read(self):
+            return b'{"candidates": [{"content": {"parts": [{"text": "synthesized"}]}}]}'
+
+    def respond(req, timeout):
+        model = req.full_url.split("/models/", 1)[1].split(":", 1)[0]
+        attempted_models.append(model)
+        if model == "gemini-1.5-flash":
+            raise urllib.error.HTTPError(req.full_url, 404, "not found", None, io.BytesIO(b""))
+        return CompletionResponse()
+
+    monkeypatch.setattr(llm_provider.urllib.request, "urlopen", respond)
+    provider = GeminiLLMProvider(api_key="test-key", model="gemini-1.5-flash")
+
+    answer = provider.generate("test question", "test instruction")
+
+    assert answer == "synthesized"
+    assert attempted_models == ["gemini-1.5-flash", "gemini-3.8-flash"]
+
+
+def test_gemini_38_request_omits_unsupported_sampling_parameters(monkeypatch):
+    """Gemini 3.8 REST payload uses only supported generation configuration."""
+    import json
+    from app.services import llm_provider
+
+    captured = {}
+
+    class CompletionResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def read(self):
+            return b'{"candidates": [{"content": {"parts": [{"text": "synthesized"}]}}]}'
+
+    def capture_request(req, timeout):
+        captured["url"] = req.full_url
+        captured["method"] = req.get_method()
+        captured["headers"] = dict(req.header_items())
+        captured["body"] = json.loads(req.data.decode("utf-8"))
+        return CompletionResponse()
+
+    monkeypatch.setattr(llm_provider.urllib.request, "urlopen", capture_request)
+    provider = GeminiLLMProvider(api_key="test-key", model="gemini-3.8-flash")
+
+    assert provider.generate("question text", "system instruction", temperature=0.1) == "synthesized"
+    payload = captured["body"]
+    generation_config = payload["generationConfig"]
+
+    assert captured["method"] == "POST"
+    assert "/v1beta/models/gemini-3.8-flash:generateContent" in captured["url"]
+    assert generation_config == {"maxOutputTokens": 1500}
+    assert not {"temperature", "topP", "topK", "candidateCount"} & set(generation_config)
+    assert payload["system_instruction"]["parts"][0]["text"] == "system instruction"
+    assert payload["contents"][0]["parts"][0]["text"] == "question text"
+
+
+def test_gemini_malformed_success_response_is_a_provider_failure(monkeypatch):
+    """A successful HTTP response with no completion is not accepted as synthesis."""
+    from app.services import llm_provider
+
+    class EmptyCompletionResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def read(self):
+            return b'{"candidates": []}'
+
+    monkeypatch.setattr(llm_provider.urllib.request, "urlopen", lambda *_args, **_kwargs: EmptyCompletionResponse())
+    provider = GeminiLLMProvider(api_key="test-key", model="gemini-1.5-flash")
+
+    with pytest.raises(LLMProviderError) as exc_info:
+        provider.generate("test question", "test instruction")
+
+    assert exc_info.value.failure_category == "malformed_response"
+    assert exc_info.value.http_status is None
+
+
+def test_unified_constitution_candidates_respect_law_and_jurisdiction_filters():
+    """Static Constitution candidates cannot bypass explicit retrieval filters."""
+    db = OfflineConstitutionCursor()
+
+    unrelated_law, unrelated_total, _ = LegalSearchService.retrieve_ranked_candidates(
+        db=db,
+        query="What are the fundamental rights guaranteed by the Constitution of India?",
+        law_id=9999,
+    )
+    wrong_jurisdiction, wrong_jurisdiction_total, _ = LegalSearchService.retrieve_ranked_candidates(
+        db=db,
+        query="What are the fundamental rights guaranteed by the Constitution of India?",
+        jurisdiction="Maharashtra",
+    )
+    matching_law, matching_total, _ = LegalSearchService.retrieve_ranked_candidates(
+        db=db,
+        query="What are the fundamental rights guaranteed by the Constitution of India?",
+        law_id=1000,
+        jurisdiction="India",
+    )
+
+    assert unrelated_law == [] and unrelated_total == 0
+    assert wrong_jurisdiction == [] and wrong_jurisdiction_total == 0
+    assert matching_total > 0
+    assert all(candidate["law_id"] == 1000 for candidate in matching_law)
+
+
+def test_candidate_retrieval_successful_empty_query_returns_zero_candidates():
+    """A successful SQL query with no rows remains an ordinary zero-result search."""
+    mock_cursor = MagicMock()
+    mock_cursor.fetchall.return_value = []
+
+    candidates, total, _ = LegalSearchService.retrieve_ranked_candidates(
+        db=mock_cursor,
+        query="unmatched provision phrase",
+    )
+
+    assert candidates == []
+    assert total == 0
+    assert mock_cursor.execute.call_count == 2  # lexicon analysis + candidate SQL
+
+
+def test_candidate_retrieval_sql_failure_is_not_a_zero_result(caplog):
+    """Candidate SQL failures are raised with a safe, non-sensitive error message."""
+    mock_cursor = MagicMock()
+    mock_cursor.fetchall.return_value = []
+    mock_cursor.execute.side_effect = [None, RuntimeError("sensitive SQL parameters")]
+
+    with pytest.raises(CandidateRetrievalError) as exc_info:
+        LegalSearchService.retrieve_ranked_candidates(
+            db=mock_cursor,
+            query="unmatched provision phrase",
+        )
+
+    assert str(exc_info.value) == "Legal candidate retrieval failed."
+    assert exc_info.value.__cause__ is None
+    assert "sensitive SQL parameters" not in caplog.text
+
+
+def test_candidate_enrichment_failure_is_not_hidden_when_unified_candidates_exist():
+    """A failed database enrichment query does not silently return partial KB results."""
+    class LocalCursor:
+        def __init__(self):
+            self.execute_count = 0
+
+        def execute(self, _sql, _params=None):
+            self.execute_count += 1
+            if self.execute_count == 2:
+                raise RuntimeError("sensitive SQL parameters")
+
+        def fetchall(self):
+            return []
+
+    unified_candidate = {
+        "law_id": 7,
+        "law_name": "Test Act",
+        "section_number": "1",
+        "section_title": "Test section",
+        "full_text": "Test statutory text.",
+    }
+
+    with patch(
+        "app.services.knowledge_service.LegalKnowledgeService.search_unified",
+        return_value=[unified_candidate],
+    ):
+        with pytest.raises(CandidateRetrievalError) as exc_info:
+            LegalSearchService.retrieve_ranked_candidates(
+                db=LocalCursor(),
+                query="unmatched provision phrase",
+            )
+
+    assert str(exc_info.value) == "Legal candidate retrieval failed."
+    assert exc_info.value.__cause__ is None
+
+
+def test_missing_constitution_asset_is_not_reported_as_no_context(monkeypatch, tmp_path):
+    """An absent packaged Constitution file surfaces as retrieval unavailable."""
+    from app.services.knowledge_service import LegalKnowledgeService
+
+    monkeypatch.setattr("app.services.knowledge_service.KB_DATA_DIR", tmp_path)
+    for cache_name in (
+        "_registry_cache", "_master_kb_cache", "_bns_cache", "_bnss_cache",
+        "_bsa_cache", "_pred_cache", "_judgments_cache", "_constitution_cache",
+        "_all_sections_cache", "_all_offences_cache", "_all_punishments_cache",
+        "_all_procedures_cache", "_all_evidence_cache"
+    ):
+        monkeypatch.setattr(LegalKnowledgeService, cache_name, None if cache_name != "_act_sections_cache" else {})
+
+    with pytest.raises(CandidateRetrievalError, match="Legal candidate retrieval failed"):
+        LegalRAGService.query(
+            db=OfflineConstitutionCursor(),
+            request=RAGQueryRequest(
+                query="What are the fundamental rights guaranteed by the Constitution of India?",
+                language="en",
+            ),
+            provider=ConstitutionReferenceProvider(),
+        )
+
+
+def test_docker_image_copies_constitution_knowledge_asset():
+    """The runtime path resolved by knowledge_service is included in the image."""
+    from pathlib import Path
+
+    repo_root = Path(__file__).resolve().parents[2]
+    dockerfile = (repo_root / "Dockerfile").read_text(encoding="utf-8")
+    assert "COPY data/knowledge_base/constitution_articles.json /app/data/knowledge_base/constitution_articles.json" in dockerfile
 
 
 def test_rag_service_multilingual_marathi_query():
@@ -481,18 +935,23 @@ def test_api_rag_query_endpoint_success():
     app.dependency_overrides[get_db] = lambda: mock_db
 
     try:
-        response = client.post(
-            "/api/rag/query",
-            json={
-                "query": "How is sale defined under transfer of property?",
-                "language": "en"
-            }
-        )
+        with patch(
+            "app.services.rag_service.get_llm_provider",
+            return_value=MockSuccessLLMProvider(),
+        ):
+            response = client.post(
+                "/api/rag/query",
+                json={
+                    "query": "How is sale defined under transfer of property?",
+                    "language": "en"
+                }
+            )
 
         assert response.status_code == 200
         data = response.json()
         assert data["query"] == "How is sale defined under transfer of property?"
         assert data["is_grounded"] is True
+        assert "Under Section 54" in data["answer"]
         assert len(data["sources"]) == 1
         assert data["sources"][0]["section_number"] == "54"
         assert data["sources"][0]["law_name"] == "The Transfer of Property Act, 1882"
@@ -518,7 +977,8 @@ def test_api_rag_query_empty_validation():
 def test_api_rag_health_endpoint():
     """Asserts that GET /api/rag/health returns operational status and provider metadata."""
     client = TestClient(app)
-    response = client.get("/api/rag/health")
+    with patch("app.routers.rag.check_llm_provider_readiness", return_value={"provider": "test (model)", "ready": True, "status": "ready"}):
+        response = client.get("/api/rag/health")
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "operational"
@@ -586,7 +1046,7 @@ def test_backward_compatibility_endpoints():
             # 1. Health
             res = client.get("/health")
             assert res.status_code == 200
-            assert res.json()["status"] == "healthy"
+            assert res.json()["status"] == "alive"
 
             # 2. Root SPA / Application Entry Point
             res_root = client.get("/")

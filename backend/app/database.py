@@ -15,6 +15,7 @@ import psycopg2
 from psycopg2.pool import ThreadedConnectionPool
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
+from urllib.parse import urlparse, unquote
 
 logger = logging.getLogger("vidhik.database")
 
@@ -22,15 +23,35 @@ logger = logging.getLogger("vidhik.database")
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
-DB_HOST = os.getenv("DB_HOST", "localhost")
-DB_PORT = int(os.getenv("DB_PORT", "5432"))
-DB_NAME = os.getenv("DB_NAME", "vidhik_db")
-DB_USER = os.getenv("DB_USER", "postgres")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
 
+DATABASE_URL = (
+    os.getenv("NEON_DATABASE_URL", "").strip()
+    or os.getenv("DATABASE_URL", "").strip()
+)
+NEON_DATABASE_URL = os.getenv("NEON_DATABASE_URL", "").strip()
+
+if NEON_DATABASE_URL:
+    DB_HOST = None
+    DB_PORT = None
+    DB_NAME = None
+    DB_USER = None
+    DB_PASSWORD = None
+    DB_CONNECTION_URL = NEON_DATABASE_URL
+else:
+    DB_HOST = os.getenv("DB_HOST", "localhost")
+    DB_PORT = int(os.getenv("DB_PORT", "5432"))
+    DB_NAME = os.getenv("DB_NAME", "vidhik_db")
+    DB_USER = os.getenv("DB_USER", "postgres")
+    DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
+    DB_CONNECTION_URL = None
+
+DB_SSLMODE = os.getenv(
+    "DB_SSLMODE",
+    "require" if DATABASE_URL else "prefer"
+)
 DB_MIN_CONN = int(os.getenv("DB_MIN_CONN", "1"))
 DB_MAX_CONN = int(os.getenv("DB_MAX_CONN", "10"))
-
+DB_CONNECT_TIMEOUT = max(1, int(os.getenv("DB_CONNECT_TIMEOUT", "5")))
 # Global connection pool reference
 _pool: Optional[ThreadedConnectionPool] = None
 
@@ -45,11 +66,14 @@ def run_startup_migrations():
 
     try:
         conn = psycopg2.connect(
+            DB_CONNECTION_URL,
             host=DB_HOST,
             port=DB_PORT,
             dbname=DB_NAME,
             user=DB_USER,
-            password=DB_PASSWORD
+            password=DB_PASSWORD,
+            sslmode=DB_SSLMODE,
+            connect_timeout=DB_CONNECT_TIMEOUT
         )
         conn.autocommit = True
         with conn.cursor() as cur:
@@ -58,7 +82,7 @@ def run_startup_migrations():
         conn.close()
         logger.info("Startup database migration 011 verified and applied successfully.")
     except Exception as e:
-        logger.warning(f"Could not apply startup migration: {e}")
+        logger.warning("Could not apply startup migration (error_type=%s).", type(e).__name__)
 
 
 def init_db_pool():
@@ -68,13 +92,17 @@ def init_db_pool():
         _pool = ThreadedConnectionPool(
             minconn=DB_MIN_CONN,
             maxconn=DB_MAX_CONN,
+            dsn=DB_CONNECTION_URL,
             host=DB_HOST,
             port=DB_PORT,
             dbname=DB_NAME,
             user=DB_USER,
-            password=DB_PASSWORD
+            password=DB_PASSWORD,
+            sslmode=DB_SSLMODE,
+            connect_timeout=DB_CONNECT_TIMEOUT
         )
-        run_startup_migrations()
+        if os.getenv("RUN_STARTUP_MIGRATIONS", "false").lower() == "true":
+            run_startup_migrations()
 
 
 def close_db_pool():
@@ -144,7 +172,8 @@ def check_db_connection() -> dict:
                 "version": row["version"].split(",")[0]
             }
     except Exception as e:
+        logger.warning("Database health check failed (error_type=%s).", type(e).__name__)
         return {
             "status": "error",
-            "error": str(e)
+            "error_type": type(e).__name__
         }

@@ -13,7 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pathlib import Path
 
-from app.database import init_db_pool, close_db_pool
+from app.database import close_db_pool
 from app.middleware import SecurityHeadersMiddleware, RateLimiterMiddleware
 from app.routers import (
     health_router,
@@ -46,15 +46,12 @@ from app.routers import (
     evidence_router
 )
 
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
-    Application lifespan manager.
-    Initializes database pool on startup and gracefully terminates on shutdown.
+    Keep HTTP startup independent from database and provider availability.
+    Dependencies are checked by the readiness endpoint and initialized lazily.
     """
-    init_db_pool()
     yield
     close_db_pool()
 
@@ -93,7 +90,6 @@ app = FastAPI(
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
-    redoc_js_url="https://cdn.jsdelivr.net/npm/redoc@2.1.5/bundles/redoc.standalone.js",
     lifespan=lifespan,
 )
 

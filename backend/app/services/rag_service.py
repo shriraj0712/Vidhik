@@ -14,7 +14,9 @@ Architecture & Flow:
 """
 
 import os
+import re
 import logging
+import uuid
 from typing import Optional, List, Dict, Any, Tuple
 from psycopg2.extras import RealDictCursor
 
@@ -27,9 +29,90 @@ from app.schemas.rag import (
 )
 from app.services.search_service import LegalSearchService
 from app.services.context_builder import LegalContextBuilder
-from app.services.llm_provider import BaseLLMProvider, get_llm_provider
+from app.services.llm_provider import (
+    BaseLLMProvider,
+    LLMProviderConfigurationError,
+    LLMProviderError,
+    get_llm_provider,
+)
 
 logger = logging.getLogger("vidhik.rag_service")
+
+
+class GroundingValidationError(ValueError):
+    """Generated text is empty, uncited, or cites a provision not retrieved."""
+
+
+def _validate_generated_citations(
+    answer: str,
+    retrieved_sections: List[RetrievedSectionContext],
+) -> set:
+    """Require explicit citations and reject article/section numbers outside context."""
+    if not isinstance(answer, str) or not answer.strip():
+        raise GroundingValidationError("empty_output")
+
+    allowed = set()
+    for section in retrieved_sections:
+        match = re.search(r"\b(Article|Section)\s+([0-9]+[a-z]?)\b", section.section_number, re.I)
+        if match:
+            allowed.add((match.group(1).lower(), match.group(2).lower()))
+        else:
+            kind = "article" if "constitution" in section.law_name.lower() else "section"
+            number = re.search(r"([0-9]+[a-z]?)", section.section_number, re.I)
+            if number:
+                allowed.add((kind, number.group(1).lower()))
+
+    normalized_answer = answer.translate(str.maketrans("०१२३४५६७८९", "0123456789"))
+    citation_matches = re.finditer(
+        r"\b(Articles?|Sections?|अनुच्छेद|कलम|धारा)\s+"
+        r"([0-9]+[a-z]?(?:(?:\s*(?:,|and|to|-)\s*)[0-9]+[a-z]?)*)",
+        normalized_answer,
+        re.I,
+    )
+    cited = []
+    for match in citation_matches:
+        kind = match.group(1).lower().rstrip("s")
+        translated_kind = {"अनुच्छेद": "article", "कलम": "section", "धारा": "section"}.get(kind, kind)
+        numbers = re.findall(r"[0-9]+[a-z]?", match.group(2), re.I)
+        if re.search(r"\b(?:to|-)\b", match.group(2), re.I) and len(numbers) == 2 and numbers[0].isdigit() and numbers[1].isdigit():
+            first, last = map(int, numbers)
+            numbers = [str(number) for number in range(first, min(last, first + 25) + 1)]
+        cited.extend((translated_kind, number.lower()) for number in numbers)
+    if not cited:
+        raise GroundingValidationError("missing_citation")
+    if any(citation not in allowed for citation in cited):
+        raise GroundingValidationError("citation_not_retrieved")
+    return set(cited)
+
+
+def _validate_fundamental_rights_overview(answer: str, cited: set) -> None:
+    """Require all six categories and their retrieved representative citations."""
+    normalized = answer.lower()
+    if re.search(
+        r"\b(?:comprehensive|exhaustive)\b"
+        r"|\b(?:complete|full)\s+(?:list|overview|coverage|account|summary)\b"
+        r"|\b(?:all|every)\s+(?:the\s+)?(?:fundamental\s+)?rights\b",
+        normalized,
+    ):
+        raise GroundingValidationError("non_exhaustive_claim")
+
+    category_requirements = (
+        ("equality", {("article", "14")}),
+        ("freedom", {("article", "19")}),
+        ("exploitation", {("article", "23"), ("article", "24")}),
+        ("religion", {("article", "25")}),
+        ("cultural and educational", {("article", "29"), ("article", "30")}),
+        ("remedies", {("article", "32")}),
+    )
+    for label, citation_options in category_requirements:
+        if label not in normalized:
+            raise GroundingValidationError("fundamental_rights_category_omitted")
+        required_citations = citation_options
+        if label == "exploitation":
+            if not cited.intersection(required_citations):
+                raise GroundingValidationError("fundamental_rights_category_uncited")
+        elif not required_citations.issubset(cited):
+            raise GroundingValidationError("fundamental_rights_category_uncited")
 
 
 SYSTEM_LEGAL_INSTRUCTION = """You are VIDHIK AI, an authoritative, high-precision legal research intelligence assistant for Indian Statutory Law.
@@ -70,13 +153,18 @@ class LegalRAGService:
         lang = (request.language or "en").lower().strip()
         if lang not in ("en", "mr", "hi"):
             lang = "en"
+        is_broad_fundamental_rights_query = bool(
+            re.search(r"\b(?:fundamental|constitutional)\s+rights?\b", clean_q, re.I)
+        )
+        requested_sections = request.max_sections or 8
+        context_section_limit = max(requested_sections, 8) if is_broad_fundamental_rights_query else requested_sections
 
         # -------------------------------------------------------------
         # STEP 1: Candidate Retrieval & Ranking via Existing Search Infrastructure
         # (Reuses LegalSearchService.retrieve_ranked_candidates which encapsulates
         # LegalQueryService multilingual matching, search SQL, and LegalRankingService)
         # -------------------------------------------------------------
-        candidate_pool_limit = max(request.max_sections * 5, 50)
+        candidate_pool_limit = max(context_section_limit * 5, 50)
         ranked_candidates, total_candidates, query_analysis = LegalSearchService.retrieve_ranked_candidates(
             db=db,
             query=clean_q,
@@ -134,7 +222,8 @@ class LegalRAGService:
         # -------------------------------------------------------------
         retrieved_sections, source_citations, prompt_context_str = LegalContextBuilder.build_context(
             ranked_candidates=ranked_candidates,
-            max_sections=10
+            max_sections=context_section_limit,
+            max_context_chars=6000
         )
 
         if not retrieved_sections or not prompt_context_str.strip():
@@ -159,8 +248,6 @@ class LegalRAGService:
         # -------------------------------------------------------------
         # STEP 4: Execute Grounded Generation via LLM Provider
         # -------------------------------------------------------------
-        active_provider = provider or get_llm_provider()
-
         language_instruction = {
             "en": "Generate the answer in clear, professional English.",
             "mr": "कृपया खालील कायदेशीर संदर्भाचा आधार घेऊन उत्तर स्पष्ट मराठीत द्या. कलमे आणि कायदे अचूक नमूद करा.",
@@ -190,19 +277,40 @@ class LegalRAGService:
             f"3. Plain Legal Explanation: Break down the legal rights, remedies, procedures, or offences in plain language.\n"
             f"4. Important Conditions & Safeguards: Mention key exceptions, prerequisites, or procedural conditions.\n"
             f"5. Actionable Next Steps: Provide practical guidance on what the person should do.\n"
+            f"For a general question about Fundamental Rights, explain the six categories: equality, freedom, protection against exploitation, freedom of religion, cultural and educational rights, and constitutional remedies. Cite only retrieved Articles that support each category; use Articles 23 and 24 for exploitation, and Articles 29 and 30 for cultural and educational rights when retrieved; state when retrieved support is insufficient. Treat these as representative provisions and state that the overview is not exhaustive; do not imply every right, limitation, or exception is covered.\n"
             f"Never hallucinate or fabricate sections, articles, penalties, or procedures."
         )
 
         synthesis_succeeded = True
+        correlation_id = uuid.uuid4().hex
+        active_provider: Optional[BaseLLMProvider] = None
         try:
+            # Provider construction can fail on missing/invalid deployment config;
+            # treat it as synthesis failure so retrieved authorities remain usable.
+            active_provider = provider or get_llm_provider()
             generated_answer = active_provider.generate(
                 prompt=user_prompt,
                 system_instruction=SYSTEM_LEGAL_INSTRUCTION,
                 temperature=request.temperature or 0.1
             )
+            generated_citations = _validate_generated_citations(generated_answer, retrieved_sections)
+            if is_broad_fundamental_rights_query:
+                _validate_fundamental_rights_overview(generated_answer, generated_citations)
         except Exception as e:
-            # Internal logging of technical exception details
-            logger.error("LLM synthesis provider encountered an error: %s", e, exc_info=True)
+            failure_category = (
+                e.failure_category if isinstance(e, (LLMProviderError, LLMProviderConfigurationError)) else (
+                    "grounding_validation" if isinstance(e, GroundingValidationError) else "provider_error"
+                )
+            )
+            http_status = e.http_status if isinstance(e, LLMProviderError) else None
+            logger.error(
+                "LLM synthesis failed (provider=%s, failure_category=%s, error_type=%s, http_status=%s, correlation_id=%s).",
+                active_provider.provider_name if active_provider else "unavailable",
+                failure_category,
+                type(e).__name__,
+                http_status,
+                correlation_id
+            )
             synthesis_succeeded = False
             
             # Safe generic user-facing message (no raw exception or stack trace leakage)
@@ -221,7 +329,15 @@ class LegalRAGService:
                     "प्रत्यक्ष समीक्षा के लिए प्रामाणिक धाराएं और संदर्भ नीचे दिए गए हैं।"
                 )
             }.get(lang, "Authoritative statutory provisions were retrieved, but automated synthesis failed.")
-            generated_answer = fail_text
+            source_lines = [
+                f"- {section.law_name}, {section.section_number}"
+                + (f" — {section.section_title}" if section.section_title else "")
+                for section in retrieved_sections
+            ]
+            generated_answer = fail_text + (
+                "\n\nRetrieved authoritative provisions:\n" + "\n".join(source_lines)
+                if source_lines else "\n\nNo authoritative provision text was available to cite."
+            )
 
         # -------------------------------------------------------------
         # STEP 5: Final Response Packaging
